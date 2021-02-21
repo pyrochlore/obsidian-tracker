@@ -1,11 +1,11 @@
 {
-  "name": "obsidian-sample-plugin",
+  "name": "obsidian-tags-stat",
   "version": "0.9.7",
-  "description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+  "description": "",
   "main": "main.js",
   "scripts": {
-    "dev": "rollup --config rollup.config.js -w",
-    "build": "rollup --config rollup.config.js"
+    "dev": "rollup --config rollup.config.dev.js -w",
+    "build": "rollup --config rollup.config.prod.js"
   },
   "keywords": [],
   "author": "",

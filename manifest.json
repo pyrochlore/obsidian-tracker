@@ -1,10 +1,10 @@
 {
-	"id": "obsidian-sample-plugin",
-	"name": "Sample Plugin",
+	"id": "obsidian-tags-stat",
+	"name": "Tags Stat",
 	"version": "1.0.1",
 	"minAppVersion": "0.9.12",
-	"description": "This is a sample plugin for Obsidian. This plugin demonstrates some of the capabilities of the Obsidian API.",
+	"description": "",
 	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md/about",
+	"authorUrl": "",
 	"isDesktopOnly": false
 }
