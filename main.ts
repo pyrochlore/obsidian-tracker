@@ -1,15 +1,18 @@
 import { App, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { MarkdownPostProcessor, MarkdownPostProcessorContext, MarkdownPreviewRenderer } from 'obsidian';
 
-interface MyPluginSettings {
+import * as Yaml from 'yaml';
+
+interface TagsStatSettings {
 	mySetting: string;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
+const DEFAULT_SETTINGS: TagsStatSettings = {
 	mySetting: 'default'
 }
 
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+export default class TagsStat extends Plugin {
+	settings: TagsStatSettings;
 
 	async onload() {
 		console.log('loading plugin');
@@ -32,7 +35,7 @@ export default class MyPlugin extends Plugin {
 				let leaf = this.app.workspace.activeLeaf;
 				if (leaf) {
 					if (!checking) {
-						new SampleModal(this.app).open();
+						new TagsStatModal(this.app).open();
 					}
 					return true;
 				}
@@ -40,7 +43,7 @@ export default class MyPlugin extends Plugin {
 			}
 		});
 
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+		this.addSettingTab(new TagsStatSettingTab(this.app, this));
 
 		this.registerCodeMirror((cm: CodeMirror.Editor) => {
 			console.log('codemirror', cm);
@@ -51,10 +54,14 @@ export default class MyPlugin extends Plugin {
 		});
 
 		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
+	
+		MarkdownPreviewRenderer.registerPostProcessor(TagsStat.postprocessor)
 	}
 
 	onunload() {
 		console.log('unloading plugin');
+
+		MarkdownPreviewRenderer.unregisterPostProcessor(TagsStat.postprocessor)
 	}
 
 	async loadSettings() {
@@ -64,9 +71,27 @@ export default class MyPlugin extends Plugin {
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}
+
+	static postprocessor: MarkdownPostProcessor = (el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
+		
+		const blockToReplace = el.querySelector('pre')
+		if (!blockToReplace) return;
+
+		const yamlBlock = blockToReplace.querySelector('code.language-tags-stat')
+		if (!yamlBlock) return;
+
+		const yaml = Yaml.parse(yamlBlock.textContent);
+		if (!yaml || !yaml.tagName || !yaml.chartType) return;
+		console.log(yaml);
+	
+		const destination = document.createElement('div');
+		destination.innerText = yaml.tagName;
+
+		el.replaceChild(destination, blockToReplace)
+	}
 }
 
-class SampleModal extends Modal {
+class TagsStatModal extends Modal {
 	constructor(app: App) {
 		super(app);
 	}
@@ -82,10 +107,10 @@ class SampleModal extends Modal {
 	}
 }
 
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
+class TagsStatSettingTab extends PluginSettingTab {
+	plugin: TagsStat;
 
-	constructor(app: App, plugin: MyPlugin) {
+	constructor(app: App, plugin: TagsStat) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
