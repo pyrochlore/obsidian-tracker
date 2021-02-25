@@ -1,8 +1,17 @@
 import { App, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 import { MarkdownPostProcessor, MarkdownPostProcessorContext, MarkdownPreviewRenderer } from 'obsidian';
-
+import { FileSystemAdapter, TFile, TFolder, normalizePath} from 'obsidian';
 import * as Yaml from 'yaml';
 import * as d3 from 'd3';
+
+type DataPoint = {
+	date: string,
+	value: number
+}
+
+class GraphInfo {
+	title: string
+}
 
 interface TagsStatSettings {
 	mySetting: string;
@@ -15,8 +24,15 @@ const DEFAULT_SETTINGS: TagsStatSettings = {
 export default class TagsStat extends Plugin {
 	settings: TagsStatSettings;
 
+	static app: App;
+	static plugin: TagsStat;
+	static rootPath: string;
+
 	async onload() {
 		console.log('loading plugin');
+		
+		TagsStat.app = this.app;
+		TagsStat.plugin = this;
 
 		await this.loadSettings();
 
@@ -73,7 +89,7 @@ export default class TagsStat extends Plugin {
 		await this.saveData(this.settings);
 	}
 
-	static plot(el: HTMLElement, tagName: string) {
+	static plot(el: HTMLElement, graphInfo: GraphInfo) {
 		let margin = {top: 10, right: 30, bottom: 60, left: 60};
     	let width = 460 - margin.left - margin.right;
     	let height = 400 - margin.top - margin.bottom;
@@ -85,11 +101,6 @@ export default class TagsStat extends Plugin {
 			.append("g")
 				.attr("transform",
 					"translate(" + margin.left + "," + margin.top + ")");
-
-			type DataPoint = {
-				date: string,
-				value: number
-			}
 
 			let data: DataPoint[] = [
 				{date: "2021-02-18", value: 10.35},
@@ -108,7 +119,7 @@ export default class TagsStat extends Plugin {
 
 			// Add caption
 			svg.append("text")
-				.text(tagName)
+				.text(graphInfo.title)
 				.attr("transform", "translate(" + width/2 + "," + height/10 + ")")
 				.style("text-anchor", "middle")
 				.style("stroke", "white");
@@ -136,7 +147,7 @@ export default class TagsStat extends Plugin {
 				.range([ height, 0 ]);
 			let yAxis = d3.axisLeft(yScale);
 			let yAxisGroup = svg.append("g").call(yAxis);
-	
+			
 			// Add line
 			let line = d3.line()
 				.x(function(p) { return xScale(parseTime(p.date)); })
@@ -150,8 +161,27 @@ export default class TagsStat extends Plugin {
 				.attr("d", line);
 	}
 
+	static getFilesInFolder(folder: TFolder): TFile[] {
+		let files: TFile[] = [];
+
+        for (let item of folder.children) {
+            if (item instanceof TFile) {
+                files.push(item);
+            }
+            else {
+                if (item instanceof TFolder) {
+                    files = files.concat(TagsStat.getFilesInFolder(item));
+                }
+                else {
+                    throw new Error("Unknown TAbstractFile type");
+                }
+            }
+        }
+        return files;
+	}
+
 	static postprocessor: MarkdownPostProcessor = (el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
-		
+
 		const blockToReplace = el.querySelector('pre')
 		if (!blockToReplace) return;
 
@@ -159,12 +189,36 @@ export default class TagsStat extends Plugin {
 		if (!yamlBlock) return;
 
 		const yaml = Yaml.parse(yamlBlock.textContent);
-		if (!yaml || !yaml.tagName || !yaml.chartType) return;
+		if (!yaml || !yaml.tagName) return;
 		console.log(yaml);
-	
+
+		//Prepare graph info
+		let graphInfo = new GraphInfo();
+		if (yaml.title && yaml.title !== "") {
+			graphInfo.title = yaml.title;
+		}
+		// Get files
+		let files: TFile[] = [];
+		if (yaml.folder && yaml.folder !== "") {
+			if (yaml.folder === "") {
+				files = files.concat(TagsStat.app.vault.getFiles());
+			}
+			else {
+				let folder = TagsStat.app.vault.getAbstractFileByPath(normalizePath(yaml.folder));
+				if (!folder) {
+					throw new Error(folder + " folder doesn't exist");
+				}
+				if (!(folder instanceof TFolder)) {
+					throw new Error(folder + " is a file, not a folder");
+				}
+				files = files.concat(TagsStat.getFilesInFolder(folder));
+			}
+		}
+		console.log(files);
+
 		const destination = document.createElement('div');
 
-		TagsStat.plot(destination, yaml.tagName);
+		TagsStat.plot(destination, graphInfo);
 
 		el.replaceChild(destination, blockToReplace)
 	}
