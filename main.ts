@@ -136,7 +136,7 @@ export default class TagsStat extends Plugin {
 			let xScale = d3.scaleTime()
 				.domain(xDomain)
 				.range([ 0, width ]);
-			let xAxis = d3.axisBottom(xScale).tickFormat(d3.timeFormat("%m/%d"));
+			let xAxis = d3.axisBottom(xScale).ticks(graphInfo.dates.length).tickFormat(d3.timeFormat("%m/%d"));
 			let xAxisGroup = svg.append("g");
 			xAxisGroup.attr("transform", "translate(0," + height + ")")
 				.call(xAxis)
@@ -155,17 +155,30 @@ export default class TagsStat extends Plugin {
 			let yAxis = d3.axisLeft(yScale);
 			let yAxisGroup = svg.append("g").call(yAxis);
 			
-			// Add line
+			// Add lines
 			let line = d3.line()
 				.x(function(p) { return xScale(p.date); })
 				.y(function(p) { return yScale(p.value); });
 
-			svg.append("path")
+			svg.append("g")
+				.append("path")
 				.datum(data)
 				.attr("fill", "none")
-				.attr("stroke", "steelblue")
+				.attr("stroke", "white")
 				.attr("stroke-width", 1.5)
 				.attr("d", line);
+
+			// Add dots
+			svg.append("g")
+				.selectAll("dot")
+				.data(data)
+				.enter().append("circle")
+				.attr("r", 3.5)
+				.attr("cx", function(p) { return xScale(p.date); })
+				.attr("cy", function(p) { return yScale(p.value); })
+				.attr("stroke", "#69b3a2")
+				.attr("stroke-width", 3)
+				.attr("fill", "#69b3a2");
 	}
 
 	static getFilesInFolder(folder: TFolder): TFile[] {
@@ -243,7 +256,7 @@ export default class TagsStat extends Plugin {
 			let match;
 			let tagMeasure = 0.0;
 			while (match = hashTagRegex.exec(content)) {
-				console.log(match);
+				// console.log(match);
 				if (match[0].includes(":")) {
 					// console.log("valued-tag");
 					let value = parseFloat(match.groups.number);
