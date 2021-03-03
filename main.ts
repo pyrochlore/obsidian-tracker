@@ -3,14 +3,26 @@ import { MarkdownPostProcessor, MarkdownPostProcessorContext, MarkdownPreviewRen
 import { FileSystemAdapter, TFile, TFolder, normalizePath} from 'obsidian';
 import * as Yaml from 'yaml';
 import * as d3 from 'd3';
+import * as fs from 'fs';
+import * as path from 'path';
 
 type DataPoint = {
-	date: string,
+	date: Date,
 	value: number
 }
 
 class GraphInfo {
-	title: string
+	title: string;
+	tagName: string;
+	dates: Date[];
+	tagMeasures: number[];
+
+	constructor (tagName: string) {
+		this.title = "";
+		this.tagName = tagName;
+		this.dates = [];
+		this.tagMeasures = [];
+	}
 }
 
 interface TagsStatSettings {
@@ -32,7 +44,11 @@ export default class TagsStat extends Plugin {
 		console.log('loading plugin');
 		
 		TagsStat.app = this.app;
-		TagsStat.plugin = this;
+
+		if (this.app.vault.adapter instanceof FileSystemAdapter) {
+			TagsStat.rootPath = this.app.vault.adapter.getBasePath();
+			// console.log(TagsStat.rootPath);
+		}
 
 		await this.loadSettings();
 
@@ -102,21 +118,12 @@ export default class TagsStat extends Plugin {
 				.attr("transform",
 					"translate(" + margin.left + "," + margin.top + ")");
 
-			let data: DataPoint[] = [
-				{date: "2021-02-18", value: 10.35},
-				{date: "2021-02-19", value: 32.84},
-				{date: "2021-02-20", value: 45.92},
-				{date: "2021-02-21", value: 76.8},
-				{date: "2021-02-22", value: 83.47},
-				{date: "2021-02-23", value: 99.39}
-			];
+			let data: DataPoint[] = [];
+			let i;
+			for (i = 0; i < graphInfo.dates.length; i++) {
+				data.push({date: graphInfo.dates[i], value: graphInfo.tagMeasures[i]});
+			} 
 			
-			let parseTime = d3.timeParse("%Y-%m-%d");
-			let dates = [];
-			for (let p of data) {
-				dates.push(parseTime(p.date));
-			}
-
 			// Add caption
 			svg.append("text")
 				.text(graphInfo.title)
@@ -125,7 +132,7 @@ export default class TagsStat extends Plugin {
 				.style("stroke", "white");
 
 			// Add X axis
-			let xDomain = d3.extent(dates);
+			let xDomain = d3.extent(graphInfo.dates);
 			let xScale = d3.scaleTime()
 				.domain(xDomain)
 				.range([ 0, width ]);
@@ -141,7 +148,7 @@ export default class TagsStat extends Plugin {
 				.style("text-anchor", "start");
 	
 			// Add Y axis
-			let yMax = d3.max(data, function(p) { return + p.value; });
+			let yMax = d3.max(graphInfo.tagMeasures);
 			let yScale = d3.scaleLinear()
 				.domain([0, yMax])
 				.range([ height, 0 ]);
@@ -150,7 +157,7 @@ export default class TagsStat extends Plugin {
 			
 			// Add line
 			let line = d3.line()
-				.x(function(p) { return xScale(parseTime(p.date)); })
+				.x(function(p) { return xScale(p.date); })
 				.y(function(p) { return yScale(p.value); });
 
 			svg.append("path")
@@ -190,18 +197,20 @@ export default class TagsStat extends Plugin {
 
 		const yaml = Yaml.parse(yamlBlock.textContent);
 		if (!yaml || !yaml.tagName) return;
-		console.log(yaml);
+		// console.log(yaml);
 
-		//Prepare graph info
-		let graphInfo = new GraphInfo();
-		if (yaml.title && yaml.title !== "") {
+		// Prepare graph info
+		let graphInfo = new GraphInfo(yaml.tagName);
+		graphInfo.tagName = yaml.tagName;
+		if (yaml.title) {
 			graphInfo.title = yaml.title;
 		}
+
 		// Get files
 		let files: TFile[] = [];
 		if (yaml.folder && yaml.folder !== "") {
 			if (yaml.folder === "") {
-				files = files.concat(TagsStat.app.vault.getFiles());
+				files = files.concat(TagsStat.app.vault.getMarkdownFiles());
 			}
 			else {
 				let folder = TagsStat.app.vault.getAbstractFileByPath(normalizePath(yaml.folder));
@@ -214,7 +223,41 @@ export default class TagsStat extends Plugin {
 				files = files.concat(TagsStat.getFilesInFolder(folder));
 			}
 		}
-		console.log(files);
+		// console.log(files);
+
+		// Get stats from files
+		for (let file of files) {
+			let fileBaseName = file.basename;
+			// console.log(fileBaseName);
+			let fileDate = d3.timeParse("%Y-%m-%d")(fileBaseName);
+			graphInfo.dates.push(fileDate);
+			// console.log(fileDate);
+
+			let filePath = path.join(TagsStat.rootPath, file.path);
+			// console.log(filePath);
+			
+			let content = fs.readFileSync(filePath, { encoding: "utf-8" });
+			// console.log(content);
+			let strHashtagRegex = "(^|\\s)#" + yaml.tagName + "(:(?<number>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?(\\s|$)";
+			let hashTagRegex = new RegExp(strHashtagRegex, "gm");
+			let match;
+			let tagMeasure = 0.0;
+			while (match = hashTagRegex.exec(content)) {
+				console.log(match);
+				if (match[0].includes(":")) {
+					// console.log("valued-tag");
+					let value = parseFloat(match.groups.number);
+					// console.log(value);
+					tagMeasure += value;
+				}
+				else {
+					// console.log("simple-tag");
+					tagMeasure = tagMeasure + 1.0;
+				}
+			}
+			graphInfo.tagMeasures.push(tagMeasure);
+		}	
+		// console.log(graphInfo);	
 
 		const destination = document.createElement('div');
 
