@@ -1,6 +1,6 @@
 
 ``` tags-stat
-folder: diary
+folder:
 tagName: weight
 title: Weight
 chartType: line

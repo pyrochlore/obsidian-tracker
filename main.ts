@@ -14,14 +14,12 @@ type DataPoint = {
 class GraphInfo {
 	title: string;
 	tagName: string;
-	dates: Date[];
-	tagMeasures: number[];
+	data: DataPoint[];
 
 	constructor (tagName: string) {
 		this.title = "";
 		this.tagName = tagName;
-		this.dates = [];
-		this.tagMeasures = [];
+		this.data = [];
 	}
 }
 
@@ -117,13 +115,7 @@ export default class TagsStat extends Plugin {
 			.append("g")
 				.attr("transform",
 					"translate(" + margin.left + "," + margin.top + ")");
-
-			let data: DataPoint[] = [];
-			let i;
-			for (i = 0; i < graphInfo.dates.length; i++) {
-				data.push({date: graphInfo.dates[i], value: graphInfo.tagMeasures[i]});
-			} 
-			
+	
 			// Add caption
 			svg.append("text")
 				.text(graphInfo.title)
@@ -132,11 +124,11 @@ export default class TagsStat extends Plugin {
 				.style("stroke", "white");
 
 			// Add X axis
-			let xDomain = d3.extent(graphInfo.dates);
+			let xDomain = d3.extent(graphInfo.data, function(p) { return p.date; });
 			let xScale = d3.scaleTime()
 				.domain(xDomain)
 				.range([ 0, width ]);
-			let xAxis = d3.axisBottom(xScale).ticks(graphInfo.dates.length).tickFormat(d3.timeFormat("%m/%d"));
+			let xAxis = d3.axisBottom(xScale).ticks(graphInfo.data.length).tickFormat(d3.timeFormat("%m/%d"));
 			let xAxisGroup = svg.append("g");
 			xAxisGroup.attr("transform", "translate(0," + height + ")")
 				.call(xAxis)
@@ -148,7 +140,7 @@ export default class TagsStat extends Plugin {
 				.style("text-anchor", "start");
 	
 			// Add Y axis
-			let yMax = d3.max(graphInfo.tagMeasures);
+			let yMax = d3.max(graphInfo.data, function(p) { return p.value; });
 			let yScale = d3.scaleLinear()
 				.domain([0, yMax])
 				.range([ height, 0 ]);
@@ -162,7 +154,7 @@ export default class TagsStat extends Plugin {
 
 			svg.append("g")
 				.append("path")
-				.datum(data)
+				.datum(graphInfo.data)
 				.attr("fill", "none")
 				.attr("stroke", "white")
 				.attr("stroke-width", 1.5)
@@ -171,7 +163,7 @@ export default class TagsStat extends Plugin {
 			// Add dots
 			svg.append("g")
 				.selectAll("dot")
-				.data(data)
+				.data(graphInfo.data)
 				.enter().append("circle")
 				.attr("r", 3.5)
 				.attr("cx", function(p) { return xScale(p.date); })
@@ -221,8 +213,9 @@ export default class TagsStat extends Plugin {
 
 		// Get files
 		let files: TFile[] = [];
-		if (yaml.folder && yaml.folder !== "") {
+		if (yaml.folder) {
 			if (yaml.folder === "") {
+				console.log("No user assigned folder");
 				files = files.concat(TagsStat.app.vault.getMarkdownFiles());
 			}
 			else {
@@ -236,6 +229,10 @@ export default class TagsStat extends Plugin {
 				files = files.concat(TagsStat.getFilesInFolder(folder));
 			}
 		}
+		else {
+			console.log("No user assigned folder")
+			files = files.concat(TagsStat.app.vault.getMarkdownFiles());
+		}
 		// console.log(files);
 
 		// Get stats from files
@@ -243,8 +240,8 @@ export default class TagsStat extends Plugin {
 			let fileBaseName = file.basename;
 			// console.log(fileBaseName);
 			let fileDate = d3.timeParse("%Y-%m-%d")(fileBaseName);
-			graphInfo.dates.push(fileDate);
 			// console.log(fileDate);
+			if (!fileDate) continue;
 
 			let filePath = path.join(TagsStat.rootPath, file.path);
 			// console.log(filePath);
@@ -268,7 +265,19 @@ export default class TagsStat extends Plugin {
 					tagMeasure = tagMeasure + 1.0;
 				}
 			}
-			graphInfo.tagMeasures.push(tagMeasure);
+
+			let newPoint: DataPoint = {
+				date: fileDate,
+				value: tagMeasure
+			};
+			graphInfo.data.push(newPoint);
+
+			// sort data by date
+			graphInfo.data = graphInfo.data.sort(
+				function (first, second) {
+					return 0 - (first.date > second.date ? -1 : 1);
+				}
+			);
 		}	
 		// console.log(graphInfo);	
 
