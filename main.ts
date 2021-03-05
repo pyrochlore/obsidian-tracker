@@ -273,8 +273,10 @@ export default class TagsStat extends Plugin {
 			let hashTagRegex = new RegExp(strHashtagRegex, "gm");
 			let match;
 			let tagMeasure = 0.0;
+			let tagExist = false;
 			while (match = hashTagRegex.exec(content)) {
 				// console.log(match);
+				tagExist = true;
 				if (match[0].includes(":")) {
 					// console.log("valued-tag");
 					let value = parseFloat(match.groups.number);
@@ -289,7 +291,12 @@ export default class TagsStat extends Plugin {
 
 			let newPoint = new DataPoint();
 			newPoint.date = fileDate;
-			newPoint.value = tagMeasure;
+			if (tagExist) {
+				newPoint.value = tagMeasure;
+			}
+			else {
+				newPoint.value = null;
+			}			
 			// console.log(newPoint);
 			
 			data.push(newPoint);
