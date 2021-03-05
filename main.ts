@@ -6,9 +6,9 @@ import * as d3 from 'd3';
 import * as fs from 'fs';
 import * as path from 'path';
 
-type DataPoint = {
-	date: Date,
-	value: number
+class DataPoint {
+	date: Date;
+	value: number | null;
 }
 
 class GraphInfo {
@@ -149,6 +149,7 @@ export default class TagsStat extends Plugin {
 			
 			// Add lines
 			let line = d3.line()
+				.defined(function(p) { return p.value; })
 				.x(function(p) { return xScale(p.date); })
 				.y(function(p) { return yScale(p.value); });
 
@@ -163,7 +164,7 @@ export default class TagsStat extends Plugin {
 			// Add dots
 			svg.append("g")
 				.selectAll("dot")
-				.data(graphInfo.data)
+				.data(graphInfo.data.filter(function(p) { return p.value != null; }))
 				.enter().append("circle")
 				.attr("r", 3.5)
 				.attr("cx", function(p) { return xScale(p.date); })
@@ -215,7 +216,7 @@ export default class TagsStat extends Plugin {
 		let files: TFile[] = [];
 		if (yaml.folder) {
 			if (yaml.folder === "") {
-				console.log("No user assigned folder");
+				// console.log("No user assigned folder");
 				files = files.concat(TagsStat.app.vault.getMarkdownFiles());
 			}
 			else {
@@ -230,18 +231,38 @@ export default class TagsStat extends Plugin {
 			}
 		}
 		else {
-			console.log("No user assigned folder")
+			// console.log("No user assigned folder")
 			files = files.concat(TagsStat.app.vault.getMarkdownFiles());
 		}
 		// console.log(files);
 
 		// Get stats from files
+		let minDate = new Date();
+		let maxDate = new Date();
+		let fileCounter = 0;
+		let data: DataPoint[] = [];
 		for (let file of files) {
 			let fileBaseName = file.basename;
 			// console.log(fileBaseName);
-			let fileDate = d3.timeParse("%Y-%m-%d")(fileBaseName);
+			let fileDateString = fileBaseName;
+			let fileDate = d3.timeParse("%Y-%m-%d")(fileDateString);
 			// console.log(fileDate);
 			if (!fileDate) continue;
+			fileCounter++;
+
+			// Get min/max date
+			if (fileCounter == 1) {
+				minDate = new Date(fileDate);
+				maxDate = new Date(fileDate);
+			}
+			else {
+				if (fileDate < minDate) {
+					minDate = new Date(fileDate);
+				}
+				if (fileDate > maxDate) {
+					maxDate = new Date(fileDate);
+				}
+			}
 
 			let filePath = path.join(TagsStat.rootPath, file.path);
 			// console.log(filePath);
@@ -266,19 +287,42 @@ export default class TagsStat extends Plugin {
 				}
 			}
 
-			let newPoint: DataPoint = {
-				date: fileDate,
-				value: tagMeasure
-			};
-			graphInfo.data.push(newPoint);
-
-			// sort data by date
-			graphInfo.data = graphInfo.data.sort(
-				function (first, second) {
-					return 0 - (first.date > second.date ? -1 : 1);
-				}
-			);
+			let newPoint = new DataPoint();
+			newPoint.date = fileDate;
+			newPoint.value = tagMeasure;
+			// console.log(newPoint);
+			
+			data.push(newPoint);
 		}	
+		// console.log(minDate);
+		// console.log(maxDate);
+		// console.log(data);
+
+		// Preprocess data
+		for (let curDate = minDate; curDate <= maxDate; curDate.setDate(curDate.getDate() + 1)) {
+			// console.log(curDate);
+			let dataPoint = data.find(
+				function(p) {
+					return (d3.timeFormat("%Y-%m-%d")(p.date) == d3.timeFormat("%Y-%m-%d")(curDate));
+			});
+			// console.log(dataPoint);
+			
+			if (dataPoint) {
+				// console.log("Add point");
+
+				graphInfo.data.push(dataPoint);
+			}
+			else {
+				// console.log("Add missing point");
+				
+				let newPoint = new DataPoint();
+				newPoint.date = new Date(curDate);
+				newPoint.value = null;
+
+				graphInfo.data.push(newPoint);
+			}
+		}
+
 		// console.log(graphInfo);	
 
 		const destination = document.createElement('div');
