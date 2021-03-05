@@ -3,21 +3,23 @@
 folder:
 tagName: weight
 title: Weight
-chartType: line
+output: line
 ```
 
 ``` tags-stat
 folder: diary
 tagName: meditation
 title: Meditation
-chartType: line
+output: bar
+accum: True
 ```
 
 ``` tags-stat
 folder: diary
 tagName: coding
 title: Coding
-chartType: line
+output: bar
+accum: True
 ```
 
 

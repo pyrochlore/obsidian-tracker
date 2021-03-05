@@ -15,11 +15,15 @@ class GraphInfo {
 	title: string;
 	tagName: string;
 	data: DataPoint[];
+	output: string;
+	accum: boolean;
 
 	constructor (tagName: string) {
 		this.title = "";
 		this.tagName = tagName;
 		this.data = [];
+		this.output = "line";
+		this.accum = false;
 	}
 }
 
@@ -103,75 +107,145 @@ export default class TagsStat extends Plugin {
 		await this.saveData(this.settings);
 	}
 
-	static plot(el: HTMLElement, graphInfo: GraphInfo) {
+	static plotLine(el: HTMLElement, graphInfo: GraphInfo) {
 		let margin = {top: 10, right: 30, bottom: 60, left: 60};
     	let width = 460 - margin.left - margin.right;
     	let height = 400 - margin.top - margin.bottom;
 
 		let svg = d3.select(el)
-			.append("svg")
-				.attr("width", width + margin.left + margin.right)
-				.attr("height", height + margin.top + margin.bottom)
-			.append("g")
-				.attr("transform",
-					"translate(" + margin.left + "," + margin.top + ")");
-	
-			// Add caption
-			svg.append("text")
-				.text(graphInfo.title)
-				.attr("transform", "translate(" + width/2 + "," + height/10 + ")")
-				.style("text-anchor", "middle")
-				.style("stroke", "white");
+		.append("svg")
+			.attr("width", width + margin.left + margin.right)
+			.attr("height", height + margin.top + margin.bottom)
+		.append("g")
+			.attr("transform",
+				"translate(" + margin.left + "," + margin.top + ")");
 
-			// Add X axis
-			let xDomain = d3.extent(graphInfo.data, function(p) { return p.date; });
-			let xScale = d3.scaleTime()
-				.domain(xDomain)
-				.range([ 0, width ]);
-			let xAxis = d3.axisBottom(xScale).ticks(graphInfo.data.length).tickFormat(d3.timeFormat("%m/%d"));
-			let xAxisGroup = svg.append("g");
-			xAxisGroup.attr("transform", "translate(0," + height + ")")
-				.call(xAxis)
-				.selectAll("text")
-				.attr("y", 0)
-				.attr("x", 9)
-				.attr("dy", ".35em")
-				.attr("transform", "rotate(90)")
-				.style("text-anchor", "start");
-	
-			// Add Y axis
-			let yMax = d3.max(graphInfo.data, function(p) { return p.value; });
-			let yScale = d3.scaleLinear()
-				.domain([0, yMax])
-				.range([ height, 0 ]);
-			let yAxis = d3.axisLeft(yScale);
-			let yAxisGroup = svg.append("g").call(yAxis);
-			
-			// Add lines
-			let line = d3.line()
-				.defined(function(p) { return p.value; })
-				.x(function(p) { return xScale(p.date); })
-				.y(function(p) { return yScale(p.value); });
+		// Add caption
+		svg.append("text")
+			.text(graphInfo.title)
+			.attr("transform", "translate(" + width/2 + "," + height/10 + ")")
+			.style("text-anchor", "middle")
+			.style("stroke", "white");
 
-			svg.append("g")
-				.append("path")
-				.datum(graphInfo.data)
-				.attr("fill", "none")
-				.attr("stroke", "white")
-				.attr("stroke-width", 1.5)
-				.attr("d", line);
+		// Add X axis
+		let xDomain = d3.extent(graphInfo.data, function(p) { return p.date; });
+		let xScale = d3.scaleTime()
+			.domain(xDomain)
+			.range([ 0, width ]);
 
-			// Add dots
-			svg.append("g")
-				.selectAll("dot")
-				.data(graphInfo.data.filter(function(p) { return p.value != null; }))
-				.enter().append("circle")
-				.attr("r", 3.5)
-				.attr("cx", function(p) { return xScale(p.date); })
-				.attr("cy", function(p) { return yScale(p.value); })
-				.attr("stroke", "#69b3a2")
-				.attr("stroke-width", 3)
-				.attr("fill", "#69b3a2");
+		let xAxis = d3.axisBottom(xScale).ticks(graphInfo.data.length).tickFormat(d3.timeFormat("%m/%d"));
+		let xAxisGroup = svg.append("g");
+		xAxisGroup.attr("transform", "translate(0," + height + ")")
+			.call(xAxis)
+			.selectAll("text")
+			.attr("y", 0)
+			.attr("x", 9)
+			.attr("dy", ".35em")
+			.attr("transform", "rotate(90)")
+			.style("text-anchor", "start");
+
+		// Add Y axis
+		let yMax = d3.max(graphInfo.data, function(p) { return p.value; });
+		let yScale = d3.scaleLinear()
+			.domain([0, yMax])
+			.range([ height, 0 ]);
+		let yAxis = d3.axisLeft(yScale);
+		let yAxisGroup = svg.append("g").call(yAxis);
+		
+		// Add lines
+		let line = d3.line()
+			.defined(function(p) { return p.value; })
+			.x(function(p) { return xScale(p.date); })
+			.y(function(p) { return yScale(p.value); });
+
+		svg.append("g")
+			.append("path")
+			.datum(graphInfo.data)
+			.attr("fill", "none")
+			.attr("stroke", "white")
+			.attr("stroke-width", 1.5)
+			.attr("d", line);
+
+		// Add dots
+		svg.append("g")
+			.selectAll("dot")
+			.data(graphInfo.data.filter(function(p) { return p.value != null; }))
+			.enter().append("circle")
+			.attr("r", 3.5)
+			.attr("cx", function(p) { return xScale(p.date); })
+			.attr("cy", function(p) { return yScale(p.value); })
+			.attr("stroke", "#69b3a2")
+			.attr("stroke-width", 3)
+			.attr("fill", "#69b3a2");
+	}
+
+	static plotBar(el: HTMLElement, graphInfo: GraphInfo) {
+		let margin = {top: 10, right: 30, bottom: 60, left: 60};
+    	let width = 460 - margin.left - margin.right;
+    	let height = 400 - margin.top - margin.bottom;
+
+		let svg = d3.select(el)
+		.append("svg")
+			.attr("width", width + margin.left + margin.right)
+			.attr("height", height + margin.top + margin.bottom)
+		.append("g")
+			.attr("transform",
+				"translate(" + margin.left + "," + margin.top + ")");
+
+		// Add caption
+		svg.append("text")
+			.text(graphInfo.title)
+			.attr("transform", "translate(" + width/2 + "," + height/10 + ")")
+			.style("text-anchor", "middle")
+			.style("stroke", "white");
+
+		let xDomain = graphInfo.data.map( function(p) { return d3.timeFormat("%m/%d")(p.date); });
+		let xScale = d3.scaleBand()
+			.domain(xDomain)
+			.range([ 0, width ]).padding(0.4);
+
+		//let xAxis = d3.axisBottom(xScale).ticks(graphInfo.data.length).tickFormat(d3.timeFormat("%m/%d"));
+		let xAxis = d3.axisBottom(xScale).ticks(graphInfo.data.length);
+		let xAxisGroup = svg.append("g");
+		xAxisGroup.attr("transform", "translate(0," + height + ")")
+			.call(xAxis)
+			.selectAll("text")
+			.attr("y", 0)
+			.attr("x", 9)
+			.attr("dy", ".35em")
+			.attr("transform", "rotate(90)")
+			.style("text-anchor", "start");
+
+		// Add Y axis
+		let yMax = d3.max(graphInfo.data, function(p) { return p.value; });
+		let yScale = d3.scaleLinear()
+			.domain([0, yMax])
+			.range([ height, 0 ]);
+		let yAxis = d3.axisLeft(yScale);
+		let yAxisGroup = svg.append("g").call(yAxis);
+
+		// Add bar
+		svg.append("g")
+			.selectAll("bar")
+			.data(graphInfo.data)
+			.enter()
+			.append("rect")
+			.attr("x", function(p) { return xScale(d3.timeFormat("%m/%d")(p.date)); })
+			.attr("y", function(p) { return yScale(p.value); })
+			.attr("width", xScale.bandwidth())
+			.attr("height", function(p) { return height - yScale(p.value); })
+			.attr("fill", "#69b3a2");
+	}
+
+	static plot(el: HTMLElement, graphInfo: GraphInfo) {
+		console.log(graphInfo.data);
+
+		if (graphInfo.output == "line") {
+			TagsStat.plotLine(el, graphInfo);
+		}
+		else if (graphInfo.output == "bar") {
+			TagsStat.plotBar(el, graphInfo);
+		}
 	}
 
 	static getFilesInFolder(folder: TFolder): TFile[] {
@@ -210,6 +284,12 @@ export default class TagsStat extends Plugin {
 		graphInfo.tagName = yaml.tagName;
 		if (yaml.title) {
 			graphInfo.title = yaml.title;
+		}
+		if (yaml.output) {
+			graphInfo.output = yaml.output;
+		}
+		if (yaml.accum) {
+			graphInfo.accum = yaml.accum;
 		}
 
 		// Get files
@@ -306,6 +386,7 @@ export default class TagsStat extends Plugin {
 		// console.log(data);
 
 		// Preprocess data
+		let tagMeasureAccum = 0.0;
 		for (let curDate = minDate; curDate <= maxDate; curDate.setDate(curDate.getDate() + 1)) {
 			// console.log(curDate);
 			let dataPoint = data.find(
@@ -317,6 +398,11 @@ export default class TagsStat extends Plugin {
 			if (dataPoint) {
 				// console.log("Add point");
 
+				if (graphInfo.accum) {
+					tagMeasureAccum = dataPoint.value + tagMeasureAccum;
+					dataPoint.value = tagMeasureAccum;
+				}
+
 				graphInfo.data.push(dataPoint);
 			}
 			else {
@@ -324,7 +410,13 @@ export default class TagsStat extends Plugin {
 				
 				let newPoint = new DataPoint();
 				newPoint.date = new Date(curDate);
-				newPoint.value = null;
+				if (graphInfo.accum) {
+					tagMeasureAccum = newPoint.value + tagMeasureAccum;
+					newPoint.value = tagMeasureAccum;
+				}
+				else {
+					newPoint.value = null;
+				}
 
 				graphInfo.data.push(newPoint);
 			}
