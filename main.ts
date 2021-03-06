@@ -27,29 +27,29 @@ class GraphInfo {
 	}
 }
 
-interface TagsStatSettings {
+interface TrackerSettings {
 	mySetting: string;
 }
 
-const DEFAULT_SETTINGS: TagsStatSettings = {
+const DEFAULT_SETTINGS: TrackerSettings = {
 	mySetting: 'default'
 }
 
-export default class TagsStat extends Plugin {
-	settings: TagsStatSettings;
+export default class Tracker extends Plugin {
+	settings: TrackerSettings;
 
 	static app: App;
-	static plugin: TagsStat;
+	static plugin: Tracker;
 	static rootPath: string;
 
 	async onload() {
 		console.log('loading plugin');
 		
-		TagsStat.app = this.app;
+		Tracker.app = this.app;
 
 		if (this.app.vault.adapter instanceof FileSystemAdapter) {
-			TagsStat.rootPath = this.app.vault.adapter.getBasePath();
-			// console.log(TagsStat.rootPath);
+			Tracker.rootPath = this.app.vault.adapter.getBasePath();
+			// console.log(Tracker.rootPath);
 		}
 
 		await this.loadSettings();
@@ -70,7 +70,7 @@ export default class TagsStat extends Plugin {
 				let leaf = this.app.workspace.activeLeaf;
 				if (leaf) {
 					if (!checking) {
-						new TagsStatModal(this.app).open();
+						new TrackerModal(this.app).open();
 					}
 					return true;
 				}
@@ -78,7 +78,7 @@ export default class TagsStat extends Plugin {
 			}
 		});
 
-		this.addSettingTab(new TagsStatSettingTab(this.app, this));
+		this.addSettingTab(new TrackerSettingTab(this.app, this));
 
 		this.registerCodeMirror((cm: CodeMirror.Editor) => {
 			console.log('codemirror', cm);
@@ -90,13 +90,13 @@ export default class TagsStat extends Plugin {
 
 		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
 	
-		MarkdownPreviewRenderer.registerPostProcessor(TagsStat.postprocessor)
+		MarkdownPreviewRenderer.registerPostProcessor(Tracker.postprocessor)
 	}
 
 	onunload() {
 		console.log('unloading plugin');
 
-		MarkdownPreviewRenderer.unregisterPostProcessor(TagsStat.postprocessor)
+		MarkdownPreviewRenderer.unregisterPostProcessor(Tracker.postprocessor)
 	}
 
 	async loadSettings() {
@@ -241,10 +241,10 @@ export default class TagsStat extends Plugin {
 		console.log(graphInfo.data);
 
 		if (graphInfo.output == "line") {
-			TagsStat.plotLine(el, graphInfo);
+			Tracker.plotLine(el, graphInfo);
 		}
 		else if (graphInfo.output == "bar") {
-			TagsStat.plotBar(el, graphInfo);
+			Tracker.plotBar(el, graphInfo);
 		}
 	}
 
@@ -257,7 +257,7 @@ export default class TagsStat extends Plugin {
             }
             else {
                 if (item instanceof TFolder) {
-                    files = files.concat(TagsStat.getFilesInFolder(item));
+                    files = files.concat(Tracker.getFilesInFolder(item));
                 }
                 else {
                     throw new Error("Unknown TAbstractFile type");
@@ -272,7 +272,7 @@ export default class TagsStat extends Plugin {
 		const blockToReplace = el.querySelector('pre')
 		if (!blockToReplace) return;
 
-		const yamlBlock = blockToReplace.querySelector('code.language-tags-stat')
+		const yamlBlock = blockToReplace.querySelector('code.language-tracker')
 		if (!yamlBlock) return;
 
 		const yaml = Yaml.parse(yamlBlock.textContent);
@@ -297,22 +297,22 @@ export default class TagsStat extends Plugin {
 		if (yaml.folder) {
 			if (yaml.folder === "") {
 				// console.log("No user assigned folder");
-				files = files.concat(TagsStat.app.vault.getMarkdownFiles());
+				files = files.concat(Tracker.app.vault.getMarkdownFiles());
 			}
 			else {
-				let folder = TagsStat.app.vault.getAbstractFileByPath(normalizePath(yaml.folder));
+				let folder = Tracker.app.vault.getAbstractFileByPath(normalizePath(yaml.folder));
 				if (!folder) {
 					throw new Error(folder + " folder doesn't exist");
 				}
 				if (!(folder instanceof TFolder)) {
 					throw new Error(folder + " is a file, not a folder");
 				}
-				files = files.concat(TagsStat.getFilesInFolder(folder));
+				files = files.concat(Tracker.getFilesInFolder(folder));
 			}
 		}
 		else {
 			// console.log("No user assigned folder")
-			files = files.concat(TagsStat.app.vault.getMarkdownFiles());
+			files = files.concat(Tracker.app.vault.getMarkdownFiles());
 		}
 		// console.log(files);
 
@@ -344,7 +344,7 @@ export default class TagsStat extends Plugin {
 				}
 			}
 
-			let filePath = path.join(TagsStat.rootPath, file.path);
+			let filePath = path.join(Tracker.rootPath, file.path);
 			// console.log(filePath);
 			
 			let content = fs.readFileSync(filePath, { encoding: "utf-8" });
@@ -426,13 +426,13 @@ export default class TagsStat extends Plugin {
 
 		const destination = document.createElement('div');
 
-		TagsStat.plot(destination, graphInfo);
+		Tracker.plot(destination, graphInfo);
 
 		el.replaceChild(destination, blockToReplace)
 	}
 }
 
-class TagsStatModal extends Modal {
+class TrackerModal extends Modal {
 	constructor(app: App) {
 		super(app);
 	}
@@ -448,10 +448,10 @@ class TagsStatModal extends Modal {
 	}
 }
 
-class TagsStatSettingTab extends PluginSettingTab {
-	plugin: TagsStat;
+class TrackerSettingTab extends PluginSettingTab {
+	plugin: Tracker;
 
-	constructor(app: App, plugin: TagsStat) {
+	constructor(app: App, plugin: Tracker) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}

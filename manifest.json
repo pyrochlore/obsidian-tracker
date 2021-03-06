@@ -1,10 +1,10 @@
 {
-	"id": "obsidian-tags-stat",
-	"name": "Tags Stat",
+	"id": "obsidian-tracker",
+	"name": "Tracker",
 	"version": "1.0.1",
 	"minAppVersion": "0.9.12",
-	"description": "",
-	"author": "Obsidian",
+	"description": "Tracking tag and show graph for your dialy note",
+	"author": "pyrochlore",
 	"authorUrl": "",
 	"isDesktopOnly": false
 }

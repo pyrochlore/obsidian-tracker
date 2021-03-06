@@ -1,0 +1,10 @@
+{
+	"id": "obsidian-tracker",
+	"name": "Tracker",
+	"version": "1.0.1",
+	"minAppVersion": "0.9.12",
+	"description": "Tracking tags and build a graph using your dialy note",
+	"author": "pyrochlore",
+	"authorUrl": "",
+	"isDesktopOnly": false
+}

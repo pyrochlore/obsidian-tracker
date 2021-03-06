@@ -1,12 +1,12 @@
 
-``` tags-stat
+``` tracker
 folder:
 tagName: weight
 title: Weight
 output: line
 ```
 
-``` tags-stat
+``` tracker
 folder: diary
 tagName: meditation
 title: Meditation
@@ -14,7 +14,7 @@ output: bar
 accum: True
 ```
 
-``` tags-stat
+``` tracker
 folder: diary
 tagName: coding
 title: Coding
