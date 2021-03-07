@@ -1,6 +1,9 @@
-import { App, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Modal, Notice, Plugin } from 'obsidian';
 import { MarkdownPostProcessor, MarkdownPostProcessorContext, MarkdownPreviewRenderer } from 'obsidian';
 import { FileSystemAdapter, TFile, TFolder, normalizePath} from 'obsidian';
+
+import { TrackerSettings, DEFAULT_SETTINGS, TrackerSettingTab } from './settings';
+
 import * as Yaml from 'yaml';
 import * as d3 from 'd3';
 import * as fs from 'fs';
@@ -25,14 +28,6 @@ class GraphInfo {
 		this.output = "line";
 		this.accum = false;
 	}
-}
-
-interface TrackerSettings {
-	mySetting: string;
-}
-
-const DEFAULT_SETTINGS: TrackerSettings = {
-	mySetting: 'default'
 }
 
 export default class Tracker extends Plugin {
@@ -445,34 +440,5 @@ class TrackerModal extends Modal {
 	onClose() {
 		let {contentEl} = this;
 		contentEl.empty();
-	}
-}
-
-class TrackerSettingTab extends PluginSettingTab {
-	plugin: Tracker;
-
-	constructor(app: App, plugin: Tracker) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		let {containerEl} = this;
-
-		containerEl.empty();
-
-		containerEl.createEl('h2', {text: 'Settings for my awesome plugin.'});
-
-		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue('')
-				.onChange(async (value) => {
-					console.log('Secret: ' + value);
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
 	}
 }
