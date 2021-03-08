@@ -8,9 +8,10 @@ import * as Yaml from 'yaml';
 import * as d3 from 'd3';
 import * as fs from 'fs';
 import * as path from 'path';
+import moment from 'moment';
 
 class DataPoint {
-	date: Date;
+	date: moment.Moment;
 	value: number | null;
 }
 
@@ -36,6 +37,7 @@ export default class Tracker extends Plugin {
 	public static app: App;
 	public static plugin: Tracker;
 	public static rootPath: string;
+	public static dateFormat: string;
 
 	async onload() {
 		console.log('loading plugin');
@@ -103,7 +105,7 @@ export default class Tracker extends Plugin {
 		await this.saveData(this.settings);
 	}
 
-	static plotLine(el: HTMLElement, graphInfo: GraphInfo) {
+	static renderLine(el: HTMLElement, graphInfo: GraphInfo) {
 		let margin = {top: 10, right: 30, bottom: 60, left: 60};
     	let width = 460 - margin.left - margin.right;
     	let height = 400 - margin.top - margin.bottom;
@@ -175,7 +177,7 @@ export default class Tracker extends Plugin {
 			.attr("fill", "#69b3a2");
 	}
 
-	static plotBar(el: HTMLElement, graphInfo: GraphInfo) {
+	static renderBar(el: HTMLElement, graphInfo: GraphInfo) {
 		let margin = {top: 10, right: 30, bottom: 60, left: 60};
     	let width = 460 - margin.left - margin.right;
     	let height = 400 - margin.top - margin.bottom;
@@ -195,7 +197,7 @@ export default class Tracker extends Plugin {
 			.style("text-anchor", "middle")
 			.style("stroke", "white");
 
-		let xDomain = graphInfo.data.map( function(p) { return d3.timeFormat("%m/%d")(p.date); });
+		let xDomain = graphInfo.data.map( function(p) { return (p.date.format(Tracker.dateFormat)); });
 		let xScale = d3.scaleBand()
 			.domain(xDomain)
 			.range([ 0, width ]).padding(0.4);
@@ -226,21 +228,21 @@ export default class Tracker extends Plugin {
 			.data(graphInfo.data)
 			.enter()
 			.append("rect")
-			.attr("x", function(p) { return xScale(d3.timeFormat("%m/%d")(p.date)); })
+			.attr("x", function(p) { return xScale(p.date.format(Tracker.dateFormat)); })
 			.attr("y", function(p) { return yScale(p.value); })
 			.attr("width", xScale.bandwidth())
 			.attr("height", function(p) { return height - yScale(p.value); })
 			.attr("fill", "#69b3a2");
 	}
 
-	static plot(el: HTMLElement, graphInfo: GraphInfo) {
-		console.log(graphInfo.data);
+	static render(el: HTMLElement, graphInfo: GraphInfo) {
+		// console.log(graphInfo.data);
 
 		if (graphInfo.output == "line") {
-			Tracker.plotLine(el, graphInfo);
+			Tracker.renderLine(el, graphInfo);
 		}
 		else if (graphInfo.output == "bar") {
-			Tracker.plotBar(el, graphInfo);
+			Tracker.renderBar(el, graphInfo);
 		}
 	}
 
@@ -267,11 +269,11 @@ export default class Tracker extends Plugin {
 		// Get folder
 		let targetFolder = "/";// root
 		if (!yaml.folder) {
-			if (this.settings.target_folder === "") {
+			if (this.settings.targetFolder === "") {
 				targetFolder = "/";
 			}
 			else {
-				targetFolder = this.settings.target_folder;
+				targetFolder = this.settings.targetFolder;
 				// TODO: check the folder exists
 			}
 		}
@@ -324,31 +326,52 @@ export default class Tracker extends Plugin {
 		let files = Tracker.plugin.getFiles(yaml);
 		// console.log(files);
 
-		// Get stats from files
-		let minDate = new Date();
-		let maxDate = new Date();
+		// Get dates
+		Tracker.dateFormat = Tracker.plugin.settings.dateFormat;
+		if (Tracker.dateFormat === "") {
+			Tracker.dateFormat = "YYYY-MM-DD";
+		}
+		let startDate = moment("");// use invalid initial value
+		if (yaml.startDate) {
+			startDate = moment(yaml.startDate, Tracker.dateFormat);
+		}
+		let endDate = moment("");
+		if (yaml.endDate) {
+			endDate = moment(yaml.endDate, Tracker.dateFormat);
+		}
+		if (startDate.isValid() && endDate.isValid()) {
+			// Make sure endDate > startDate
+			if (endDate < startDate) {
+				startDate = moment("");
+				endDate = moment("");
+			}
+		}
+
+		// Get data from files
+		let minDate = moment("");
+		let maxDate = moment("");
 		let fileCounter = 0;
 		let data: DataPoint[] = [];
 		for (let file of files) {
 			let fileBaseName = file.basename;
 			// console.log(fileBaseName);
 			let fileDateString = fileBaseName;
-			let fileDate = d3.timeParse("%Y-%m-%d")(fileDateString);
+			let fileDate = moment(fileDateString, Tracker.dateFormat);
 			// console.log(fileDate);
-			if (!fileDate) continue;
+			if (!fileDate.isValid()) continue;
 			fileCounter++;
 
 			// Get min/max date
 			if (fileCounter == 1) {
-				minDate = new Date(fileDate);
-				maxDate = new Date(fileDate);
+				minDate = fileDate.clone();
+				maxDate = fileDate.clone();
 			}
 			else {
 				if (fileDate < minDate) {
-					minDate = new Date(fileDate);
+					minDate = fileDate.clone();
 				}
 				if (fileDate > maxDate) {
-					maxDate = new Date(fileDate);
+					maxDate = fileDate.clone();
 				}
 			}
 
@@ -378,7 +401,7 @@ export default class Tracker extends Plugin {
 			}
 
 			let newPoint = new DataPoint();
-			newPoint.date = fileDate;
+			newPoint.date = fileDate.clone();
 			if (tagExist) {
 				newPoint.value = tagMeasure;
 			}
@@ -393,19 +416,60 @@ export default class Tracker extends Plugin {
 		// console.log(maxDate);
 		// console.log(data);
 
+		// Check date range
+		if (!minDate.isValid() || !maxDate.isValid()) {
+			// Not a valid date range
+			return;
+		}
+		if (!startDate.isValid() && !endDate.isValid()) {
+			// No date arguments
+			startDate = minDate.clone();
+			endDate = maxDate.clone();
+		}
+		else if (startDate.isValid()) {
+			if (startDate < maxDate) {
+				endDate = maxDate.clone();
+			}
+			else {
+				// Not a valid date range
+				return;
+			}
+		}
+		else if (endDate.isValid()) {
+			if (endDate > minDate) {
+				startDate = minDate.clone();
+			}
+			else {
+				// Not a valid date range
+				return;
+			}			
+		}
+		else {
+			// startDate and endDate are valid
+			if ((startDate < minDate && endDate < minDate) || (startDate > maxDate && endDate > maxDate)) {
+				// Not a valid date range
+				return;
+			}
+		}
+
 		// Preprocess data
 		let tagMeasureAccum = 0.0;
-		for (let curDate = minDate; curDate <= maxDate; curDate.setDate(curDate.getDate() + 1)) {
+		for (let curDate = startDate.clone(); curDate <= endDate; curDate.add(1, 'days')) {
 			// console.log(curDate);
-			let dataPoint = data.find(
-				function(p) {
-					return (d3.timeFormat("%Y-%m-%d")(p.date) == d3.timeFormat("%Y-%m-%d")(curDate));
-			});
-			// console.log(dataPoint);
+			let dataPoints = data.filter(p => curDate.isSame(p.date));
 			
-			if (dataPoint) {
-				// console.log("Add point");
+			if (dataPoints.length > 0) {
+				// Add point to graphInfo
 
+				// Merge data points of the same day
+				let dataPoint = dataPoints[0];
+				for (let indDataPoint = 1; indDataPoint < dataPoints.length; indDataPoint++) {
+					if (dataPoints[indDataPoint].value !== null) {
+						dataPoint.value += dataPoints[indDataPoint].value;
+					}
+				}
+				
+				// Accumulte data value
 				if (graphInfo.accum) {
 					tagMeasureAccum = dataPoint.value + tagMeasureAccum;
 					dataPoint.value = tagMeasureAccum;
@@ -414,10 +478,10 @@ export default class Tracker extends Plugin {
 				graphInfo.data.push(dataPoint);
 			}
 			else {
-				// console.log("Add missing point");
+				// Add missing point of this day
 				
 				let newPoint = new DataPoint();
-				newPoint.date = new Date(curDate);
+				newPoint.date = curDate.clone();
 				if (graphInfo.accum) {
 					tagMeasureAccum = newPoint.value + tagMeasureAccum;
 					newPoint.value = tagMeasureAccum;
@@ -434,7 +498,7 @@ export default class Tracker extends Plugin {
 
 		const destination = document.createElement('div');
 
-		Tracker.plot(destination, graphInfo);
+		Tracker.render(destination, graphInfo);
 
 		el.replaceChild(destination, blockToReplace)
 	}

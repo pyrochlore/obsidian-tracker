@@ -15,6 +15,7 @@
     "@rollup/plugin-node-resolve": "^9.0.0",
     "@rollup/plugin-typescript": "^6.0.0",
     "@types/node": "^14.14.2",
+    "@types/moment": "^2.13.0",
     "obsidian": "https://github.com/obsidianmd/obsidian-api/tarball/master",
     "rollup": "^2.32.1",
     "tslib": "^2.0.3",
@@ -24,6 +25,7 @@
     "@types/d3": "^6.3.0",
     "@types/yaml": "^1.9.7",
     "d3": "^6.5.0",
+    "moment": "^2.29.1",
     "yaml": "^1.10.0"
   }
 }
