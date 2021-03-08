@@ -29,7 +29,7 @@ export class TrackerSettingTab extends PluginSettingTab {
 			.setDesc("Files in this folder will be parsed and used as input data of the tracker plugin.\nYou can also override it using 'folder' argument int the tracker codeblock.")
 			.addText(text => text
 				.setPlaceholder("Folder Path")
-				.setValue("")
+				.setValue(this.plugin.settings.target_folder)
 				.onChange(async (value) => {
 					this.plugin.settings.target_folder = value;
 					await this.plugin.saveSettings();
@@ -40,7 +40,7 @@ export class TrackerSettingTab extends PluginSettingTab {
 			.setDesc("This format is used to parse the date in your diary title.\nYou can also override it using 'date-format' argument in the tracker codeblock.")
 			.addText(text => text
 				.setPlaceholder("YYYY-MM-DD")
-				.setValue("")
+				.setValue(this.plugin.settings.date_format)
 				.onChange(async (value) => {
 					this.plugin.settings.date_format = value;
 					await this.plugin.saveSettings();

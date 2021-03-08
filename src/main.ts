@@ -15,15 +15,15 @@ class DataPoint {
 }
 
 class GraphInfo {
+	target: string;// minimum requirement for input arguments
 	title: string;
-	tagName: string;
 	data: DataPoint[];
 	output: string;
 	accum: boolean;
 
-	constructor (tagName: string) {
+	constructor (target: string) {
+		this.target = target;
 		this.title = "";
-		this.tagName = tagName;
 		this.data = [];
 		this.output = "line";
 		this.accum = false;
@@ -31,16 +31,17 @@ class GraphInfo {
 }
 
 export default class Tracker extends Plugin {
-	settings: TrackerSettings;
+	public settings: TrackerSettings;
 
-	static app: App;
-	static plugin: Tracker;
-	static rootPath: string;
+	public static app: App;
+	public static plugin: Tracker;
+	public static rootPath: string;
 
 	async onload() {
 		console.log('loading plugin');
 		
 		Tracker.app = this.app;
+		Tracker.plugin = this;
 
 		if (this.app.vault.adapter instanceof FileSystemAdapter) {
 			Tracker.rootPath = this.app.vault.adapter.getBasePath();
@@ -243,7 +244,7 @@ export default class Tracker extends Plugin {
 		}
 	}
 
-	static getFilesInFolder(folder: TFolder): TFile[] {
+	public getFilesInFolder(folder: TFolder, includeSubFolders: boolean = true): TFile[] {
 		let files: TFile[] = [];
 
         for (let item of folder.children) {
@@ -251,15 +252,48 @@ export default class Tracker extends Plugin {
                 files.push(item);
             }
             else {
-                if (item instanceof TFolder) {
-                    files = files.concat(Tracker.getFilesInFolder(item));
-                }
-                else {
-                    throw new Error("Unknown TAbstractFile type");
+                if (item instanceof TFolder && includeSubFolders) {
+                    files = files.concat(this.getFilesInFolder(item));
                 }
             }
         }
+
         return files;
+	}
+
+	public getFiles(yaml: any, includeSubFolders: boolean = true) {
+		let files: TFile[] = [];
+
+		// Get folder
+		let targetFolder = "/";// root
+		if (!yaml.folder) {
+			if (this.settings.target_folder === "") {
+				targetFolder = "/";
+			}
+			else {
+				targetFolder = this.settings.target_folder;
+				// TODO: check the folder exists
+			}
+		}
+		else {
+			if (yaml.folder === "") {
+				targetFolder = "/";
+			}
+			else {
+				targetFolder = yaml.folder;
+			}
+		}
+
+		let folder = this.app.vault.getAbstractFileByPath(normalizePath(targetFolder));
+		if (!folder) {
+			throw new Error(folder + " folder doesn't exist");
+		}
+		if (!(folder instanceof TFolder)) {
+			throw new Error(folder + " is a file, not a folder");
+		}
+		files = files.concat(this.getFilesInFolder(folder));
+
+		return files;
 	}
 
 	static postprocessor: MarkdownPostProcessor = (el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
@@ -271,12 +305,11 @@ export default class Tracker extends Plugin {
 		if (!yamlBlock) return;
 
 		const yaml = Yaml.parse(yamlBlock.textContent);
-		if (!yaml || !yaml.tagName) return;
+		if (!yaml || !yaml.target) return;// Minimum requirements
 		// console.log(yaml);
 
 		// Prepare graph info
-		let graphInfo = new GraphInfo(yaml.tagName);
-		graphInfo.tagName = yaml.tagName;
+		let graphInfo = new GraphInfo(yaml.target);
 		if (yaml.title) {
 			graphInfo.title = yaml.title;
 		}
@@ -288,27 +321,7 @@ export default class Tracker extends Plugin {
 		}
 
 		// Get files
-		let files: TFile[] = [];
-		if (yaml.folder) {
-			if (yaml.folder === "") {
-				// console.log("No user assigned folder");
-				files = files.concat(Tracker.app.vault.getMarkdownFiles());
-			}
-			else {
-				let folder = Tracker.app.vault.getAbstractFileByPath(normalizePath(yaml.folder));
-				if (!folder) {
-					throw new Error(folder + " folder doesn't exist");
-				}
-				if (!(folder instanceof TFolder)) {
-					throw new Error(folder + " is a file, not a folder");
-				}
-				files = files.concat(Tracker.getFilesInFolder(folder));
-			}
-		}
-		else {
-			// console.log("No user assigned folder")
-			files = files.concat(Tracker.app.vault.getMarkdownFiles());
-		}
+		let files = Tracker.plugin.getFiles(yaml);
 		// console.log(files);
 
 		// Get stats from files
@@ -344,7 +357,7 @@ export default class Tracker extends Plugin {
 			
 			let content = fs.readFileSync(filePath, { encoding: "utf-8" });
 			// console.log(content);
-			let strHashtagRegex = "(^|\\s)#" + yaml.tagName + "(:(?<number>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?(\\s|$)";
+			let strHashtagRegex = "(^|\\s)#" + yaml.target + "(:(?<number>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?(\\s|$)";
 			let hashTagRegex = new RegExp(strHashtagRegex, "gm");
 			let match;
 			let tagMeasure = 0.0;
