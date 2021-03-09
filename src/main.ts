@@ -105,12 +105,12 @@ export default class Tracker extends Plugin {
 		await this.saveData(this.settings);
 	}
 
-	static renderLine(el: HTMLElement, graphInfo: GraphInfo) {
+	static renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
 		let margin = {top: 10, right: 30, bottom: 60, left: 60};
     	let width = 460 - margin.left - margin.right;
     	let height = 400 - margin.top - margin.bottom;
 
-		let svg = d3.select(el)
+		let svg = d3.select(canvas)
 		.append("svg")
 			.attr("width", width + margin.left + margin.right)
 			.attr("height", height + margin.top + margin.bottom)
@@ -177,18 +177,18 @@ export default class Tracker extends Plugin {
 			.attr("fill", "#69b3a2");
 	}
 
-	static renderBar(el: HTMLElement, graphInfo: GraphInfo) {
+	static renderBar(canvas: HTMLElement, graphInfo: GraphInfo) {
 		let margin = {top: 10, right: 30, bottom: 60, left: 60};
     	let width = 460 - margin.left - margin.right;
     	let height = 400 - margin.top - margin.bottom;
 
-		let svg = d3.select(el)
-		.append("svg")
-			.attr("width", width + margin.left + margin.right)
-			.attr("height", height + margin.top + margin.bottom)
-		.append("g")
-			.attr("transform",
-				"translate(" + margin.left + "," + margin.top + ")");
+		let svg = d3.select(canvas)
+			.append("svg")
+				.attr("width", width + margin.left + margin.right)
+				.attr("height", height + margin.top + margin.bottom)
+			.append("g")
+				.attr("transform",
+					"translate(" + margin.left + "," + margin.top + ")");
 
 		// Add caption
 		svg.append("text")
@@ -235,14 +235,33 @@ export default class Tracker extends Plugin {
 			.attr("fill", "#69b3a2");
 	}
 
-	static render(el: HTMLElement, graphInfo: GraphInfo) {
+	static renderErrorMessage(canvas: HTMLElement, errorMessage: string) {
+		let margin = {top: 10, right: 30, bottom: 60, left: 60};
+    	let width = 460 - margin.left - margin.right;
+    	let height = 400 - margin.top - margin.bottom;
+
+		let svg = d3.select(canvas)
+			.append("svg")
+				.attr("width", width + margin.left + margin.right)
+				.attr("height", height + margin.top + margin.bottom);
+
+		svg.append("text")
+			.text(errorMessage)
+			.attr("transform", "translate(" + width/2 + "," + height/2 + ")")
+			.style("text-anchor", "middle")
+			.style("stroke", "red");	
+
+		console.log(errorMessage);
+	}
+
+	static render(canvas: HTMLElement, graphInfo: GraphInfo) {
 		// console.log(graphInfo.data);
 
 		if (graphInfo.output == "line") {
-			Tracker.renderLine(el, graphInfo);
+			Tracker.renderLine(canvas, graphInfo);
 		}
 		else if (graphInfo.output == "bar") {
-			Tracker.renderBar(el, graphInfo);
+			Tracker.renderBar(canvas, graphInfo);
 		}
 	}
 
@@ -303,24 +322,50 @@ export default class Tracker extends Plugin {
 		const blockToReplace = el.querySelector('pre')
 		if (!blockToReplace) return;
 
+		const canvas = document.createElement('div');
+
 		const yamlBlock = blockToReplace.querySelector('code.language-tracker')
-		if (!yamlBlock) return;
+		if (!yamlBlock) {
+			let errorMessage = "Error Parsing YAML";
+			Tracker.renderErrorMessage(canvas, errorMessage);
+			el.replaceChild(canvas, blockToReplace);
+			return;
+		}
 
 		const yaml = Yaml.parse(yamlBlock.textContent);
 		// console.log(yaml);
-		if (!yaml || !yaml.target) return;// Minimum requirements
+		if (!yaml || !yaml.target || yaml.target === "") {// Minimum requirements
+			let errorMessage = "Invalid target";
+			Tracker.renderErrorMessage(canvas, errorMessage);
+			el.replaceChild(canvas, blockToReplace);
+			return;
+		}
 		let target = yaml.target;
 
 		// Prepare graph info
 		let graphInfo = new GraphInfo(target);
-		if (yaml.title) {
-			graphInfo.title = yaml.title;
-		}
+
+		// output
+		let output = "line";
 		if (yaml.output) {
-			graphInfo.output = yaml.output;
+			output = yaml.output;
 		}
+		if (output !== "line" && output !== "bar") {
+			let errorMessage = "Unknown output type! Allow 'line' or 'bar' only";
+			Tracker.renderErrorMessage(canvas, errorMessage);
+			el.replaceChild(canvas, blockToReplace);
+			return;
+		}
+		else {
+			graphInfo.output = output;
+		}
+		// accum
 		if (yaml.accum) {
 			graphInfo.accum = yaml.accum;
+		}
+		// title
+		if (yaml.title) {
+			graphInfo.title = yaml.title;
 		}
 
 		// Get files
@@ -454,7 +499,9 @@ export default class Tracker extends Plugin {
 
 		// Check date range
 		if (!minDate.isValid() || !maxDate.isValid()) {
-			// Not a valid date range
+			let errorMessage = "Invalid date range";
+			Tracker.renderErrorMessage(canvas, errorMessage);
+			el.replaceChild(canvas, blockToReplace);
 			return;
 		}
 		if (!startDate.isValid() && !endDate.isValid()) {
@@ -467,7 +514,9 @@ export default class Tracker extends Plugin {
 				endDate = maxDate.clone();
 			}
 			else {
-				// Not a valid date range
+				let errorMessage = "Invalid date range";
+				Tracker.renderErrorMessage(canvas, errorMessage);
+				el.replaceChild(canvas, blockToReplace);
 				return;
 			}
 		}
@@ -476,14 +525,18 @@ export default class Tracker extends Plugin {
 				startDate = minDate.clone();
 			}
 			else {
-				// Not a valid date range
+				let errorMessage = "Invalid date range";
+				Tracker.renderErrorMessage(canvas, errorMessage);
+				el.replaceChild(canvas, blockToReplace);
 				return;
 			}			
 		}
 		else {
 			// startDate and endDate are valid
 			if ((startDate < minDate && endDate < minDate) || (startDate > maxDate && endDate > maxDate)) {
-				// Not a valid date range
+				let errorMessage = "Invalid date range";
+				Tracker.renderErrorMessage(canvas, errorMessage);
+				el.replaceChild(canvas, blockToReplace);
 				return;
 			}
 		}
@@ -532,11 +585,9 @@ export default class Tracker extends Plugin {
 
 		// console.log(graphInfo);	
 
-		const destination = document.createElement('div');
+		Tracker.render(canvas, graphInfo);
 
-		Tracker.render(destination, graphInfo);
-
-		el.replaceChild(destination, blockToReplace)
+		el.replaceChild(canvas, blockToReplace);
 	}
 }
 
