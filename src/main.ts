@@ -453,25 +453,66 @@ export default class Tracker extends Plugin {
 				}
 			}
 
-			// Add frontmatter tags, allow simple tag only
-			let fileCache = Tracker.app.metadataCache.getFileCache(file);
-			let frontMatter = fileCache.frontmatter;
-			let frontMatterTags: string[] = [];
-			if (frontMatter && frontMatter.tags) {
-				// console.log(frontMatter.tags);
+			if (searchType === "tag") {
+				// Add frontmatter tags, allow simple tag only
+				let fileCache = Tracker.app.metadataCache.getFileCache(file);
+				let frontMatter = fileCache.frontmatter;
+				let frontMatterTags: string[] = [];
+				if (frontMatter && frontMatter.tags) {
+					// console.log(frontMatter.tags);
+					let tagMeasure = 0.0;
+					let tagExist = false;
+					if (Array.isArray(frontMatter.tags)) {
+						frontMatterTags = frontMatterTags.concat(frontMatter.tags);
+					}
+					else {
+						frontMatterTags.push(frontMatter.tags);
+					}
+
+					for (let tag of frontMatterTags) {
+						if (tag === searchTarget) {
+							tagMeasure = tagMeasure + 1.0;
+							tagExist = true;
+						}
+					}
+
+					let newPoint = new DataPoint();
+					newPoint.date = fileDate.clone();
+					if (tagExist) {
+						newPoint.value = tagMeasure;
+					}
+					else {
+						newPoint.value = null;
+					}	
+					data.push(newPoint);
+					//console.log(newPoint);
+				}
+			}
+
+			if (searchType === "tag") {
+				// Add inline tags
+				let filePath = path.join(Tracker.rootPath, file.path);
+				// console.log(filePath);
+				
+				let content = fs.readFileSync(filePath, { encoding: "utf-8" });
+				// console.log(content);
+				let strHashtagRegex = "(^|\\s)#" + searchTarget + "(:(?<number>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?(\\s|$)";
+				let hashTagRegex = new RegExp(strHashtagRegex, "gm");
+				let match;
 				let tagMeasure = 0.0;
 				let tagExist = false;
-				if (Array.isArray(frontMatter.tags)) {
-					frontMatterTags = frontMatterTags.concat(frontMatter.tags);
-				}
-				else {
-					frontMatterTags.push(frontMatter.tags);
-				}
-
-				for (let tag of frontMatterTags) {
-					if (tag === searchTarget) {
+				while (match = hashTagRegex.exec(content)) {
+					// console.log(match);
+					tagExist = true;
+					if (match[0].includes(":")) {
+						// console.log("valued-tag");
+						let value = parseFloat(match.groups.number);
+						// console.log(value);
+						tagMeasure += value;
+					}
+					else {
+						// console.log("simple-tag");
 						tagMeasure = tagMeasure + 1.0;
-						tagExist = true;
 					}
 				}
 
@@ -482,49 +523,42 @@ export default class Tracker extends Plugin {
 				}
 				else {
 					newPoint.value = null;
-				}	
+				}			
+				// console.log(newPoint);
+				
 				data.push(newPoint);
-				//console.log(newPoint);
 			}
 
-			// Add inline tags
-			let filePath = path.join(Tracker.rootPath, file.path);
-			// console.log(filePath);
-			
-			let content = fs.readFileSync(filePath, { encoding: "utf-8" });
-			// console.log(content);
-			let strHashtagRegex = "(^|\\s)#" + searchTarget + "(:(?<number>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?(\\s|$)";
-			let hashTagRegex = new RegExp(strHashtagRegex, "gm");
-			let match;
-			let tagMeasure = 0.0;
-			let tagExist = false;
-			while (match = hashTagRegex.exec(content)) {
-				// console.log(match);
-				tagExist = true;
-				if (match[0].includes(":")) {
-					// console.log("valued-tag");
-					let value = parseFloat(match.groups.number);
-					// console.log(value);
-					tagMeasure += value;
-				}
-				else {
-					// console.log("simple-tag");
+			if (searchType === "text") {
+				let filePath = path.join(Tracker.rootPath, file.path);
+				// console.log(filePath);
+
+				let content = fs.readFileSync(filePath, { encoding: "utf-8" });
+				// console.log(content);
+				let strHashtagRegex = searchTarget.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+				let hashTagRegex = new RegExp(strHashtagRegex, "gm");
+				let match;
+				let tagMeasure = 0.0;
+				let tagExist = false;
+				while (match = hashTagRegex.exec(content)) {
+					// console.log(match);
+					tagExist = true;
 					tagMeasure = tagMeasure + 1.0;
 				}
-			}
 
-			let newPoint = new DataPoint();
-			newPoint.date = fileDate.clone();
-			if (tagExist) {
-				newPoint.value = tagMeasure;
+				let newPoint = new DataPoint();
+				newPoint.date = fileDate.clone();
+				if (tagExist) {
+					newPoint.value = tagMeasure;
+				}
+				else {
+					newPoint.value = null;
+				}			
+				// console.log(newPoint);
+				
+				data.push(newPoint);
 			}
-			else {
-				newPoint.value = null;
-			}			
-			// console.log(newPoint);
-			
-			data.push(newPoint);
-		}	
+		}// end loof of files
 		// console.log(minDate);
 		// console.log(maxDate);
 		// console.log(data);
