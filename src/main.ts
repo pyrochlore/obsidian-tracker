@@ -307,11 +307,12 @@ export default class Tracker extends Plugin {
 		if (!yamlBlock) return;
 
 		const yaml = Yaml.parse(yamlBlock.textContent);
-		if (!yaml || !yaml.target) return;// Minimum requirements
 		// console.log(yaml);
+		if (!yaml || !yaml.target) return;// Minimum requirements
+		let target = yaml.target;
 
 		// Prepare graph info
-		let graphInfo = new GraphInfo(yaml.target);
+		let graphInfo = new GraphInfo(target);
 		if (yaml.title) {
 			graphInfo.title = yaml.title;
 		}
@@ -375,12 +376,47 @@ export default class Tracker extends Plugin {
 				}
 			}
 
+			// Add frontmatter tags, allow simple tag only
+			let fileCache = Tracker.app.metadataCache.getFileCache(file);
+			let frontMatter = fileCache.frontmatter;
+			let frontMatterTags: string[] = [];
+			if (frontMatter && frontMatter.tags) {
+				// console.log(frontMatter.tags);
+				let tagMeasure = 0.0;
+				let tagExist = false;
+				if (Array.isArray(frontMatter.tags)) {
+					frontMatterTags = frontMatterTags.concat(frontMatter.tags);
+				}
+				else {
+					frontMatterTags.push(frontMatter.tags);
+				}
+
+				for (let tag of frontMatterTags) {
+					if (tag === target) {
+						tagMeasure = tagMeasure + 1.0;
+						tagExist = true;
+					}
+				}
+
+				let newPoint = new DataPoint();
+				newPoint.date = fileDate.clone();
+				if (tagExist) {
+					newPoint.value = tagMeasure;
+				}
+				else {
+					newPoint.value = null;
+				}	
+				data.push(newPoint);
+				//console.log(newPoint);
+			}
+
+			// Add inline tags
 			let filePath = path.join(Tracker.rootPath, file.path);
 			// console.log(filePath);
 			
 			let content = fs.readFileSync(filePath, { encoding: "utf-8" });
 			// console.log(content);
-			let strHashtagRegex = "(^|\\s)#" + yaml.target + "(:(?<number>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?(\\s|$)";
+			let strHashtagRegex = "(^|\\s)#" + target + "(:(?<number>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?(\\s|$)";
 			let hashTagRegex = new RegExp(strHashtagRegex, "gm");
 			let match;
 			let tagMeasure = 0.0;
