@@ -21,6 +21,7 @@ class GraphInfo {
 	data: DataPoint[];
 	output: string;
 	accum: boolean;
+	showDataPoint: boolean;
 
 	constructor (target: string) {
 		this.target = target;
@@ -28,6 +29,7 @@ class GraphInfo {
 		this.data = [];
 		this.output = "line";
 		this.accum = false;
+		this.showDataPoint = true;
 	}
 }
 
@@ -165,16 +167,19 @@ export default class Tracker extends Plugin {
 			.attr("d", line);
 
 		// Add dots
-		svg.append("g")
-			.selectAll("dot")
-			.data(graphInfo.data.filter(function(p) { return p.value != null; }))
-			.enter().append("circle")
-			.attr("r", 3.5)
-			.attr("cx", function(p) { return xScale(p.date); })
-			.attr("cy", function(p) { return yScale(p.value); })
-			.attr("stroke", "#69b3a2")
-			.attr("stroke-width", 3)
-			.attr("fill", "#69b3a2");
+		if (graphInfo.showDataPoint) {
+			svg.append("g")
+				.selectAll("dot")
+				.data(graphInfo.data.filter(function(p) { return p.value != null; }))
+				.enter().append("circle")
+				.attr("r", 3.5)
+				.attr("cx", function(p) { return xScale(p.date); })
+				.attr("cy", function(p) { return yScale(p.value); })
+				.attr("stroke", "#69b3a2")
+				.attr("stroke-width", 3)
+				.attr("fill", "#69b3a2");
+		}
+
 	}
 
 	static renderBar(canvas: HTMLElement, graphInfo: GraphInfo) {
@@ -331,7 +336,7 @@ export default class Tracker extends Plugin {
 
 		const yaml = Yaml.parse(yamlBlock.textContent);
 		// console.log(yaml);
-		if (!yaml || !yaml.target || yaml.target === "") {// Minimum requirements
+		if (!yaml || (typeof yaml.target === 'undefined') || yaml.target === "") {// Minimum requirements
 			let errorMessage = "Invalid target";
 			Tracker.renderErrorMessage(canvas, errorMessage);
 			el.replaceChild(canvas, blockToReplace);
@@ -344,7 +349,7 @@ export default class Tracker extends Plugin {
 
 		// output
 		let output = "line";
-		if (yaml.output) {
+		if (typeof yaml.output !== 'undefined') {
 			output = yaml.output;
 		}
 		if (output !== "line" && output !== "bar") {
@@ -357,13 +362,19 @@ export default class Tracker extends Plugin {
 			graphInfo.output = output;
 		}
 		// accum
-		if (yaml.accum) {
+		if (typeof yaml.accum !== 'undefined') {
 			graphInfo.accum = yaml.accum;
 		}
 		// title
-		if (yaml.title) {
+		if (typeof yaml.title !== 'undefined') {
 			graphInfo.title = yaml.title;
 		}
+		// show data point
+		let showDataPoint = true;
+		if (typeof yaml.showDataPoint !== 'undefined') {
+			showDataPoint = yaml.showDataPoint;
+		}
+		graphInfo.showDataPoint = showDataPoint;
 
 		// Get files
 		let files: TFile[];
