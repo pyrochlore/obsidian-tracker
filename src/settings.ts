@@ -2,12 +2,12 @@ import { App, Notice, PluginSettingTab, Setting } from "obsidian";
 import Tracker from './main';
 
 export interface TrackerSettings {
-	targetFolder: string;
+	folderToSearch: string;
     dateFormat: string;
 }
 
 export const DEFAULT_SETTINGS: TrackerSettings = {
-	targetFolder: "",
+	folderToSearch: "",
     dateFormat: ""
 }
 
@@ -29,9 +29,9 @@ export class TrackerSettingTab extends PluginSettingTab {
 			.setDesc("Files in this folder will be parsed and used as input data of the tracker plugin.\nYou can also override it using 'folder' argument int the tracker codeblock.")
 			.addText(text => text
 				.setPlaceholder("Folder Path")
-				.setValue(this.plugin.settings.targetFolder)
+				.setValue(this.plugin.settings.folderToSearch)
 				.onChange(async (value) => {
-					this.plugin.settings.targetFolder = value;
+					this.plugin.settings.folderToSearch = value;
 					await this.plugin.saveSettings();
 				}));
 

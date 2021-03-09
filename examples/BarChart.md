@@ -2,14 +2,16 @@
 
 ## Bar
 ``` tracker
-target: meditation
+searchType: tag
+searchTarget: meditation
 folder: diary2
 output: bar
 ```
 
 ## Accum
 ``` tracker
-target: meditation
+searchType: tag
+searchTarget: meditation
 folder: diary2
 output: bar
 accum: true

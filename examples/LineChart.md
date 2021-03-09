@@ -1,29 +1,37 @@
 # Line Chart
 
 ``` tracker
-target: weight
+searchType: tag
+searchTarget: weight
 ```
 
 ``` tracker
-target: weight
+searchType: tag
+searchTarget: weight
 showDataPoint: false
 ```
 
 ``` tracker
-target: diary
+searchType: tag
+searchTarget: diary
+```
+
+## Error
+
+``` tracker
+searchType: tag
+searchTarget: 
 ```
 
 ``` tracker
-target: 
-```
-
-``` tracker
-target: weight
+searchType: tag
+searchTarget: weight
 folder: abc
 ```
 
 ```
-target:
+searchType: tag
+searchTarget: weight
 ```
 
 

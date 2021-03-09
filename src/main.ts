@@ -16,15 +16,17 @@ class DataPoint {
 }
 
 class GraphInfo {
-	target: string;// minimum requirement for input arguments
+	searchType: string;// a must
+	searchTarget: string;// a must
 	title: string;
 	data: DataPoint[];
 	output: string;
 	accum: boolean;
 	showDataPoint: boolean;
 
-	constructor (target: string) {
-		this.target = target;
+	constructor (searchType: string, searchTarget: string) {
+		this.searchType = searchType;
+		this.searchTarget = searchTarget;
 		this.title = "";
 		this.data = [];
 		this.output = "line";
@@ -291,27 +293,27 @@ export default class Tracker extends Plugin {
 		let files: TFile[] = [];
 
 		// Get folder
-		let targetFolder = "/";// root
+		let folderToSearch = "/";// root
 		if (!yaml.folder) {
-			if (this.settings.targetFolder === "") {
-				targetFolder = "/";
+			if (this.settings.folderToSearch === "") {
+				folderToSearch = "/";
 			}
 			else {
-				targetFolder = this.settings.targetFolder;
+				folderToSearch = this.settings.folderToSearch;
 			}
 		}
 		else {
 			if (yaml.folder === "") {
-				targetFolder = "/";
+				folderToSearch = "/";
 			}
 			else {
-				targetFolder = yaml.folder;
+				folderToSearch = yaml.folder;
 			}
 		}
 
-		let folder = this.app.vault.getAbstractFileByPath(normalizePath(targetFolder));
+		let folder = this.app.vault.getAbstractFileByPath(normalizePath(folderToSearch));
 		if (!folder || !(folder instanceof TFolder)) {
-			throw new Error("Folder '" + targetFolder + "' doesn't exist");
+			throw new Error("Folder '" + folderToSearch + "' doesn't exist");
 		}
 
 		files = files.concat(this.getFilesInFolder(folder));
@@ -324,28 +326,40 @@ export default class Tracker extends Plugin {
 		const blockToReplace = el.querySelector('pre')
 		if (!blockToReplace) return;
 
+		const yamlBlock = blockToReplace.querySelector('code.language-tracker')
+		if (!yamlBlock) return;// It is not a block we want to deal with.
+
 		const canvas = document.createElement('div');
 
-		const yamlBlock = blockToReplace.querySelector('code.language-tracker')
-		if (!yamlBlock) {
+		const yaml = Yaml.parse(yamlBlock.textContent);
+		// console.log(yaml);
+		if (!yaml) {
 			let errorMessage = "Error Parsing YAML";
 			Tracker.renderErrorMessage(canvas, errorMessage);
 			el.replaceChild(canvas, blockToReplace);
 			return;
 		}
 
-		const yaml = Yaml.parse(yamlBlock.textContent);
-		// console.log(yaml);
-		if (!yaml || (typeof yaml.target === 'undefined') || yaml.target === "") {// Minimum requirements
-			let errorMessage = "Invalid target";
+		// Search type
+		if ((typeof yaml.searchType === 'undefined') || (yaml.searchType !== "tag" && yaml.searchType !== "text")) {
+			let errorMessage = "Invalid search type (searchType)";
 			Tracker.renderErrorMessage(canvas, errorMessage);
 			el.replaceChild(canvas, blockToReplace);
 			return;
 		}
-		let target = yaml.target;
+		let searchType = yaml.searchType;
+
+		// Search target
+		if ((typeof yaml.searchTarget === 'undefined') || yaml.searchTarget === "") {
+			let errorMessage = "Invalid search target (searchTarget)";
+			Tracker.renderErrorMessage(canvas, errorMessage);
+			el.replaceChild(canvas, blockToReplace);
+			return;
+		}
+		let searchTarget = yaml.searchTarget;
 
 		// Prepare graph info
-		let graphInfo = new GraphInfo(target);
+		let graphInfo = new GraphInfo(searchType, searchTarget);
 
 		// output
 		let output = "line";
@@ -455,7 +469,7 @@ export default class Tracker extends Plugin {
 				}
 
 				for (let tag of frontMatterTags) {
-					if (tag === target) {
+					if (tag === searchTarget) {
 						tagMeasure = tagMeasure + 1.0;
 						tagExist = true;
 					}
@@ -479,7 +493,7 @@ export default class Tracker extends Plugin {
 			
 			let content = fs.readFileSync(filePath, { encoding: "utf-8" });
 			// console.log(content);
-			let strHashtagRegex = "(^|\\s)#" + target + "(:(?<number>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?(\\s|$)";
+			let strHashtagRegex = "(^|\\s)#" + searchTarget + "(:(?<number>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?(\\s|$)";
 			let hashTagRegex = new RegExp(strHashtagRegex, "gm");
 			let match;
 			let tagMeasure = 0.0;
