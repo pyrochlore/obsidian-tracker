@@ -293,7 +293,6 @@ export default class Tracker extends Plugin {
 			}
 			else {
 				targetFolder = this.settings.targetFolder;
-				// TODO: check the folder exists
 			}
 		}
 		else {
@@ -306,12 +305,10 @@ export default class Tracker extends Plugin {
 		}
 
 		let folder = this.app.vault.getAbstractFileByPath(normalizePath(targetFolder));
-		if (!folder) {
-			throw new Error(folder + " folder doesn't exist");
+		if (!folder || !(folder instanceof TFolder)) {
+			throw new Error("Folder '" + targetFolder + "' doesn't exist");
 		}
-		if (!(folder instanceof TFolder)) {
-			throw new Error(folder + " is a file, not a folder");
-		}
+
 		files = files.concat(this.getFilesInFolder(folder));
 
 		return files;
@@ -369,7 +366,17 @@ export default class Tracker extends Plugin {
 		}
 
 		// Get files
-		let files = Tracker.plugin.getFiles(yaml);
+		let files: TFile[];
+		try {
+			files = Tracker.plugin.getFiles(yaml);
+		}
+		catch(e) {
+			let errorMessage = e.message;
+			Tracker.renderErrorMessage(canvas, errorMessage);
+			el.replaceChild(canvas, blockToReplace);
+			return;
+		}
+
 		// console.log(files);
 
 		// Get dates
