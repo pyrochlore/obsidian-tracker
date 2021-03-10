@@ -23,6 +23,7 @@ class GraphInfo {
 	output: string;
 	accum: boolean;
 	showDataPoint: boolean;
+	penalty: number;
 
 	constructor (searchType: string, searchTarget: string) {
 		this.searchType = searchType;
@@ -32,6 +33,7 @@ class GraphInfo {
 		this.output = "line";
 		this.accum = false;
 		this.showDataPoint = true;
+		this.penalty = 0.0;
 	}
 }
 
@@ -268,6 +270,11 @@ export default class Tracker extends Plugin {
 		
 		let tagMeasureAccum = 0.0;
 		for (let dataPoint of graphInfo.data) {
+			if (graphInfo.penalty !== 0.0) {
+				if (dataPoint.value === null) {
+					dataPoint.value = graphInfo.penalty;
+				}
+			}
 			if (graphInfo.accum) {
 				if (dataPoint.value !== null) {
 					tagMeasureAccum += dataPoint.value;
@@ -401,6 +408,10 @@ export default class Tracker extends Plugin {
 			showDataPoint = yaml.showDataPoint;
 		}
 		graphInfo.showDataPoint = showDataPoint;
+		// penalty
+		if (typeof yaml.penalty === "number") {
+			graphInfo.penalty = yaml.penalty;
+		}
 
 		// Get files
 		let files: TFile[];
