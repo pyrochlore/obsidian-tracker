@@ -24,6 +24,7 @@ class GraphInfo {
 	accum: boolean;
 	showDataPoint: boolean;
 	penalty: number;
+	backgroundColor: string;
 
 	constructor (searchType: string, searchTarget: string) {
 		this.searchType = searchType;
@@ -34,6 +35,7 @@ class GraphInfo {
 		this.accum = false;
 		this.showDataPoint = true;
 		this.penalty = 0.0;
+		this.backgroundColor = "SteelGray";
 	}
 }
 
@@ -120,7 +122,8 @@ export default class Tracker extends Plugin {
 		.append("svg")
 			.attr("width", width + margin.left + margin.right)
 			.attr("height", height + margin.top + margin.bottom)
-		.append("g")
+			.style("background-color", graphInfo.backgroundColor)
+			.append("g")
 			.attr("transform",
 				"translate(" + margin.left + "," + margin.top + ")");
 
@@ -195,7 +198,8 @@ export default class Tracker extends Plugin {
 			.append("svg")
 				.attr("width", width + margin.left + margin.right)
 				.attr("height", height + margin.top + margin.bottom)
-			.append("g")
+				.style("background-color", graphInfo.backgroundColor)
+				.append("g")
 				.attr("transform",
 					"translate(" + margin.left + "," + margin.top + ")");
 
@@ -419,6 +423,12 @@ export default class Tracker extends Plugin {
 		if (typeof yaml.penalty === "number") {
 			graphInfo.penalty = yaml.penalty;
 		}
+		// background color
+		let backgroundColor = "SteelGray";
+		if (typeof yaml.backgroundColor === "string") {
+			backgroundColor = yaml.backgroundColor;
+		}
+		graphInfo.backgroundColor = backgroundColor;
 
 		// Get files
 		let files: TFile[];
