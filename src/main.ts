@@ -382,7 +382,7 @@ export default class Tracker extends Plugin {
 		else {
 			searchTarget = yaml.searchTarget;
 		}
-		console.log(searchTarget);
+		// console.log(searchTarget);
 
 		// Prepare graph info
 		let graphInfo = new GraphInfo(searchType, searchTarget);
@@ -483,6 +483,7 @@ export default class Tracker extends Plugin {
 				}
 			}
 
+			// console.log("Search frontmatter tags");
 			if (searchType === "tag") {
 				// Add frontmatter tags, allow simple tag only
 				let fileCache = Tracker.app.metadataCache.getFileCache(file);
@@ -504,6 +505,9 @@ export default class Tracker extends Plugin {
 							tagMeasure = tagMeasure + 1.0;
 							tagExist = true;
 						}
+						if (tag.startsWith(searchTarget + "/")) {
+							// nested simple tag does not support for now
+						}
 					}
 
 					let newPoint = new DataPoint();
@@ -519,6 +523,7 @@ export default class Tracker extends Plugin {
 				}
 			}
 
+			// console.log("Search inline tags");
 			if (searchType === "tag") {
 				// Add inline tags
 				let filePath = path.join(Tracker.rootPath, file.path);
@@ -526,7 +531,7 @@ export default class Tracker extends Plugin {
 				
 				let content = fs.readFileSync(filePath, { encoding: "utf-8" });
 				// console.log(content);
-				let strHashtagRegex = "(^|\\s)#" + searchTarget + "(:(?<number>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?(\\s|$)";
+				let strHashtagRegex = "(^|\\s)#" + searchTarget + "(\\/[\\w]+)*" + "(:(?<number>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?(\\s|$)";
 				let hashTagRegex = new RegExp(strHashtagRegex, "gm");
 				let match;
 				let tagMeasure = 0.0;
