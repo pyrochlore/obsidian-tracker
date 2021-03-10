@@ -23,3 +23,10 @@ folder: diary3
 output: bar
 accum: true
 ```
+
+``` tracker
+searchType: tag
+searchTarget: "#diary"
+folder: diary2
+output: bar
+```

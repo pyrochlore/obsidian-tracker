@@ -369,13 +369,20 @@ export default class Tracker extends Plugin {
 		let searchType = yaml.searchType;
 
 		// Search target
-		if ((typeof yaml.searchTarget === 'undefined') || yaml.searchTarget === "") {
+		let searchTarget = "";
+		if ((typeof yaml.searchTarget !== "string") || yaml.searchTarget === "") {
 			let errorMessage = "Invalid search target (searchTarget)";
 			Tracker.renderErrorMessage(canvas, errorMessage);
 			el.replaceChild(canvas, blockToReplace);
 			return;
 		}
-		let searchTarget = yaml.searchTarget;
+		if (searchType === "tag" && yaml.searchTarget.startsWith("#") && yaml.searchTarget.length > 2) {
+			searchTarget = yaml.searchTarget.substring(1);
+		}
+		else {
+			searchTarget = yaml.searchTarget;
+		}
+		console.log(searchTarget);
 
 		// Prepare graph info
 		let graphInfo = new GraphInfo(searchType, searchTarget);
