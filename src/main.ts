@@ -264,6 +264,18 @@ export default class Tracker extends Plugin {
 	static render(canvas: HTMLElement, graphInfo: GraphInfo) {
 		// console.log(graphInfo.data);
 
+		// Preprocess of data
+		
+		let tagMeasureAccum = 0.0;
+		for (let dataPoint of graphInfo.data) {
+			if (graphInfo.accum) {
+				if (dataPoint.value !== null) {
+					tagMeasureAccum += dataPoint.value;
+					dataPoint.value = tagMeasureAccum;
+				}
+			}
+		}
+
 		if (graphInfo.output == "line") {
 			Tracker.renderLine(canvas, graphInfo);
 		}
@@ -608,7 +620,6 @@ export default class Tracker extends Plugin {
 		}
 
 		// Preprocess data
-		let tagMeasureAccum = 0.0;
 		for (let curDate = startDate.clone(); curDate <= endDate; curDate.add(1, 'days')) {
 			// console.log(curDate);
 			let dataPoints = data.filter(p => curDate.isSame(p.date));
@@ -624,12 +635,6 @@ export default class Tracker extends Plugin {
 					}
 				}
 				
-				// Accumulte data value
-				if (graphInfo.accum) {
-					tagMeasureAccum = dataPoint.value + tagMeasureAccum;
-					dataPoint.value = tagMeasureAccum;
-				}
-
 				graphInfo.data.push(dataPoint);
 			}
 			else {
@@ -637,13 +642,7 @@ export default class Tracker extends Plugin {
 				
 				let newPoint = new DataPoint();
 				newPoint.date = curDate.clone();
-				if (graphInfo.accum) {
-					tagMeasureAccum = newPoint.value + tagMeasureAccum;
-					newPoint.value = tagMeasureAccum;
-				}
-				else {
-					newPoint.value = null;
-				}
+				newPoint.value = null;
 
 				graphInfo.data.push(newPoint);
 			}
