@@ -1,4 +1,4 @@
-# ExpenseTracker
+# Expense Tracker
 
 ``` tracker
 searchType: tag
