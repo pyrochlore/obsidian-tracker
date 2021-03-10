@@ -152,10 +152,17 @@ export default class Tracker extends Plugin {
 			.style("text-anchor", "start");
 
 		// Add Y axis
+		let yMin = d3.min(graphInfo.data, function(p) { return p.value; });
 		let yMax = d3.max(graphInfo.data, function(p) { return p.value; });
-		let yScale = d3.scaleLinear()
-			.domain([0, yMax])
-			.range([ height, 0 ]);
+		let yExtent = yMax - yMin;
+
+		let yScale = d3.scaleLinear();
+		if (yExtent > 0) {
+			yScale.domain([yMin - yExtent * 0.2, yMax + yExtent * 0.2]).range([ height, 0 ]);
+		}
+		else {
+			yScale.domain([0, yMax * 1.2]).range([ height, 0 ]);
+		}
 		let yAxis = d3.axisLeft(yScale);
 		let yAxisGroup = svg.append("g").call(yAxis);
 		
@@ -228,10 +235,13 @@ export default class Tracker extends Plugin {
 			.style("text-anchor", "start");
 
 		// Add Y axis
+		let yMin = d3.min(graphInfo.data, function(p) { return p.value; });
 		let yMax = d3.max(graphInfo.data, function(p) { return p.value; });
-		let yScale = d3.scaleLinear()
-			.domain([0, yMax])
-			.range([ height, 0 ]);
+		let yExtent = yMax - yMin;
+		
+		let yScale = d3.scaleLinear();
+		yScale.domain([0, yMax * 1.2]).range([ height, 0 ]);
+			
 		let yAxis = d3.axisLeft(yScale);
 		let yAxisGroup = svg.append("g").call(yAxis);
 
