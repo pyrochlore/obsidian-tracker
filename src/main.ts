@@ -167,8 +167,8 @@ export default class Tracker extends Plugin {
 		let yAxisGroup = svg.append("g").call(yAxis);
 		
 		// Add lines
-		let line = d3.line()
-			.defined(function(p) { return p.value; })
+		let line = d3.line<DataPoint>()
+			.defined(function(p) { return p.value !== null; })
 			.x(function(p) { return xScale(p.date); })
 			.y(function(p) { return yScale(p.value); });
 
@@ -178,7 +178,7 @@ export default class Tracker extends Plugin {
 			.attr("fill", "none")
 			.attr("stroke", "white")
 			.attr("stroke-width", 1.5)
-			.attr("d", line);
+			.attr("d", line as any);
 
 		// Add dots
 		if (graphInfo.showDataPoint) {
