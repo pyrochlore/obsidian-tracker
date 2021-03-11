@@ -25,6 +25,7 @@ class GraphInfo {
 	showDataPoint: boolean;
 	penalty: number;
 	backgroundColor: string;
+	showTooltipData: boolean;
 
 	constructor (searchType: string, searchTarget: string) {
 		this.searchType = searchType;
@@ -36,6 +37,7 @@ class GraphInfo {
 		this.showDataPoint = true;
 		this.penalty = 0.0;
 		this.backgroundColor = "SteelGray";
+		this.showTooltipData = true;
 	}
 }
 
@@ -182,7 +184,7 @@ export default class Tracker extends Plugin {
 
 		// Add dots
 		if (graphInfo.showDataPoint) {
-			svg.append("g")
+			let dots = svg.append("g")
 				.selectAll("dot")
 				.data(graphInfo.data.filter(function(p) { return p.value != null; }))
 				.enter().append("circle")
@@ -192,8 +194,14 @@ export default class Tracker extends Plugin {
 				.attr("stroke", "#69b3a2")
 				.attr("stroke-width", 3)
 				.attr("fill", "#69b3a2");
-		}
 
+			if (graphInfo.showTooltipData) {
+				let tooltips = dots.append('title')
+				.text(function(p) {
+				  return ("date: " + p.date.format(Tracker.dateFormat) + "\nvalue: " + p.value.toString()); 
+				});
+			}
+		}
 	}
 
 	static renderBar(canvas: HTMLElement, graphInfo: GraphInfo) {
@@ -246,7 +254,7 @@ export default class Tracker extends Plugin {
 		let yAxisGroup = svg.append("g").call(yAxis);
 
 		// Add bar
-		svg.append("g")
+		let bars = svg.append("g")
 			.selectAll("bar")
 			.data(graphInfo.data)
 			.enter()
@@ -256,6 +264,13 @@ export default class Tracker extends Plugin {
 			.attr("width", xScale.bandwidth())
 			.attr("height", function(p) { return height - yScale(p.value); })
 			.attr("fill", "#69b3a2");
+		
+		if (graphInfo.showTooltipData) {
+			let tooltips = bars.append('title')
+			.text(function(p) {
+				 return ("date: " + p.date.format(Tracker.dateFormat) + "\nvalue: " + p.value.toString()); 
+			});
+		}
 	}
 
 	static renderErrorMessage(canvas: HTMLElement, errorMessage: string) {
@@ -439,6 +454,12 @@ export default class Tracker extends Plugin {
 			backgroundColor = yaml.backgroundColor;
 		}
 		graphInfo.backgroundColor = backgroundColor;
+		// show tooltip data
+		let showTooltipData = true;
+		if (typeof yaml.showTooltipData === "boolean") {
+			showTooltipData = yaml.showTooltipData;
+		}
+		graphInfo.showTooltipData = showTooltipData;
 
 		// Get files
 		let files: TFile[];
