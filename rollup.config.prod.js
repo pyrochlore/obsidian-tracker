@@ -15,5 +15,13 @@ export default {
     typescript(),
     nodeResolve({browser: true}),
     commonjs(),
-  ]
+  ],
+  onwarn: function(warning, warner){
+    if (warning.code === 'CIRCULAR_DEPENDENCY'){
+        if(warning.importer && warning.importer.startsWith('node_modules\\')){
+            return;
+        }
+    }
+    warner(warning);
+  }
 };
