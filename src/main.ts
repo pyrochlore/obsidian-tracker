@@ -651,7 +651,7 @@ export default class Tracker extends Plugin {
 			startDate = minDate.clone();
 			endDate = maxDate.clone();
 		}
-		else if (startDate.isValid()) {
+		else if (startDate.isValid() && !endDate.isValid()) {
 			if (startDate < maxDate) {
 				endDate = maxDate.clone();
 			}
@@ -662,7 +662,7 @@ export default class Tracker extends Plugin {
 				return;
 			}
 		}
-		else if (endDate.isValid()) {
+		else if (endDate.isValid() && !startDate.isValid()) {
 			if (endDate > minDate) {
 				startDate = minDate.clone();
 			}
@@ -682,6 +682,8 @@ export default class Tracker extends Plugin {
 				return;
 			}
 		}
+		// console.log(startDate);
+		// console.log(endDate);
 
 		// Preprocess data
 		for (let curDate = startDate.clone(); curDate <= endDate; curDate.add(1, 'days')) {
