@@ -18,7 +18,7 @@ export default {
   ],
   onwarn: function(warning, warner){
     if (warning.code === 'CIRCULAR_DEPENDENCY'){
-        if(warning.importer && warning.importer.startsWith('node_modules\\')){
+        if(warning.importer && warning.importer.startsWith('node_modules')){
             return;
         }
     }
