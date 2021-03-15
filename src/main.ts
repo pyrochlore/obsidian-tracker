@@ -115,6 +115,30 @@ export default class Tracker extends Plugin {
 		await this.saveData(this.settings);
 	}
 
+	static getTickInterval(days: number) {
+		let tickInterval;
+
+		if (days <= 15) {// number of ticks: 0-15
+			tickInterval = d3.timeDay;
+		}
+		else if (days <= 4 * 15) {// number of ticks: 4-15
+			tickInterval = d3.timeDay.every(4);
+		}
+		else if (days <= 7 * 15) {// number of ticks: 8-15
+			tickInterval = d3.timeWeek;
+		}
+		else if (days <= 15 * 30) {// number of ticks: 4-15
+			tickInterval = d3.timeMonth;
+		}
+		else if (days <= 15 * 60) {// number of ticks: 8-15
+			tickInterval = d3.timeMonth.every(2);
+		}
+		else {
+			tickInterval = d3.timeYear;
+		}
+
+		return tickInterval;
+	}
 	static renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
 		let margin = {top: 10, right: 30, bottom: 60, left: 60};
     	let width = 460 - margin.left - margin.right;
@@ -142,7 +166,9 @@ export default class Tracker extends Plugin {
 			.domain(xDomain)
 			.range([ 0, width ]);
 
-		let xAxis = d3.axisBottom(xScale).ticks(graphInfo.data.length).tickFormat(d3.timeFormat("%m/%d"));
+		let tickInterval = Tracker.getTickInterval(graphInfo.data.length);
+
+		let xAxis = d3.axisBottom(xScale).ticks(tickInterval).tickFormat(d3.timeFormat("%m-%d"));
 		let xAxisGroup = svg.append("g");
 		xAxisGroup.attr("transform", "translate(0," + height + ")")
 			.call(xAxis)
