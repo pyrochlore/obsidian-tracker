@@ -179,6 +179,13 @@ export default class Tracker extends Plugin {
 			.attr("transform", "rotate(90)")
 			.style("text-anchor", "start");
 
+		let xAxisLabel = xAxisGroup.append("text")
+			.text("Date")
+			.attr("transform", "translate(" + (width / 2) + " ," + margin.bottom + ")")
+			.attr("fill", "white")
+			.style("text-anchor", "middle")
+			.style("font-size", "larger");
+
 		// Add Y axis
 		let yMin = d3.min(graphInfo.data, function(p) { return p.value; });
 		let yMax = d3.max(graphInfo.data, function(p) { return p.value; });
@@ -192,7 +199,17 @@ export default class Tracker extends Plugin {
 			yScale.domain([0, yMax * 1.2]).range([ height, 0 ]);
 		}
 		let yAxis = d3.axisLeft(yScale);
-		let yAxisGroup = svg.append("g").call(yAxis);
+		let yAxisGroup = svg.append("g")
+		yAxisGroup.call(yAxis);
+
+		let yAxisLabel = yAxisGroup.append("text")
+			.text("Value")
+			.attr("transform", "rotate(-90)")
+			.attr("y", 0 - (margin.left / 2))
+			.attr("x", 0 - (height / 2))
+			.attr("fill", "white")
+			.style("text-anchor", "middle")
+			.style("font-size", "larger");			
 		
 		// Add lines
 		let line = d3.line<DataPoint>()
