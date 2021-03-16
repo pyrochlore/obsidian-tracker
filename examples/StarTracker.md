@@ -3,7 +3,6 @@
 ``` tracker
 searchType: text
 searchTarget: ⭐
-folder: diary3
-output: bar
+folder: diary
 accum: true
 ```

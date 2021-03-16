@@ -3,14 +3,14 @@
 ``` tracker
 searchType: tag
 searchTarget: weight
-folder: diary1
+folder: diary
 ```
 
 ``` tracker
 searchType: tag
 searchTarget: weight
 showDataPoint: false
-folder: diary2
+folder: diary
 ```
 
 
