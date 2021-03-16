@@ -241,7 +241,11 @@ export default class Tracker extends Plugin {
 			if (graphInfo.showTooltipData) {
 				let tooltips = dots.append('title')
 				.text(function(p) {
-				  return ("date: " + p.date.format(Tracker.dateFormat) + "\nvalue: " + p.value.toString()); 
+					if (p.value !== null) {
+						return ("date: " + p.date.format(Tracker.dateFormat) + "\nvalue: " + p.value.toString()); 
+					}
+					
+					return;
 				});
 			}
 		}
@@ -311,7 +315,11 @@ export default class Tracker extends Plugin {
 		if (graphInfo.showTooltipData) {
 			let tooltips = bars.append('title')
 			.text(function(p) {
-				 return ("date: " + p.date.format(Tracker.dateFormat) + "\nvalue: " + p.value.toString()); 
+				if (p.value !== null) {
+					return ("date: " + p.date.format(Tracker.dateFormat) + "\nvalue: " + p.value.toString()); 
+				}
+				
+				return;
 			});
 		}
 	}
