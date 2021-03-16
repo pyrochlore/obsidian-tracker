@@ -251,77 +251,8 @@ export default class Tracker extends Plugin {
 		}
 	}
 
-	static renderBar(canvas: HTMLElement, graphInfo: GraphInfo) {
-		let margin = {top: 10, right: 30, bottom: 60, left: 60};
-    	let width = 460 - margin.left - margin.right;
-    	let height = 400 - margin.top - margin.bottom;
+	static renderText(canvas: HTMLElement, graphInfo: GraphInfo) {
 
-		let svg = d3.select(canvas)
-			.append("svg")
-				.attr("width", width + margin.left + margin.right)
-				.attr("height", height + margin.top + margin.bottom)
-				.style("background-color", graphInfo.backgroundColor)
-				.append("g")
-				.attr("transform",
-					"translate(" + margin.left + "," + margin.top + ")");
-
-		// Add caption
-		svg.append("text")
-			.text(graphInfo.title)
-			.attr("transform", "translate(" + width/2 + "," + height/10 + ")")
-			.style("text-anchor", "middle")
-			.style("stroke", "white");
-
-		let xDomain = graphInfo.data.map( function(p) { return (p.date.format(Tracker.dateFormat)); });
-		let xScale = d3.scaleBand()
-			.domain(xDomain)
-			.range([ 0, width ]).padding(0.4);
-
-		//let xAxis = d3.axisBottom(xScale).ticks(graphInfo.data.length).tickFormat(d3.timeFormat("%m/%d"));
-		let xAxis = d3.axisBottom(xScale).ticks(graphInfo.data.length);
-		let xAxisGroup = svg.append("g");
-		xAxisGroup.attr("transform", "translate(0," + height + ")")
-			.call(xAxis)
-			.selectAll("text")
-			.attr("y", 0)
-			.attr("x", 9)
-			.attr("dy", ".35em")
-			.attr("transform", "rotate(90)")
-			.style("text-anchor", "start");
-
-		// Add Y axis
-		let yMin = d3.min(graphInfo.data, function(p) { return p.value; });
-		let yMax = d3.max(graphInfo.data, function(p) { return p.value; });
-		let yExtent = yMax - yMin;
-		
-		let yScale = d3.scaleLinear();
-		yScale.domain([0, yMax * 1.2]).range([ height, 0 ]);
-			
-		let yAxis = d3.axisLeft(yScale);
-		let yAxisGroup = svg.append("g").call(yAxis);
-
-		// Add bar
-		let bars = svg.append("g")
-			.selectAll("bar")
-			.data(graphInfo.data)
-			.enter()
-			.append("rect")
-			.attr("x", function(p) { return xScale(p.date.format(Tracker.dateFormat)); })
-			.attr("y", function(p) { return yScale(p.value); })
-			.attr("width", xScale.bandwidth())
-			.attr("height", function(p) { return height - yScale(p.value); })
-			.attr("fill", "#69b3a2");
-		
-		if (graphInfo.showTooltipData) {
-			let tooltips = bars.append('title')
-			.text(function(p) {
-				if (p.value !== null) {
-					return ("date: " + p.date.format(Tracker.dateFormat) + "\nvalue: " + p.value.toString()); 
-				}
-				
-				return;
-			});
-		}
 	}
 
 	static renderErrorMessage(canvas: HTMLElement, errorMessage: string) {
@@ -366,8 +297,8 @@ export default class Tracker extends Plugin {
 		if (graphInfo.output == "line") {
 			Tracker.renderLine(canvas, graphInfo);
 		}
-		else if (graphInfo.output == "bar") {
-			Tracker.renderBar(canvas, graphInfo);
+		else if (graphInfo.output == "text") {
+			Tracker.renderText(canvas, graphInfo);
 		}
 	}
 
@@ -472,8 +403,8 @@ export default class Tracker extends Plugin {
 		if (typeof yaml.output !== 'undefined') {
 			output = yaml.output;
 		}
-		if (output !== "line" && output !== "bar") {
-			let errorMessage = "Unknown output type! Allow 'line' or 'bar' only";
+		if (output !== "line" && output !== "text") {
+			let errorMessage = "Unknown output type! Allow 'line' or 'text' only";
 			Tracker.renderErrorMessage(canvas, errorMessage);
 			el.replaceChild(canvas, blockToReplace);
 			return;
