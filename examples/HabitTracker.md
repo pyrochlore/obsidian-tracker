@@ -11,7 +11,7 @@ searchType: tag
 searchTarget: meditation
 folder: diary
 accum: true
-panalty: -1.0
+penalty: -1
 ```
 
 
