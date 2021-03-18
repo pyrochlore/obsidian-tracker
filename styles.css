@@ -8,6 +8,10 @@
     
     --color-dot-fill: #69b3a2;
     --color-dot-stroke: #69b3a2;
+
+    --color-tooltip-bg: #FFFFFF;
+    --color-tooltip-border: #000000;
+    --color-tooltip-label: #000000;
 }
  
  .theme-dark {
@@ -20,6 +24,10 @@
 
     --color-dot-fill: #69b3a2;
     --color-dot-stroke: #69b3a2;
+
+    --color-tooltip-bg: #FFFFFF;
+    --color-tooltip-border: #000000;
+    --color-tooltip-label: #000000;
  }
 
 .tracker-title {
@@ -60,4 +68,15 @@
     stroke: var(--color-dot-stroke);
 }
 
+.tracker-tooltip {
+    fill: var(--color-tooltip-bg);
+    stroke: var(--color-tooltip-border);
+    stroke-width: 1px;
+}
 
+.tracker-tooltip-label {
+    fill: var(--color-tooltip-label);
+    stroke: none;
+    font-size: 12px;
+    font-weight: bold;
+}

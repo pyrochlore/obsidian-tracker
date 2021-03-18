@@ -171,6 +171,7 @@ export default class Tracker extends Plugin {
 		let margin = {top: 10, right: 30, bottom: 70, left: 70};
     	let width = 460 - margin.left - margin.right;
     	let height = 400 - margin.top - margin.bottom;
+		let tooltipSize = { width: 90, height: 45};
 
 		if (graphInfo.title) {
 			margin.top += 20;
@@ -184,9 +185,9 @@ export default class Tracker extends Plugin {
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 		// Add graph title
-		svg.append("text")
+		graphArea.append("text")
 			.text(graphInfo.title)
-			.attr("transform", "translate(" + (width/2 + margin.left) + "," + margin.top/2 + ")")
+			.attr("transform", "translate(" + width/2 + "," + -margin.top/2 + ")")
 			.attr("class", "tracker-title");
 
 		// Add X axis
@@ -261,20 +262,49 @@ export default class Tracker extends Plugin {
 			let dots = dataArea.selectAll("dot")
 				.data(graphInfo.data.filter(function(p) { return p.value != null; }))
 				.enter().append("circle")
-				.attr("r", 2)
+				.attr("r", 3)
 				.attr("cx", function(p) { return xScale(p.date); })
 				.attr("cy", function(p) { return yScale(p.value); })
+				.attr("date", function(p) { return d3.timeFormat("%y-%m-%d")(p.date as any); })
+				.attr("value", function(p) { return p.value; })
 				.attr("class", "tracker-dot");
 
 			if (graphInfo.showTooltipData) {
-				let tooltips = dots.append('title')
-				.text(function(p) {
-					if (p.value !== null) {
-						return ("date: " + p.date.format(Tracker.dateFormat) + "\nvalue: " + p.value.toString()); 
-					}
-					
-					return;
-				});
+				let tooltip = svg.append("g").style("opacity", 0);
+				let tooltipBg = tooltip.append("rect")
+					.attr("width", tooltipSize.width)
+					.attr("height", tooltipSize.height)
+					.attr("class", "tracker-tooltip");
+				let tooltipLabel = tooltip.append("text")
+					.attr("width", tooltipSize.width)
+					.attr("height", tooltipSize.height)
+					.attr("class", "tracker-tooltip-label");
+				let tooltipLabelDate = tooltipLabel.append("tspan")
+					.attr("x", 5)
+					.attr("y", tooltipSize.height/5 * 2);
+				let tooltipLabelValue = tooltipLabel.append("tspan")
+					.attr("x", 5)
+					.attr("y", tooltipSize.height/5 * 4);
+
+				dots
+					.on("mouseenter", function(event) {
+						tooltipLabelDate.text("date:" + d3.select(this).attr("date"));
+						tooltipLabelValue.text("value:" + d3.select(this).attr("value"));
+
+						const [x, y] = d3.pointer(event);
+						if (x < width/2) {
+							tooltip.attr('transform', "translate(" + (x + tooltipSize.width * 1.3) + "," + (y - tooltipSize.height * 1.0) + ")");
+						}
+						else {
+							tooltip.attr('transform', "translate(" + (x - tooltipSize.width * 0.0) + "," + (y - tooltipSize.height * 1.0) + ")");
+						}
+						
+
+						tooltip.transition().duration(200).style("opacity", 1);
+					})
+					.on("mouseleave", function() {
+						tooltip.transition().duration(500).style("opacity", 0);
+					});
 			}
 		}
 	}
