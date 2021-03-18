@@ -1,0 +1,63 @@
+.theme-light {
+    --color-title: #000000;
+    --color-axis: #000000;
+    --font-axis-label: #000000;
+    --color-tick-label: #000000;
+    --color-line: #000000;
+    --color-legend: #000000;
+    
+    --color-dot-fill: #69b3a2;
+    --color-dot-stroke: #69b3a2;
+}
+ 
+ .theme-dark {
+    --color-title: #FFFFFF;
+    --color-axis: #FFFFFF;
+    --color-axis-label: #FFFFFF;
+    --color-tick-label: #FFFFFF;
+    --color-line: #FFFFFF;
+    --color-legend: #FFFFFF;
+
+    --color-dot-fill: #69b3a2;
+    --color-dot-stroke: #69b3a2;
+ }
+
+.tracker-title {
+    fill: var(--color-title);
+    text-anchor: middle;
+    font-size: 18px;
+}
+
+.tracker-axis {
+    fill: none;
+    stroke: var(--color-axis);
+    stroke-width: 1px;
+}
+
+.tracker-axis-label {
+    fill: var(--color-axis-label);
+    text-anchor: middle;
+    font-size: 14px;
+    stroke: none;
+}
+
+.tracker-tick-label {
+    fill: var(--color-tick-label);
+    stroke: none;
+    font-size: 12px;
+}
+
+.tracker-line {
+    fill: none;
+    stroke: var(--color-line);
+    stroke-width: 1.5px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.tracker-dot {
+    fill: var(--color-dot-fill);
+    stroke: var(--color-dot-stroke);
+}
+
+

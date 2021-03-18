@@ -1,11 +1,12 @@
 import typescript from '@rollup/plugin-typescript';
 import {nodeResolve} from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
+import copy from 'rollup-plugin-copy'
 
 export default {
   input: 'src/main.ts',
   output: {
-    dir: './examples/.obsidian/plugins/obsidian-tracker',
+    dir: 'examples/.obsidian/plugins/obsidian-tracker',
     sourcemap: 'inline',
     format: 'cjs',
     exports: 'default'
@@ -15,6 +16,11 @@ export default {
     typescript(),
     nodeResolve({browser: true}),
     commonjs(),
+    copy({
+      targets: [
+        { src: ['styles.css', 'manifest.json'], dest: 'examples/.obsidian/plugins/obsidian-tracker' }
+      ]
+    })
   ],
   onwarn: function(warning, warner){
     if (warning.code === 'CIRCULAR_DEPENDENCY'){
