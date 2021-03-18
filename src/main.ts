@@ -116,6 +116,7 @@ export default class Tracker extends Plugin {
 	}
 
 	static getTickInterval(days: number) {
+
 		let tickInterval;
 
 		if (days <= 15) {// number of ticks: 0-15
@@ -139,26 +140,54 @@ export default class Tracker extends Plugin {
 
 		return tickInterval;
 	}
+
+	static getTickFormat(days: number) {
+
+		let tickFormat;
+
+		if (days <= 15) {// number of ticks: 0-15
+			tickFormat = d3.timeFormat("%y-%m-%d");
+		}
+		else if (days <= 4 * 15) {// number of ticks: 4-15
+			tickFormat = d3.timeFormat("%y-%m-%d");
+		}
+		else if (days <= 7 * 15) {// number of ticks: 8-15
+			tickFormat = d3.timeFormat("%y-%m-%d");
+		}
+		else if (days <= 15 * 30) {// number of ticks: 4-15
+			tickFormat = d3.timeFormat("%y %b");
+		}
+		else if (days <= 15 * 60) {// number of ticks: 8-15
+			tickFormat = d3.timeFormat("%y %b");
+		}
+		else {
+			tickFormat = d3.timeFormat("%Y");
+		}
+
+		return tickFormat;
+	}
+
 	static renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
-		let margin = {top: 10, right: 30, bottom: 60, left: 60};
+		let margin = {top: 10, right: 30, bottom: 70, left: 70};
     	let width = 460 - margin.left - margin.right;
     	let height = 400 - margin.top - margin.bottom;
 
-		let svg = d3.select(canvas)
-		.append("svg")
-			.attr("width", width + margin.left + margin.right)
-			.attr("height", height + margin.top + margin.bottom)
-			.style("background-color", graphInfo.backgroundColor)
-			.append("g")
-			.attr("transform",
-				"translate(" + margin.left + "," + margin.top + ")");
+		if (graphInfo.title) {
+			margin.top += 20;
+		}
 
-		// Add caption
+		let svg = d3.select(canvas).append("svg")
+			.attr("width", width + margin.left + margin.right)
+			.attr("height", height + margin.top + margin.bottom);
+
+		let graphArea = svg.append("g")
+			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+		// Add graph title
 		svg.append("text")
 			.text(graphInfo.title)
-			.attr("transform", "translate(" + width/2 + "," + height/10 + ")")
-			.style("text-anchor", "middle")
-			.style("stroke", "white");
+			.attr("transform", "translate(" + (width/2 + margin.left) + "," + margin.top/2 + ")")
+			.attr("class", "tracker-title");
 
 		// Add X axis
 		let xDomain = d3.extent(graphInfo.data, function(p) { return p.date; });
@@ -167,24 +196,25 @@ export default class Tracker extends Plugin {
 			.range([ 0, width ]);
 
 		let tickInterval = Tracker.getTickInterval(graphInfo.data.length);
+		let tickFormat = Tracker.getTickFormat(graphInfo.data.length);
 
-		let xAxis = d3.axisBottom(xScale).ticks(tickInterval).tickFormat(d3.timeFormat("%m-%d"));
-		let xAxisGroup = svg.append("g");
-		xAxisGroup.attr("transform", "translate(0," + height + ")")
-			.call(xAxis)
-			.selectAll("text")
+		let xAxisGen = d3.axisBottom(xScale).ticks(tickInterval).tickFormat(tickFormat);
+		let xAxis = graphArea.append("g")
+			.attr("transform", "translate(0," + height + ")")
+			.call(xAxisGen)
+			.attr("class", "tracker-axis");
+
+		let xAxisTickLabels = xAxis.selectAll("text")
+			.attr("x", -9)
 			.attr("y", 0)
-			.attr("x", 9)
-			.attr("dy", ".35em")
-			.attr("transform", "rotate(90)")
-			.style("text-anchor", "start");
+			.attr("transform", "rotate(-65)")
+			.style("text-anchor", "end")
+			.attr("class", "tracker-tick-label");
 
-		let xAxisLabel = xAxisGroup.append("text")
+		let xAxisLabel = xAxis.append("text")
 			.text("Date")
 			.attr("transform", "translate(" + (width / 2) + " ," + margin.bottom + ")")
-			.attr("fill", "white")
-			.style("text-anchor", "middle")
-			.style("font-size", "larger");
+			.attr("class", "tracker-axis-label");
 
 		// Add Y axis
 		let yMin = d3.min(graphInfo.data, function(p) { return p.value; });
@@ -198,45 +228,43 @@ export default class Tracker extends Plugin {
 		else {
 			yScale.domain([0, yMax * 1.2]).range([ height, 0 ]);
 		}
-		let yAxis = d3.axisLeft(yScale);
-		let yAxisGroup = svg.append("g")
-		yAxisGroup.call(yAxis);
+		let yAxisGen = d3.axisLeft(yScale);
+		let yAxis = graphArea.append("g")
+		yAxis.call(yAxisGen)
+			.attr("class", "tracker-axis");
 
-		let yAxisLabel = yAxisGroup.append("text")
+		let yAxisTickLabels = yAxis.selectAll("text")
+			.attr("class", "tracker-tick-label");
+
+		let yAxisLabel = yAxis.append("text")
 			.text("Value")
 			.attr("transform", "rotate(-90)")
 			.attr("y", 0 - (margin.left / 2))
 			.attr("x", 0 - (height / 2))
-			.attr("fill", "white")
-			.style("text-anchor", "middle")
-			.style("font-size", "larger");			
+			.attr("class", "tracker-axis-label");	
 		
-		// Add lines
-		let line = d3.line<DataPoint>()
+		let dataArea = graphArea.append("g");
+
+		// Add line
+		let lineGen = d3.line<DataPoint>()
 			.defined(function(p) { return p.value !== null; })
 			.x(function(p) { return xScale(p.date); })
 			.y(function(p) { return yScale(p.value); });
 
-		svg.append("g")
-			.append("path")
+		dataArea.append("path")
 			.datum(graphInfo.data)
-			.attr("fill", "none")
-			.attr("stroke", "white")
-			.attr("stroke-width", 1.5)
-			.attr("d", line as any);
+			.attr("class", "tracker-line")
+			.attr("d", lineGen as any);
 
 		// Add dots
 		if (graphInfo.showDataPoint) {
-			let dots = svg.append("g")
-				.selectAll("dot")
+			let dots = dataArea.selectAll("dot")
 				.data(graphInfo.data.filter(function(p) { return p.value != null; }))
 				.enter().append("circle")
-				.attr("r", 3.5)
+				.attr("r", 2)
 				.attr("cx", function(p) { return xScale(p.date); })
 				.attr("cy", function(p) { return yScale(p.value); })
-				.attr("stroke", "#69b3a2")
-				.attr("stroke-width", 3)
-				.attr("fill", "#69b3a2");
+				.attr("class", "tracker-dot");
 
 			if (graphInfo.showTooltipData) {
 				let tooltips = dots.append('title')

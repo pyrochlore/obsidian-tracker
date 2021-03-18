@@ -4,6 +4,7 @@
 searchType: tag
 searchTarget: weight
 folder: diary
+startDate: 2021-10-01
 ```
 
 ``` tracker
