@@ -32,10 +32,38 @@ for (let curDate = startDate.clone(); curDate <= endDate; curDate.add(1, 'days')
 
     let content:string = "";
 
+    // fontmatter
+    let frontmatter = "---\n";
+    let weekday = curDate.weekday();
+    if (weekday == 0 || weekday == 6) {
+        frontmatter += "tags: " + "\n";
+    }
+    else {
+        frontmatter += "tags: " + "work_log" + "\n";
+    }
+    frontmatter += "---\n";
+    content += frontmatter;
+
+    content += "\n";
+
     // weight
     let weight = randomFloatFromInterval(60.0, 80.0);
     let tagWeight = "#weight:" + weight.toFixed(1) + "kg";
     content += tagWeight + "\n";
+
+    content += "\n";
+
+    // excercise
+    // pushup
+    let numPushup = randomIntFromInterval(30, 50);
+    let tagPushup = "#exercise-pushup:" + numPushup;
+    content += tagPushup + "\n";
+    //plank
+    let numPlank = randomIntFromInterval(30, 120);
+    let tagPlank = "#exercise-plank:" + numPlank + "sec";
+    content += tagPlank + "\n";
+
+    content += "\n";
 
     // meditation
     let tagMeditation = "#meditation";
@@ -44,10 +72,14 @@ for (let curDate = startDate.clone(); curDate <= endDate; curDate.add(1, 'days')
         content += tagMeditation + "\n";
     }
 
+    content += "\n";
+
     // star
     let textStar = "⭐";
     let numStar = randomIntFromInterval(0, 5);
     content += textStar.repeat(numStar) + "\n";
+
+    content += "\n";
 
     // finance
     let tagFinanceBank1 = "#finance/bank1";
@@ -61,6 +93,8 @@ for (let curDate = startDate.clone(); curDate <= endDate; curDate.add(1, 'days')
         content += tagFinanceBank2 + "/transfer:" + "-100USD" + "\n";
         content += tagFinanceBank1 + "/transfer:" + "100USD" + "\n";
     }
+
+    content += "\n";
 
     fs.writeFileSync(fh, content);
     fs.closeSync(fh);
