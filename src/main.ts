@@ -412,22 +412,13 @@ export default class Tracker extends Plugin {
 	}
 
 	static renderErrorMessage(canvas: HTMLElement, errorMessage: string) {
-		let margin = {top: 10, right: 30, bottom: 60, left: 60};
-    	let width = 460 - margin.left - margin.right;
-    	let height = 400 - margin.top - margin.bottom;
-
 		let svg = d3.select(canvas)
-			.append("svg")
-				.attr("width", width + margin.left + margin.right)
-				.attr("height", height + margin.top + margin.bottom);
-
-		svg.append("text")
+			.append("div")
 			.text(errorMessage)
-			.attr("transform", "translate(" + width/2 + "," + height/2 + ")")
-			.style("text-anchor", "middle")
-			.style("stroke", "red");	
-
-		console.log(errorMessage);
+			.style("background-color", "white")
+			.style("margin-bottom", "20px")
+			.style("padding", "10px")
+			.style("color", "red");
 	}
 
 	static render(canvas: HTMLElement, graphInfo: GraphInfo) {
