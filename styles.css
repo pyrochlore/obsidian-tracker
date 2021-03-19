@@ -66,6 +66,7 @@
 .tracker-dot {
     fill: var(--color-dot-fill);
     stroke: var(--color-dot-stroke);
+    stroke-width: 1px;
 }
 
 .tracker-tooltip {
@@ -78,5 +79,4 @@
     fill: var(--color-tooltip-label);
     stroke: none;
     font-size: 12px;
-    font-weight: bold;
 }

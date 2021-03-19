@@ -10,8 +10,9 @@ startDate: 2021-10-01
 ``` tracker
 searchType: tag
 searchTarget: weight
-showDataPoint: false
 folder: diary
+line:
+	showPoint: false
 ```
 
 

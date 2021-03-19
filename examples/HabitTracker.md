@@ -4,7 +4,8 @@
 searchType: tag
 searchTarget: meditation
 folder: diary
-title: Meditation
+line:
+	title: Meditation
 ```
 
 ``` tracker

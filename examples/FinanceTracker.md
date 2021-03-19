@@ -19,4 +19,6 @@ searchType: tag
 searchTarget: finance/bank2
 folder: diary
 accum: true
+line:
+	fillGap: true
 ```

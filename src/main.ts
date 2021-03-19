@@ -16,28 +16,75 @@ class DataPoint {
 }
 
 class GraphInfo {
-	searchType: string;// a must
-	searchTarget: string;// a must
-	title: string;
-	data: DataPoint[];
-	output: string;
+	// Input
+	searchType: string;
+	searchTarget: string;
+	folder: string;
+	dateFormat: string;
+	startDate: moment.Moment;
+	endDate: moment.Moment;
 	accum: boolean;
-	showDataPoint: boolean;
 	penalty: number;
-	backgroundColor: string;
-	showTooltipData: boolean;
+
+	line: LineInfo;
+
+	// Output
+	output: string;
+
+	// Inner data
+	data: DataPoint[];
 
 	constructor (searchType: string, searchTarget: string) {
 		this.searchType = searchType;
 		this.searchTarget = searchTarget;
-		this.title = "";
-		this.data = [];
-		this.output = "line";
+		this.folder = "";
+		this.dateFormat = "";
+		this.startDate = moment("");
+		this.endDate = moment("");
 		this.accum = false;
-		this.showDataPoint = true;
 		this.penalty = 0.0;
-		this.backgroundColor = "SteelGray";
-		this.showTooltipData = true;
+
+		this.line = new LineInfo();
+
+		this.output = "line";
+
+		this.data = [];
+	}
+}
+
+class LineInfo {
+	title: string;
+	xAxisLabel: string;
+	yAxisLabel: string;
+	labelColor: string;
+	yAxisUnit: string;
+	yMin: number | null;
+	yMax: number | null;
+	axisColor: string;
+	lineColor: string;
+	showPoint: boolean;
+	pointColor: string;
+	pointBorderColor: string;
+	pointSize: number;
+	allowInspectData: boolean;
+	fillGap: boolean;
+
+	constructor () {
+		this.title = "";
+		this.xAxisLabel = "Date";
+		this.yAxisLabel = "Value";
+		this.labelColor = "";
+		this.yAxisUnit = "";
+		this.yMin = null;
+		this.yMax = null;
+		this.axisColor = "";
+		this.lineColor = "";
+		this.showPoint = true;
+		this.pointColor = "#69b3a2";
+		this.pointBorderColor = "#69b3a2";
+		this.pointSize = 3.0;
+		this.allowInspectData = true;
+		this.fillGap = false;
 	}
 }
 
@@ -173,7 +220,7 @@ export default class Tracker extends Plugin {
     	let height = 400 - margin.top - margin.bottom;
 		let tooltipSize = { width: 90, height: 45};
 
-		if (graphInfo.title) {
+		if (graphInfo.line.title) {
 			margin.top += 20;
 		}
 
@@ -185,10 +232,12 @@ export default class Tracker extends Plugin {
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 		// Add graph title
-		graphArea.append("text")
-			.text(graphInfo.title)
-			.attr("transform", "translate(" + width/2 + "," + -margin.top/2 + ")")
-			.attr("class", "tracker-title");
+		if (graphInfo.line.title) {
+			graphArea.append("text")
+				.text(graphInfo.line.title)
+				.attr("transform", "translate(" + width/2 + "," + -margin.top/2 + ")")
+				.attr("class", "tracker-title");
+		}
 
 		// Add X axis
 		let xDomain = d3.extent(graphInfo.data, function(p) { return p.date; });
@@ -204,6 +253,9 @@ export default class Tracker extends Plugin {
 			.attr("transform", "translate(0," + height + ")")
 			.call(xAxisGen)
 			.attr("class", "tracker-axis");
+		if (graphInfo.line.axisColor) {
+			xAxis.style("stroke", graphInfo.line.axisColor);
+		}
 
 		let xAxisTickLabels = xAxis.selectAll("text")
 			.attr("x", -9)
@@ -211,65 +263,107 @@ export default class Tracker extends Plugin {
 			.attr("transform", "rotate(-65)")
 			.style("text-anchor", "end")
 			.attr("class", "tracker-tick-label");
+		if (graphInfo.line.labelColor) {
+			xAxisTickLabels.style("fill", graphInfo.line.labelColor);
+		}
 
 		let xAxisLabel = xAxis.append("text")
-			.text("Date")
+			.text(graphInfo.line.xAxisLabel)
 			.attr("transform", "translate(" + (width / 2) + " ," + margin.bottom + ")")
 			.attr("class", "tracker-axis-label");
+		if (graphInfo.line.labelColor) {
+			xAxisLabel.style("fill", graphInfo.line.labelColor);
+		}
 
 		// Add Y axis
-		let yMin = d3.min(graphInfo.data, function(p) { return p.value; });
-		let yMax = d3.max(graphInfo.data, function(p) { return p.value; });
+		let yMin = graphInfo.line.yMin;
+		if (typeof yMin !== "number") {
+			yMin = d3.min(graphInfo.data, function(p) { return p.value; });
+		}
+		let yMax = graphInfo.line.yMax;
+		if (typeof yMax !== "number") {
+			yMax = d3.max(graphInfo.data, function(p) { return p.value; });
+		}
+		if (yMax < yMin) {
+			let yTmp = yMin;
+			yMin = yMax;
+			yMax = yTmp;
+		}
 		let yExtent = yMax - yMin;
 
 		let yScale = d3.scaleLinear();
-		if (yExtent > 0) {
-			yScale.domain([yMin - yExtent * 0.2, yMax + yExtent * 0.2]).range([ height, 0 ]);
-		}
-		else {
+		if ((yMin >= 0 && yMin > yMax * 0.8) || (yMin >= 0 && graphInfo.accum)) {
 			yScale.domain([0, yMax * 1.2]).range([ height, 0 ]);
 		}
+		else {
+			yScale.domain([yMin - yExtent * 0.2, yMax + yExtent * 0.2]).range([ height, 0 ]);
+		}
+
 		let yAxisGen = d3.axisLeft(yScale);
 		let yAxis = graphArea.append("g")
-		yAxis.call(yAxisGen)
+			.call(yAxisGen)
 			.attr("class", "tracker-axis");
+		if (graphInfo.line.axisColor) {
+			yAxis.style("stroke", graphInfo.line.axisColor);
+		}
 
 		let yAxisTickLabels = yAxis.selectAll("text")
 			.attr("class", "tracker-tick-label");
+		if (graphInfo.line.labelColor) {
+			yAxisTickLabels.style("fill", graphInfo.line.labelColor);
+		}
 
+		let yAxisLabelText = graphInfo.line.yAxisLabel;
+		if (graphInfo.line.yAxisUnit) {
+			yAxisLabelText += " (" + graphInfo.line.yAxisUnit + ")";
+		}
 		let yAxisLabel = yAxis.append("text")
-			.text("Value")
+			.text(yAxisLabelText)
 			.attr("transform", "rotate(-90)")
 			.attr("y", 0 - (margin.left / 2))
 			.attr("x", 0 - (height / 2))
 			.attr("class", "tracker-axis-label");	
+		if (graphInfo.line.labelColor) {
+			yAxisLabel.style("fill", graphInfo.line.labelColor);
+		}
 		
 		let dataArea = graphArea.append("g");
 
 		// Add line
 		let lineGen = d3.line<DataPoint>()
-			.defined(function(p) { return p.value !== null; })
 			.x(function(p) { return xScale(p.date); })
 			.y(function(p) { return yScale(p.value); });
+		if (!graphInfo.line.fillGap) {
+			lineGen.defined(function(p) { return p.value !== null; });
+		}
 
-		dataArea.append("path")
+		let line = dataArea.append("path")
 			.datum(graphInfo.data)
 			.attr("class", "tracker-line")
 			.attr("d", lineGen as any);
+		if (graphInfo.line.lineColor) {
+			line.style("stroke", graphInfo.line.lineColor);
+		}
 
 		// Add dots
-		if (graphInfo.showDataPoint) {
+		if (graphInfo.line.showPoint) {
 			let dots = dataArea.selectAll("dot")
 				.data(graphInfo.data.filter(function(p) { return p.value != null; }))
 				.enter().append("circle")
-				.attr("r", 3)
+				.attr("r", graphInfo.line.pointSize)
 				.attr("cx", function(p) { return xScale(p.date); })
 				.attr("cy", function(p) { return yScale(p.value); })
 				.attr("date", function(p) { return d3.timeFormat("%y-%m-%d")(p.date as any); })
 				.attr("value", function(p) { return p.value; })
 				.attr("class", "tracker-dot");
+			if (graphInfo.line.pointColor) {
+				dots.style("fill", graphInfo.line.pointColor);
+			}
+			if (graphInfo.line.pointBorderColor) {
+				dots.style("stroke", graphInfo.line.pointBorderColor);
+			}
 
-			if (graphInfo.showTooltipData) {
+			if (graphInfo.line.allowInspectData) {
 				let tooltip = svg.append("g").style("opacity", 0);
 				let tooltipBg = tooltip.append("rect")
 					.attr("width", tooltipSize.width)
@@ -280,10 +374,10 @@ export default class Tracker extends Plugin {
 					.attr("height", tooltipSize.height)
 					.attr("class", "tracker-tooltip-label");
 				let tooltipLabelDate = tooltipLabel.append("tspan")
-					.attr("x", 5)
+					.attr("x", 3)
 					.attr("y", tooltipSize.height/5 * 2);
 				let tooltipLabelValue = tooltipLabel.append("tspan")
-					.attr("x", 5)
+					.attr("x", 3)
 					.attr("y", tooltipSize.height/5 * 4);
 
 				dots
@@ -335,8 +429,7 @@ export default class Tracker extends Plugin {
 	static render(canvas: HTMLElement, graphInfo: GraphInfo) {
 		// console.log(graphInfo.data);
 
-		// Preprocess of data
-		
+		// Data preprocessing
 		let tagMeasureAccum = 0.0;
 		for (let dataPoint of graphInfo.data) {
 			if (graphInfo.penalty !== 0.0) {
@@ -352,7 +445,7 @@ export default class Tracker extends Plugin {
 			}
 		}
 
-		if (graphInfo.output == "line") {
+		if (graphInfo.output === "line") {
 			Tracker.renderLine(canvas, graphInfo);
 		}
 		else if (graphInfo.output == "text") {
@@ -377,36 +470,194 @@ export default class Tracker extends Plugin {
         return files;
 	}
 
-	public getFiles(yaml: any, includeSubFolders: boolean = true) {
+	public getFiles(folderToSearch: string, includeSubFolders: boolean = true) {
 		let files: TFile[] = [];
 
-		// Get folder
-		let folderToSearch = "/";// root
-		if (!yaml.folder) {
-			if (this.settings.folderToSearch === "") {
-				folderToSearch = "/";
+		let folder = this.app.vault.getAbstractFileByPath(normalizePath(folderToSearch));
+		if (!folder || !(folder instanceof TFolder)) {
+			// Folder not exists
+		}
+		else{
+			files = files.concat(this.getFilesInFolder(folder));
+		}
+
+		return files;
+	}
+
+	static getGraphInfoFromYaml(yamlBlock: Element): GraphInfo | string {
+		
+		const yaml = Yaml.parse(yamlBlock.textContent);
+		// console.log(yaml);
+		
+		if (!yaml) {
+			let errorMessage = "Error parsing YAML";
+			return errorMessage;
+		}
+
+		// Search type
+		let searchType = "";
+		if (yaml.searchType === "tag" || yaml.searchType === "text") {
+			searchType = yaml.searchType;
+		}
+		else {
+			let errorMessage = "Invalid search type (searchType), choose 'tag' or 'text'";
+			return errorMessage;
+		}
+		// console.log(searchType);
+
+		// Search target
+		let searchTarget = "";
+		if ((typeof yaml.searchTarget === "string") && yaml.searchTarget !== "") {
+			if (yaml.searchTarget === "tag") {
+				if (yaml.searchTarget.startsWith("#") && yaml.searchTarget.length > 2) {
+					searchTarget = yaml.searchTarget.substring(1);
+				}
+				else {
+					searchTarget = yaml.searchTarget;
+				}				
+			}
+			else { // yaml.searchTarget === "text"
+				searchTarget = yaml.searchTarget;
+			}
+		}
+		else {
+			let errorMessage = "Invalid search target (searchTarget)";
+			return errorMessage;
+		}
+		// console.log(searchTarget);
+
+		// Create grarph info
+		let graphInfo = new GraphInfo(searchType, searchTarget);
+
+		// Root folder to search
+		let defaultSearchFolder = Tracker.plugin.settings.folderToSearch;
+		if (typeof yaml.folder === "undefined") {
+			if (defaultSearchFolder === "") {
+				graphInfo.folder = "/";
 			}
 			else {
-				folderToSearch = this.settings.folderToSearch;
+				graphInfo.folder = defaultSearchFolder;
 			}
 		}
 		else {
 			if (yaml.folder === "") {
-				folderToSearch = "/";
+				graphInfo.folder = "/";
 			}
 			else {
-				folderToSearch = yaml.folder;
+				graphInfo.folder = yaml.folder;
 			}
 		}
-
-		let folder = this.app.vault.getAbstractFileByPath(normalizePath(folderToSearch));
-		if (!folder || !(folder instanceof TFolder)) {
-			throw new Error("Folder '" + folderToSearch + "' doesn't exist");
+		let abstractFolder = this.app.vault.getAbstractFileByPath(normalizePath(graphInfo.folder));
+		if (!abstractFolder || !(abstractFolder instanceof TFolder)) {
+			let errorMessage = "Folder '" + graphInfo.folder + "' doesn't exist";
+			return errorMessage;
 		}
+		// console.log(graphInfo.folder);
 
-		files = files.concat(this.getFilesInFolder(folder));
+		// startDate, endDate
+		Tracker.dateFormat = Tracker.plugin.settings.dateFormat;
+		if (Tracker.dateFormat === "") {
+			Tracker.dateFormat = "YYYY-MM-DD";
+		}		
+		if (typeof yaml.startDate === "string") {
+			graphInfo.startDate = moment(yaml.startDate, Tracker.dateFormat);
+		}
+		if (typeof yaml.endDate === "string") {
+			graphInfo.endDate = moment(yaml.endDate, Tracker.dateFormat);
+		}
+		if (graphInfo.startDate.isValid() && graphInfo.endDate.isValid()) {
+			// Make sure endDate > startDate
+			if (graphInfo.endDate < graphInfo.startDate) {
+				let errorMessage = "Invalid date range (startDate and endDate)";
+				return errorMessage;
+			}
+		}
+		// console.log(graphInfo.startDate);
+		// console.log(graphInfo.endDate);
 
-		return files;
+		// accum
+		if (typeof yaml.accum === "boolean") {
+			graphInfo.accum = yaml.accum;
+		}
+		// console.log(graphInfo.accum);
+		// penalty
+		if (typeof yaml.penalty === "number") {
+			graphInfo.penalty = yaml.penalty;
+		}
+		// console.log(graphInfo.penalty);
+
+		// output, default 'line'
+		if (yaml.output === "line" || yaml.output === "text") {
+			graphInfo.output = yaml.output;
+		}
+		// console.log(graphInfo.output);
+
+		// line related parameters
+		if (typeof yaml.line !== "undefined") {
+			// title
+			if (typeof yaml.line.title === "string") {
+				graphInfo.line.title = yaml.line.title;
+			}
+			// xAxisLabel
+			if (typeof yaml.line.xAxisLabel === "string") {
+				graphInfo.line.xAxisLabel = yaml.line.xAxisLabel;
+			}
+			// yAxisLabel
+			if (typeof yaml.line.yAxisLabel === "string") {
+				graphInfo.line.yAxisLabel = yaml.line.yAxisLabel;
+			}
+			// labelColor
+			if (typeof yaml.line.labelColor === "string") {
+				graphInfo.line.labelColor = yaml.line.labelColor;
+			}
+			// yAxisUnit
+			if (typeof yaml.line.yAxisUnit === "string") {
+				graphInfo.line.yAxisUnit = yaml.line.yAxisUnit;
+			}
+			// yMin
+			if (typeof yaml.line.yMin === "number") {
+				graphInfo.line.yMin = yaml.line.yMin;
+			}
+			// yMax
+			if (typeof yaml.line.yMax === "number") {
+				graphInfo.line.yMax = yaml.line.yMax;
+			}
+			// axisColor
+			if (typeof yaml.line.axisColor === "string") {
+				graphInfo.line.axisColor = yaml.line.axisColor;
+			}
+			// lineColor
+			if (typeof yaml.line.lineColor === "string") {
+				graphInfo.line.lineColor = yaml.line.lineColor;
+			}
+			// showPoint
+			if (typeof yaml.line.showPoint === "boolean") {
+				graphInfo.line.showPoint = yaml.line.showPoint;
+			}
+			// pointColor
+			if (typeof yaml.line.pointColor === "string") {
+				graphInfo.line.pointColor = yaml.line.pointColor;
+			}
+			// pointBorderColor
+			if (typeof yaml.line.pointBorderColor === "string") {
+				graphInfo.line.pointBorderColor = yaml.line.pointBorderColor;
+			}
+			// pointSize
+			if (typeof yaml.line.pointSize === "number") {
+				graphInfo.line.pointSize = yaml.line.pointSize;
+			}
+			// allowInspectData
+			if (typeof yaml.line.allowInspectData === "boolean") {
+				graphInfo.line.allowInspectData = yaml.line.allowInspectData;
+			}
+			// fillGap
+			if (typeof yaml.line.fillGap === "boolean") {
+				graphInfo.line.fillGap = yaml.line.fillGap;
+			}
+			// console.log(graphInfo.line.fillGap)
+		}// line related parameters
+
+		return graphInfo;
 	}
 
 	static postprocessor: MarkdownPostProcessor = (el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
@@ -419,92 +670,18 @@ export default class Tracker extends Plugin {
 
 		const canvas = document.createElement('div');
 
-		const yaml = Yaml.parse(yamlBlock.textContent);
-		// console.log(yaml);
-		if (!yaml) {
-			let errorMessage = "Error Parsing YAML";
+		let graphInfo = Tracker.getGraphInfoFromYaml(yamlBlock);
+		if (typeof graphInfo === "string") {
+			let errorMessage = graphInfo;
 			Tracker.renderErrorMessage(canvas, errorMessage);
 			el.replaceChild(canvas, blockToReplace);
 			return;
 		}
-
-		// Search type
-		if ((typeof yaml.searchType === 'undefined') || (yaml.searchType !== "tag" && yaml.searchType !== "text")) {
-			let errorMessage = "Invalid search type (searchType)";
-			Tracker.renderErrorMessage(canvas, errorMessage);
-			el.replaceChild(canvas, blockToReplace);
-			return;
-		}
-		let searchType = yaml.searchType;
-
-		// Search target
-		let searchTarget = "";
-		if ((typeof yaml.searchTarget !== "string") || yaml.searchTarget === "") {
-			let errorMessage = "Invalid search target (searchTarget)";
-			Tracker.renderErrorMessage(canvas, errorMessage);
-			el.replaceChild(canvas, blockToReplace);
-			return;
-		}
-		if (searchType === "tag" && yaml.searchTarget.startsWith("#") && yaml.searchTarget.length > 2) {
-			searchTarget = yaml.searchTarget.substring(1);
-		}
-		else {
-			searchTarget = yaml.searchTarget;
-		}
-		// console.log(searchTarget);
-
-		// Prepare graph info
-		let graphInfo = new GraphInfo(searchType, searchTarget);
-
-		// output
-		let output = "line";
-		if (typeof yaml.output !== 'undefined') {
-			output = yaml.output;
-		}
-		if (output !== "line" && output !== "text") {
-			let errorMessage = "Unknown output type! Allow 'line' or 'text' only";
-			Tracker.renderErrorMessage(canvas, errorMessage);
-			el.replaceChild(canvas, blockToReplace);
-			return;
-		}
-		else {
-			graphInfo.output = output;
-		}
-		// accum
-		if (typeof yaml.accum !== 'undefined') {
-			graphInfo.accum = yaml.accum;
-		}
-		// title
-		if (typeof yaml.title !== 'undefined') {
-			graphInfo.title = yaml.title;
-		}
-		// show data point
-		let showDataPoint = true;
-		if (typeof yaml.showDataPoint !== 'undefined') {
-			showDataPoint = yaml.showDataPoint;
-		}
-		graphInfo.showDataPoint = showDataPoint;
-		// penalty
-		if (typeof yaml.penalty === "number") {
-			graphInfo.penalty = yaml.penalty;
-		}
-		// background color
-		let backgroundColor = "SteelGray";
-		if (typeof yaml.backgroundColor === "string") {
-			backgroundColor = yaml.backgroundColor;
-		}
-		graphInfo.backgroundColor = backgroundColor;
-		// show tooltip data
-		let showTooltipData = true;
-		if (typeof yaml.showTooltipData === "boolean") {
-			showTooltipData = yaml.showTooltipData;
-		}
-		graphInfo.showTooltipData = showTooltipData;
 
 		// Get files
 		let files: TFile[];
 		try {
-			files = Tracker.plugin.getFiles(yaml);
+			files = Tracker.plugin.getFiles(graphInfo.folder);
 		}
 		catch(e) {
 			let errorMessage = e.message;
@@ -512,29 +689,7 @@ export default class Tracker extends Plugin {
 			el.replaceChild(canvas, blockToReplace);
 			return;
 		}
-
 		// console.log(files);
-
-		// Get dates
-		Tracker.dateFormat = Tracker.plugin.settings.dateFormat;
-		if (Tracker.dateFormat === "") {
-			Tracker.dateFormat = "YYYY-MM-DD";
-		}
-		let startDate = moment("");// use invalid initial value
-		if (yaml.startDate) {
-			startDate = moment(yaml.startDate, Tracker.dateFormat);
-		}
-		let endDate = moment("");
-		if (yaml.endDate) {
-			endDate = moment(yaml.endDate, Tracker.dateFormat);
-		}
-		if (startDate.isValid() && endDate.isValid()) {
-			// Make sure endDate > startDate
-			if (endDate < startDate) {
-				startDate = moment("");
-				endDate = moment("");
-			}
-		}
 
 		// Get data from files
 		let minDate = moment("");
@@ -565,7 +720,7 @@ export default class Tracker extends Plugin {
 			}
 
 			// console.log("Search frontmatter tags");
-			if (searchType === "tag") {
+			if (graphInfo.searchType === "tag") {
 				// Add frontmatter tags, allow simple tag only
 				let fileCache = Tracker.app.metadataCache.getFileCache(file);
 				let frontMatter = fileCache.frontmatter;
@@ -582,11 +737,11 @@ export default class Tracker extends Plugin {
 					}
 
 					for (let tag of frontMatterTags) {
-						if (tag === searchTarget) {
+						if (tag === graphInfo.searchTarget) {
 							tagMeasure = tagMeasure + 1.0;
 							tagExist = true;
 						}
-						if (tag.startsWith(searchTarget + "/")) {
+						if (tag.startsWith(graphInfo.searchTarget + "/")) {
 							// nested simple tag does not support for now
 						}
 					}
@@ -605,14 +760,14 @@ export default class Tracker extends Plugin {
 			}
 
 			// console.log("Search inline tags");
-			if (searchType === "tag") {
+			if (graphInfo.searchType === "tag") {
 				// Add inline tags
 				let filePath = path.join(Tracker.rootPath, file.path);
 				// console.log(filePath);
 				
 				let content = fs.readFileSync(filePath, { encoding: "utf-8" });
 				// console.log(content);
-				let strHashtagRegex = "(^|\\s)#" + searchTarget + "(\\/[\\w]+)*" + "(:(?<number>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?(\\s|$)";
+				let strHashtagRegex = "(^|\\s)#" + graphInfo.searchTarget + "(\\/[\\w]+)*" + "(:(?<number>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?(\\s|$)";
 				let hashTagRegex = new RegExp(strHashtagRegex, "gm");
 				let match;
 				let tagMeasure = 0.0;
@@ -645,13 +800,13 @@ export default class Tracker extends Plugin {
 				data.push(newPoint);
 			}
 
-			if (searchType === "text") {
+			if (graphInfo.searchType === "text") {
 				let filePath = path.join(Tracker.rootPath, file.path);
 				// console.log(filePath);
 
 				let content = fs.readFileSync(filePath, { encoding: "utf-8" });
 				// console.log(content);
-				let strHashtagRegex = searchTarget.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+				let strHashtagRegex = graphInfo.searchTarget.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
 				let hashTagRegex = new RegExp(strHashtagRegex, "gm");
 				let match;
 				let tagMeasure = 0.0;
@@ -686,14 +841,14 @@ export default class Tracker extends Plugin {
 			el.replaceChild(canvas, blockToReplace);
 			return;
 		}
-		if (!startDate.isValid() && !endDate.isValid()) {
+		if (!graphInfo.startDate.isValid() && !graphInfo.endDate.isValid()) {
 			// No date arguments
-			startDate = minDate.clone();
-			endDate = maxDate.clone();
+			graphInfo.startDate = minDate.clone();
+			graphInfo.endDate = maxDate.clone();
 		}
-		else if (startDate.isValid() && !endDate.isValid()) {
-			if (startDate < maxDate) {
-				endDate = maxDate.clone();
+		else if (graphInfo.startDate.isValid() && !graphInfo.endDate.isValid()) {
+			if (graphInfo.startDate < maxDate) {
+				graphInfo.endDate = maxDate.clone();
 			}
 			else {
 				let errorMessage = "Invalid date range";
@@ -702,9 +857,9 @@ export default class Tracker extends Plugin {
 				return;
 			}
 		}
-		else if (endDate.isValid() && !startDate.isValid()) {
-			if (endDate > minDate) {
-				startDate = minDate.clone();
+		else if (graphInfo.endDate.isValid() && !graphInfo.startDate.isValid()) {
+			if (graphInfo.endDate > minDate) {
+				graphInfo.startDate = minDate.clone();
 			}
 			else {
 				let errorMessage = "Invalid date range";
@@ -715,7 +870,7 @@ export default class Tracker extends Plugin {
 		}
 		else {
 			// startDate and endDate are valid
-			if ((startDate < minDate && endDate < minDate) || (startDate > maxDate && endDate > maxDate)) {
+			if ((graphInfo.startDate < minDate && graphInfo.endDate < minDate) || (graphInfo.startDate > maxDate && graphInfo.endDate > maxDate)) {
 				let errorMessage = "Invalid date range";
 				Tracker.renderErrorMessage(canvas, errorMessage);
 				el.replaceChild(canvas, blockToReplace);
@@ -726,7 +881,7 @@ export default class Tracker extends Plugin {
 		// console.log(endDate);
 
 		// Preprocess data
-		for (let curDate = startDate.clone(); curDate <= endDate; curDate.add(1, 'days')) {
+		for (let curDate = graphInfo.startDate.clone(); curDate <= graphInfo.endDate; curDate.add(1, 'days')) {
 			// console.log(curDate);
 			let dataPoints = data.filter(p => curDate.isSame(p.date));
 			
