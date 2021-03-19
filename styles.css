@@ -7,7 +7,7 @@
     --color-legend: #000000;
     
     --color-dot-fill: #69b3a2;
-    --color-dot-stroke: #69b3a2;
+    --color-dot-stroke: none;
 
     --color-tooltip-bg: #FFFFFF;
     --color-tooltip-border: #000000;
@@ -23,7 +23,7 @@
     --color-legend: #FFFFFF;
 
     --color-dot-fill: #69b3a2;
-    --color-dot-stroke: #69b3a2;
+    --color-dot-stroke: none;
 
     --color-tooltip-bg: #FFFFFF;
     --color-tooltip-border: #000000;
@@ -65,8 +65,6 @@
 
 .tracker-dot {
     fill: var(--color-dot-fill);
-    stroke: var(--color-dot-stroke);
-    stroke-width: 1px;
 }
 
 .tracker-tooltip {

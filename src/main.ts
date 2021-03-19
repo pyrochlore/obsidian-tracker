@@ -65,6 +65,7 @@ class LineInfo {
 	showPoint: boolean;
 	pointColor: string;
 	pointBorderColor: string;
+	pointBorderWidth: number;
 	pointSize: number;
 	allowInspectData: boolean;
 	fillGap: boolean;
@@ -82,6 +83,7 @@ class LineInfo {
 		this.showPoint = true;
 		this.pointColor = "#69b3a2";
 		this.pointBorderColor = "#69b3a2";
+		this.pointBorderWidth = 0.0;
 		this.pointSize = 3.0;
 		this.allowInspectData = true;
 		this.fillGap = false;
@@ -235,7 +237,7 @@ export default class Tracker extends Plugin {
 		if (graphInfo.line.title) {
 			graphArea.append("text")
 				.text(graphInfo.line.title)
-				.attr("transform", "translate(" + width/2 + "," + -margin.top/2 + ")")
+				.attr("transform", "translate(" + width/2 + "," + margin.top/4 + ")")
 				.attr("class", "tracker-title");
 		}
 
@@ -358,9 +360,11 @@ export default class Tracker extends Plugin {
 				.attr("class", "tracker-dot");
 			if (graphInfo.line.pointColor) {
 				dots.style("fill", graphInfo.line.pointColor);
-			}
-			if (graphInfo.line.pointBorderColor) {
-				dots.style("stroke", graphInfo.line.pointBorderColor);
+
+				if (graphInfo.line.pointBorderColor && graphInfo.line.pointBorderWidth > 0.0) {
+					dots.style("stroke", graphInfo.line.pointBorderColor);
+					dots.style("stroke-width", graphInfo.line.pointBorderWidth);
+				}
 			}
 
 			if (graphInfo.line.allowInspectData) {
@@ -374,10 +378,10 @@ export default class Tracker extends Plugin {
 					.attr("height", tooltipSize.height)
 					.attr("class", "tracker-tooltip-label");
 				let tooltipLabelDate = tooltipLabel.append("tspan")
-					.attr("x", 3)
+					.attr("x", 4)
 					.attr("y", tooltipSize.height/5 * 2);
 				let tooltipLabelValue = tooltipLabel.append("tspan")
-					.attr("x", 3)
+					.attr("x", 4)
 					.attr("y", tooltipSize.height/5 * 4);
 
 				dots
@@ -641,6 +645,10 @@ export default class Tracker extends Plugin {
 			// pointBorderColor
 			if (typeof yaml.line.pointBorderColor === "string") {
 				graphInfo.line.pointBorderColor = yaml.line.pointBorderColor;
+			}
+			// pointBorderWidth
+			if (typeof yaml.line.pointBorderWidth === "number") {
+				graphInfo.line.pointBorderWidth = yaml.line.pointBorderWidth;
 			}
 			// pointSize
 			if (typeof yaml.line.pointSize === "number") {
