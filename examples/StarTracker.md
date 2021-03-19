@@ -6,6 +6,7 @@ searchTarget: ⭐
 folder: diary
 accum: true
 line:
-    title: Count the Stars
+    title: Count the Given Stars
     yAxisLabel: Count
+    showLine: false
 ```

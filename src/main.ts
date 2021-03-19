@@ -62,6 +62,7 @@ class LineInfo {
 	yMax: number | null;
 	axisColor: string;
 	lineColor: string;
+	showLine: boolean;
 	showPoint: boolean;
 	pointColor: string;
 	pointBorderColor: string;
@@ -80,6 +81,7 @@ class LineInfo {
 		this.yMax = null;
 		this.axisColor = "";
 		this.lineColor = "";
+		this.showLine = true;
 		this.showPoint = true;
 		this.pointColor = "#69b3a2";
 		this.pointBorderColor = "#69b3a2";
@@ -332,19 +334,21 @@ export default class Tracker extends Plugin {
 		let dataArea = graphArea.append("g");
 
 		// Add line
-		let lineGen = d3.line<DataPoint>()
-			.x(function(p) { return xScale(p.date); })
-			.y(function(p) { return yScale(p.value); });
-		if (!graphInfo.line.fillGap) {
-			lineGen.defined(function(p) { return p.value !== null; });
-		}
+		if (graphInfo.line.showLine) {
+			let lineGen = d3.line<DataPoint>()
+				.x(function(p) { return xScale(p.date); })
+				.y(function(p) { return yScale(p.value); });
+			if (!graphInfo.line.fillGap) {
+				lineGen.defined(function(p) { return p.value !== null; });
+			}
 
-		let line = dataArea.append("path")
-			.datum(graphInfo.data)
-			.attr("class", "tracker-line")
-			.attr("d", lineGen as any);
-		if (graphInfo.line.lineColor) {
-			line.style("stroke", graphInfo.line.lineColor);
+			let line = dataArea.append("path")
+				.datum(graphInfo.data)
+				.attr("class", "tracker-line")
+				.attr("d", lineGen as any);
+			if (graphInfo.line.lineColor) {
+				line.style("stroke", graphInfo.line.lineColor);
+			}
 		}
 
 		// Add dots
@@ -624,6 +628,10 @@ export default class Tracker extends Plugin {
 			// lineColor
 			if (typeof yaml.line.lineColor === "string") {
 				graphInfo.line.lineColor = yaml.line.lineColor;
+			}
+			// showLine
+			if (typeof yaml.line.showLine === "boolean") {
+				graphInfo.line.showLine = yaml.line.showLine;
 			}
 			// showPoint
 			if (typeof yaml.line.showPoint === "boolean") {
