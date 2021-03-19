@@ -1,6 +1,25 @@
 # Finance Tracker
 
+``` tracker
+searchType: tag
+searchTarget: finance
+folder: diary
+accum: true
+line:
+	title: Finace
+	yAxisLabel: USD
+```
 
+
+``` tracker
+searchType: tag
+searchTarget: finance/bank1
+folder: diary
+accum: true
+line:
+	title: Bank1
+	yAxisLabel: USD
+```
 
 
 ``` tracker
@@ -10,7 +29,6 @@ folder: diary
 accum: true
 line:
 	title: Bank2
-	showLine: false
 	yAxisLabel: USD
 	fillGap: true
 ```

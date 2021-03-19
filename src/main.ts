@@ -340,16 +340,21 @@ export default class Tracker extends Plugin {
 		// Add line
 		if (graphInfo.line.showLine) {
 			let lineGen = d3.line<DataPoint>()
+				.defined(function(p) { return p.value !== null; })
 				.x(function(p) { return xScale(p.date); })
 				.y(function(p) { return yScale(p.value); });
-			if (!graphInfo.line.fillGap) {
-				lineGen.defined(function(p) { return p.value !== null; });
-			}
 
 			let line = dataArea.append("path")
-				.datum(graphInfo.data)
 				.attr("class", "tracker-line")
-				.attr("d", lineGen as any);
+				
+			if (graphInfo.line.fillGap) {
+				line.datum(graphInfo.data.filter(function (p) {
+					return p.value !== null;
+				})).attr("d", lineGen as any);
+			}
+			else {
+				line.datum(graphInfo.data).attr("d", lineGen as any);
+			}
 			if (graphInfo.line.lineColor) {
 				line.style("stroke", graphInfo.line.lineColor);
 			}
