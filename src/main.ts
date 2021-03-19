@@ -99,7 +99,7 @@ export default class Tracker extends Plugin {
 	public static dateFormat: string;
 
 	async onload() {
-		console.log('loading plugin');
+		console.log('loading obsidian-tracker plugin');
 		
 		Tracker.app = this.app;
 		Tracker.plugin = this;
@@ -138,20 +138,20 @@ export default class Tracker extends Plugin {
 		this.addSettingTab(new TrackerSettingTab(this.app, this));
 
 		this.registerCodeMirror((cm: CodeMirror.Editor) => {
-			console.log('codemirror', cm);
+			// console.log('codemirror', cm);
 		});
 
 		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('click', evt);
+			// console.log('click', evt);
 		});
 
-		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
+		// this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
 	
 		MarkdownPreviewRenderer.registerPostProcessor(Tracker.postprocessor)
 	}
 
 	onunload() {
-		console.log('unloading plugin');
+		console.log('unloading obsidian-tracker plugin');
 
 		MarkdownPreviewRenderer.unregisterPostProcessor(Tracker.postprocessor)
 	}
