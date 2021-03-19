@@ -23,6 +23,8 @@ class GraphInfo {
 	dateFormat: string;
 	startDate: moment.Moment;
 	endDate: moment.Moment;
+	constValue: number;
+	ignoreAttchedValue: boolean;
 	accum: boolean;
 	penalty: number;
 
@@ -41,6 +43,8 @@ class GraphInfo {
 		this.dateFormat = "";
 		this.startDate = moment("");
 		this.endDate = moment("");
+		this.constValue = 1.0;
+		this.ignoreAttchedValue = false;
 		this.accum = false;
 		this.penalty = 0.0;
 
@@ -574,11 +578,22 @@ export default class Tracker extends Plugin {
 		// console.log(graphInfo.startDate);
 		// console.log(graphInfo.endDate);
 
+		// constValue
+		if (typeof yaml.constValue === "number") {
+			graphInfo.constValue = yaml.constValue;
+		}
+
+		// ignoreAttachedValue
+		if (typeof yaml.ignoreAttachedValue === "boolean") {
+			graphInfo.ignoreAttchedValue = yaml.ignoreAttachedValue;
+		}
+
 		// accum
 		if (typeof yaml.accum === "boolean") {
 			graphInfo.accum = yaml.accum;
 		}
 		// console.log(graphInfo.accum);
+
 		// penalty
 		if (typeof yaml.penalty === "number") {
 			graphInfo.penalty = yaml.penalty;
@@ -745,7 +760,7 @@ export default class Tracker extends Plugin {
 
 					for (let tag of frontMatterTags) {
 						if (tag === graphInfo.searchTarget) {
-							tagMeasure = tagMeasure + 1.0;
+							tagMeasure = tagMeasure + graphInfo.constValue;
 							tagExist = true;
 						}
 						if (tag.startsWith(graphInfo.searchTarget + "/")) {
@@ -782,7 +797,7 @@ export default class Tracker extends Plugin {
 				while (match = hashTagRegex.exec(content)) {
 					// console.log(match);
 					tagExist = true;
-					if (match[0].includes(":")) {
+					if (!graphInfo.ignoreAttchedValue && match[0].includes(":")) {
 						// console.log("valued-tag");
 						let value = parseFloat(match.groups.number);
 						// console.log(value);
@@ -790,7 +805,7 @@ export default class Tracker extends Plugin {
 					}
 					else {
 						// console.log("simple-tag");
-						tagMeasure = tagMeasure + 1.0;
+						tagMeasure = tagMeasure + graphInfo.constValue;
 					}
 				}
 
@@ -821,7 +836,7 @@ export default class Tracker extends Plugin {
 				while (match = hashTagRegex.exec(content)) {
 					// console.log(match);
 					tagExist = true;
-					tagMeasure = tagMeasure + 1.0;
+					tagMeasure = tagMeasure + graphInfo.constValue;
 				}
 
 				let newPoint = new DataPoint();
