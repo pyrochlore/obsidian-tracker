@@ -421,7 +421,13 @@ export default class Tracker extends Plugin {
 	}
 
 	static renderText(canvas: HTMLElement, graphInfo: GraphInfo) {
-
+		let svg = d3.select(canvas)
+			.append("div")
+			.text("'Output type 'text' is an upcoming feature")
+			.style("background-color", "white")
+			.style("margin-bottom", "20px")
+			.style("padding", "10px")
+			.style("color", "red");
 	}
 
 	static renderErrorMessage(canvas: HTMLElement, errorMessage: string) {

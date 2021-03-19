@@ -10,6 +10,12 @@ searchTarget: weight
 folder: abc
 ```
 
+``` tracker
+searchType: tag
+searchTarget: weight
+output: text
+``` 
+
 ```
 searchType: tag
 searchTarget: weight
