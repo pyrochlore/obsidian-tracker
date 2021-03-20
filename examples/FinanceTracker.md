@@ -8,6 +8,7 @@ accum: true
 line:
 	title: Finace
 	yAxisLabel: USD
+	lineWidth: 4
 ```
 
 

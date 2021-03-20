@@ -66,6 +66,7 @@ class LineInfo {
 	yMax: number | null;
 	axisColor: string;
 	lineColor: string;
+	lineWidth: number;
 	showLine: boolean;
 	showPoint: boolean;
 	pointColor: string;
@@ -85,6 +86,7 @@ class LineInfo {
 		this.yMax = null;
 		this.axisColor = "";
 		this.lineColor = "";
+		this.lineWidth = 1.5;
 		this.showLine = true;
 		this.showPoint = true;
 		this.pointColor = "#69b3a2";
@@ -346,6 +348,7 @@ export default class Tracker extends Plugin {
 
 			let line = dataArea.append("path")
 				.attr("class", "tracker-line")
+				.style("stroke-width", graphInfo.line.lineWidth);
 				
 			if (graphInfo.line.fillGap) {
 				line.datum(graphInfo.data.filter(function (p) {
@@ -355,6 +358,7 @@ export default class Tracker extends Plugin {
 			else {
 				line.datum(graphInfo.data).attr("d", lineGen as any);
 			}
+			
 			if (graphInfo.line.lineColor) {
 				line.style("stroke", graphInfo.line.lineColor);
 			}
@@ -369,7 +373,7 @@ export default class Tracker extends Plugin {
 				.attr("cx", function(p) { return xScale(p.date); })
 				.attr("cy", function(p) { return yScale(p.value); })
 				.attr("date", function(p) { return d3.timeFormat("%y-%m-%d")(p.date as any); })
-				.attr("value", function(p) { return p.value; })
+				.attr("value", function(p) { return p.value.toFixed(2); })
 				.attr("class", "tracker-dot");
 			if (graphInfo.line.pointColor) {
 				dots.style("fill", graphInfo.line.pointColor);
@@ -654,6 +658,10 @@ export default class Tracker extends Plugin {
 			// lineColor
 			if (typeof yaml.line.lineColor === "string") {
 				graphInfo.line.lineColor = yaml.line.lineColor;
+			}
+			// lineWidth
+			if (typeof yaml.line.lineWidth === "number") {
+				graphInfo.line.lineWidth = yaml.line.lineWidth;
 			}
 			// showLine
 			if (typeof yaml.line.showLine === "boolean") {
