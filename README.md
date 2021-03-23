@@ -1,45 +1,98 @@
-## Obsidian Sample Plugin
+# Obsidian Tracker Plugin
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+![GitHub release](https://img.shields.io/github/v/release/pyrochlore/obsidian-tracker)
 
-This project uses Typescript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in Typescript Definition format, which contains TSDoc comments describing what it does.
+This is an [Obsidian](https://obsidian.md/) plugin that helps you track tags and/or texts in daily notes.
 
-**Note:** The Obsidian API is still in early alpha and is subject to change at any time!
+For example, we can track simple tag (#exercise-pushup), value-attached tag (#weight:60kg), and/or text '⭐' over a specified period of time. Currently, a line chart will be generated to represent the data.
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Changes the default font color to red using `styles.css`.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open Sample Modal" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+<img src="images/screenshot.png" width="450">
 
+## Usage
+1. Have some tags or texts you want to track in dialy notes.
+2. Add a new note for displaying the tracker.
+2. Place a tracker codeblock into the note (see the illustration below)
+3. Inside the tracker codeblock, add YAML key-value pairs to specify the search condition and details of the output (a line chart for now). Key '**searchType**' and '**searchTarget**' are neccesary as minimum setup for a successful render.
+5. Switch the view mode to 'Preview', then the codeblock will get rendered.
 
-### Releasing new releases
+    <img src="images/usage.gif" width="300">
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments.
-- Publish the release.
+## Search Type and Search Target
+The value of key '**searchType**' can be '**tag**' or '**text**'. 
 
-### Adding your plugin to the community plugin list
+If '**tag**' is picked, tags in your dialy notes will be counted and evaluated. Use the tag name (the name after #) as the value of key '**searchTarget**' or use quoted tag (**"#tagName"**) to make it work.
 
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
+Simple tag like '*#tagName*' in your dialy note will be evaluated as a constant value (default value 1.0). You can customize the value by setting key '**constValue**' in the codeblock.
 
-### How to use
+For advanced usage, a provided value can be attached to any tag. For example, write your own tag in the format of '*#tagName:value*'. The value should be appended right after your tag and a extra colon without spaces. If a value is attached this way, obsidian-trakcer will use the provided value instead of the constant one. 
 
-- Clone this repo.
-- `npm i` or `yarn` to install dependencies
-- `npm run dev` to start compilation in watch mode.
+It's worth to note that tags in frontmatter will also be counted and act like simple tags. Moreover, nested tags are supported both on simple and valued tags.
 
-### Manually installing the plugin
+If '**text**' is picked for '**searchTarget**', the provid text will be counted and simply evaluated by occurence.
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
+For more information about how to use this plugin, please take a look at [examples](https://github.com/pyrochlore/obsidian-tracker/tree/master/examples).
 
-### API Documentation
+## Default Settings
+You can set default folder location and date format in the plugin settings paenl. You can also override them by key '**folder**' and '**dateFormat**' in codeblock respectively.
 
-See https://github.com/obsidianmd/obsidian-api
+Here are the list of default settings.
+
+| Setting Item | Default | Description |
+|:--------:|:-------:|:---------:|
+| Default folder location | Root of this vault | The folder your dialy notes reside |
+| Default date format | YYYY-MM-DD | The date format of your dialy note title |
+
+## List of All Available Keys
+
+### Root Keys
+These keys are placed under YAML root
+
+| Argument | Default | Description |
+|:--------:|:-------:|:-----------:|
+| **searchType** | 'tag' or 'text' | The type of your search target |
+| **searchTarget** | empty string | The tag name or text to search |
+| **folder** | Default folder location | The folder path of your daily notes |
+| **dateFormat** | Default date format | The date format of your dialy note title |
+| **startDate** | Min date found | The start date to count |
+| **endDate** | Max date found | the end date to count |
+| **constValue** | 1.0 | The constant value of all simple tags |
+| **ignoreAttachedValue** | false | Use constant value event if a value attached on |
+| **accum** | false | Accumulatively sum the values over time |
+| **penalty** | 0.0 | The value to use if search target is missing on the day |
+| **line** | | All line-related keys should be placed under this key |
+
+### Line-related Keys
+These keys should be placed under key '**line**'.
+
+| Argument | Default | Description |
+|:--------:|:-----------:|:-----------:|
+| **title** | empty string | The title of this line chart|
+| **xAxisLabel** | 'Date' | X axis label |
+| **yAxisLabel** | 'Value' | Y axis label |
+| **labelColor** | 'white'('black'<sup>*</sup>) | The color of labels |
+| **yAxisUnit** | empty string | The unit displayed aside y axis label |
+| **yMin** | Minimum Y value found | The minimum value shown on Y axis |
+| **yMax** | Maximum Y value found | The maximum value shown on Y axis |
+| **axisColor** | 'white'('black'<sup>*</sup>) | The color of axes |
+| **lineColor** | 'white'('black'<sup>*</sup>) | |
+| **lineWidth** | 1.5 | The width of line|
+| **showLine** | true | Show/hide line |
+| **showPoint** | true | Show/hide data point |
+| **pointColor** | "#69b3a2" | The color of data point |
+| **pointBorderColor** | #69b3a2 | The border color of data point |
+| **pointBorderWidth** | 0 | The border width of data point |
+| **pointSize** | 3 | The size of data point |
+| **allowInspectData** | true | Show data value aside data point |
+| **fillGap** | false | Connect points over missing data |
+
+## Release Notes
+
+### v0.1.0
+
+- First version released at 2021-03-24
+
+## Support
+
+- If you like this plugin or want to support the further development, you can [Buy Me a Coffee](https://www.buymeacoffee.com/pyrochlore).
+
+- Please report bugs and request features in [GitHub Issues](https://github.com/pyrochlore/obsidian-tracker/issues)
