@@ -1,7 +1,7 @@
 {
 	"id": "obsidian-tracker",
 	"name": "Tracker",
-	"version": "0.1.0",
+	"version": "1.0.0",
 	"minAppVersion": "0.9.12",
 	"description": "Track tags or texts in your dialy notes",
 	"author": "pyrochlore",
