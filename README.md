@@ -1,5 +1,7 @@
 # Obsidian Tracker Plugin
 
+![GitHub release](https://img.shields.io/github/v/release/pyrochlore/obsidian-tracker)
+
 This is an [Obsidian](https://obsidian.md/) plugin that helps you track tags and/or texts in daily notes.
 
 For example, we can track simple tag (#exercise-pushup), value-attached tag (#weight:60kg), and/or text '⭐' over a specified period of time. Currently, a line chart will be generated to represent the data.
