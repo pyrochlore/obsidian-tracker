@@ -504,13 +504,20 @@ export default class Tracker extends Plugin {
 
 	static getGraphInfoFromYaml(yamlBlock: Element): GraphInfo | string {
 		
-		const yaml = Yaml.parse(yamlBlock.textContent);
-		// console.log(yaml);
-		
+		let yaml;
+		try {
+			yaml = Yaml.parse(yamlBlock.textContent);
+		}
+		catch (err) {
+			let errorMessage = "Error parsing YAML";
+			console.log(err);
+			return errorMessage;
+		}
 		if (!yaml) {
 			let errorMessage = "Error parsing YAML";
 			return errorMessage;
 		}
+		// console.log(yaml);
 
 		// Search type
 		let searchType = "";
@@ -809,6 +816,7 @@ export default class Tracker extends Plugin {
 				let content = fs.readFileSync(filePath, { encoding: "utf-8" });
 				// console.log(content);
 				let strHashtagRegex = "(^|\\s)#" + graphInfo.searchTarget + "(\\/[\\w]+)*" + "(:(?<number>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?(\\s|$)";
+				// console.log(strHashtagRegex);
 				let hashTagRegex = new RegExp(strHashtagRegex, "gm");
 				let match;
 				let tagMeasure = 0.0;
@@ -848,6 +856,7 @@ export default class Tracker extends Plugin {
 				let content = fs.readFileSync(filePath, { encoding: "utf-8" });
 				// console.log(content);
 				let strHashtagRegex = graphInfo.searchTarget.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+				// console.log(strHashtagRegex);
 				let hashTagRegex = new RegExp(strHashtagRegex, "gm");
 				let match;
 				let tagMeasure = 0.0;
