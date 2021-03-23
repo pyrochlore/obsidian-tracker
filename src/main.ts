@@ -6,8 +6,6 @@ import { TrackerSettings, DEFAULT_SETTINGS, TrackerSettingTab } from './settings
 
 import * as Yaml from 'yaml';
 import * as d3 from 'd3';
-import * as fs from 'fs';
-import * as path from 'path';
 import moment from 'moment';
 
 class DataPoint {
@@ -708,7 +706,7 @@ export default class Tracker extends Plugin {
 		return graphInfo;
 	}
 
-	static postprocessor: MarkdownPostProcessor = (el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
+	static async postprocessor(el: HTMLElement, ctx: MarkdownPostProcessorContext): Promise<MarkdownPostProcessor> {
 
 		const blockToReplace = el.querySelector('pre')
 		if (!blockToReplace) return;
@@ -810,10 +808,8 @@ export default class Tracker extends Plugin {
 			// console.log("Search inline tags");
 			if (graphInfo.searchType === "tag") {
 				// Add inline tags
-				let filePath = path.join(Tracker.rootPath, file.path);
-				// console.log(filePath);
+				let content = await Tracker.app.vault.adapter.read(file.path);
 				
-				let content = fs.readFileSync(filePath, { encoding: "utf-8" });
 				// console.log(content);
 				let strHashtagRegex = "(^|\\s)#" + graphInfo.searchTarget + "(\\/[\\w]+)*" + "(:(?<number>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?(\\s|$)";
 				// console.log(strHashtagRegex);
@@ -850,11 +846,9 @@ export default class Tracker extends Plugin {
 			}
 
 			if (graphInfo.searchType === "text") {
-				let filePath = path.join(Tracker.rootPath, file.path);
-				// console.log(filePath);
-
-				let content = fs.readFileSync(filePath, { encoding: "utf-8" });
+				let content = await Tracker.app.vault.adapter.read(file.path);
 				// console.log(content);
+				
 				let strHashtagRegex = graphInfo.searchTarget.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
 				// console.log(strHashtagRegex);
 				let hashTagRegex = new RegExp(strHashtagRegex, "gm");
