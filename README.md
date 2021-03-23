@@ -87,9 +87,9 @@ These keys should be placed under key '**line**'.
 
 ## Release Notes
 
-### v0.1.0
+### v1.0.0
 
-- First version released at 2021-03-24
+- First version released at 2021-03-23
 
 ## Support
 
