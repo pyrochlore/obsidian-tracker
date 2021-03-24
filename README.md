@@ -4,9 +4,9 @@
 
 This is an [Obsidian](https://obsidian.md/) plugin that helps you track tags and/or texts in daily notes.
 
-For example, we can track simple tag (#exercise-pushup), value-attached tag (#weight:60kg), and/or text '⭐' over a specified period of time. Currently, a line chart will be generated to represent the data.
+For example, we can track simple tag (#exercise-pushup), value-attached tag (#weight:60kg), nested tag (#finance/bank1/transfer:100000USD) and/or text '⭐' over a specified period of time. Currently, a line chart will be generated to represent the data.
 
-<img src="images/screenshot.png" width="450">
+<img src="images/screenshot.png" width="800">
 
 ## Usage
 1. Have some tags or texts you want to track in dialy notes.
@@ -15,7 +15,7 @@ For example, we can track simple tag (#exercise-pushup), value-attached tag (#we
 3. Inside the tracker codeblock, add YAML key-value pairs to specify the search condition and details of the output (a line chart for now). Key '**searchType**' and '**searchTarget**' are neccesary as minimum setup for a successful render.
 5. Switch the view mode to 'Preview', then the codeblock will get rendered.
 
-    <img src="images/usage.gif" width="300">
+    <img src="images/usage.gif" width="400">
 
 ## Search Type and Search Target
 The value of key '**searchType**' can be '**tag**' or '**text**'. 
