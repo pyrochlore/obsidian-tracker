@@ -267,6 +267,8 @@ export default class Tracker extends Plugin {
 		// line related parameters
 		if (typeof yaml.output !== "undefined") {
 			graphInfo.output = yaml.output;
+		}
+		if (typeof yaml.line !== "undefined") {
 			// title
 			if (typeof yaml.line.title === "string") {
 				graphInfo.line.title = yaml.line.title;
