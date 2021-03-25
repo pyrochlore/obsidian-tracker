@@ -3,7 +3,7 @@ import { MarkdownPostProcessor, MarkdownPostProcessorContext, MarkdownPreviewRen
 import { FileSystemAdapter, TFile, TFolder, normalizePath} from 'obsidian';
 
 import { TrackerSettings, DEFAULT_SETTINGS, TrackerSettingTab } from './settings';
-import { DataPoint, GraphInfo, renderLine} from './graph';
+import { DataPoint, GraphInfo, LineInfo, renderLine, TextInfo, renderText} from './graph';
 
 import * as Yaml from 'yaml';
 import * as d3 from 'd3';
@@ -83,16 +83,6 @@ export default class Tracker extends Plugin {
 		await this.saveData(this.settings);
 	}
 
-	static renderText(canvas: HTMLElement, graphInfo: GraphInfo) {
-		let svg = d3.select(canvas)
-			.append("div")
-			.text("'Output type 'text' is an upcoming feature")
-			.style("background-color", "white")
-			.style("margin-bottom", "20px")
-			.style("padding", "10px")
-			.style("color", "red");
-	}
-
 	static renderErrorMessage(canvas: HTMLElement, errorMessage: string) {
 		let svg = d3.select(canvas)
 			.append("div")
@@ -106,28 +96,21 @@ export default class Tracker extends Plugin {
 	static render(canvas: HTMLElement, graphInfo: GraphInfo) {
 		// console.log(graphInfo.data);
 
-		// Data preprocessing
-		let tagMeasureAccum = 0.0;
-		for (let dataPoint of graphInfo.data) {
-			if (graphInfo.penalty !== 0.0) {
-				if (dataPoint.value === null) {
-					dataPoint.value = graphInfo.penalty;
-				}
+		if (graphInfo.output === "") {
+			if (graphInfo.text !== null) {
+				return renderText(canvas, graphInfo);
 			}
-			if (graphInfo.accum) {
-				if (dataPoint.value !== null) {
-					tagMeasureAccum += dataPoint.value;
-					dataPoint.value = tagMeasureAccum;
-				}
-			}
+			// Default
+			return renderLine(canvas, graphInfo);
+		}
+		else if (graphInfo.output === "line") {
+			return renderLine(canvas, graphInfo);
+		}
+		else if (graphInfo.output === "text") {
+			return renderText(canvas, graphInfo);
 		}
 
-		if (graphInfo.output === "line") {
-			renderLine(canvas, graphInfo);
-		}
-		else if (graphInfo.output == "text") {
-			Tracker.renderText(canvas, graphInfo);
-		}
+		return "Unknown output type";
 	}
 
 	public getFilesInFolder(folder: TFolder, includeSubFolders: boolean = true): TFile[] {
@@ -162,9 +145,9 @@ export default class Tracker extends Plugin {
 	}
 
 	static getGraphInfoFromYaml(yamlBlock: Element): GraphInfo | string {
-		
 		let yaml;
 		try {
+			// console.log(yamlBlock.textContent)
 			yaml = Yaml.parse(yamlBlock.textContent);
 		}
 		catch (err) {
@@ -281,14 +264,9 @@ export default class Tracker extends Plugin {
 		}
 		// console.log(graphInfo.penalty);
 
-		// output, default 'line'
-		if (yaml.output === "line" || yaml.output === "text") {
-			graphInfo.output = yaml.output;
-		}
-		// console.log(graphInfo.output);
-
 		// line related parameters
-		if (typeof yaml.line !== "undefined") {
+		if (typeof yaml.output !== "undefined") {
+			graphInfo.output = yaml.output;
 			// title
 			if (typeof yaml.line.title === "string") {
 				graphInfo.line.title = yaml.line.title;
@@ -363,6 +341,15 @@ export default class Tracker extends Plugin {
 			}
 			// console.log(graphInfo.line.fillGap)
 		}// line related parameters
+
+		// text related parameters
+		if (typeof yaml.text !== "undefined") {
+			graphInfo.text = new TextInfo();
+			// template
+			if (typeof yaml.text.template === "string") {
+				graphInfo.text.template = yaml.text.template;
+			}
+		}// text related parameters
 
 		return graphInfo;
 	}
@@ -600,6 +587,37 @@ export default class Tracker extends Plugin {
 						dataPoint.value += dataPoints[indDataPoint].value;
 					}
 				}
+
+				// Data info
+				if (dataPoint.value === null) {
+					graphInfo.dataInfo.maxStreak = 0;
+					graphInfo.dataInfo.maxBreak++;
+				}
+				else if (dataPoint.value === 0) {
+					if (graphInfo.dataInfo.min > 0) {
+						graphInfo.dataInfo.min = 0;
+					}
+					if (graphInfo.dataInfo.max < 0) {
+						graphInfo.dataInfo.max = 0;
+					}
+
+					graphInfo.dataInfo.maxStreak = 0;
+					graphInfo.dataInfo.maxBreak++;
+				}
+				else {
+					if (graphInfo.dataInfo.min > dataPoint.value) {
+						graphInfo.dataInfo.min = dataPoint.value;
+					}
+					if (graphInfo.dataInfo.max < dataPoint.value) {
+						graphInfo.dataInfo.max = dataPoint.value;
+					}
+
+					graphInfo.dataInfo.sum += dataPoint.value;
+					graphInfo.dataInfo.count ++;
+					
+					graphInfo.dataInfo.maxStreak++;
+					graphInfo.dataInfo.maxBreak = 0;
+				}
 				
 				graphInfo.data.push(dataPoint);
 			}
@@ -610,13 +628,22 @@ export default class Tracker extends Plugin {
 				newPoint.date = curDate.clone();
 				newPoint.value = null;
 
+				// Data info
+				graphInfo.dataInfo.maxStreak = 0;
+				graphInfo.dataInfo.maxBreak++;
+
 				graphInfo.data.push(newPoint);
 			}
 		}
-
 		// console.log(graphInfo);	
 
-		Tracker.render(canvas, graphInfo);
+		let result = Tracker.render(canvas, graphInfo);
+		if (typeof result === "string") {
+			let errorMessage = result;
+			Tracker.renderErrorMessage(canvas, errorMessage);
+			el.replaceChild(canvas, blockToReplace);
+			return;
+		}
 
 		el.replaceChild(canvas, blockToReplace);
 	}

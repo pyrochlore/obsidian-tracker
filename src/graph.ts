@@ -6,6 +6,24 @@ export class DataPoint {
 	value: number | null;
 }
 
+class DataInfo {
+    min: number | null;
+    max: number | null;
+    sum: number | null;
+    count: number;
+    maxStreak: number;
+    maxBreak: number;
+
+    constructor () {
+        this.min = null;
+        this.max = null;
+        this.sum = null;
+        this.count = 0;
+        this.maxStreak = 0;
+        this.maxBreak = 0;
+    }
+}
+
 export class GraphInfo {
 	// Input
 	searchType: string;
@@ -19,13 +37,13 @@ export class GraphInfo {
 	accum: boolean;
 	penalty: number;
 
-	line: LineInfo;
-
-	// Output
-	output: string;
+    output: string;
+	line: LineInfo | null;
+    text: TextInfo | null;
 
 	// Inner data
 	data: DataPoint[];
+    dataInfo: DataInfo;
 
 	constructor (searchType: string, searchTarget: string) {
 		this.searchType = searchType;
@@ -39,11 +57,12 @@ export class GraphInfo {
 		this.accum = false;
 		this.penalty = 0.0;
 
+        this.output = "";
 		this.line = new LineInfo();
-
-		this.output = "line";
+        this.text = null;
 
 		this.data = [];
+        this.dataInfo = new DataInfo();
 	}
 }
 
@@ -87,6 +106,14 @@ export class LineInfo {
 		this.allowInspectData = true;
 		this.fillGap = false;
 	}
+}
+
+export class TextInfo {
+    template: string;
+
+    constructor () {
+        this.template = "";
+    }
 }
 
 function getTickInterval(days: number) {
@@ -142,6 +169,25 @@ function getTickFormat(days: number) {
 }
 
 export function renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
+    // console.log("renderLine");
+
+    // Data preprocessing
+    let tagMeasureAccum = 0.0;
+    for (let dataPoint of graphInfo.data) {
+        if (graphInfo.penalty !== 0.0) {
+            if (dataPoint.value === null) {
+                dataPoint.value = graphInfo.penalty;
+            }
+        }
+        if (graphInfo.accum) {
+            if (dataPoint.value !== null) {
+                tagMeasureAccum += dataPoint.value;
+                dataPoint.value = tagMeasureAccum;
+            }
+        }
+    }
+    
+    // Draw line chart
     let margin = {top: 10, right: 30, bottom: 70, left: 70};
     let width = 460 - margin.left - margin.right;
     let height = 400 - margin.top - margin.bottom;
@@ -339,4 +385,88 @@ export function renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
                 });
         }
     }
+}
+
+function checkTextTemplateValid(textTemplate: string): boolean {
+    return true;
+}
+
+let fnSet = {
+    "{{min}}": function(graphInfo: GraphInfo) {
+        return graphInfo.dataInfo.min;
+    },
+    "{{max}}": function(graphInfo: GraphInfo) {
+        return graphInfo.dataInfo.max;
+    },
+    "{{sum}}": function(graphInfo: GraphInfo) {
+        return graphInfo.dataInfo.sum;
+    },
+    "{{count}}": function(graphInfo: GraphInfo) {
+        return graphInfo.dataInfo.count;
+    },
+    "{{days}}": function(graphInfo: GraphInfo) {
+        let result = graphInfo.data.length;
+        return result;
+    },
+    "{{maxStreak}}": function(graphInfo: GraphInfo) {
+        graphInfo.dataInfo.maxStreak;
+    },
+    "{{maxBreak}}": function(graphInfo: GraphInfo) {
+        return graphInfo.dataInfo.maxBreak;
+    },
+    "{{average}}": function(graphInfo: GraphInfo) {
+        let avg = 0.0;
+        if (graphInfo.data.length !== 0) {
+            avg = graphInfo.dataInfo.sum / graphInfo.data.length;
+        } 
+        return avg;
+    },
+    "{{median}}": function(graphInfo: GraphInfo) {
+        let result = d3.median(
+            graphInfo.data,
+            function(p) { 
+                return (p.value || 0.0) });
+        return result;
+    },
+    "{{variance}}": function(graphInfo: GraphInfo) {
+        let result = d3.variance(
+            graphInfo.data,
+            function(p) { 
+                return (p.value || 0.0) });
+        return result;
+    }
+}
+
+export function renderText(canvas: HTMLElement, graphInfo: GraphInfo) {
+    // Notice graphInfo.text may be null
+    // console.log("renderText");
+
+    let outputText = "";
+    if (checkTextTemplateValid(graphInfo.text.template)) {
+        outputText = graphInfo.text.template;
+    }
+    else {
+        return "Invalid text template";
+    }
+
+    // Loop over fnSet
+    Object.entries(fnSet).forEach(
+        ([strRegex, fn]) => {
+            let regex = new RegExp(strRegex, "gm");
+            if (regex.test(outputText)) {
+                // console.log("Found " + strRegex + " in text template")
+                let result = fn(graphInfo);
+                if (result) {
+                    outputText = outputText.replace(regex, result.toString());
+                }
+            }
+        }
+    );
+
+    if (outputText !== "") {
+        let textBlock = d3.select(canvas).append("div");
+        textBlock.html(outputText);
+        //textBlock.text(outputText);
+    }
+
 }
