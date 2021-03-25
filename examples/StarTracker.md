@@ -16,5 +16,6 @@ searchType: text
 searchTarget: ⭐
 folder: diary
 text:
-	template: "<div style=\"font-size:30px;\">I have {{sum}} stars in total.<div>"
+	template: "I have {{sum}} stars in total."
+	style: "font-size:20px;color:yellow;margin-left: 50px;margin-top:50px;"
 ```

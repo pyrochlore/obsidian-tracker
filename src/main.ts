@@ -349,6 +349,9 @@ export default class Tracker extends Plugin {
 			if (typeof yaml.text.template === "string") {
 				graphInfo.text.template = yaml.text.template;
 			}
+			if (typeof yaml.text.style === "string") {
+				graphInfo.text.style = yaml.text.style;
+			}
 		}// text related parameters
 
 		return graphInfo;

@@ -110,9 +110,11 @@ export class LineInfo {
 
 export class TextInfo {
     template: string;
+    style: string;
 
     constructor () {
         this.template = "";
+        this.style = "";
     }
 }
 
@@ -438,9 +440,13 @@ let fnSet = {
 }
 
 export function renderText(canvas: HTMLElement, graphInfo: GraphInfo) {
-    // Notice graphInfo.text may be null
     // console.log("renderText");
 
+    // Notice graphInfo.text may be null
+    if (graphInfo.text === null) {
+        return "No defined 'text' key in YAML";
+    }
+    
     let outputText = "";
     if (checkTextTemplateValid(graphInfo.text.template)) {
         outputText = graphInfo.text.template;
@@ -465,8 +471,10 @@ export function renderText(canvas: HTMLElement, graphInfo: GraphInfo) {
 
     if (outputText !== "") {
         let textBlock = d3.select(canvas).append("div");
-        textBlock.html(outputText);
-        //textBlock.text(outputText);
+        textBlock.text(outputText);
+        
+        if (graphInfo.text.style !== "") {
+            textBlock.attr("style", graphInfo.text.style);
+        }
     }
-
 }
