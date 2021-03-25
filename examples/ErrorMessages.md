@@ -11,13 +11,14 @@ folder: abc
 ```
 
 ``` tracker
-searchType: tag
-searchTarget: weight
+searchType: text
+searchTarget: ⭐
 output: text
 ``` 
 
 ```
 searchType: tag
 searchTarget: weight
+output: line
 ```
 

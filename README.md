@@ -4,7 +4,7 @@
 
 This is an [Obsidian](https://obsidian.md/) plugin that helps you track tags and/or texts in daily notes.
 
-For example, we can track simple tag (#exercise-pushup), value-attached tag (#weight:60kg), nested tag (#finance/bank1/transfer:100000USD) and/or text '⭐' over a specified period of time. Currently, a line chart will be generated to represent the data.
+For example, we can track simple tag (#exercise-pushup), value-attached tag (#weight:60kg), nested tag (#finance/bank1/transfer:100000USD) and/or text '⭐' over a specified period of time. Currently, a line chart or templated texts will be generated to represent the data.
 
 <img src="images/screenshot.png" width="800">
 
