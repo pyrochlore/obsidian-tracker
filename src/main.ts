@@ -30,42 +30,8 @@ export default class Tracker extends Plugin {
 
 		await this.loadSettings();
 
-		this.addRibbonIcon('dice', 'Sample Plugin', () => {
-			new Notice('This is a notice!');
-		});
-
-		this.addStatusBarItem().setText('Status Bar Text');
-
-		this.addCommand({
-			id: 'open-sample-modal',
-			name: 'Open Sample Modal',
-			// callback: () => {
-			// 	console.log('Simple Callback');
-			// },
-			checkCallback: (checking: boolean) => {
-				let leaf = this.app.workspace.activeLeaf;
-				if (leaf) {
-					if (!checking) {
-						new TrackerModal(this.app).open();
-					}
-					return true;
-				}
-				return false;
-			}
-		});
-
 		this.addSettingTab(new TrackerSettingTab(this.app, this));
 
-		this.registerCodeMirror((cm: CodeMirror.Editor) => {
-			// console.log('codemirror', cm);
-		});
-
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			// console.log('click', evt);
-		});
-
-		// this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
-	
 		MarkdownPreviewRenderer.registerPostProcessor(Tracker.postprocessor)
 	}
 
