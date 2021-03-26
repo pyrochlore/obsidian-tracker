@@ -4,7 +4,7 @@
 searchType: tag
 searchTarget: weight
 folder: diary
-startDate: 2021-10-01
+startDate: 2021-01-01
 line:
 	title: Weight Log
 	yAxisLabel: Weight
