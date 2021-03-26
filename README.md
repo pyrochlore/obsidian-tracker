@@ -47,7 +47,7 @@ Here are the list of default settings.
 ### Root Keys
 These keys are placed under YAML root
 
-| Argument | Default | Description |
+| Key | Default | Description |
 |:--------:|:-------:|:-----------:|
 | **searchType** | 'tag' or 'text' | The type of your search target |
 | **searchTarget** | empty string | The tag name or text to search |
@@ -64,7 +64,7 @@ These keys are placed under YAML root
 ### Line-related Keys
 These keys should be placed under key '**line**'.
 
-| Argument | Default | Description |
+| Key | Default | Description |
 |:--------:|:-----------:|:-----------:|
 | **title** | empty string | The title of this line chart|
 | **xAxisLabel** | 'Date' | X axis label |
@@ -89,10 +89,22 @@ These keys should be placed under key '**line**'.
 
 ### v1.0.0
 
-- First version released at 2021-03-23
+First version released at 2021-03-23
+
+- Track simple tags, value-attached tags, and texts using codeblock
+- Represent the tracked data in a customizable line chart
+- Allow tracking in-line tags and tags in frontmatter
+- Allow tracking nested tags
+
+## Features in Development
+
+- [ ] New output type 'text', represent the analyzed data using user-defined template
+- [ ] New output type 'heatmap' like Github calendar heatmap
+- [ ] Support multiple tags or texts
+
+And more ...
 
 ## Support
 
 - If you like this plugin or want to support the further development, you can [Buy Me a Coffee](https://www.buymeacoffee.com/pyrochlore).
-
 - Please report bugs and request features in [GitHub Issues](https://github.com/pyrochlore/obsidian-tracker/issues)
