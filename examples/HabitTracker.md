@@ -42,7 +42,7 @@ searchType: tag
 searchTarget: work_log
 folder: diary
 accum: true
-startDate: 2021-12-01
+startDate: 2021-01-01
 line:
 	title: Work Log
 	yAxisLabel: Count
