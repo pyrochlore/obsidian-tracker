@@ -30,42 +30,8 @@ export default class Tracker extends Plugin {
 
 		await this.loadSettings();
 
-		this.addRibbonIcon('dice', 'Sample Plugin', () => {
-			new Notice('This is a notice!');
-		});
-
-		this.addStatusBarItem().setText('Status Bar Text');
-
-		this.addCommand({
-			id: 'open-sample-modal',
-			name: 'Open Sample Modal',
-			// callback: () => {
-			// 	console.log('Simple Callback');
-			// },
-			checkCallback: (checking: boolean) => {
-				let leaf = this.app.workspace.activeLeaf;
-				if (leaf) {
-					if (!checking) {
-						new TrackerModal(this.app).open();
-					}
-					return true;
-				}
-				return false;
-			}
-		});
-
 		this.addSettingTab(new TrackerSettingTab(this.app, this));
 
-		this.registerCodeMirror((cm: CodeMirror.Editor) => {
-			// console.log('codemirror', cm);
-		});
-
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			// console.log('click', evt);
-		});
-
-		// this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
-	
 		MarkdownPreviewRenderer.registerPostProcessor(Tracker.postprocessor)
 	}
 
@@ -422,40 +388,42 @@ export default class Tracker extends Plugin {
 			if (graphInfo.searchType === "tag") {
 				// Add frontmatter tags, allow simple tag only
 				let fileCache = Tracker.app.metadataCache.getFileCache(file);
-				let frontMatter = fileCache.frontmatter;
-				let frontMatterTags: string[] = [];
-				if (frontMatter && frontMatter.tags) {
-					// console.log(frontMatter.tags);
-					let tagMeasure = 0.0;
-					let tagExist = false;
-					if (Array.isArray(frontMatter.tags)) {
-						frontMatterTags = frontMatterTags.concat(frontMatter.tags);
-					}
-					else {
-						frontMatterTags.push(frontMatter.tags);
-					}
-
-					for (let tag of frontMatterTags) {
-						if (tag === graphInfo.searchTarget) {
-							tagMeasure = tagMeasure + graphInfo.constValue;
-							tagExist = true;
+				if (fileCache) {
+					let frontMatter = fileCache.frontmatter;
+					let frontMatterTags: string[] = [];
+					if (frontMatter && frontMatter.tags) {
+						// console.log(frontMatter.tags);
+						let tagMeasure = 0.0;
+						let tagExist = false;
+						if (Array.isArray(frontMatter.tags)) {
+							frontMatterTags = frontMatterTags.concat(frontMatter.tags);
 						}
-						if (tag.startsWith(graphInfo.searchTarget + "/")) {
-							// nested simple tag does not support for now
+						else {
+							frontMatterTags.push(frontMatter.tags);
 						}
+	
+						for (let tag of frontMatterTags) {
+							if (tag === graphInfo.searchTarget) {
+								tagMeasure = tagMeasure + graphInfo.constValue;
+								tagExist = true;
+							}
+							if (tag.startsWith(graphInfo.searchTarget + "/")) {
+								// nested simple tag does not support for now
+							}
+						}
+	
+						let newPoint = new DataPoint();
+						newPoint.date = fileDate.clone();
+						if (tagExist) {
+							newPoint.value = tagMeasure;
+						}
+						else {
+							newPoint.value = null;
+						}	
+						data.push(newPoint);
+						//console.log(newPoint);
 					}
-
-					let newPoint = new DataPoint();
-					newPoint.date = fileDate.clone();
-					if (tagExist) {
-						newPoint.value = tagMeasure;
-					}
-					else {
-						newPoint.value = null;
-					}	
-					data.push(newPoint);
-					//console.log(newPoint);
-				}
+				}				
 			}
 
 			// console.log("Search inline tags");
