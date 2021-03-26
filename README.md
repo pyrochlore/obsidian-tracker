@@ -4,9 +4,9 @@
 
 This is an [Obsidian](https://obsidian.md/) plugin that helps you track tags and/or texts in daily notes.
 
-For example, we can track simple tag (#exercise-pushup), value-attached tag (#weight:60kg), and/or text '⭐' over a specified period of time. Currently, a line chart will be generated to represent the data.
+For example, we can track simple tag (#exercise-pushup), value-attached tag (#weight:60kg), nested tag (#finance/bank1/transfer:100000USD) and/or text '⭐' over a specified period of time. Currently, a line chart will be generated to represent the data.
 
-<img src="images/screenshot.png" width="450">
+<img src="images/screenshot.png" width="800">
 
 ## Usage
 1. Have some tags or texts you want to track in dialy notes.
@@ -15,7 +15,7 @@ For example, we can track simple tag (#exercise-pushup), value-attached tag (#we
 3. Inside the tracker codeblock, add YAML key-value pairs to specify the search condition and details of the output (a line chart for now). Key '**searchType**' and '**searchTarget**' are neccesary as minimum setup for a successful render.
 5. Switch the view mode to 'Preview', then the codeblock will get rendered.
 
-    <img src="images/usage.gif" width="300">
+    <img src="images/usage.gif" width="400">
 
 ## Search Type and Search Target
 The value of key '**searchType**' can be '**tag**' or '**text**'. 
@@ -47,7 +47,7 @@ Here are the list of default settings.
 ### Root Keys
 These keys are placed under YAML root
 
-| Argument | Default | Description |
+| Key | Default | Description |
 |:--------:|:-------:|:-----------:|
 | **searchType** | 'tag' or 'text' | The type of your search target |
 | **searchTarget** | empty string | The tag name or text to search |
@@ -64,7 +64,7 @@ These keys are placed under YAML root
 ### Line-related Keys
 These keys should be placed under key '**line**'.
 
-| Argument | Default | Description |
+| Key | Default | Description |
 |:--------:|:-----------:|:-----------:|
 | **title** | empty string | The title of this line chart|
 | **xAxisLabel** | 'Date' | X axis label |
@@ -87,12 +87,24 @@ These keys should be placed under key '**line**'.
 
 ## Release Notes
 
-### v0.1.0
+### v1.0.0
 
-- First version released at 2021-03-24
+First version released at 2021-03-23
+
+- Track simple tags, value-attached tags, and texts using codeblock
+- Represent the tracked data in a customizable line chart
+- Allow tracking in-line tags and tags in frontmatter
+- Allow tracking nested tags
+
+## Features in Development
+
+- [ ] New output type 'text', represent the analyzed data using user-defined template
+- [ ] New output type 'heatmap' like Github calendar heatmap
+- [ ] Support multiple tags or texts
+
+And more ...
 
 ## Support
 
 - If you like this plugin or want to support the further development, you can [Buy Me a Coffee](https://www.buymeacoffee.com/pyrochlore).
-
 - Please report bugs and request features in [GitHub Issues](https://github.com/pyrochlore/obsidian-tracker/issues)
