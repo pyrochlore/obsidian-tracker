@@ -384,6 +384,16 @@ export default class Tracker extends Plugin {
 				}
 			}
 
+			// rules for assigning tag value
+			// simple tag
+			//   tag exists --> constant value
+			//   tag not exists --> null
+			// valued-attached tag
+			//   tag exists
+			//     with value --> that value
+			//     without value --> null
+			//   tag not exists --> null
+
 			// console.log("Search frontmatter tags");
 			if (graphInfo.searchType === "tag") {
 				// Add frontmatter tags, allow simple tag only
@@ -403,27 +413,32 @@ export default class Tracker extends Plugin {
 						}
 	
 						for (let tag of frontMatterTags) {
-							if (tag === graphInfo.searchTarget) {
+							// nested tag in frontmatter is not supported yet
+							if (tag === graphInfo.searchTarget) {// simple tag
 								tagMeasure = tagMeasure + graphInfo.constValue;
 								tagExist = true;
 							}
-							if (tag.startsWith(graphInfo.searchTarget + "/")) {
-								// nested simple tag does not support for now
+							else if (tag.startsWith(graphInfo.searchTarget + "/")) {// nested tag
+								tagMeasure = tagMeasure + graphInfo.constValue;
+								tagExist = true;
 							}
+
+							// valued-tag in frontmatter is not supported 
+							// because the "tag:value" in frontmatter will be consider as a new tag for different values
+		
+							let newPoint = new DataPoint();
+							newPoint.date = fileDate.clone();
+							if (tagExist) {
+								newPoint.value = tagMeasure;
+							}
+							else {
+								newPoint.value = null;
+							}	
+							data.push(newPoint);
+							//console.log(newPoint);
 						}
-	
-						let newPoint = new DataPoint();
-						newPoint.date = fileDate.clone();
-						if (tagExist) {
-							newPoint.value = tagMeasure;
-						}
-						else {
-							newPoint.value = null;
-						}	
-						data.push(newPoint);
-						//console.log(newPoint);
 					}
-				}				
+				}
 			}
 
 			// console.log("Search inline tags");
@@ -432,20 +447,24 @@ export default class Tracker extends Plugin {
 				let content = await Tracker.app.vault.adapter.read(file.path);
 				
 				// console.log(content);
-				let strHashtagRegex = "(^|\\s)#" + graphInfo.searchTarget + "(\\/[\\w]+)*" + "(:(?<number>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?(\\s|$)";
+				let strHashtagRegex = "(^|\\s)#" + graphInfo.searchTarget + "(\\/[\\w]+)*" + "(:(?<value>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?(\\s|$)";
 				// console.log(strHashtagRegex);
 				let hashTagRegex = new RegExp(strHashtagRegex, "gm");
 				let match;
 				let tagMeasure = 0.0;
 				let tagExist = false;
 				while (match = hashTagRegex.exec(content)) {
-					// console.log(match);
-					tagExist = true;
-					if (!graphInfo.ignoreAttchedValue && match[0].includes(":")) {
+					// console.log(match); 
+					if (!graphInfo.ignoreAttchedValue && match[0].includes(":")) {// match[0] whole match
 						// console.log("valued-tag");
-						let value = parseFloat(match.groups.number);
-						// console.log(value);
-						tagMeasure += value;
+						if (typeof match.groups.value !== "undefined") {// set as null for missing value if it is valued-tag
+							let value = parseFloat(match.groups.value);
+							// console.log(value);
+							if (!Number.isNaN(value)) {
+								tagMeasure += value;
+								tagExist = true;
+							}
+						}
 					}
 					else {
 						// console.log("simple-tag");
@@ -555,10 +574,16 @@ export default class Tracker extends Plugin {
 
 				// Merge data points of the same day
 				let dataPoint = dataPoints[0];
-				for (let indDataPoint = 1; indDataPoint < dataPoints.length; indDataPoint++) {
+				let dataPointValue = 0;
+				let dataPointHasValue = false;
+				for (let indDataPoint = 0; indDataPoint < dataPoints.length; indDataPoint++) {
 					if (dataPoints[indDataPoint].value !== null) {
-						dataPoint.value += dataPoints[indDataPoint].value;
+						dataPointValue += dataPoints[indDataPoint].value;
+						dataPointHasValue = true;
 					}
+				}
+				if (dataPointHasValue) {
+					dataPoint.value = dataPointValue;
 				}
 
 				// Data info
@@ -574,6 +599,8 @@ export default class Tracker extends Plugin {
 						graphInfo.dataInfo.max = 0;
 					}
 
+					graphInfo.dataInfo.count ++;// count not null, include zero
+
 					graphInfo.dataInfo.maxStreak = 0;
 					graphInfo.dataInfo.maxBreak++;
 				}
@@ -586,7 +613,7 @@ export default class Tracker extends Plugin {
 					}
 
 					graphInfo.dataInfo.sum += dataPoint.value;
-					graphInfo.dataInfo.count ++;
+					graphInfo.dataInfo.count ++;// count not null
 					
 					graphInfo.dataInfo.maxStreak++;
 					graphInfo.dataInfo.maxBreak = 0;
