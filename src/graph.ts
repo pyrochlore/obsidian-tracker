@@ -54,8 +54,8 @@ export class GraphInfo {
 		this.endDate = moment("");
 		this.constValue = 1.0;
 		this.ignoreAttchedValue = false;
-		this.accum = false;
-		this.penalty = 0.0;
+		this.accum = false;// accum values start from zero over days
+		this.penalty = null;// use this value instead of null value
 
         this.output = "";
 		this.line = new LineInfo();
@@ -173,22 +173,6 @@ function getTickFormat(days: number) {
 export function renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
     // console.log("renderLine");
 
-    // Data preprocessing
-    let tagMeasureAccum = 0.0;
-    for (let dataPoint of graphInfo.data) {
-        if (graphInfo.penalty !== 0.0) {
-            if (dataPoint.value === null) {
-                dataPoint.value = graphInfo.penalty;
-            }
-        }
-        if (graphInfo.accum) {
-            if (dataPoint.value !== null) {
-                tagMeasureAccum += dataPoint.value;
-                dataPoint.value = tagMeasureAccum;
-            }
-        }
-    }
-    
     // Draw line chart
     let margin = {top: 10, right: 30, bottom: 70, left: 70};
     let width = 460 - margin.left - margin.right;

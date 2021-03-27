@@ -62,6 +62,22 @@ export default class Tracker extends Plugin {
 	static render(canvas: HTMLElement, graphInfo: GraphInfo) {
 		// console.log(graphInfo.data);
 
+		// Data preprocessing
+		let tagMeasureAccum = 0.0;
+		for (let dataPoint of graphInfo.data) {
+			if (graphInfo.penalty !== null) {
+				if (dataPoint.value === null) {
+					dataPoint.value = graphInfo.penalty;
+				}
+			}
+			if (graphInfo.accum) {
+				if (dataPoint.value !== null) {
+					tagMeasureAccum += dataPoint.value;
+					dataPoint.value = tagMeasureAccum;
+				}
+			}
+		}
+
 		if (graphInfo.output === "") {
 			if (graphInfo.text !== null) {
 				return renderText(canvas, graphInfo);
