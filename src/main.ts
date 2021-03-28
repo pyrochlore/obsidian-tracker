@@ -7,7 +7,14 @@ import { DataPoint, GraphInfo, renderLine} from './graph';
 
 import * as Yaml from 'yaml';
 import * as d3 from 'd3';
-import moment from 'moment';
+import { Moment } from "moment";
+
+declare global {
+	interface Window {
+	  app: App;
+	  moment: () => Moment;
+	}
+}
 
 export default class Tracker extends Plugin {
 	public settings: TrackerSettings;
@@ -210,10 +217,10 @@ export default class Tracker extends Plugin {
 			Tracker.dateFormat = "YYYY-MM-DD";
 		}		
 		if (typeof yaml.startDate === "string") {
-			graphInfo.startDate = moment(yaml.startDate, Tracker.dateFormat);
+			graphInfo.startDate = window.moment(yaml.startDate, Tracker.dateFormat);
 		}
 		if (typeof yaml.endDate === "string") {
-			graphInfo.endDate = moment(yaml.endDate, Tracker.dateFormat);
+			graphInfo.endDate = window.moment(yaml.endDate, Tracker.dateFormat);
 		}
 		if (graphInfo.startDate.isValid() && graphInfo.endDate.isValid()) {
 			// Make sure endDate > startDate
@@ -365,15 +372,15 @@ export default class Tracker extends Plugin {
 		// console.log(files);
 
 		// Get data from files
-		let minDate = moment("");
-		let maxDate = moment("");
+		let minDate = window.moment("");
+		let maxDate = window.moment("");
 		let fileCounter = 0;
 		let data: DataPoint[] = [];
 		for (let file of files) {
 			let fileBaseName = file.basename;
 			// console.log(fileBaseName);
 			let fileDateString = fileBaseName;
-			let fileDate = moment(fileDateString, Tracker.dateFormat);
+			let fileDate = window.moment(fileDateString, Tracker.dateFormat);
 			// console.log(fileDate);
 			if (!fileDate.isValid()) continue;
 			fileCounter++;
