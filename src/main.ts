@@ -422,7 +422,8 @@ export default class Tracker extends Plugin {
                                 tagExist = true;
                             }
                             if (tag.startsWith(graphInfo.searchTarget + "/")) {
-                                // nested simple tag does not support for now
+                                tagMeasure = tagMeasure + graphInfo.constValue;
+                                tagExist = true;
                             }
                         }
 
