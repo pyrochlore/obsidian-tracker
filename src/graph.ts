@@ -1,114 +1,113 @@
-import * as d3 from 'd3';
+import * as d3 from "d3";
 import { Moment } from "moment";
 
 export class DataPoint {
-	date: Moment;
-	value: number | null;
+    date: Moment;
+    value: number | null;
 }
 
 export class GraphInfo {
-	// Input
-	searchType: string;
-	searchTarget: string;
-	folder: string;
-	dateFormat: string;
-	startDate: Moment;
-	endDate: Moment;
-	constValue: number;
-	ignoreAttchedValue: boolean;
-	accum: boolean;
-	penalty: number;
+    // Input
+    searchType: string;
+    searchTarget: string;
+    folder: string;
+    dateFormat: string;
+    startDate: Moment;
+    endDate: Moment;
+    constValue: number;
+    ignoreAttchedValue: boolean;
+    accum: boolean;
+    penalty: number;
 
-	line: LineInfo;
+    line: LineInfo;
 
-	// Output
-	output: string;
+    // Output
+    output: string;
 
-	// Inner data
-	data: DataPoint[];
+    // Inner data
+    data: DataPoint[];
 
-	constructor (searchType: string, searchTarget: string) {
-		this.searchType = searchType;
-		this.searchTarget = searchTarget;
-		this.folder = "";
-		this.dateFormat = "";
-		this.startDate = window.moment("");
-		this.endDate = window.moment("");
-		this.constValue = 1.0;
-		this.ignoreAttchedValue = false;
-		this.accum = false;
-		this.penalty = 0.0;
+    constructor(searchType: string, searchTarget: string) {
+        this.searchType = searchType;
+        this.searchTarget = searchTarget;
+        this.folder = "";
+        this.dateFormat = "";
+        this.startDate = window.moment("");
+        this.endDate = window.moment("");
+        this.constValue = 1.0;
+        this.ignoreAttchedValue = false;
+        this.accum = false;
+        this.penalty = 0.0;
 
-		this.line = new LineInfo();
+        this.line = new LineInfo();
 
-		this.output = "line";
+        this.output = "line";
 
-		this.data = [];
-	}
+        this.data = [];
+    }
 }
 
 export class LineInfo {
-	title: string;
-	xAxisLabel: string;
-	yAxisLabel: string;
-	labelColor: string;
-	yAxisUnit: string;
-	yMin: number | null;
-	yMax: number | null;
-	axisColor: string;
-	lineColor: string;
-	lineWidth: number;
-	showLine: boolean;
-	showPoint: boolean;
-	pointColor: string;
-	pointBorderColor: string;
-	pointBorderWidth: number;
-	pointSize: number;
-	allowInspectData: boolean;
-	fillGap: boolean;
+    title: string;
+    xAxisLabel: string;
+    yAxisLabel: string;
+    labelColor: string;
+    yAxisUnit: string;
+    yMin: number | null;
+    yMax: number | null;
+    axisColor: string;
+    lineColor: string;
+    lineWidth: number;
+    showLine: boolean;
+    showPoint: boolean;
+    pointColor: string;
+    pointBorderColor: string;
+    pointBorderWidth: number;
+    pointSize: number;
+    allowInspectData: boolean;
+    fillGap: boolean;
 
-	constructor () {
-		this.title = "";
-		this.xAxisLabel = "Date";
-		this.yAxisLabel = "Value";
-		this.labelColor = "";
-		this.yAxisUnit = "";
-		this.yMin = null;
-		this.yMax = null;
-		this.axisColor = "";
-		this.lineColor = "";
-		this.lineWidth = 1.5;
-		this.showLine = true;
-		this.showPoint = true;
-		this.pointColor = "#69b3a2";
-		this.pointBorderColor = "#69b3a2";
-		this.pointBorderWidth = 0.0;
-		this.pointSize = 3.0;
-		this.allowInspectData = true;
-		this.fillGap = false;
-	}
+    constructor() {
+        this.title = "";
+        this.xAxisLabel = "Date";
+        this.yAxisLabel = "Value";
+        this.labelColor = "";
+        this.yAxisUnit = "";
+        this.yMin = null;
+        this.yMax = null;
+        this.axisColor = "";
+        this.lineColor = "";
+        this.lineWidth = 1.5;
+        this.showLine = true;
+        this.showPoint = true;
+        this.pointColor = "#69b3a2";
+        this.pointBorderColor = "#69b3a2";
+        this.pointBorderWidth = 0.0;
+        this.pointSize = 3.0;
+        this.allowInspectData = true;
+        this.fillGap = false;
+    }
 }
 
 function getTickInterval(days: number) {
-
     let tickInterval;
 
-    if (days <= 15) {// number of ticks: 0-15
+    if (days <= 15) {
+        // number of ticks: 0-15
         tickInterval = d3.timeDay;
-    }
-    else if (days <= 4 * 15) {// number of ticks: 4-15
+    } else if (days <= 4 * 15) {
+        // number of ticks: 4-15
         tickInterval = d3.timeDay.every(4);
-    }
-    else if (days <= 7 * 15) {// number of ticks: 8-15
+    } else if (days <= 7 * 15) {
+        // number of ticks: 8-15
         tickInterval = d3.timeWeek;
-    }
-    else if (days <= 15 * 30) {// number of ticks: 4-15
+    } else if (days <= 15 * 30) {
+        // number of ticks: 4-15
         tickInterval = d3.timeMonth;
-    }
-    else if (days <= 15 * 60) {// number of ticks: 8-15
+    } else if (days <= 15 * 60) {
+        // number of ticks: 8-15
         tickInterval = d3.timeMonth.every(2);
-    }
-    else {
+    } else {
         tickInterval = d3.timeYear;
     }
 
@@ -116,25 +115,24 @@ function getTickInterval(days: number) {
 }
 
 function getTickFormat(days: number) {
-
     let tickFormat;
 
-    if (days <= 15) {// number of ticks: 0-15
+    if (days <= 15) {
+        // number of ticks: 0-15
         tickFormat = d3.timeFormat("%y-%m-%d");
-    }
-    else if (days <= 4 * 15) {// number of ticks: 4-15
+    } else if (days <= 4 * 15) {
+        // number of ticks: 4-15
         tickFormat = d3.timeFormat("%y-%m-%d");
-    }
-    else if (days <= 7 * 15) {// number of ticks: 8-15
+    } else if (days <= 7 * 15) {
+        // number of ticks: 8-15
         tickFormat = d3.timeFormat("%y-%m-%d");
-    }
-    else if (days <= 15 * 30) {// number of ticks: 4-15
+    } else if (days <= 15 * 30) {
+        // number of ticks: 4-15
         tickFormat = d3.timeFormat("%y %b");
-    }
-    else if (days <= 15 * 60) {// number of ticks: 8-15
+    } else if (days <= 15 * 60) {
+        // number of ticks: 8-15
         tickFormat = d3.timeFormat("%y %b");
-    }
-    else {
+    } else {
         tickFormat = d3.timeFormat("%Y");
     }
 
@@ -142,41 +140,52 @@ function getTickFormat(days: number) {
 }
 
 export function renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
-    let margin = {top: 10, right: 30, bottom: 70, left: 70};
+    let margin = { top: 10, right: 30, bottom: 70, left: 70 };
     let width = 460 - margin.left - margin.right;
     let height = 400 - margin.top - margin.bottom;
-    let tooltipSize = { width: 90, height: 45};
+    let tooltipSize = { width: 90, height: 45 };
 
     if (graphInfo.line.title) {
         margin.top += 20;
     }
 
-    let svg = d3.select(canvas).append("svg")
+    let svg = d3
+        .select(canvas)
+        .append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom);
 
-    let graphArea = svg.append("g")
+    let graphArea = svg
+        .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     // Add graph title
     if (graphInfo.line.title) {
-        graphArea.append("text")
+        graphArea
+            .append("text")
             .text(graphInfo.line.title)
-            .attr("transform", "translate(" + width/2 + "," + margin.top/4 + ")")
+            .attr(
+                "transform",
+                "translate(" + width / 2 + "," + margin.top / 4 + ")"
+            )
             .attr("class", "tracker-title");
     }
 
     // Add X axis
-    let xDomain = d3.extent(graphInfo.data, function(p) { return p.date; });
-    let xScale = d3.scaleTime()
-        .domain(xDomain)
-        .range([ 0, width ]);
+    let xDomain = d3.extent(graphInfo.data, function (p) {
+        return p.date;
+    });
+    let xScale = d3.scaleTime().domain(xDomain).range([0, width]);
 
     let tickInterval = getTickInterval(graphInfo.data.length);
     let tickFormat = getTickFormat(graphInfo.data.length);
 
-    let xAxisGen = d3.axisBottom(xScale).ticks(tickInterval).tickFormat(tickFormat);
-    let xAxis = graphArea.append("g")
+    let xAxisGen = d3
+        .axisBottom(xScale)
+        .ticks(tickInterval)
+        .tickFormat(tickFormat);
+    let xAxis = graphArea
+        .append("g")
         .attr("transform", "translate(0," + height + ")")
         .call(xAxisGen)
         .attr("class", "tracker-axis");
@@ -184,7 +193,8 @@ export function renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
         xAxis.style("stroke", graphInfo.line.axisColor);
     }
 
-    let xAxisTickLabels = xAxis.selectAll("text")
+    let xAxisTickLabels = xAxis
+        .selectAll("text")
         .attr("x", -9)
         .attr("y", 0)
         .attr("transform", "rotate(-65)")
@@ -194,9 +204,13 @@ export function renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
         xAxisTickLabels.style("fill", graphInfo.line.labelColor);
     }
 
-    let xAxisLabel = xAxis.append("text")
+    let xAxisLabel = xAxis
+        .append("text")
         .text(graphInfo.line.xAxisLabel)
-        .attr("transform", "translate(" + (width / 2) + " ," + margin.bottom + ")")
+        .attr(
+            "transform",
+            "translate(" + width / 2 + " ," + margin.bottom + ")"
+        )
         .attr("class", "tracker-axis-label");
     if (graphInfo.line.labelColor) {
         xAxisLabel.style("fill", graphInfo.line.labelColor);
@@ -205,11 +219,15 @@ export function renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
     // Add Y axis
     let yMin = graphInfo.line.yMin;
     if (typeof yMin !== "number") {
-        yMin = d3.min(graphInfo.data, function(p) { return p.value; });
+        yMin = d3.min(graphInfo.data, function (p) {
+            return p.value;
+        });
     }
     let yMax = graphInfo.line.yMax;
     if (typeof yMax !== "number") {
-        yMax = d3.max(graphInfo.data, function(p) { return p.value; });
+        yMax = d3.max(graphInfo.data, function (p) {
+            return p.value;
+        });
     }
     if (yMax < yMin) {
         let yTmp = yMin;
@@ -220,21 +238,24 @@ export function renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
 
     let yScale = d3.scaleLinear();
     if ((yMin >= 0 && yMin > yMax * 0.8) || (yMin >= 0 && graphInfo.accum)) {
-        yScale.domain([0, yMax * 1.2]).range([ height, 0 ]);
-    }
-    else {
-        yScale.domain([yMin - yExtent * 0.2, yMax + yExtent * 0.2]).range([ height, 0 ]);
+        yScale.domain([0, yMax * 1.2]).range([height, 0]);
+    } else {
+        yScale
+            .domain([yMin - yExtent * 0.2, yMax + yExtent * 0.2])
+            .range([height, 0]);
     }
 
     let yAxisGen = d3.axisLeft(yScale);
-    let yAxis = graphArea.append("g")
+    let yAxis = graphArea
+        .append("g")
         .call(yAxisGen)
         .attr("class", "tracker-axis");
     if (graphInfo.line.axisColor) {
         yAxis.style("stroke", graphInfo.line.axisColor);
     }
 
-    let yAxisTickLabels = yAxis.selectAll("text")
+    let yAxisTickLabels = yAxis
+        .selectAll("text")
         .attr("class", "tracker-tick-label");
     if (graphInfo.line.labelColor) {
         yAxisTickLabels.style("fill", graphInfo.line.labelColor);
@@ -244,38 +265,48 @@ export function renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
     if (graphInfo.line.yAxisUnit) {
         yAxisLabelText += " (" + graphInfo.line.yAxisUnit + ")";
     }
-    let yAxisLabel = yAxis.append("text")
+    let yAxisLabel = yAxis
+        .append("text")
         .text(yAxisLabelText)
         .attr("transform", "rotate(-90)")
-        .attr("y", 0 - (margin.left / 2))
-        .attr("x", 0 - (height / 2))
-        .attr("class", "tracker-axis-label");	
+        .attr("y", 0 - margin.left / 2)
+        .attr("x", 0 - height / 2)
+        .attr("class", "tracker-axis-label");
     if (graphInfo.line.labelColor) {
         yAxisLabel.style("fill", graphInfo.line.labelColor);
     }
-    
+
     let dataArea = graphArea.append("g");
 
     // Add line
     if (graphInfo.line.showLine) {
-        let lineGen = d3.line<DataPoint>()
-            .defined(function(p) { return p.value !== null; })
-            .x(function(p) { return xScale(p.date); })
-            .y(function(p) { return yScale(p.value); });
+        let lineGen = d3
+            .line<DataPoint>()
+            .defined(function (p) {
+                return p.value !== null;
+            })
+            .x(function (p) {
+                return xScale(p.date);
+            })
+            .y(function (p) {
+                return yScale(p.value);
+            });
 
-        let line = dataArea.append("path")
+        let line = dataArea
+            .append("path")
             .attr("class", "tracker-line")
             .style("stroke-width", graphInfo.line.lineWidth);
-            
+
         if (graphInfo.line.fillGap) {
-            line.datum(graphInfo.data.filter(function (p) {
-                return p.value !== null;
-            })).attr("d", lineGen as any);
-        }
-        else {
+            line.datum(
+                graphInfo.data.filter(function (p) {
+                    return p.value !== null;
+                })
+            ).attr("d", lineGen as any);
+        } else {
             line.datum(graphInfo.data).attr("d", lineGen as any);
         }
-        
+
         if (graphInfo.line.lineColor) {
             line.style("stroke", graphInfo.line.lineColor);
         }
@@ -283,19 +314,36 @@ export function renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
 
     // Add dots
     if (graphInfo.line.showPoint) {
-        let dots = dataArea.selectAll("dot")
-            .data(graphInfo.data.filter(function(p) { return p.value != null; }))
-            .enter().append("circle")
+        let dots = dataArea
+            .selectAll("dot")
+            .data(
+                graphInfo.data.filter(function (p) {
+                    return p.value != null;
+                })
+            )
+            .enter()
+            .append("circle")
             .attr("r", graphInfo.line.pointSize)
-            .attr("cx", function(p) { return xScale(p.date); })
-            .attr("cy", function(p) { return yScale(p.value); })
-            .attr("date", function(p) { return d3.timeFormat("%y-%m-%d")(p.date as any); })
-            .attr("value", function(p) { return p.value.toFixed(2); })
+            .attr("cx", function (p) {
+                return xScale(p.date);
+            })
+            .attr("cy", function (p) {
+                return yScale(p.value);
+            })
+            .attr("date", function (p) {
+                return d3.timeFormat("%y-%m-%d")(p.date as any);
+            })
+            .attr("value", function (p) {
+                return p.value.toFixed(2);
+            })
             .attr("class", "tracker-dot");
         if (graphInfo.line.pointColor) {
             dots.style("fill", graphInfo.line.pointColor);
 
-            if (graphInfo.line.pointBorderColor && graphInfo.line.pointBorderWidth > 0.0) {
+            if (
+                graphInfo.line.pointBorderColor &&
+                graphInfo.line.pointBorderWidth > 0.0
+            ) {
                 dots.style("stroke", graphInfo.line.pointBorderColor);
                 dots.style("stroke-width", graphInfo.line.pointBorderWidth);
             }
@@ -303,40 +351,56 @@ export function renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
 
         if (graphInfo.line.allowInspectData) {
             let tooltip = svg.append("g").style("opacity", 0);
-            let tooltipBg = tooltip.append("rect")
+            let tooltipBg = tooltip
+                .append("rect")
                 .attr("width", tooltipSize.width)
                 .attr("height", tooltipSize.height)
                 .attr("class", "tracker-tooltip");
-            let tooltipLabel = tooltip.append("text")
+            let tooltipLabel = tooltip
+                .append("text")
                 .attr("width", tooltipSize.width)
                 .attr("height", tooltipSize.height)
                 .attr("class", "tracker-tooltip-label");
-            let tooltipLabelDate = tooltipLabel.append("tspan")
+            let tooltipLabelDate = tooltipLabel
+                .append("tspan")
                 .attr("x", 4)
-                .attr("y", tooltipSize.height/5 * 2);
-            let tooltipLabelValue = tooltipLabel.append("tspan")
+                .attr("y", (tooltipSize.height / 5) * 2);
+            let tooltipLabelValue = tooltipLabel
+                .append("tspan")
                 .attr("x", 4)
-                .attr("y", tooltipSize.height/5 * 4);
+                .attr("y", (tooltipSize.height / 5) * 4);
 
-            dots
-                .on("mouseenter", function(event) {
-                    tooltipLabelDate.text("date:" + d3.select(this).attr("date"));
-                    tooltipLabelValue.text("value:" + d3.select(this).attr("value"));
+            dots.on("mouseenter", function (event) {
+                tooltipLabelDate.text("date:" + d3.select(this).attr("date"));
+                tooltipLabelValue.text(
+                    "value:" + d3.select(this).attr("value")
+                );
 
-                    const [x, y] = d3.pointer(event);
-                    if (x < width/2) {
-                        tooltip.attr('transform', "translate(" + (x + tooltipSize.width * 1.3) + "," + (y - tooltipSize.height * 1.0) + ")");
-                    }
-                    else {
-                        tooltip.attr('transform', "translate(" + (x - tooltipSize.width * 0.0) + "," + (y - tooltipSize.height * 1.0) + ")");
-                    }
-                    
+                const [x, y] = d3.pointer(event);
+                if (x < width / 2) {
+                    tooltip.attr(
+                        "transform",
+                        "translate(" +
+                            (x + tooltipSize.width * 1.3) +
+                            "," +
+                            (y - tooltipSize.height * 1.0) +
+                            ")"
+                    );
+                } else {
+                    tooltip.attr(
+                        "transform",
+                        "translate(" +
+                            (x - tooltipSize.width * 0.0) +
+                            "," +
+                            (y - tooltipSize.height * 1.0) +
+                            ")"
+                    );
+                }
 
-                    tooltip.transition().duration(200).style("opacity", 1);
-                })
-                .on("mouseleave", function() {
-                    tooltip.transition().duration(500).style("opacity", 0);
-                });
+                tooltip.transition().duration(200).style("opacity", 1);
+            }).on("mouseleave", function () {
+                tooltip.transition().duration(500).style("opacity", 0);
+            });
         }
     }
 }
