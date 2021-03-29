@@ -86,6 +86,12 @@ These keys should be placed under key '**line**'.
 | **fillGap** | false | Connect points over missing data |
 
 ## Release Notes
+
+### v1.0.2
+
+- Fix the searching of nested tag in frontmatter
+- Reduce the package size by using Obsidian internal module
+
 ### v1.0.1
 
 - Remove dependencies to Node.js modules

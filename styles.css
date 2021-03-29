@@ -5,30 +5,30 @@
     --color-tick-label: #000000;
     --color-line: #000000;
     --color-legend: #000000;
-    
+
     --color-dot-fill: #69b3a2;
     --color-dot-stroke: none;
 
-    --color-tooltip-bg: #FFFFFF;
+    --color-tooltip-bg: #ffffff;
     --color-tooltip-border: #000000;
     --color-tooltip-label: #000000;
 }
- 
- .theme-dark {
-    --color-title: #FFFFFF;
-    --color-axis: #FFFFFF;
-    --color-axis-label: #FFFFFF;
-    --color-tick-label: #FFFFFF;
-    --color-line: #FFFFFF;
-    --color-legend: #FFFFFF;
+
+.theme-dark {
+    --color-title: #ffffff;
+    --color-axis: #ffffff;
+    --color-axis-label: #ffffff;
+    --color-tick-label: #ffffff;
+    --color-line: #ffffff;
+    --color-legend: #ffffff;
 
     --color-dot-fill: #69b3a2;
     --color-dot-stroke: none;
 
-    --color-tooltip-bg: #FFFFFF;
+    --color-tooltip-bg: #ffffff;
     --color-tooltip-border: #000000;
     --color-tooltip-label: #000000;
- }
+}
 
 .tracker-title {
     fill: var(--color-title);
