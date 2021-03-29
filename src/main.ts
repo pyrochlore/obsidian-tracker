@@ -1,6 +1,6 @@
-import { App, Modal, Notice, Plugin } from 'obsidian';
+import { App, Plugin } from 'obsidian';
 import { MarkdownPostProcessor, MarkdownPostProcessorContext, MarkdownPreviewRenderer } from 'obsidian';
-import { FileSystemAdapter, TFile, TFolder, normalizePath} from 'obsidian';
+import { TFile, TFolder, normalizePath} from 'obsidian';
 
 import { TrackerSettings, DEFAULT_SETTINGS, TrackerSettingTab } from './settings';
 import { DataPoint, GraphInfo, renderLine} from './graph';
@@ -21,7 +21,6 @@ export default class Tracker extends Plugin {
 
 	public static app: App;
 	public static plugin: Tracker;
-	public static rootPath: string;
 	public static dateFormat: string;
 
 	async onload() {
@@ -29,11 +28,6 @@ export default class Tracker extends Plugin {
 		
 		Tracker.app = this.app;
 		Tracker.plugin = this;
-
-		if (this.app.vault.adapter instanceof FileSystemAdapter) {
-			Tracker.rootPath = this.app.vault.adapter.getBasePath();
-			// console.log(Tracker.rootPath);
-		}
 
 		await this.loadSettings();
 
@@ -594,21 +588,5 @@ export default class Tracker extends Plugin {
 		Tracker.render(canvas, graphInfo);
 
 		el.replaceChild(canvas, blockToReplace);
-	}
-}
-
-class TrackerModal extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
-
-	onOpen() {
-		let {contentEl} = this;
-		contentEl.setText('Woah!');
-	}
-
-	onClose() {
-		let {contentEl} = this;
-		contentEl.empty();
 	}
 }
