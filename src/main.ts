@@ -1,44 +1,38 @@
-import { App, Modal, Notice, Plugin } from 'obsidian';
-import { MarkdownPostProcessor, MarkdownPostProcessorContext, MarkdownPreviewRenderer } from 'obsidian';
-import { FileSystemAdapter, TFile, TFolder, normalizePath} from 'obsidian';
+import { App, Plugin } from 'obsidian';
+import { MarkdownPostProcessorContext } from 'obsidian';
+import { TFile, TFolder, normalizePath} from 'obsidian';
 
 import { TrackerSettings, DEFAULT_SETTINGS, TrackerSettingTab } from './settings';
 import { DataPoint, GraphInfo, LineInfo, renderLine, TextInfo, renderText} from './graph';
 
 import * as Yaml from 'yaml';
 import * as d3 from 'd3';
-import moment from 'moment';
+import { Moment } from "moment";
+
+declare global {
+	interface Window {
+	  app: App;
+	  moment: () => Moment;
+	}
+}
 
 export default class Tracker extends Plugin {
-	public settings: TrackerSettings;
-
-	public static app: App;
-	public static plugin: Tracker;
-	public static rootPath: string;
-	public static dateFormat: string;
+	settings: TrackerSettings;
+	dateFormat: string;
+	folder: string;
 
 	async onload() {
 		console.log('loading obsidian-tracker plugin');
 		
-		Tracker.app = this.app;
-		Tracker.plugin = this;
-
-		if (this.app.vault.adapter instanceof FileSystemAdapter) {
-			Tracker.rootPath = this.app.vault.adapter.getBasePath();
-			// console.log(Tracker.rootPath);
-		}
-
 		await this.loadSettings();
 
 		this.addSettingTab(new TrackerSettingTab(this.app, this));
 
-		MarkdownPreviewRenderer.registerPostProcessor(Tracker.postprocessor)
+		this.registerMarkdownCodeBlockProcessor("tracker", this.postprocessor.bind(this));
 	}
 
 	onunload() {
 		console.log('unloading obsidian-tracker plugin');
-
-		MarkdownPreviewRenderer.unregisterPostProcessor(Tracker.postprocessor)
 	}
 
 	async loadSettings() {
@@ -49,7 +43,7 @@ export default class Tracker extends Plugin {
 		await this.saveData(this.settings);
 	}
 
-	static renderErrorMessage(canvas: HTMLElement, errorMessage: string) {
+	renderErrorMessage(canvas: HTMLElement, errorMessage: string) {
 		let svg = d3.select(canvas)
 			.append("div")
 			.text(errorMessage)
@@ -59,7 +53,7 @@ export default class Tracker extends Plugin {
 			.style("color", "red");
 	}
 
-	static render(canvas: HTMLElement, graphInfo: GraphInfo) {
+	render(canvas: HTMLElement, graphInfo: GraphInfo) {
 		// console.log(graphInfo.data);
 
 		// Data preprocessing
@@ -95,7 +89,7 @@ export default class Tracker extends Plugin {
 		return "Unknown output type";
 	}
 
-	public getFilesInFolder(folder: TFolder, includeSubFolders: boolean = true): TFile[] {
+	getFilesInFolder(folder: TFolder, includeSubFolders: boolean = true): TFile[] {
 		let files: TFile[] = [];
 
         for (let item of folder.children) {
@@ -112,7 +106,7 @@ export default class Tracker extends Plugin {
         return files;
 	}
 
-	public getFiles(folderToSearch: string, includeSubFolders: boolean = true) {
+	getFiles(folderToSearch: string, includeSubFolders: boolean = true) {
 		let files: TFile[] = [];
 
 		let folder = this.app.vault.getAbstractFileByPath(normalizePath(folderToSearch));
@@ -126,11 +120,10 @@ export default class Tracker extends Plugin {
 		return files;
 	}
 
-	static getGraphInfoFromYaml(yamlBlock: Element): GraphInfo | string {
+	getGraphInfoFromYaml(yamlText: string): GraphInfo | string {
 		let yaml;
 		try {
-			// console.log(yamlBlock.textContent)
-			yaml = Yaml.parse(yamlBlock.textContent);
+			yaml = Yaml.parse(yamlText);
 		}
 		catch (err) {
 			let errorMessage = "Error parsing YAML";
@@ -179,40 +172,38 @@ export default class Tracker extends Plugin {
 		let graphInfo = new GraphInfo(searchType, searchTarget);
 
 		// Root folder to search
-		let defaultSearchFolder = Tracker.plugin.settings.folderToSearch;
+		this.folder = this.settings.folderToSearch;
 		if (typeof yaml.folder === "undefined") {
-			if (defaultSearchFolder === "") {
-				graphInfo.folder = "/";
-			}
-			else {
-				graphInfo.folder = defaultSearchFolder;
+			if (this.folder === "") {
+				this.folder = "/";
 			}
 		}
 		else {
 			if (yaml.folder === "") {
-				graphInfo.folder = "/";
+				this.folder = "/";
 			}
 			else {
-				graphInfo.folder = yaml.folder;
+				this.folder = yaml.folder;
 			}
 		}
-		let abstractFolder = this.app.vault.getAbstractFileByPath(normalizePath(graphInfo.folder));
+		let abstractFolder = this.app.vault.getAbstractFileByPath(normalizePath(this.folder));
 		if (!abstractFolder || !(abstractFolder instanceof TFolder)) {
-			let errorMessage = "Folder '" + graphInfo.folder + "' doesn't exist";
+			let errorMessage = "Folder '" + this.folder + "' doesn't exist";
 			return errorMessage;
 		}
+		graphInfo.folder = this.folder;
 		// console.log(graphInfo.folder);
 
 		// startDate, endDate
-		Tracker.dateFormat = Tracker.plugin.settings.dateFormat;
-		if (Tracker.dateFormat === "") {
-			Tracker.dateFormat = "YYYY-MM-DD";
+		this.dateFormat = this.settings.dateFormat;
+		if (this.dateFormat === "") {
+			this.dateFormat = "YYYY-MM-DD";
 		}		
 		if (typeof yaml.startDate === "string") {
-			graphInfo.startDate = moment(yaml.startDate, Tracker.dateFormat);
+			graphInfo.startDate = window.moment(yaml.startDate, this.dateFormat);
 		}
 		if (typeof yaml.endDate === "string") {
-			graphInfo.endDate = moment(yaml.endDate, Tracker.dateFormat);
+			graphInfo.endDate = window.moment(yaml.endDate, this.dateFormat);
 		}
 		if (graphInfo.startDate.isValid() && graphInfo.endDate.isValid()) {
 			// Make sure endDate > startDate
@@ -341,47 +332,42 @@ export default class Tracker extends Plugin {
 		return graphInfo;
 	}
 
-	static async postprocessor(el: HTMLElement, ctx: MarkdownPostProcessorContext): Promise<MarkdownPostProcessor> {
-
-		const blockToReplace = el.querySelector('pre')
-		if (!blockToReplace) return;
-
-		const yamlBlock = blockToReplace.querySelector('code.language-tracker')
-		if (!yamlBlock) return;// It is not a block we want to deal with.
+	async postprocessor(source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
 
 		const canvas = document.createElement('div');
 
-		let graphInfo = Tracker.getGraphInfoFromYaml(yamlBlock);
+		let yamlText = source.trim();
+		let graphInfo = this.getGraphInfoFromYaml(yamlText);
 		if (typeof graphInfo === "string") {
 			let errorMessage = graphInfo;
-			Tracker.renderErrorMessage(canvas, errorMessage);
-			el.replaceChild(canvas, blockToReplace);
+			this.renderErrorMessage(canvas, errorMessage);
+			el.appendChild(canvas);
 			return;
 		}
 
 		// Get files
 		let files: TFile[];
 		try {
-			files = Tracker.plugin.getFiles(graphInfo.folder);
+			files = this.getFiles(graphInfo.folder);
 		}
 		catch(e) {
 			let errorMessage = e.message;
-			Tracker.renderErrorMessage(canvas, errorMessage);
-			el.replaceChild(canvas, blockToReplace);
+			this.renderErrorMessage(canvas, errorMessage);
+			el.appendChild(canvas);
 			return;
 		}
 		// console.log(files);
 
 		// Get data from files
-		let minDate = moment("");
-		let maxDate = moment("");
+		let minDate = window.moment("");
+		let maxDate = window.moment("");
 		let fileCounter = 0;
 		let data: DataPoint[] = [];
 		for (let file of files) {
 			let fileBaseName = file.basename;
 			// console.log(fileBaseName);
 			let fileDateString = fileBaseName;
-			let fileDate = moment(fileDateString, Tracker.dateFormat);
+			let fileDate = window.moment(fileDateString, this.dateFormat);
 			// console.log(fileDate);
 			if (!fileDate.isValid()) continue;
 			fileCounter++;
@@ -413,7 +399,7 @@ export default class Tracker extends Plugin {
 			// console.log("Search frontmatter tags");
 			if (graphInfo.searchType === "tag") {
 				// Add frontmatter tags, allow simple tag only
-				let fileCache = Tracker.app.metadataCache.getFileCache(file);
+				let fileCache = this.app.metadataCache.getFileCache(file);
 				if (fileCache) {
 					let frontMatter = fileCache.frontmatter;
 					let frontMatterTags: string[] = [];
@@ -460,7 +446,7 @@ export default class Tracker extends Plugin {
 			// console.log("Search inline tags");
 			if (graphInfo.searchType === "tag") {
 				// Add inline tags
-				let content = await Tracker.app.vault.adapter.read(file.path);
+				let content = await this.app.vault.adapter.read(file.path);
 				
 				// console.log(content);
 				let strHashtagRegex = "(^|\\s)#" + graphInfo.searchTarget + "(\\/[\\w]+)*" + "(:(?<value>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?(\\s|$)";
@@ -502,7 +488,7 @@ export default class Tracker extends Plugin {
 			}
 
 			if (graphInfo.searchType === "text") {
-				let content = await Tracker.app.vault.adapter.read(file.path);
+				let content = await this.app.vault.adapter.read(file.path);
 				// console.log(content);
 				
 				let strHashtagRegex = graphInfo.searchTarget.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
@@ -537,8 +523,8 @@ export default class Tracker extends Plugin {
 		// Check date range
 		if (!minDate.isValid() || !maxDate.isValid()) {
 			let errorMessage = "Invalid date range";
-			Tracker.renderErrorMessage(canvas, errorMessage);
-			el.replaceChild(canvas, blockToReplace);
+			this.renderErrorMessage(canvas, errorMessage);
+			el.appendChild(canvas);
 			return;
 		}
 		if (!graphInfo.startDate.isValid() && !graphInfo.endDate.isValid()) {
@@ -552,8 +538,8 @@ export default class Tracker extends Plugin {
 			}
 			else {
 				let errorMessage = "Invalid date range";
-				Tracker.renderErrorMessage(canvas, errorMessage);
-				el.replaceChild(canvas, blockToReplace);
+				this.renderErrorMessage(canvas, errorMessage);
+				el.appendChild(canvas);
 				return;
 			}
 		}
@@ -563,8 +549,8 @@ export default class Tracker extends Plugin {
 			}
 			else {
 				let errorMessage = "Invalid date range";
-				Tracker.renderErrorMessage(canvas, errorMessage);
-				el.replaceChild(canvas, blockToReplace);
+				this.renderErrorMessage(canvas, errorMessage);
+				el.appendChild(canvas);
 				return;
 			}			
 		}
@@ -572,8 +558,8 @@ export default class Tracker extends Plugin {
 			// startDate and endDate are valid
 			if ((graphInfo.startDate < minDate && graphInfo.endDate < minDate) || (graphInfo.startDate > maxDate && graphInfo.endDate > maxDate)) {
 				let errorMessage = "Invalid date range";
-				Tracker.renderErrorMessage(canvas, errorMessage);
-				el.replaceChild(canvas, blockToReplace);
+				this.renderErrorMessage(canvas, errorMessage);
+				el.appendChild(canvas);
 				return;
 			}
 		}
@@ -653,30 +639,14 @@ export default class Tracker extends Plugin {
 		}
 		// console.log(graphInfo);	
 
-		let result = Tracker.render(canvas, graphInfo);
+		let result = this.render(canvas, graphInfo);
 		if (typeof result === "string") {
 			let errorMessage = result;
-			Tracker.renderErrorMessage(canvas, errorMessage);
-			el.replaceChild(canvas, blockToReplace);
+			this.renderErrorMessage(canvas, errorMessage);
+			el.appendChild(canvas);
 			return;
 		}
 
-		el.replaceChild(canvas, blockToReplace);
-	}
-}
-
-class TrackerModal extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
-
-	onOpen() {
-		let {contentEl} = this;
-		contentEl.setText('Woah!');
-	}
-
-	onClose() {
-		let {contentEl} = this;
-		contentEl.empty();
+		el.appendChild(canvas);
 	}
 }

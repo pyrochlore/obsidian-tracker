@@ -1,8 +1,8 @@
 import * as d3 from 'd3';
-import moment from 'moment';
+import { Moment } from "moment";
 
 export class DataPoint {
-	date: moment.Moment;
+	date: Moment;
 	value: number | null;
 }
 
@@ -30,8 +30,8 @@ export class GraphInfo {
 	searchTarget: string;
 	folder: string;
 	dateFormat: string;
-	startDate: moment.Moment;
-	endDate: moment.Moment;
+	startDate: Moment;
+	endDate: Moment;
 	constValue: number;
 	ignoreAttchedValue: boolean;
 	accum: boolean;
@@ -50,8 +50,8 @@ export class GraphInfo {
 		this.searchTarget = searchTarget;
 		this.folder = "";
 		this.dateFormat = "";
-		this.startDate = moment("");
-		this.endDate = moment("");
+		this.startDate = window.moment("");
+		this.endDate = window.moment("");
 		this.constValue = 1.0;
 		this.ignoreAttchedValue = false;
 		this.accum = false;// accum values start from zero over days
