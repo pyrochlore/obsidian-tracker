@@ -13,7 +13,7 @@ For example, we can track simple tag (#exercise-pushup), value-attached tag (#we
 2. In panel Settings (from the icon at the buttom left corner)-> Options -> Community plugins, set 'safe mode' to off.
 3. In the 'Community plugins' section, click 'Browse' and find this plugin by name 'Tracker'
 4. Press button 'Install', scroll down to the bottom of section 'Installed plugins', and enable the Tracker plugin.
-5. Engoy tracking.
+5. Enjoy tracking.
 
 ## Usage
 1. Have some tags or texts you want to track in dialy notes.
