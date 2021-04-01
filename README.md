@@ -4,9 +4,15 @@
 
 This is an [Obsidian](https://obsidian.md/) plugin that helps us track tags and/or texts in daily notes.
 
-For example, we can track simple tag (#exercise-pushup), value-attached tag (#weight:60kg), nested tag (#finance/bank1/transfer:100000USD) and/or text '⭐' over a specified period of time. Currently, a line chart will be generated to represent the data.
+For example, we can track simple tag (#exercise-pushup), value-attached tag (#weight:60kg), nested tag (#finance/bank1/transfer:100000USD) and/or text ('⭐', 'love', etc...) over a specified period of time. Currently, a line chart will be generated to represent the data.
 
 <img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/images/screenshot.png" width="800">
+
+## Installation
+1. Download Obsidian from [Obsidian Official Site](https://obsidian.md/).
+2. From the panel in Settings (icon at the buttom left corner)->Options->Community plugins, set the safe mode to off.
+3. In the 'Community plugins' section, click 'Browse' and find this plugin by name 'Tracker'
+4. Press button 'Install' then you can start tracking
 
 ## Usage
 1. Have some tags or texts you want to track in dialy notes.
