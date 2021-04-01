@@ -106,11 +106,16 @@ First version released at 2021-03-23
 - Allow tracking in-line tags and tags in frontmatter
 - Allow tracking nested tags
 
-## Features in Development
+## Road Map
 
-- [ ] New output type 'text', represent the analyzed data using user-defined template
-- [ ] New output type 'heatmap' like Github calendar heatmap
-- [ ] Support multiple tags or texts
+May not implemented in this order
+
+- [ ] New output type 'text', analyze the input data and represent it using user-defined text template
+- [ ] New output type 'table', list the search result in a formated table
+- [ ] New output type 'heatmap', like Github calendar heatmap
+- [ ] Support multiple tags and texts
+- [ ] Add Commands to insert different types of codeblocks
+- [ ] Add data post-process function like 'moving average'
 
 And more ...
 
