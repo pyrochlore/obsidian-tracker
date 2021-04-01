@@ -123,6 +123,7 @@ May not implemented in this order
 - [ ] Support multiple tags and texts
 - [ ] Add Commands to insert different types of codeblocks
 - [ ] Add data post-process function like 'moving average'
+- [ ] Add 'Explode' button onto rendered block, it can replace the codeblock by rendered result
 
 And more ...
 
