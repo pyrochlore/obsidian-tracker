@@ -1,5 +1,9 @@
 import { App, Plugin } from "obsidian";
-import { MarkdownPostProcessorContext } from "obsidian";
+import {
+    MarkdownPostProcessorContext,
+    MarkdownView,
+    Editor
+} from "obsidian";
 import { TFile, TFolder, normalizePath } from "obsidian";
 
 import {
@@ -27,6 +31,13 @@ declare global {
     }
 }
 
+enum OutputType {
+    Line,
+    Text,
+    Table,
+    Heatmap,
+}
+
 export default class Tracker extends Plugin {
     settings: TrackerSettings;
     dateFormat: string;
@@ -43,6 +54,18 @@ export default class Tracker extends Plugin {
             "tracker",
             this.postprocessor.bind(this)
         );
+
+        this.addCommand({
+            id: "add-line-chart-example",
+            name: "Add Line Chart Example",
+            callback: () => this.addCodeBlock(OutputType.Line),
+        });
+
+        this.addCommand({
+            id: "add-text-output-example",
+            name: "Add Text Output Example",
+            callback: () => this.addCodeBlock(OutputType.Text),
+        });
     }
 
     onunload() {
@@ -694,5 +717,75 @@ export default class Tracker extends Plugin {
         }
 
         el.appendChild(canvas);
+    }
+
+    getEditor(): Editor {
+        return this.app.workspace.getActiveViewOfType(MarkdownView).editor;
+    }
+
+    addCodeBlock(outputType: OutputType): void {
+        const currentView = this.app.workspace.activeLeaf.view;
+
+        if (!(currentView instanceof MarkdownView)) {
+            return;
+        }
+
+        let codeblockToInsert = "";
+        switch (outputType) {
+            case OutputType.Line:
+                codeblockToInsert = `\`\`\` tracker
+searchType: tag
+searchTarget: tagName
+line:
+    yAxisLabel: Value
+\`\`\``;
+                break;
+            case OutputType.Text:
+                codeblockToInsert = `\`\`\` tracker
+searchType: tag
+searchTarget: tagName
+text:
+    template: "Total number of tagName is {{sum}}"
+\`\`\``;
+                break;
+            case OutputType.Table:
+                codeblockToInsert = `\`\`\` tracker
+searchType: tag
+searchTarget: tagName
+table:
+\`\`\``;
+                break;
+            case OutputType.Heatmap:
+                codeblockToInsert = `\`\`\` tracker
+searchType: tag
+searchTarget: tagName
+heatmap:
+\`\`\``;
+                break;
+        }
+
+        if (codeblockToInsert !== "") {
+            let textInserted = this.insertToNextLine(codeblockToInsert);
+            if (!textInserted) {
+            }
+        }
+    }
+
+    insertToNextLine(text: string): boolean {
+        let editor = this.getEditor();
+
+        if (editor) {
+            let cursor = editor.getCursor();
+            let lineNumber = cursor.line;
+            let line = editor.getLine(lineNumber);
+
+            cursor.ch = line.length;
+            editor.setSelection(cursor);
+            editor.replaceSelection("\n" + text);
+
+            return true;
+        }
+
+        return false;
     }
 }
