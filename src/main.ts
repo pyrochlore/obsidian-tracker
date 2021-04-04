@@ -550,16 +550,16 @@ export default class Tracker extends Plugin {
                 let content = await this.app.vault.adapter.read(file.path);
                 // console.log(content);
 
-                let strHashtagRegex = graphInfo.searchTarget.replace(
+                let strTextRegex = graphInfo.searchTarget.replace(
                     /[|\\{}()[\]^$+*?.]/g,
                     "\\$&"
                 );
                 // console.log(strHashtagRegex);
-                let hashTagRegex = new RegExp(strHashtagRegex, "gm");
+                let textRegex = new RegExp(strTextRegex, "gm");
                 let match;
                 let tagMeasure = 0.0;
                 let tagExist = false;
-                while ((match = hashTagRegex.exec(content))) {
+                while ((match = textRegex.exec(content))) {
                     // console.log(match);
                     tagExist = true;
                     tagMeasure = tagMeasure + graphInfo.constValue;
