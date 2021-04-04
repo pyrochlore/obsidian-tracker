@@ -499,11 +499,13 @@ export default class Tracker extends Plugin {
                 let content = await this.app.vault.adapter.read(file.path);
 
                 // console.log(content);
+                // Test this in Regex101 
+                //(^|\s)#tagName(\/[\w]+)*(:(?<value>[\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)(?<unit>\w*)?)?([\.!,\?;~-]*)?(\s|$)
                 let strHashtagRegex =
                     "(^|\\s)#" +
                     graphInfo.searchTarget +
                     "(\\/[\\w]+)*" +
-                    "(:(?<value>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?(\\s|$)";
+                    "(:(?<value>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?([\\.!,\\?;~-]*)?(\\s|$)";
                 // console.log(strHashtagRegex);
                 let hashTagRegex = new RegExp(strHashtagRegex, "gm");
                 let match;
