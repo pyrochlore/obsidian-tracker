@@ -531,6 +531,7 @@ export default class Tracker extends Plugin {
                     } else {
                         // console.log("simple-tag");
                         tagMeasure = tagMeasure + graphInfo.constValue;
+                        tagExist = true;
                     }
                 }
 
