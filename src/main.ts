@@ -1,9 +1,5 @@
 import { App, Plugin } from "obsidian";
-import {
-    MarkdownPostProcessorContext,
-    MarkdownView,
-    Editor
-} from "obsidian";
+import { MarkdownPostProcessorContext, MarkdownView, Editor } from "obsidian";
 import { TFile, TFolder, normalizePath } from "obsidian";
 
 import {
@@ -501,7 +497,7 @@ export default class Tracker extends Plugin {
                 let content = await this.app.vault.adapter.read(file.path);
 
                 // console.log(content);
-                // Test this in Regex101 
+                // Test this in Regex101
                 //(^|\s)#tagName(\/[\w]+)*(:(?<value>[\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)(?<unit>\w*)?)?([\.!,\?;~-]*)?(\s|$)
                 let strHashtagRegex =
                     "(^|\\s)#" +
