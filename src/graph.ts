@@ -269,7 +269,7 @@ export function renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
     let yExtent = yMax - yMin;
 
     let yScale = d3.scaleLinear();
-    if ((yMin >= 0 && yMin > yMax * 0.8) || (yMin >= 0 && graphInfo.accum)) {
+    if (yMin >= 0 && graphInfo.accum) {
         yScale.domain([0, yMax * 1.2]).range([height, 0]);
     } else {
         yScale
