@@ -12,6 +12,14 @@ line:
 	lineColor: yellow
 ```
 
+## Summary
+``` tracker
+searchType: tag
+searchTarget: weight
+folder: diary
+text:
+  template: "Minimum: {{min}}kg\nMaximum: {{max}}kg\nMedian: {{median}}kg\nAverage: {{average}}kg"
+```
 
 ``` tracker
 searchType: tag

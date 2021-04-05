@@ -663,37 +663,6 @@ export default class Tracker extends Plugin {
                     dataPoint.value = dataPointValue;
                 }
 
-                // Data info
-                if (dataPoint.value === null) {
-                    graphInfo.dataInfo.maxStreak = 0;
-                    graphInfo.dataInfo.maxBreak++;
-                } else if (dataPoint.value === 0) {
-                    if (graphInfo.dataInfo.min > 0) {
-                        graphInfo.dataInfo.min = 0;
-                    }
-                    if (graphInfo.dataInfo.max < 0) {
-                        graphInfo.dataInfo.max = 0;
-                    }
-
-                    graphInfo.dataInfo.count++; // count not null, include zero
-
-                    graphInfo.dataInfo.maxStreak = 0;
-                    graphInfo.dataInfo.maxBreak++;
-                } else {
-                    if (graphInfo.dataInfo.min > dataPoint.value) {
-                        graphInfo.dataInfo.min = dataPoint.value;
-                    }
-                    if (graphInfo.dataInfo.max < dataPoint.value) {
-                        graphInfo.dataInfo.max = dataPoint.value;
-                    }
-
-                    graphInfo.dataInfo.sum += dataPoint.value;
-                    graphInfo.dataInfo.count++; // count not null
-
-                    graphInfo.dataInfo.maxStreak++;
-                    graphInfo.dataInfo.maxBreak = 0;
-                }
-
                 graphInfo.data.push(dataPoint);
             } else {
                 // Add missing point of this day
@@ -701,10 +670,6 @@ export default class Tracker extends Plugin {
                 let newPoint = new DataPoint();
                 newPoint.date = curDate.clone();
                 newPoint.value = null;
-
-                // Data info
-                graphInfo.dataInfo.maxStreak = 0;
-                graphInfo.dataInfo.maxBreak++;
 
                 graphInfo.data.push(newPoint);
             }

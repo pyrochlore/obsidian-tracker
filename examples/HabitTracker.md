@@ -11,7 +11,6 @@ line:
 	lineColor: "#d65d0e"
 ```
 
-
 ``` tracker
 searchType: tag
 searchTarget: exercise-plank
@@ -24,7 +23,6 @@ line:
 	pointColor: red
 ```
 
-
 ``` tracker
 searchType: tag
 searchTarget: meditation
@@ -36,6 +34,14 @@ line:
 	yAxisLabel: Count
 ```
 
+## Summary
+``` tracker
+searchType: tag
+searchTarget: meditation
+folder: diary
+text:
+    template: "Longest Streak: {{maxStreak}} day(s)\nLongest Break: {{maxBreak}} day(s)"
+```
 
 ``` tracker
 searchType: tag

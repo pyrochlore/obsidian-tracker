@@ -6,24 +6,6 @@ export class DataPoint {
     value: number | null;
 }
 
-class DataInfo {
-    min: number | null;
-    max: number | null;
-    sum: number | null;
-    count: number;
-    maxStreak: number;
-    maxBreak: number;
-
-    constructor() {
-        this.min = null;
-        this.max = null;
-        this.sum = null;
-        this.count = 0;
-        this.maxStreak = 0;
-        this.maxBreak = 0;
-    }
-}
-
 export class GraphInfo {
     // Input
     searchType: string;
@@ -43,7 +25,6 @@ export class GraphInfo {
 
     // Inner data
     data: DataPoint[];
-    dataInfo: DataInfo;
 
     constructor(searchType: string, searchTarget: string) {
         this.searchType = searchType;
@@ -62,7 +43,6 @@ export class GraphInfo {
         this.text = null;
 
         this.data = [];
-        this.dataInfo = new DataInfo();
     }
 }
 
@@ -366,6 +346,9 @@ export function renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
                 return d3.timeFormat("%y-%m-%d")(p.date as any);
             })
             .attr("value", function (p) {
+                if (Number.isInteger(p.value)) {
+                    return p.value.toFixed(0);
+                }
                 return p.value.toFixed(2);
             })
             .attr("class", "tracker-dot");
@@ -443,50 +426,118 @@ function checkTextTemplateValid(textTemplate: string): boolean {
 
 let fnSet = {
     "{{min}}": function (graphInfo: GraphInfo) {
-        return graphInfo.dataInfo.min;
+        let dataNotNull = graphInfo.data.filter(function (p) {
+            return p.value !== null;
+        });
+        if (dataNotNull.length > 0) {
+            return d3.min(dataNotNull, function (p) {
+                return p.value;
+            });
+        }
+        return null;
     },
     "{{max}}": function (graphInfo: GraphInfo) {
-        return graphInfo.dataInfo.max;
+        let dataNotNull = graphInfo.data.filter(function (p) {
+            return p.value !== null;
+        });
+        if (dataNotNull.length > 0) {
+            return d3.max(dataNotNull, function (p) {
+                return p.value;
+            });
+        }
+        return null;
     },
     "{{sum}}": function (graphInfo: GraphInfo) {
-        return graphInfo.dataInfo.sum;
+        let dataNotNull = graphInfo.data.filter(function (p) {
+            return p.value !== null;
+        });
+        if (dataNotNull.length > 0) {
+            return d3.sum(dataNotNull, function (p) {
+                return p.value;
+            });
+        }
+        return null;
     },
     "{{count}}": function (graphInfo: GraphInfo) {
-        return graphInfo.dataInfo.count;
+        let dataNotNull = graphInfo.data.filter(function (p) {
+            return p.value !== null;
+        });
+        return dataNotNull.length;
     },
     "{{days}}": function (graphInfo: GraphInfo) {
         let result = graphInfo.data.length;
         return result;
     },
     "{{maxStreak}}": function (graphInfo: GraphInfo) {
-        graphInfo.dataInfo.maxStreak;
+        let streak = 0;
+        let maxStreak = 0;
+        for (let dataPoint of graphInfo.data) {
+            if (dataPoint.value !== null) {
+                streak++;
+            } else {
+                streak = 0;
+            }
+            if (streak > maxStreak) {
+                maxStreak = streak;
+            }
+        }
+        return maxStreak;
     },
     "{{maxBreak}}": function (graphInfo: GraphInfo) {
-        return graphInfo.dataInfo.maxBreak;
+        let streak = 0;
+        let maxBreak = 0;
+        for (let dataPoint of graphInfo.data) {
+            if (dataPoint.value === null) {
+                streak++;
+            } else {
+                streak = 0;
+            }
+            if (streak > maxBreak) {
+                maxBreak = streak;
+            }
+        }
+        return maxBreak;
     },
     "{{average}}": function (graphInfo: GraphInfo) {
-        let avg = 0.0;
-        if (graphInfo.data.length !== 0) {
-            avg = graphInfo.dataInfo.sum / graphInfo.data.length;
+        let dataNotNull = graphInfo.data.filter(function (p) {
+            return p.value !== null;
+        });
+        let count = dataNotNull.length;
+        if (count > 0) {
+            let sum = d3.sum(dataNotNull, function (p) {
+                return p.value;
+            });
+            return sum / count;
         }
-        return avg;
+        return null;
     },
     "{{median}}": function (graphInfo: GraphInfo) {
-        let result = d3.median(graphInfo.data, function (p) {
-            return p.value || 0.0;
+        let dataNotNull = graphInfo.data.filter(function (p) {
+            return p.value !== null;
         });
-        return result;
+        if (dataNotNull.length > 0) {
+            return d3.median(dataNotNull, function (p) {
+                return p.value;
+            });
+        }
+        return null;
     },
     "{{variance}}": function (graphInfo: GraphInfo) {
-        let result = d3.variance(graphInfo.data, function (p) {
-            return p.value || 0.0;
+        let dataNotNull = graphInfo.data.filter(function (p) {
+            return p.value !== null;
         });
-        return result;
+        if (dataNotNull.length > 0) {
+            return d3.variance(dataNotNull, function (p) {
+                return p.value;
+            });
+        }
+        return null;
     },
 };
 
 export function renderText(canvas: HTMLElement, graphInfo: GraphInfo) {
     // console.log("renderText");
+    // console.log(graphInfo);
 
     // Notice graphInfo.text may be null
     if (graphInfo.text === null) {
@@ -506,15 +557,30 @@ export function renderText(canvas: HTMLElement, graphInfo: GraphInfo) {
         if (regex.test(outputText)) {
             // console.log("Found " + strRegex + " in text template")
             let result = fn(graphInfo);
-            if (result) {
-                outputText = outputText.replace(regex, result.toString());
+            // console.log(result);
+            if (typeof result !== "undefined" && result !== null) {
+                if (Number.isInteger(result)) {
+                    result = result.toFixed(0);
+                } else {
+                    result = result.toFixed(2);
+                }
+                outputText = outputText.replace(regex, result);
+            } else {
+                outputText = outputText.replace(regex, "{{NA}}");
             }
         }
     });
 
     if (outputText !== "") {
         let textBlock = d3.select(canvas).append("div");
-        textBlock.text(outputText);
+        if (outputText.includes("\n")) {
+            let outputLines = outputText.split("\n");
+            for (let outputLine of outputLines) {
+                textBlock.append("div").text(outputLine);
+            }
+        } else {
+            textBlock.text(outputText);
+        }
 
         if (graphInfo.text.style !== "") {
             textBlock.attr("style", graphInfo.text.style);
