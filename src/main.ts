@@ -472,6 +472,8 @@ export default class Tracker extends Plugin {
                                 // nested tag
                                 tagMeasure = tagMeasure + graphInfo.constValue;
                                 tagExist = true;
+                            } else {
+                                continue;
                             }
 
                             // valued-tag in frontmatter is not supported
