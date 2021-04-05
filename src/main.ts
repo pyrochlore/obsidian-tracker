@@ -137,7 +137,9 @@ export default class Tracker extends Plugin {
 
         for (let item of folder.children) {
             if (item instanceof TFile) {
-                files.push(item);
+                if (item.extension === "md") {
+                    files.push(item);
+                }
             } else {
                 if (item instanceof TFolder && includeSubFolders) {
                     files = files.concat(this.getFilesInFolder(item));
