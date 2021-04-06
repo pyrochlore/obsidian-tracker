@@ -4,9 +4,16 @@
 
 This is an [Obsidian](https://obsidian.md/) plugin that helps us track tags and/or texts in daily notes.
 
-For example, we can track simple tag (#exercise-pushup), value-attached tag (#weight:60kg), nested tag (#finance/bank1/transfer:100000USD) and/or text '⭐' over a specified period of time. Currently, a line chart or templated texts will be generated to represent the data.
+For example, we can track simple tag (#exercise-pushup), value-attached tag (#weight:60kg), nested tag (#finance/bank1/transfer:100000USD) and/or text ('⭐', 'love', etc...) over a specified period of time. Currently, a line chart will be generated to represent the data.
 
-<img src="images/screenshot.png" width="800">
+<img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/images/screenshot.png" width="800">
+
+## Installation
+1. Download Obsidian from [Obsidian Official Site](https://obsidian.md/).
+2. In panel Settings (from the icon at the buttom left corner)-> Options -> Community plugins, set 'safe mode' to off.
+3. In the 'Community plugins' section, click 'Browse' and find this plugin by name 'Tracker'
+4. Press button 'Install', scroll down to the bottom of section 'Installed plugins', and enable the Tracker plugin.
+5. Enjoy tracking.
 
 ## Usage
 1. Have some tags or texts you want to track in dialy notes.
@@ -15,7 +22,7 @@ For example, we can track simple tag (#exercise-pushup), value-attached tag (#we
 3. Inside the tracker codeblock, add YAML key-value pairs to specify the search condition and details of the output (a line chart for now). Key '**searchType**' and '**searchTarget**' are neccesary as minimum setup for a successful render.
 5. Switch the view mode to 'Preview', then the codeblock will get rendered.
 
-    <img src="images/usage.gif" width="400">
+    <img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/images/usage.gif" width="400">
 
 ## Search Type and Search Target
 The value of key '**searchType**' can be '**tag**' or '**text**'. 
@@ -106,11 +113,17 @@ First version released at 2021-03-23
 - Allow tracking in-line tags and tags in frontmatter
 - Allow tracking nested tags
 
-## Features in Development
+## Road Map
 
-- [ ] New output type 'text', represent the analyzed data using user-defined template
-- [ ] New output type 'heatmap' like Github calendar heatmap
-- [ ] Support multiple tags or texts
+May not implemented in this order
+
+- [ ] New output type 'text', analyze the input data and represent it using user-defined text template
+- [ ] New output type 'table', list the search result in a formated table
+- [ ] New output type 'heatmap', like Github calendar heatmap
+- [ ] Support multiple tags and texts
+- [ ] Add Commands to insert different types of codeblocks
+- [ ] Add data post-process function like 'moving average'
+- [ ] Add 'Explode' button onto rendered block, it can replace the codeblock by rendered result
 
 And more ...
 
