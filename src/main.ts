@@ -269,6 +269,11 @@ export default class Tracker extends Plugin {
             renderInfo.ignoreAttchedValue = yaml.ignoreAttachedValue;
         }
 
+        // ignoreZeroValue
+        if (typeof yaml.ignoreZeroValue === "boolean") {
+            renderInfo.ignoreZeroValue = yaml.ignoreZeroValue;
+        }
+
         // accum
         if (typeof yaml.accum === "boolean") {
             renderInfo.accum = yaml.accum;
@@ -524,8 +529,13 @@ export default class Tracker extends Plugin {
                             let value = parseFloat(match.groups.value);
                             // console.log(value);
                             if (!Number.isNaN(value)) {
-                                tagMeasure += value;
-                                tagExist = true;
+                                if (
+                                    !renderInfo.ignoreZeroValue ||
+                                    value !== 0
+                                ) {
+                                    tagMeasure += value;
+                                    tagExist = true;
+                                }
                             }
                         }
                     } else {
@@ -710,6 +720,7 @@ startDate:
 endDate:
 constValue: 1.0
 ignoreAttachedValue: false
+ignoreZeroValue: false
 accum: false
 penalty:
 line:
@@ -742,6 +753,7 @@ startDate:
 endDate:
 constValue: 1.0
 ignoreAttachedValue: false
+ignoreZeroValue: false
 accum: false
 penalty:
 text:
