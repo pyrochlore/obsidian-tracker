@@ -10,6 +10,7 @@ package-lock.json
 main.js
 *.js.map
 examples/*.js
+*.zip
 
 # .obsidian
 .obsidian
