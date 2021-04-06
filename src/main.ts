@@ -704,31 +704,52 @@ export default class Tracker extends Plugin {
                 codeblockToInsert = `\`\`\` tracker
 searchType: tag
 searchTarget: tagName
+folder: /
+dateFormat: YYYY-MM-DD
+startDate:
+endDate:
+constValue: 1.0
+ignoreAttachedValue: false
+accum: false
+penalty:
 line:
+    title: "Line Chart"
+    xAxisLabel: Date
     yAxisLabel: Value
+    yAxisUnit: ""
+    yMin:
+    yMax:
+    axisColor: ""
+    lineColor: ""
+    lineWidth: 1.5
+    showLine: true
+    showPoint: true
+    pointColor: "#69b3a2"
+    pointBorderColor: "#69b3a2"
+    pointBorderWidth: 0
+    pointSize: 3
+    allowInspectData: true
+    fillGap: false
 \`\`\``;
                 break;
             case OutputType.Text:
                 codeblockToInsert = `\`\`\` tracker
 searchType: tag
 searchTarget: tagName
+folder: /
+dateFormat: YYYY-MM-DD
+startDate:
+endDate:
+constValue: 1.0
+ignoreAttachedValue: false
+accum: false
+penalty:
 text:
-    template: "Total number of tagName is {{sum}}"
+    template: "Average value of tagName is {{average}}"
+    style: "color:white;"
 \`\`\``;
                 break;
-            case OutputType.Table:
-                codeblockToInsert = `\`\`\` tracker
-searchType: tag
-searchTarget: tagName
-table:
-\`\`\``;
-                break;
-            case OutputType.Heatmap:
-                codeblockToInsert = `\`\`\` tracker
-searchType: tag
-searchTarget: tagName
-heatmap:
-\`\`\``;
+            default:
                 break;
         }
 
