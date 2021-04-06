@@ -266,7 +266,7 @@ export default class Tracker extends Plugin {
 
         // ignoreAttachedValue
         if (typeof yaml.ignoreAttachedValue === "boolean") {
-            renderInfo.ignoreAttchedValue = yaml.ignoreAttachedValue;
+            renderInfo.ignoreAttachedValue = yaml.ignoreAttachedValue;
         }
 
         // ignoreZeroValue
@@ -519,7 +519,7 @@ export default class Tracker extends Plugin {
                 while ((match = hashTagRegex.exec(content))) {
                     // console.log(match);
                     if (
-                        !renderInfo.ignoreAttchedValue &&
+                        !renderInfo.ignoreAttachedValue &&
                         match[0].includes(":")
                     ) {
                         // match[0] whole match

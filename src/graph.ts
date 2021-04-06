@@ -15,7 +15,7 @@ export class RenderInfo {
     startDate: Moment;
     endDate: Moment;
     constValue: number;
-    ignoreAttchedValue: boolean;
+    ignoreAttachedValue: boolean;
     ignoreZeroValue: boolean;
     accum: boolean;
     penalty: number;
@@ -35,7 +35,7 @@ export class RenderInfo {
         this.startDate = window.moment("");
         this.endDate = window.moment("");
         this.constValue = 1.0;
-        this.ignoreAttchedValue = false;
+        this.ignoreAttachedValue = false;
         this.ignoreZeroValue = false;
         this.accum = false; // accum values start from zero over days
         this.penalty = null; // use this value instead of null value
