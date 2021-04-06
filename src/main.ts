@@ -9,7 +9,7 @@ import {
 } from "./settings";
 import {
     DataPoint,
-    GraphInfo,
+    RenderInfo,
     LineInfo,
     renderLine,
     TextInfo,
@@ -91,18 +91,18 @@ export default class Tracker extends Plugin {
             .style("color", "red");
     }
 
-    render(canvas: HTMLElement, graphInfo: GraphInfo) {
-        // console.log(graphInfo.data);
+    render(canvas: HTMLElement, renderInfo: RenderInfo) {
+        // console.log(renderInfo.data);
 
         // Data preprocessing
         let tagMeasureAccum = 0.0;
-        for (let dataPoint of graphInfo.data) {
-            if (graphInfo.penalty !== null) {
+        for (let dataPoint of renderInfo.data) {
+            if (renderInfo.penalty !== null) {
                 if (dataPoint.value === null) {
-                    dataPoint.value = graphInfo.penalty;
+                    dataPoint.value = renderInfo.penalty;
                 }
             }
-            if (graphInfo.accum) {
+            if (renderInfo.accum) {
                 if (dataPoint.value !== null) {
                     tagMeasureAccum += dataPoint.value;
                     dataPoint.value = tagMeasureAccum;
@@ -110,16 +110,16 @@ export default class Tracker extends Plugin {
             }
         }
 
-        if (graphInfo.output === "") {
-            if (graphInfo.text !== null) {
-                return renderText(canvas, graphInfo);
+        if (renderInfo.output === "") {
+            if (renderInfo.text !== null) {
+                return renderText(canvas, renderInfo);
             }
             // Default
-            return renderLine(canvas, graphInfo);
-        } else if (graphInfo.output === "line") {
-            return renderLine(canvas, graphInfo);
-        } else if (graphInfo.output === "text") {
-            return renderText(canvas, graphInfo);
+            return renderLine(canvas, renderInfo);
+        } else if (renderInfo.output === "line") {
+            return renderLine(canvas, renderInfo);
+        } else if (renderInfo.output === "text") {
+            return renderText(canvas, renderInfo);
         }
 
         return "Unknown output type";
@@ -161,7 +161,7 @@ export default class Tracker extends Plugin {
         return files;
     }
 
-    getGraphInfoFromYaml(yamlText: string): GraphInfo | string {
+    getRenderInfoFromYaml(yamlText: string): RenderInfo | string {
         let yaml;
         try {
             yaml = Yaml.parse(yamlText);
@@ -210,7 +210,7 @@ export default class Tracker extends Plugin {
         // console.log(searchTarget);
 
         // Create grarph info
-        let graphInfo = new GraphInfo(searchType, searchTarget);
+        let renderInfo = new RenderInfo(searchType, searchTarget);
 
         // Root folder to search
         this.folder = this.settings.folderToSearch;
@@ -232,8 +232,8 @@ export default class Tracker extends Plugin {
             let errorMessage = "Folder '" + this.folder + "' doesn't exist";
             return errorMessage;
         }
-        graphInfo.folder = this.folder;
-        // console.log(graphInfo.folder);
+        renderInfo.folder = this.folder;
+        // console.log(renderInfo.folder);
 
         // startDate, endDate
         this.dateFormat = this.settings.dateFormat;
@@ -241,139 +241,139 @@ export default class Tracker extends Plugin {
             this.dateFormat = "YYYY-MM-DD";
         }
         if (typeof yaml.startDate === "string") {
-            graphInfo.startDate = window.moment(
+            renderInfo.startDate = window.moment(
                 yaml.startDate,
                 this.dateFormat
             );
         }
         if (typeof yaml.endDate === "string") {
-            graphInfo.endDate = window.moment(yaml.endDate, this.dateFormat);
+            renderInfo.endDate = window.moment(yaml.endDate, this.dateFormat);
         }
-        if (graphInfo.startDate.isValid() && graphInfo.endDate.isValid()) {
+        if (renderInfo.startDate.isValid() && renderInfo.endDate.isValid()) {
             // Make sure endDate > startDate
-            if (graphInfo.endDate < graphInfo.startDate) {
+            if (renderInfo.endDate < renderInfo.startDate) {
                 let errorMessage = "Invalid date range (startDate and endDate)";
                 return errorMessage;
             }
         }
-        // console.log(graphInfo.startDate);
-        // console.log(graphInfo.endDate);
+        // console.log(renderInfo.startDate);
+        // console.log(renderInfo.endDate);
 
         // constValue
         if (typeof yaml.constValue === "number") {
-            graphInfo.constValue = yaml.constValue;
+            renderInfo.constValue = yaml.constValue;
         }
 
         // ignoreAttachedValue
         if (typeof yaml.ignoreAttachedValue === "boolean") {
-            graphInfo.ignoreAttchedValue = yaml.ignoreAttachedValue;
+            renderInfo.ignoreAttchedValue = yaml.ignoreAttachedValue;
         }
 
         // accum
         if (typeof yaml.accum === "boolean") {
-            graphInfo.accum = yaml.accum;
+            renderInfo.accum = yaml.accum;
         }
-        // console.log(graphInfo.accum);
+        // console.log(renderInfo.accum);
 
         // penalty
         if (typeof yaml.penalty === "number") {
-            graphInfo.penalty = yaml.penalty;
+            renderInfo.penalty = yaml.penalty;
         }
-        // console.log(graphInfo.penalty);
+        // console.log(renderInfo.penalty);
 
         // line related parameters
         if (typeof yaml.output !== "undefined") {
-            graphInfo.output = yaml.output;
+            renderInfo.output = yaml.output;
         }
         if (typeof yaml.line !== "undefined") {
             // title
             if (typeof yaml.line.title === "string") {
-                graphInfo.line.title = yaml.line.title;
+                renderInfo.line.title = yaml.line.title;
             }
             // xAxisLabel
             if (typeof yaml.line.xAxisLabel === "string") {
-                graphInfo.line.xAxisLabel = yaml.line.xAxisLabel;
+                renderInfo.line.xAxisLabel = yaml.line.xAxisLabel;
             }
             // yAxisLabel
             if (typeof yaml.line.yAxisLabel === "string") {
-                graphInfo.line.yAxisLabel = yaml.line.yAxisLabel;
+                renderInfo.line.yAxisLabel = yaml.line.yAxisLabel;
             }
             // labelColor
             if (typeof yaml.line.labelColor === "string") {
-                graphInfo.line.labelColor = yaml.line.labelColor;
+                renderInfo.line.labelColor = yaml.line.labelColor;
             }
             // yAxisUnit
             if (typeof yaml.line.yAxisUnit === "string") {
-                graphInfo.line.yAxisUnit = yaml.line.yAxisUnit;
+                renderInfo.line.yAxisUnit = yaml.line.yAxisUnit;
             }
             // yMin
             if (typeof yaml.line.yMin === "number") {
-                graphInfo.line.yMin = yaml.line.yMin;
+                renderInfo.line.yMin = yaml.line.yMin;
             }
             // yMax
             if (typeof yaml.line.yMax === "number") {
-                graphInfo.line.yMax = yaml.line.yMax;
+                renderInfo.line.yMax = yaml.line.yMax;
             }
             // axisColor
             if (typeof yaml.line.axisColor === "string") {
-                graphInfo.line.axisColor = yaml.line.axisColor;
+                renderInfo.line.axisColor = yaml.line.axisColor;
             }
             // lineColor
             if (typeof yaml.line.lineColor === "string") {
-                graphInfo.line.lineColor = yaml.line.lineColor;
+                renderInfo.line.lineColor = yaml.line.lineColor;
             }
             // lineWidth
             if (typeof yaml.line.lineWidth === "number") {
-                graphInfo.line.lineWidth = yaml.line.lineWidth;
+                renderInfo.line.lineWidth = yaml.line.lineWidth;
             }
             // showLine
             if (typeof yaml.line.showLine === "boolean") {
-                graphInfo.line.showLine = yaml.line.showLine;
+                renderInfo.line.showLine = yaml.line.showLine;
             }
             // showPoint
             if (typeof yaml.line.showPoint === "boolean") {
-                graphInfo.line.showPoint = yaml.line.showPoint;
+                renderInfo.line.showPoint = yaml.line.showPoint;
             }
             // pointColor
             if (typeof yaml.line.pointColor === "string") {
-                graphInfo.line.pointColor = yaml.line.pointColor;
+                renderInfo.line.pointColor = yaml.line.pointColor;
             }
             // pointBorderColor
             if (typeof yaml.line.pointBorderColor === "string") {
-                graphInfo.line.pointBorderColor = yaml.line.pointBorderColor;
+                renderInfo.line.pointBorderColor = yaml.line.pointBorderColor;
             }
             // pointBorderWidth
             if (typeof yaml.line.pointBorderWidth === "number") {
-                graphInfo.line.pointBorderWidth = yaml.line.pointBorderWidth;
+                renderInfo.line.pointBorderWidth = yaml.line.pointBorderWidth;
             }
             // pointSize
             if (typeof yaml.line.pointSize === "number") {
-                graphInfo.line.pointSize = yaml.line.pointSize;
+                renderInfo.line.pointSize = yaml.line.pointSize;
             }
             // allowInspectData
             if (typeof yaml.line.allowInspectData === "boolean") {
-                graphInfo.line.allowInspectData = yaml.line.allowInspectData;
+                renderInfo.line.allowInspectData = yaml.line.allowInspectData;
             }
             // fillGap
             if (typeof yaml.line.fillGap === "boolean") {
-                graphInfo.line.fillGap = yaml.line.fillGap;
+                renderInfo.line.fillGap = yaml.line.fillGap;
             }
-            // console.log(graphInfo.line.fillGap)
+            // console.log(renderInfo.line.fillGap)
         } // line related parameters
 
         // text related parameters
         if (typeof yaml.text !== "undefined") {
-            graphInfo.text = new TextInfo();
+            renderInfo.text = new TextInfo();
             // template
             if (typeof yaml.text.template === "string") {
-                graphInfo.text.template = yaml.text.template;
+                renderInfo.text.template = yaml.text.template;
             }
             if (typeof yaml.text.style === "string") {
-                graphInfo.text.style = yaml.text.style;
+                renderInfo.text.style = yaml.text.style;
             }
         } // text related parameters
 
-        return graphInfo;
+        return renderInfo;
     }
 
     async postprocessor(
@@ -384,9 +384,9 @@ export default class Tracker extends Plugin {
         const canvas = document.createElement("div");
 
         let yamlText = source.trim();
-        let graphInfo = this.getGraphInfoFromYaml(yamlText);
-        if (typeof graphInfo === "string") {
-            let errorMessage = graphInfo;
+        let renderInfo = this.getRenderInfoFromYaml(yamlText);
+        if (typeof renderInfo === "string") {
+            let errorMessage = renderInfo;
             this.renderErrorMessage(canvas, errorMessage);
             el.appendChild(canvas);
             return;
@@ -395,7 +395,7 @@ export default class Tracker extends Plugin {
         // Get files
         let files: TFile[];
         try {
-            files = this.getFiles(graphInfo.folder);
+            files = this.getFiles(renderInfo.folder);
         } catch (e) {
             let errorMessage = e.message;
             this.renderErrorMessage(canvas, errorMessage);
@@ -442,7 +442,7 @@ export default class Tracker extends Plugin {
             //   tag not exists --> null
 
             // console.log("Search frontmatter tags");
-            if (graphInfo.searchType === "tag") {
+            if (renderInfo.searchType === "tag") {
                 // Add frontmatter tags, allow simple tag only
                 let fileCache = this.app.metadataCache.getFileCache(file);
                 if (fileCache) {
@@ -462,15 +462,15 @@ export default class Tracker extends Plugin {
 
                         for (let tag of frontMatterTags) {
                             // nested tag in frontmatter is not supported yet
-                            if (tag === graphInfo.searchTarget) {
+                            if (tag === renderInfo.searchTarget) {
                                 // simple tag
-                                tagMeasure = tagMeasure + graphInfo.constValue;
+                                tagMeasure = tagMeasure + renderInfo.constValue;
                                 tagExist = true;
                             } else if (
-                                tag.startsWith(graphInfo.searchTarget + "/")
+                                tag.startsWith(renderInfo.searchTarget + "/")
                             ) {
                                 // nested tag
-                                tagMeasure = tagMeasure + graphInfo.constValue;
+                                tagMeasure = tagMeasure + renderInfo.constValue;
                                 tagExist = true;
                             } else {
                                 continue;
@@ -494,7 +494,7 @@ export default class Tracker extends Plugin {
             }
 
             // console.log("Search inline tags");
-            if (graphInfo.searchType === "tag") {
+            if (renderInfo.searchType === "tag") {
                 // Add inline tags
                 let content = await this.app.vault.adapter.read(file.path);
 
@@ -503,7 +503,7 @@ export default class Tracker extends Plugin {
                 //(^|\s)#tagName(\/[\w]+)*(:(?<value>[\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)(?<unit>\w*)?)?([\.!,\?;~-]*)?(\s|$)
                 let strHashtagRegex =
                     "(^|\\s)#" +
-                    graphInfo.searchTarget +
+                    renderInfo.searchTarget +
                     "(\\/[\\w]+)*" +
                     "(:(?<value>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?([\\.!,\\?;~-]*)?(\\s|$)";
                 // console.log(strHashtagRegex);
@@ -514,7 +514,7 @@ export default class Tracker extends Plugin {
                 while ((match = hashTagRegex.exec(content))) {
                     // console.log(match);
                     if (
-                        !graphInfo.ignoreAttchedValue &&
+                        !renderInfo.ignoreAttchedValue &&
                         match[0].includes(":")
                     ) {
                         // match[0] whole match
@@ -530,7 +530,7 @@ export default class Tracker extends Plugin {
                         }
                     } else {
                         // console.log("simple-tag");
-                        tagMeasure = tagMeasure + graphInfo.constValue;
+                        tagMeasure = tagMeasure + renderInfo.constValue;
                         tagExist = true;
                     }
                 }
@@ -547,11 +547,11 @@ export default class Tracker extends Plugin {
                 data.push(newPoint);
             }
 
-            if (graphInfo.searchType === "text") {
+            if (renderInfo.searchType === "text") {
                 let content = await this.app.vault.adapter.read(file.path);
                 // console.log(content);
 
-                let strTextRegex = graphInfo.searchTarget.replace(
+                let strTextRegex = renderInfo.searchTarget.replace(
                     /[|\\{}()[\]^$+*?.]/g,
                     "\\$&"
                 );
@@ -563,7 +563,7 @@ export default class Tracker extends Plugin {
                 while ((match = textRegex.exec(content))) {
                     // console.log(match);
                     tagExist = true;
-                    tagMeasure = tagMeasure + graphInfo.constValue;
+                    tagMeasure = tagMeasure + renderInfo.constValue;
                 }
 
                 let newPoint = new DataPoint();
@@ -589,16 +589,16 @@ export default class Tracker extends Plugin {
             el.appendChild(canvas);
             return;
         }
-        if (!graphInfo.startDate.isValid() && !graphInfo.endDate.isValid()) {
+        if (!renderInfo.startDate.isValid() && !renderInfo.endDate.isValid()) {
             // No date arguments
-            graphInfo.startDate = minDate.clone();
-            graphInfo.endDate = maxDate.clone();
+            renderInfo.startDate = minDate.clone();
+            renderInfo.endDate = maxDate.clone();
         } else if (
-            graphInfo.startDate.isValid() &&
-            !graphInfo.endDate.isValid()
+            renderInfo.startDate.isValid() &&
+            !renderInfo.endDate.isValid()
         ) {
-            if (graphInfo.startDate < maxDate) {
-                graphInfo.endDate = maxDate.clone();
+            if (renderInfo.startDate < maxDate) {
+                renderInfo.endDate = maxDate.clone();
             } else {
                 let errorMessage = "Invalid date range";
                 this.renderErrorMessage(canvas, errorMessage);
@@ -606,11 +606,11 @@ export default class Tracker extends Plugin {
                 return;
             }
         } else if (
-            graphInfo.endDate.isValid() &&
-            !graphInfo.startDate.isValid()
+            renderInfo.endDate.isValid() &&
+            !renderInfo.startDate.isValid()
         ) {
-            if (graphInfo.endDate > minDate) {
-                graphInfo.startDate = minDate.clone();
+            if (renderInfo.endDate > minDate) {
+                renderInfo.startDate = minDate.clone();
             } else {
                 let errorMessage = "Invalid date range";
                 this.renderErrorMessage(canvas, errorMessage);
@@ -620,9 +620,9 @@ export default class Tracker extends Plugin {
         } else {
             // startDate and endDate are valid
             if (
-                (graphInfo.startDate < minDate &&
-                    graphInfo.endDate < minDate) ||
-                (graphInfo.startDate > maxDate && graphInfo.endDate > maxDate)
+                (renderInfo.startDate < minDate &&
+                    renderInfo.endDate < minDate) ||
+                (renderInfo.startDate > maxDate && renderInfo.endDate > maxDate)
             ) {
                 let errorMessage = "Invalid date range";
                 this.renderErrorMessage(canvas, errorMessage);
@@ -635,15 +635,15 @@ export default class Tracker extends Plugin {
 
         // Preprocess data
         for (
-            let curDate = graphInfo.startDate.clone();
-            curDate <= graphInfo.endDate;
+            let curDate = renderInfo.startDate.clone();
+            curDate <= renderInfo.endDate;
             curDate.add(1, "days")
         ) {
             // console.log(curDate);
             let dataPoints = data.filter((p) => curDate.isSame(p.date));
 
             if (dataPoints.length > 0) {
-                // Add point to graphInfo
+                // Add point to renderInfo
 
                 // Merge data points of the same day
                 let dataPoint = dataPoints[0];
@@ -663,7 +663,7 @@ export default class Tracker extends Plugin {
                     dataPoint.value = dataPointValue;
                 }
 
-                graphInfo.data.push(dataPoint);
+                renderInfo.data.push(dataPoint);
             } else {
                 // Add missing point of this day
 
@@ -671,12 +671,12 @@ export default class Tracker extends Plugin {
                 newPoint.date = curDate.clone();
                 newPoint.value = null;
 
-                graphInfo.data.push(newPoint);
+                renderInfo.data.push(newPoint);
             }
         }
-        // console.log(graphInfo);
+        // console.log(renderInfo);
 
-        let result = this.render(canvas, graphInfo);
+        let result = this.render(canvas, renderInfo);
         if (typeof result === "string") {
             let errorMessage = result;
             this.renderErrorMessage(canvas, errorMessage);
