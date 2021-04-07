@@ -5,7 +5,7 @@ This is an [Obsidian](https://obsidian.md/) plugin that helps you track tags and
 
 For example, one can track simple tag (#exercise-pushup), value-attached tag (#weight:60kg), nested tag (#finance/bank1/transfer:100000USD) or text ('⭐', 'love', '👍', or '👎') over a specified period of time. Currently, a line chart or a summary will be generated to represent the tracked result.
 
-<img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/images/screenshot.png" width="800">
+<img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/docs/images/screenshot_v1.1.png" width="800">
 
 ## Installation
 ### Install from Obsidian Settings Panel
@@ -24,7 +24,7 @@ Download the latest [release](https://github.com/pyrochlore/obsidian-tracker/rel
 3. Add tracker code blocks manually or using commands. See [Commands](docs/Commands.md) for more detail.
 4. Switch the document view mode to 'Preview', then the code block will get rendered.
 
-    <img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/images/usage.gif" width="400">
+    <img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/docs/images/usage_v1.1.gif" width="400">
 
 For more use cases, please take a look at [examples](https://github.com/pyrochlore/obsidian-tracker/tree/master/examples).
 
