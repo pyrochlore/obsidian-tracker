@@ -6,7 +6,7 @@ export class DataPoint {
     value: number | null;
 }
 
-export class GraphInfo {
+export class RenderInfo {
     // Input
     searchType: string;
     searchTarget: string;
@@ -15,14 +15,14 @@ export class GraphInfo {
     startDate: Moment;
     endDate: Moment;
     constValue: number;
-    ignoreAttchedValue: boolean;
+    ignoreAttachedValue: boolean;
+    ignoreZeroValue: boolean;
     accum: boolean;
     penalty: number;
 
-    line: LineInfo;
-
-    // Output
     output: string;
+    line: LineInfo | null;
+    summary: SummaryInfo | null;
 
     // Inner data
     data: DataPoint[];
@@ -35,13 +35,14 @@ export class GraphInfo {
         this.startDate = window.moment("");
         this.endDate = window.moment("");
         this.constValue = 1.0;
-        this.ignoreAttchedValue = false;
-        this.accum = false;
-        this.penalty = 0.0;
+        this.ignoreAttachedValue = false;
+        this.ignoreZeroValue = false;
+        this.accum = false; // accum values start from zero over days
+        this.penalty = null; // use this value instead of null value
 
+        this.output = "";
         this.line = new LineInfo();
-
-        this.output = "line";
+        this.summary = null;
 
         this.data = [];
     }
@@ -86,6 +87,16 @@ export class LineInfo {
         this.pointSize = 3.0;
         this.allowInspectData = true;
         this.fillGap = false;
+    }
+}
+
+export class SummaryInfo {
+    template: string;
+    style: string;
+
+    constructor() {
+        this.template = "";
+        this.style = "";
     }
 }
 
@@ -139,13 +150,16 @@ function getTickFormat(days: number) {
     return tickFormat;
 }
 
-export function renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
+export function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
+    // console.log("renderLine");
+
+    // Draw line chart
     let margin = { top: 10, right: 30, bottom: 70, left: 70 };
     let width = 460 - margin.left - margin.right;
     let height = 400 - margin.top - margin.bottom;
     let tooltipSize = { width: 90, height: 45 };
 
-    if (graphInfo.line.title) {
+    if (renderInfo.line.title) {
         margin.top += 20;
     }
 
@@ -160,10 +174,10 @@ export function renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     // Add graph title
-    if (graphInfo.line.title) {
+    if (renderInfo.line.title) {
         graphArea
             .append("text")
-            .text(graphInfo.line.title)
+            .text(renderInfo.line.title)
             .attr(
                 "transform",
                 "translate(" + width / 2 + "," + margin.top / 4 + ")"
@@ -172,13 +186,13 @@ export function renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
     }
 
     // Add X axis
-    let xDomain = d3.extent(graphInfo.data, function (p) {
+    let xDomain = d3.extent(renderInfo.data, function (p) {
         return p.date;
     });
     let xScale = d3.scaleTime().domain(xDomain).range([0, width]);
 
-    let tickInterval = getTickInterval(graphInfo.data.length);
-    let tickFormat = getTickFormat(graphInfo.data.length);
+    let tickInterval = getTickInterval(renderInfo.data.length);
+    let tickFormat = getTickFormat(renderInfo.data.length);
 
     let xAxisGen = d3
         .axisBottom(xScale)
@@ -189,8 +203,8 @@ export function renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
         .attr("transform", "translate(0," + height + ")")
         .call(xAxisGen)
         .attr("class", "tracker-axis");
-    if (graphInfo.line.axisColor) {
-        xAxis.style("stroke", graphInfo.line.axisColor);
+    if (renderInfo.line.axisColor) {
+        xAxis.style("stroke", renderInfo.line.axisColor);
     }
 
     let xAxisTickLabels = xAxis
@@ -200,70 +214,93 @@ export function renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
         .attr("transform", "rotate(-65)")
         .style("text-anchor", "end")
         .attr("class", "tracker-tick-label");
-    if (graphInfo.line.labelColor) {
-        xAxisTickLabels.style("fill", graphInfo.line.labelColor);
+    if (renderInfo.line.labelColor) {
+        xAxisTickLabels.style("fill", renderInfo.line.labelColor);
     }
 
     let xAxisLabel = xAxis
         .append("text")
-        .text(graphInfo.line.xAxisLabel)
+        .text(renderInfo.line.xAxisLabel)
         .attr(
             "transform",
             "translate(" + width / 2 + " ," + margin.bottom + ")"
         )
         .attr("class", "tracker-axis-label");
-    if (graphInfo.line.labelColor) {
-        xAxisLabel.style("fill", graphInfo.line.labelColor);
+    if (renderInfo.line.labelColor) {
+        xAxisLabel.style("fill", renderInfo.line.labelColor);
     }
 
     // Add Y axis
-    let yMin = graphInfo.line.yMin;
+    let yMin = renderInfo.line.yMin;
+    let yMinAssigned = false;
     if (typeof yMin !== "number") {
-        yMin = d3.min(graphInfo.data, function (p) {
+        yMin = d3.min(renderInfo.data, function (p) {
             return p.value;
         });
+    } else {
+        yMinAssigned = true;
     }
-    let yMax = graphInfo.line.yMax;
+    let yMax = renderInfo.line.yMax;
+    let yMaxAssigned = false;
     if (typeof yMax !== "number") {
-        yMax = d3.max(graphInfo.data, function (p) {
+        yMax = d3.max(renderInfo.data, function (p) {
             return p.value;
         });
+    } else {
+        yMaxAssigned = true;
     }
     if (yMax < yMin) {
         let yTmp = yMin;
         yMin = yMax;
         yMax = yTmp;
+        let yTmpAssigned = yMinAssigned;
+        yMinAssigned = yMaxAssigned;
+        yMaxAssigned = yTmpAssigned;
     }
     let yExtent = yMax - yMin;
 
     let yScale = d3.scaleLinear();
-    if ((yMin >= 0 && yMin > yMax * 0.8) || (yMin >= 0 && graphInfo.accum)) {
-        yScale.domain([0, yMax * 1.2]).range([height, 0]);
+    let yLower, yUpper;
+    if (yMin >= 0 && renderInfo.accum && !yMinAssigned) {
+        yLower = 0;
+        if (yMaxAssigned) {
+            yUpper = yMax;
+        } else {
+            yUpper = yMax * 1.2;
+        }
     } else {
-        yScale
-            .domain([yMin - yExtent * 0.2, yMax + yExtent * 0.2])
-            .range([height, 0]);
+        if (yMinAssigned) {
+            yLower = yMin;
+        } else {
+            yLower = yMin - yExtent * 0.2;
+        }
+        if (yMaxAssigned) {
+            yUpper = yMax;
+        } else {
+            yUpper = yMax + yExtent * 0.2;
+        }
     }
+    yScale.domain([yLower, yUpper]).range([height, 0]);
 
     let yAxisGen = d3.axisLeft(yScale);
     let yAxis = graphArea
         .append("g")
         .call(yAxisGen)
         .attr("class", "tracker-axis");
-    if (graphInfo.line.axisColor) {
-        yAxis.style("stroke", graphInfo.line.axisColor);
+    if (renderInfo.line.axisColor) {
+        yAxis.style("stroke", renderInfo.line.axisColor);
     }
 
     let yAxisTickLabels = yAxis
         .selectAll("text")
         .attr("class", "tracker-tick-label");
-    if (graphInfo.line.labelColor) {
-        yAxisTickLabels.style("fill", graphInfo.line.labelColor);
+    if (renderInfo.line.labelColor) {
+        yAxisTickLabels.style("fill", renderInfo.line.labelColor);
     }
 
-    let yAxisLabelText = graphInfo.line.yAxisLabel;
-    if (graphInfo.line.yAxisUnit) {
-        yAxisLabelText += " (" + graphInfo.line.yAxisUnit + ")";
+    let yAxisLabelText = renderInfo.line.yAxisLabel;
+    if (renderInfo.line.yAxisUnit) {
+        yAxisLabelText += " (" + renderInfo.line.yAxisUnit + ")";
     }
     let yAxisLabel = yAxis
         .append("text")
@@ -272,14 +309,14 @@ export function renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
         .attr("y", 0 - margin.left / 2)
         .attr("x", 0 - height / 2)
         .attr("class", "tracker-axis-label");
-    if (graphInfo.line.labelColor) {
-        yAxisLabel.style("fill", graphInfo.line.labelColor);
+    if (renderInfo.line.labelColor) {
+        yAxisLabel.style("fill", renderInfo.line.labelColor);
     }
 
     let dataArea = graphArea.append("g");
 
     // Add line
-    if (graphInfo.line.showLine) {
+    if (renderInfo.line.showLine) {
         let lineGen = d3
             .line<DataPoint>()
             .defined(function (p) {
@@ -295,35 +332,35 @@ export function renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
         let line = dataArea
             .append("path")
             .attr("class", "tracker-line")
-            .style("stroke-width", graphInfo.line.lineWidth);
+            .style("stroke-width", renderInfo.line.lineWidth);
 
-        if (graphInfo.line.fillGap) {
+        if (renderInfo.line.fillGap) {
             line.datum(
-                graphInfo.data.filter(function (p) {
+                renderInfo.data.filter(function (p) {
                     return p.value !== null;
                 })
             ).attr("d", lineGen as any);
         } else {
-            line.datum(graphInfo.data).attr("d", lineGen as any);
+            line.datum(renderInfo.data).attr("d", lineGen as any);
         }
 
-        if (graphInfo.line.lineColor) {
-            line.style("stroke", graphInfo.line.lineColor);
+        if (renderInfo.line.lineColor) {
+            line.style("stroke", renderInfo.line.lineColor);
         }
     }
 
     // Add dots
-    if (graphInfo.line.showPoint) {
+    if (renderInfo.line.showPoint) {
         let dots = dataArea
             .selectAll("dot")
             .data(
-                graphInfo.data.filter(function (p) {
+                renderInfo.data.filter(function (p) {
                     return p.value != null;
                 })
             )
             .enter()
             .append("circle")
-            .attr("r", graphInfo.line.pointSize)
+            .attr("r", renderInfo.line.pointSize)
             .attr("cx", function (p) {
                 return xScale(p.date);
             })
@@ -334,22 +371,25 @@ export function renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
                 return d3.timeFormat("%y-%m-%d")(p.date as any);
             })
             .attr("value", function (p) {
+                if (Number.isInteger(p.value)) {
+                    return p.value.toFixed(0);
+                }
                 return p.value.toFixed(2);
             })
             .attr("class", "tracker-dot");
-        if (graphInfo.line.pointColor) {
-            dots.style("fill", graphInfo.line.pointColor);
+        if (renderInfo.line.pointColor) {
+            dots.style("fill", renderInfo.line.pointColor);
 
             if (
-                graphInfo.line.pointBorderColor &&
-                graphInfo.line.pointBorderWidth > 0.0
+                renderInfo.line.pointBorderColor &&
+                renderInfo.line.pointBorderWidth > 0.0
             ) {
-                dots.style("stroke", graphInfo.line.pointBorderColor);
-                dots.style("stroke-width", graphInfo.line.pointBorderWidth);
+                dots.style("stroke", renderInfo.line.pointBorderColor);
+                dots.style("stroke-width", renderInfo.line.pointBorderWidth);
             }
         }
 
-        if (graphInfo.line.allowInspectData) {
+        if (renderInfo.line.allowInspectData) {
             let tooltip = svg.append("g").style("opacity", 0);
             let tooltipBg = tooltip
                 .append("rect")
@@ -401,6 +441,174 @@ export function renderLine(canvas: HTMLElement, graphInfo: GraphInfo) {
             }).on("mouseleave", function () {
                 tooltip.transition().duration(500).style("opacity", 0);
             });
+        }
+    }
+}
+
+function checkSummaryTemplateValid(summaryTemplate: string): boolean {
+    return true;
+}
+
+let fnSet = {
+    "{{min}}": function (renderInfo: RenderInfo) {
+        let dataNotNull = renderInfo.data.filter(function (p) {
+            return p.value !== null;
+        });
+        if (dataNotNull.length > 0) {
+            return d3.min(dataNotNull, function (p) {
+                return p.value;
+            });
+        }
+        return null;
+    },
+    "{{max}}": function (renderInfo: RenderInfo) {
+        let dataNotNull = renderInfo.data.filter(function (p) {
+            return p.value !== null;
+        });
+        if (dataNotNull.length > 0) {
+            return d3.max(dataNotNull, function (p) {
+                return p.value;
+            });
+        }
+        return null;
+    },
+    "{{sum}}": function (renderInfo: RenderInfo) {
+        let dataNotNull = renderInfo.data.filter(function (p) {
+            return p.value !== null;
+        });
+        if (dataNotNull.length > 0) {
+            return d3.sum(dataNotNull, function (p) {
+                return p.value;
+            });
+        }
+        return null;
+    },
+    "{{count}}": function (renderInfo: RenderInfo) {
+        let dataNotNull = renderInfo.data.filter(function (p) {
+            return p.value !== null;
+        });
+        return dataNotNull.length;
+    },
+    "{{days}}": function (renderInfo: RenderInfo) {
+        let result = renderInfo.data.length;
+        return result;
+    },
+    "{{maxStreak}}": function (renderInfo: RenderInfo) {
+        let streak = 0;
+        let maxStreak = 0;
+        for (let dataPoint of renderInfo.data) {
+            if (dataPoint.value !== null) {
+                streak++;
+            } else {
+                streak = 0;
+            }
+            if (streak > maxStreak) {
+                maxStreak = streak;
+            }
+        }
+        return maxStreak;
+    },
+    "{{maxBreak}}": function (renderInfo: RenderInfo) {
+        let streak = 0;
+        let maxBreak = 0;
+        for (let dataPoint of renderInfo.data) {
+            if (dataPoint.value === null) {
+                streak++;
+            } else {
+                streak = 0;
+            }
+            if (streak > maxBreak) {
+                maxBreak = streak;
+            }
+        }
+        return maxBreak;
+    },
+    "{{average}}": function (renderInfo: RenderInfo) {
+        let dataNotNull = renderInfo.data.filter(function (p) {
+            return p.value !== null;
+        });
+        let count = dataNotNull.length;
+        if (count > 0) {
+            let sum = d3.sum(dataNotNull, function (p) {
+                return p.value;
+            });
+            return sum / count;
+        }
+        return null;
+    },
+    "{{median}}": function (renderInfo: RenderInfo) {
+        let dataNotNull = renderInfo.data.filter(function (p) {
+            return p.value !== null;
+        });
+        if (dataNotNull.length > 0) {
+            return d3.median(dataNotNull, function (p) {
+                return p.value;
+            });
+        }
+        return null;
+    },
+    "{{variance}}": function (renderInfo: RenderInfo) {
+        let dataNotNull = renderInfo.data.filter(function (p) {
+            return p.value !== null;
+        });
+        if (dataNotNull.length > 0) {
+            return d3.variance(dataNotNull, function (p) {
+                return p.value;
+            });
+        }
+        return null;
+    },
+};
+
+export function renderSummary(canvas: HTMLElement, renderInfo: RenderInfo) {
+    // console.log("renderSummary");
+    // console.log(renderInfo);
+
+    // Notice renderInfo.text may be null
+    if (renderInfo.summary === null) {
+        return "Key 'summary' not foundin YAML";
+    }
+
+    let outputSummary = "";
+    if (checkSummaryTemplateValid(renderInfo.summary.template)) {
+        outputSummary = renderInfo.summary.template;
+    } else {
+        return "Invalid summary template";
+    }
+
+    // Loop over fnSet
+    Object.entries(fnSet).forEach(([strRegex, fn]) => {
+        let regex = new RegExp(strRegex, "gm");
+        if (regex.test(outputSummary)) {
+            // console.log("Found " + strRegex + " in text template")
+            let result = fn(renderInfo);
+            // console.log(result);
+            if (typeof result !== "undefined" && result !== null) {
+                if (Number.isInteger(result)) {
+                    result = result.toFixed(0);
+                } else {
+                    result = result.toFixed(2);
+                }
+                outputSummary = outputSummary.replace(regex, result);
+            } else {
+                outputSummary = outputSummary.replace(regex, "{{NA}}");
+            }
+        }
+    });
+
+    if (outputSummary !== "") {
+        let textBlock = d3.select(canvas).append("div");
+        if (outputSummary.includes("\n")) {
+            let outputLines = outputSummary.split("\n");
+            for (let outputLine of outputLines) {
+                textBlock.append("div").text(outputLine);
+            }
+        } else {
+            textBlock.text(outputSummary);
+        }
+
+        if (renderInfo.summary.style !== "") {
+            textBlock.attr("style", renderInfo.summary.style);
         }
     }
 }

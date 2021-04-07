@@ -5,12 +5,12 @@
 searchType: tag
 searchTarget: exercise-pushup
 folder: diary
+endDate: 2021-01-31
 line:
 	title: PushUp
 	yAxisLabel: Count
 	lineColor: "#d65d0e"
 ```
-
 
 ``` tracker
 searchType: tag
@@ -24,7 +24,6 @@ line:
 	pointColor: red
 ```
 
-
 ``` tracker
 searchType: tag
 searchTarget: meditation
@@ -36,6 +35,14 @@ line:
 	yAxisLabel: Count
 ```
 
+## Summary
+``` tracker
+searchType: tag
+searchTarget: meditation
+folder: diary
+summary:
+    template: "Longest Streak: {{maxStreak}} day(s)\nLongest Break: {{maxBreak}} day(s)"
+```
 
 ``` tracker
 searchType: tag

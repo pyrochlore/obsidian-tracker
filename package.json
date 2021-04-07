@@ -1,11 +1,12 @@
 {
   "name": "obsidian-tracker",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Track tags and texts in your dialy notes",
   "main": "main.js",
   "scripts": {
     "dev": "rollup --config rollup.config.dev.js -w",
-    "build": "rollup --config rollup.config.prod.js"
+    "build": "rollup --config rollup.config.prod.js",
+    "zip": "gulp"
   },
   "keywords": [],
   "author": "pyrochlore",
@@ -14,10 +15,12 @@
     "@rollup/plugin-commonjs": "^15.1.0",
     "@rollup/plugin-node-resolve": "^9.0.0",
     "@rollup/plugin-typescript": "^6.0.0",
+    "@types/d3": "^6.3.0",
     "@types/moment": "^2.13.0",
     "@types/node": "^14.14.2",
-    "@types/d3": "^6.3.0",
     "@types/yaml": "^1.9.7",
+    "gulp": "^4.0.2",
+    "gulp-zip": "^5.1.0",
     "obsidian": "https://github.com/obsidianmd/obsidian-api/tarball/master",
     "rollup": "^2.32.1",
     "rollup-plugin-copy": "^3.4.0",
