@@ -5,6 +5,7 @@
 searchType: tag
 searchTarget: exercise-pushup
 folder: diary
+endDate: 2021-01-31
 line:
 	title: PushUp
 	yAxisLabel: Count
