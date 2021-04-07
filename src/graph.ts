@@ -232,32 +232,55 @@ export function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
 
     // Add Y axis
     let yMin = renderInfo.line.yMin;
+    let yMinAssigned = false;
     if (typeof yMin !== "number") {
         yMin = d3.min(renderInfo.data, function (p) {
             return p.value;
         });
+    } else {
+        yMinAssigned = true;
     }
     let yMax = renderInfo.line.yMax;
+    let yMaxAssigned = false;
     if (typeof yMax !== "number") {
         yMax = d3.max(renderInfo.data, function (p) {
             return p.value;
         });
+    } else {
+        yMaxAssigned = true;
     }
     if (yMax < yMin) {
         let yTmp = yMin;
         yMin = yMax;
         yMax = yTmp;
+        let yTmpAssigned = yMinAssigned;
+        yMinAssigned = yMaxAssigned;
+        yMaxAssigned = yTmpAssigned;
     }
     let yExtent = yMax - yMin;
 
     let yScale = d3.scaleLinear();
-    if (yMin >= 0 && renderInfo.accum) {
-        yScale.domain([0, yMax * 1.2]).range([height, 0]);
+    let yLower, yUpper;
+    if (yMin >= 0 && renderInfo.accum && !yMinAssigned) {
+        yLower = 0;
+        if (yMaxAssigned) {
+            yUpper = yMax;
+        } else {
+            yUpper = yMax * 1.2;
+        }
     } else {
-        yScale
-            .domain([yMin - yExtent * 0.2, yMax + yExtent * 0.2])
-            .range([height, 0]);
+        if (yMinAssigned) {
+            yLower = yMin;
+        } else {
+            yLower = yMin - yExtent * 0.2;
+        }
+        if (yMaxAssigned) {
+            yUpper = yMax;
+        } else {
+            yUpper = yMax + yExtent * 0.2;
+        }
     }
+    yScale.domain([yLower, yUpper]).range([height, 0]);
 
     let yAxisGen = d3.axisLeft(yScale);
     let yAxis = graphArea
