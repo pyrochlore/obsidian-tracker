@@ -22,7 +22,7 @@ export class RenderInfo {
 
     output: string;
     line: LineInfo | null;
-    text: TextInfo | null;
+    summary: SummaryInfo | null;
 
     // Inner data
     data: DataPoint[];
@@ -42,7 +42,7 @@ export class RenderInfo {
 
         this.output = "";
         this.line = new LineInfo();
-        this.text = null;
+        this.summary = null;
 
         this.data = [];
     }
@@ -90,7 +90,7 @@ export class LineInfo {
     }
 }
 
-export class TextInfo {
+export class SummaryInfo {
     template: string;
     style: string;
 
@@ -422,7 +422,7 @@ export function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
     }
 }
 
-function checkTextTemplateValid(textTemplate: string): boolean {
+function checkSummaryTemplateValid(summaryTemplate: string): boolean {
     return true;
 }
 
@@ -537,26 +537,26 @@ let fnSet = {
     },
 };
 
-export function renderText(canvas: HTMLElement, renderInfo: RenderInfo) {
-    // console.log("renderText");
+export function renderSummary(canvas: HTMLElement, renderInfo: RenderInfo) {
+    // console.log("renderSummary");
     // console.log(renderInfo);
 
     // Notice renderInfo.text may be null
-    if (renderInfo.text === null) {
-        return "No defined 'text' key in YAML";
+    if (renderInfo.summary === null) {
+        return "Key 'summary' not foundin YAML";
     }
 
-    let outputText = "";
-    if (checkTextTemplateValid(renderInfo.text.template)) {
-        outputText = renderInfo.text.template;
+    let outputSummary = "";
+    if (checkSummaryTemplateValid(renderInfo.summary.template)) {
+        outputSummary = renderInfo.summary.template;
     } else {
-        return "Invalid text template";
+        return "Invalid summary template";
     }
 
     // Loop over fnSet
     Object.entries(fnSet).forEach(([strRegex, fn]) => {
         let regex = new RegExp(strRegex, "gm");
-        if (regex.test(outputText)) {
+        if (regex.test(outputSummary)) {
             // console.log("Found " + strRegex + " in text template")
             let result = fn(renderInfo);
             // console.log(result);
@@ -566,26 +566,26 @@ export function renderText(canvas: HTMLElement, renderInfo: RenderInfo) {
                 } else {
                     result = result.toFixed(2);
                 }
-                outputText = outputText.replace(regex, result);
+                outputSummary = outputSummary.replace(regex, result);
             } else {
-                outputText = outputText.replace(regex, "{{NA}}");
+                outputSummary = outputSummary.replace(regex, "{{NA}}");
             }
         }
     });
 
-    if (outputText !== "") {
+    if (outputSummary !== "") {
         let textBlock = d3.select(canvas).append("div");
-        if (outputText.includes("\n")) {
-            let outputLines = outputText.split("\n");
+        if (outputSummary.includes("\n")) {
+            let outputLines = outputSummary.split("\n");
             for (let outputLine of outputLines) {
                 textBlock.append("div").text(outputLine);
             }
         } else {
-            textBlock.text(outputText);
+            textBlock.text(outputSummary);
         }
 
-        if (renderInfo.text.style !== "") {
-            textBlock.attr("style", renderInfo.text.style);
+        if (renderInfo.summary.style !== "") {
+            textBlock.attr("style", renderInfo.summary.style);
         }
     }
 }

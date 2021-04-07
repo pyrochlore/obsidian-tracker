@@ -12,8 +12,8 @@ import {
     RenderInfo,
     LineInfo,
     renderLine,
-    TextInfo,
-    renderText,
+    SummaryInfo,
+    renderSummary,
 } from "./graph";
 
 import * as Yaml from "yaml";
@@ -29,7 +29,7 @@ declare global {
 
 enum OutputType {
     Line,
-    Text,
+    Summary,
     Table,
     Heatmap,
 }
@@ -52,15 +52,15 @@ export default class Tracker extends Plugin {
         );
 
         this.addCommand({
-            id: "add-line-chart-example",
-            name: "Add Line Chart Example",
+            id: "add-line-chart-tracker",
+            name: "Add Line Chart Tracker",
             callback: () => this.addCodeBlock(OutputType.Line),
         });
 
         this.addCommand({
-            id: "add-text-output-example",
-            name: "Add Text Output Example",
-            callback: () => this.addCodeBlock(OutputType.Text),
+            id: "add-summary-tracker",
+            name: "Add Summary Tracker",
+            callback: () => this.addCodeBlock(OutputType.Summary),
         });
     }
 
@@ -111,15 +111,15 @@ export default class Tracker extends Plugin {
         }
 
         if (renderInfo.output === "") {
-            if (renderInfo.text !== null) {
-                return renderText(canvas, renderInfo);
+            if (renderInfo.summary !== null) {
+                return renderSummary(canvas, renderInfo);
             }
             // Default
             return renderLine(canvas, renderInfo);
         } else if (renderInfo.output === "line") {
             return renderLine(canvas, renderInfo);
-        } else if (renderInfo.output === "text") {
-            return renderText(canvas, renderInfo);
+        } else if (renderInfo.output === "summary") {
+            return renderSummary(canvas, renderInfo);
         }
 
         return "Unknown output type";
@@ -366,17 +366,17 @@ export default class Tracker extends Plugin {
             // console.log(renderInfo.line.fillGap)
         } // line related parameters
 
-        // text related parameters
-        if (typeof yaml.text !== "undefined") {
-            renderInfo.text = new TextInfo();
+        // summary related parameters
+        if (typeof yaml.summary !== "undefined") {
+            renderInfo.summary = new SummaryInfo();
             // template
-            if (typeof yaml.text.template === "string") {
-                renderInfo.text.template = yaml.text.template;
+            if (typeof yaml.summary.template === "string") {
+                renderInfo.summary.template = yaml.summary.template;
             }
-            if (typeof yaml.text.style === "string") {
-                renderInfo.text.style = yaml.text.style;
+            if (typeof yaml.summary.style === "string") {
+                renderInfo.summary.style = yaml.summary.style;
             }
-        } // text related parameters
+        } // summary related parameters
 
         return renderInfo;
     }
@@ -743,7 +743,7 @@ line:
     fillGap: false
 \`\`\``;
                 break;
-            case OutputType.Text:
+            case OutputType.Summary:
                 codeblockToInsert = `\`\`\` tracker
 searchType: tag
 searchTarget: tagName
@@ -756,7 +756,7 @@ ignoreAttachedValue: false
 ignoreZeroValue: false
 accum: false
 penalty:
-text:
+summary:
     template: "Average value of tagName is {{average}}"
     style: "color:white;"
 \`\`\``;

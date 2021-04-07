@@ -39,7 +39,7 @@ line:
 searchType: tag
 searchTarget: meditation
 folder: diary
-text:
+summary:
     template: "Longest Streak: {{maxStreak}} day(s)\nLongest Break: {{maxBreak}} day(s)"
 ```
 

@@ -17,7 +17,7 @@ line:
 searchType: tag
 searchTarget: weight
 folder: diary
-text:
+summary:
   template: "Minimum: {{min}}kg\nMaximum: {{max}}kg\nMedian: {{median}}kg\nAverage: {{average}}kg"
 ```
 
