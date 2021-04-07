@@ -5,7 +5,7 @@ This is an [Obsidian](https://obsidian.md/) plugin that helps you track tags and
 
 For example, one can track simple tag (#exercise-pushup), value-attached tag (#weight:60kg), nested tag (#finance/bank1/transfer:100000USD) or text ('⭐', 'love', '👍', or '👎') over a specified period of time. Currently, a line chart or a summary will be generated to represent the tracked result.
 
-<img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/docs/images/screenshot_v1.1.png" width="800">
+<img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/docs/images/Screenshot_v1.1.png" width="800">
 
 ## Installation
 ### Install from Obsidian Settings Panel
