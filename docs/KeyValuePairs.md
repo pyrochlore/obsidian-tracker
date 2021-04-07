@@ -1,27 +1,26 @@
 # Key-Value Pairs
 
 ## Key-Value Pairs for Data Collection, Target Evaluation, and Data Preprocessing
-These keys are placed under YAML root
+These keys are placed under the YAML root
 
 | Key | Default | Description |
 |:--------:|:-------:|:-----------:|
 | **searchType** | 'tag' or 'text' | The type of your search target |
-| **searchTarget** | empty string | The tag name or text to search |
+| **searchTarget** | Empty string | The tag name or text to search |
 | **folder** | Default folder location | The folder path of your daily notes |
 | **dateFormat** | Default date format | The date format of your dialy note title |
 | **startDate** | Min date found | The start date to count |
-| **endDate** | Max date found | the end date to count |
+| **endDate** | Max date found | The end date to count |
 | **constValue** | 1.0 | The constant value of all simple tags |
-| **ignoreAttachedValue** | false | Use constant value event if a value attached on |
-| **ignoreZeroValue** | false | Use constant value event if a value attached on |
+| **ignoreAttachedValue** | false | Use constant value event if the tag has a value attached on |
+| **ignoreZeroValue** | false | Treat zero value as missing value |
 | **accum** | false | Accumulatively sum the values over time |
-| **penalty** | 0.0 | The value to use if search target is missing on the day |
-| **line** | | All line-related keys should be placed under this key |
-| **summary** | | All line-related keys should be placed under this key |
-
+| **penalty** | null | The value to use if search target is missing on the day |
+| **line** | | All line-chart related keys should be placed under this key |
+| **summary** | | All summary keys should be placed under this key |
 
 ### Line Chart Related Keys
-These keys should be placed under root key '**line**'.
+These keys should be placed under the root key '**line**'.
 
 | Key | Default | Description |
 |:--------:|:-----------:|:-----------:|
@@ -45,7 +44,7 @@ These keys should be placed under root key '**line**'.
 | **fillGap** | false | Connect points over missing data |
 
 ### Summary Related Keys
-These keys should be placed under root key '**summary**'.
+These keys should be placed under the root key '**summary**'.
 
-| **template** | "" | Text template |
-| **style** | "" | css style for the text block |
+| **template** | Empty string | Text template (May include [template variables](docs/TextExpansion.md)) |
+| **style** | Empty string | css style for the rendered text block |

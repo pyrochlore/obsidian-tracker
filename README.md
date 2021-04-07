@@ -8,14 +8,14 @@ For example, one can track simple tag (#exercise-pushup), value-attached tag (#w
 <img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/images/screenshot.png" width="800">
 
 ## Installation
-### From Obsidian Settings Panel
+### Install from Obsidian Settings Panel
 1. From Settings Panel (the icon at the bottom left corner) -> Options -> Community plugins, set 'safe mode' to off.
 2. In the 'Community plugins' section, click 'Browse' and find the obsidian-tracker plugin by the name 'Tracker'.
 3. Press the button 'Install' and wait for the completion of the install.
 4. In the section 'Installed plugins', find and enable the plugin just installed.
 5. Enjoy tracking.
 
-### Manual Install
+### Manual Installation
 Download the latest [release](https://github.com/pyrochlore/obsidian-tracker/releases). Extract and put the three files (main.js, manifest.json, styles.css) to folder '{{obsidian_vault}}/.obsidian/plugins/obsidian-tracker'.
 
 ## Usage
@@ -38,7 +38,7 @@ Providing key '**searchType**' and '**searchTarget**' is the minimum requirement
 
 ### Target Evaluation
 Depends on the searchType and the format of your targets, target evaluation can be different. Obsidian-tracker supports tracking simple tags, value-attached tags, nested tags, and text.
-For more information about the tag evaluation, please check [Target Evaluation](docs/TargetEvaluation.md)
+For more information about the tag evaluation, please check documents for [Target Evaluation](docs/TargetEvaluation.md)
 
 ### Rendering Output
 Currently, obsidian-tracker provides two kinds of rendering output, 'line chart', and 'summary'. 
@@ -89,6 +89,7 @@ First version released at 2021-03-23.
 - [ ] Add an 'Explode' button to the rendered blocks, it will replace the code block with the rendered result.
 
 And more ...
+
 P.S. Items may not be implemented in the order above.
 
 ## Support
