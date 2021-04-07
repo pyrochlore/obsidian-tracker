@@ -190,7 +190,7 @@ export default class Tracker extends Plugin {
         // Search target
         let searchTarget = "";
         if (typeof yaml.searchTarget === "string" && yaml.searchTarget !== "") {
-            if (yaml.searchTarget === "tag") {
+            if (yaml.searchType === "tag") {
                 if (
                     yaml.searchTarget.startsWith("#") &&
                     yaml.searchTarget.length > 2
@@ -200,7 +200,7 @@ export default class Tracker extends Plugin {
                     searchTarget = yaml.searchTarget;
                 }
             } else {
-                // yaml.searchTarget === "text"
+                // yaml.searchType === "text"
                 searchTarget = yaml.searchTarget;
             }
         } else {
