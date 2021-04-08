@@ -21,7 +21,7 @@ Download the latest [release](https://github.com/pyrochlore/obsidian-tracker/rel
 ## Usage
 1. Have some tags or texts you want to track in daily notes.
 2. Add a new note for displaying the tracker.
-3. Add tracker code blocks manually or using commands. See [Commands](docs/Commands.md) for more detail.
+3. Add tracker code blocks manually or using commands. See [Commands](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Commands.md) for more detail.
 4. Switch the document view mode to 'Preview', then the code block will get rendered.
 
     <img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/docs/images/usage_v1.1.gif" width="400">
@@ -31,19 +31,21 @@ For more use cases, please take a look at [examples](https://github.com/pyrochlo
 ## Concepts
 This plugin was designed to read code blocks in [YAML format](https://en.wikipedia.org/wiki/YAML). The key-value pairs in the code blocks tell the plugin what data to collect and how to render the result.
 
-[Here](docs/KeyValuePairs.md) are all the keys placed at the root of YAML content. They are used for collecting data, evaluating targets, and data-preprocessing.
+[Here](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/KeyValuePairs.md) are all the keys defined in this plugin. They are used for collecting data, evaluating targets, data preprocessing, and rendering output.
 
 ### Collecting Data
 Providing key '**searchType**' and '**searchTarget**' is the minimum requirement for a successful data collection. The value of key '**searchType**' can be '**tag**' or '**text**', while the '**searchTarget**' is the name of a tag or a piece of text you want to search.
 
 ### Target Evaluation
 Depends on the searchType and the format of your targets, target evaluation can be different. Obsidian-tracker supports tracking simple tags, value-attached tags, nested tags, and text.
-For more information about the tag evaluation, please check documents for [Target Evaluation](docs/TargetEvaluation.md)
+For more information about the tag evaluation, please check documents for [Target Evaluation](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md)
 
 ### Rendering Output
 Currently, obsidian-tracker provides two kinds of rendering output, 'line chart', and 'summary'. 
 
-The default rendering output is 'line chart'. If key '**summary**' is not found at the YAML root, the output will be always 'line chart', otherwise, it will render 'summary' as output. You can use [pre-defined template variables](docs/TextExpansion.md) in text template (key '**template**' under key '**summary**').
+The default rendering output is 'line chart'. If key '**summary**' is not found at the YAML root, the output will be always 'line chart', otherwise, it will render 'summary' as output. You can use [pre-defined template variables](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TextExpansion.md) in text template (key '**template**' under key '**summary**').
+
+Description of keys for rendering line-chart and summary output can be found [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/KeyValuePairs.md)
 
 ### Plugin Settings
 You can set the default folder location and date format in the plugin's settings panel. You can also override them by key '**folder**' and '**dateFormat**' in the code block respectively.
