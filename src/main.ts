@@ -311,6 +311,15 @@ export default class Tracker extends Plugin {
             if (typeof yaml.line.yAxisUnit === "string") {
                 renderInfo.line.yAxisUnit = yaml.line.yAxisUnit;
             }
+            // yAxisLocation
+            if (typeof yaml.line.yAxisLocation === "string") {
+                if (
+                    yaml.line.yAxisLocation === "left" ||
+                    yaml.line.yAxisLocation === "right"
+                ) {
+                    renderInfo.line.yAxisLocation = yaml.line.yAxisLocation;
+                }
+            }
             // yMin
             if (typeof yaml.line.yMin === "number") {
                 renderInfo.line.yMin = yaml.line.yMin;

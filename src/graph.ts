@@ -54,6 +54,7 @@ export class LineInfo {
     yAxisLabel: string;
     labelColor: string;
     yAxisUnit: string;
+    yAxisLocation: string;
     yMin: number | null;
     yMax: number | null;
     axisColor: string;
@@ -74,6 +75,7 @@ export class LineInfo {
         this.yAxisLabel = "Value";
         this.labelColor = "";
         this.yAxisUnit = "";
+        this.yAxisLocation = "left";
         this.yMin = null;
         this.yMax = null;
         this.axisColor = "";
@@ -154,8 +156,8 @@ export function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log("renderLine");
 
     // Draw line chart
-    let margin = { top: 10, right: 30, bottom: 70, left: 70 };
-    let width = 460 - margin.left - margin.right;
+    let margin = { top: 10, right: 70, bottom: 70, left: 70 };
+    let width = 500 - margin.left - margin.right;
     let height = 400 - margin.top - margin.bottom;
     let tooltipSize = { width: 90, height: 45 };
 
@@ -282,11 +284,20 @@ export function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
     }
     yScale.domain([yLower, yUpper]).range([height, 0]);
 
-    let yAxisGen = d3.axisLeft(yScale);
+    let yAxisLocation = renderInfo.line.yAxisLocation;
+    let yAxisGen;
+    if (yAxisLocation === "left") {
+        yAxisGen = d3.axisLeft(yScale);
+    } else {
+        yAxisGen = d3.axisRight(yScale);
+    }
     let yAxis = graphArea
         .append("g")
         .call(yAxisGen)
         .attr("class", "tracker-axis");
+    if (yAxisLocation == "right") {
+        yAxis.attr("transform", "translate(" + width + " ,0)");
+    }
     if (renderInfo.line.axisColor) {
         yAxis.style("stroke", renderInfo.line.axisColor);
     }
@@ -306,9 +317,13 @@ export function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
         .append("text")
         .text(yAxisLabelText)
         .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin.left / 2)
         .attr("x", 0 - height / 2)
         .attr("class", "tracker-axis-label");
+    if (yAxisLocation === "left") {
+        yAxisLabel.attr("y", 0 - margin.left / 2);
+    } else {
+        yAxisLabel.attr("y", 0 + margin.right / 1.5);
+    }
     if (renderInfo.line.labelColor) {
         yAxisLabel.style("fill", renderInfo.line.labelColor);
     }
