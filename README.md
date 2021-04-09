@@ -19,7 +19,7 @@ For example, one can track simple tag (#exercise-pushup), value-attached tag (#w
 Download the latest [release](https://github.com/pyrochlore/obsidian-tracker/releases). Extract and put the three files (main.js, manifest.json, styles.css) to folder '{{obsidian_vault}}/.obsidian/plugins/obsidian-tracker'.
 
 ## Usage
-1. Have some tags or texts you want to track in daily notes.
+1. Have some tags or texts you want to track in daily notes. Take a look at [Target Evaluation](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md) to know what you can track.
 2. Add a new note for displaying the tracker.
 3. Add tracker code blocks manually or using commands. See [Commands](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Commands.md) for more detail.
 4. Switch the document view mode to 'Preview', then the code block will get rendered.
