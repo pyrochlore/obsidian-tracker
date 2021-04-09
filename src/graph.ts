@@ -152,7 +152,41 @@ function getTickFormat(days: number) {
     return tickFormat;
 }
 
-export function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
+export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
+    // console.log(renderInfo.data);
+
+    // Data preprocessing
+    let tagMeasureAccum = 0.0;
+    for (let dataPoint of renderInfo.data) {
+        if (renderInfo.penalty !== null) {
+            if (dataPoint.value === null) {
+                dataPoint.value = renderInfo.penalty;
+            }
+        }
+        if (renderInfo.accum) {
+            if (dataPoint.value !== null) {
+                tagMeasureAccum += dataPoint.value;
+                dataPoint.value = tagMeasureAccum;
+            }
+        }
+    }
+
+    if (renderInfo.output === "") {
+        if (renderInfo.summary !== null) {
+            return renderSummary(canvas, renderInfo);
+        }
+        // Default
+        return renderLine(canvas, renderInfo);
+    } else if (renderInfo.output === "line") {
+        return renderLine(canvas, renderInfo);
+    } else if (renderInfo.output === "summary") {
+        return renderSummary(canvas, renderInfo);
+    }
+
+    return "Unknown output type";
+}
+
+function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log("renderLine");
 
     // Draw line chart
@@ -575,7 +609,7 @@ let fnSet = {
     },
 };
 
-export function renderSummary(canvas: HTMLElement, renderInfo: RenderInfo) {
+function renderSummary(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log("renderSummary");
     // console.log(renderInfo);
 
@@ -626,4 +660,15 @@ export function renderSummary(canvas: HTMLElement, renderInfo: RenderInfo) {
             textBlock.attr("style", renderInfo.summary.style);
         }
     }
+}
+
+export function renderErrorMessage(canvas: HTMLElement, errorMessage: string) {
+    let svg = d3
+        .select(canvas)
+        .append("div")
+        .text(errorMessage)
+        .style("background-color", "white")
+        .style("margin-bottom", "20px")
+        .style("padding", "10px")
+        .style("color", "red");
 }
