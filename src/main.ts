@@ -3,11 +3,6 @@ import { MarkdownPostProcessorContext, MarkdownView, Editor } from "obsidian";
 import { TFile, TFolder, normalizePath } from "obsidian";
 
 import {
-    TrackerSettings,
-    DEFAULT_SETTINGS,
-    TrackerSettingTab,
-} from "./settings";
-import {
     DataPoint,
     RenderInfo,
     LineInfo,
@@ -19,6 +14,7 @@ import {
 import * as Yaml from "yaml";
 import * as d3 from "d3";
 import { Moment } from "moment";
+import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
 
 declare global {
     interface Window {
@@ -35,16 +31,11 @@ enum OutputType {
 }
 
 export default class Tracker extends Plugin {
-    settings: TrackerSettings;
-    dateFormat: string;
     folder: string;
+    dateFormat: string;
 
     async onload() {
         console.log("loading obsidian-tracker plugin");
-
-        await this.loadSettings();
-
-        this.addSettingTab(new TrackerSettingTab(this.app, this));
 
         this.registerMarkdownCodeBlockProcessor(
             "tracker",
@@ -66,18 +57,6 @@ export default class Tracker extends Plugin {
 
     onunload() {
         console.log("unloading obsidian-tracker plugin");
-    }
-
-    async loadSettings() {
-        this.settings = Object.assign(
-            {},
-            DEFAULT_SETTINGS,
-            await this.loadData()
-        );
-    }
-
-    async saveSettings() {
-        await this.saveData(this.settings);
     }
 
     renderErrorMessage(canvas: HTMLElement, errorMessage: string) {
@@ -212,11 +191,18 @@ export default class Tracker extends Plugin {
         // Create grarph info
         let renderInfo = new RenderInfo(searchType, searchTarget);
 
+        // Get daily notes settings using obsidian-daily-notes-interface
+        let dailyNotesSettings = getDailyNoteSettings();
+
         // Root folder to search
-        this.folder = this.settings.folderToSearch;
-        if (typeof yaml.folder === "undefined") {
-            if (this.folder === "") {
+        if (typeof yaml.folder !== "string") {
+            if (
+                typeof dailyNotesSettings.folder === "undefined" ||
+                dailyNotesSettings.folder === null
+            ) {
                 this.folder = "/";
+            } else {
+                this.folder = dailyNotesSettings.folder;
             }
         } else {
             if (yaml.folder === "") {
@@ -235,11 +221,25 @@ export default class Tracker extends Plugin {
         renderInfo.folder = this.folder;
         // console.log(renderInfo.folder);
 
-        // startDate, endDate
-        this.dateFormat = this.settings.dateFormat;
-        if (this.dateFormat === "") {
-            this.dateFormat = "YYYY-MM-DD";
+        // Date format
+        if (typeof yaml.dateFormat !== "string") {
+            if (
+                typeof dailyNotesSettings.format === "undefined" ||
+                dailyNotesSettings.format === null
+            ) {
+                this.dateFormat = "YYYY-MM-DD";
+            } else {
+                this.dateFormat = dailyNotesSettings.format;
+            }
+        } else {
+            if (yaml.dateFormat === "") {
+                this.dateFormat = "YYYY-MM-DD";
+            } else {
+                this.dateFormat = yaml.dateForamt;
+            }
         }
+
+        // startDate, endDate
         if (typeof yaml.startDate === "string") {
             renderInfo.startDate = window.moment(
                 yaml.startDate,
