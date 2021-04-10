@@ -1,7 +1,7 @@
 import { App, Plugin } from "obsidian";
 import { MarkdownPostProcessorContext, MarkdownView, Editor } from "obsidian";
 import { TFile, TFolder, normalizePath } from "obsidian";
-import { DataPoint, render, renderErrorMessage } from "./graph";
+import { DataPoint, render, renderErrorMessage } from "./rendering";
 import { getRenderInfoFromYaml } from "./parsing";
 import { Moment } from "moment";
 
