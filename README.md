@@ -85,6 +85,7 @@ First version released at 2021-03-23.
 - [x] Add Commands help create Tracker blocks.
 - [ ] New output type 'table', lists the search result in a formatted table.
 - [ ] New output type 'heatmap', works like Github calendar heatmap.
+- [ ] New output type 'bar', renders bar chart.
 - [ ] Support multiple targets and multiple values.
 - [ ] Support searching text using regular expression.
 - [ ] Support tracking keys other than tags in frontmatter.
