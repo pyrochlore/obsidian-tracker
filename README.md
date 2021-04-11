@@ -87,6 +87,7 @@ First version released at 2021-03-23.
 - [ ] New output type 'heatmap', works like Github calendar heatmap.
 - [ ] Support multiple targets and multiple values.
 - [ ] Support searching text using regular expression.
+- [ ] Support tracking keys other than tags in frontmatter.
 - [ ] Add data post-process function, like 'moving average'.
 - [ ] Add an 'Explode' button to the rendered blocks, it will replace the code block with the rendered result.
 
