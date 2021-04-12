@@ -91,6 +91,7 @@ First version released at 2021-03-23.
 - [ ] Support tracking keys other than tags in frontmatter.
 - [ ] Add data post-process function, like 'moving average'.
 - [ ] Add an 'Explode' button to the rendered blocks, it will replace the code block with the rendered result.
+- [ ] Support graphs showing correlation between sets of data
 
 And more ...
 
