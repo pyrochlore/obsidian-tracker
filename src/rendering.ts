@@ -308,10 +308,12 @@ function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
                 return d3.timeFormat("%y-%m-%d")(p.date as any);
             })
             .attr("value", function (p) {
-                if (Number.isInteger(p.value)) {
-                    return p.value.toFixed(0);
+                if (p.value !== null) {
+                    if (Number.isInteger(p.value)) {
+                        return p.value.toFixed(0);
+                    }
+                    return p.value.toFixed(2);
                 }
-                return p.value.toFixed(2);
             })
             .attr("class", "tracker-dot");
         if (renderInfo.line.pointColor) {

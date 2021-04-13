@@ -404,6 +404,7 @@ export default class Tracker extends Plugin {
                                 hasValue = true;
                             }
                         }
+                        // console.log(hasValue);
                         // console.log(value);
                         if (hasValue) {
                             dataSet.setValue(curDate, value);
