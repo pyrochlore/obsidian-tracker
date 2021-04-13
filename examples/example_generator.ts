@@ -35,12 +35,16 @@ for (let curDate = startDate.clone(); curDate <= endDate; curDate.add(1, 'days')
     // fontmatter
     let frontmatter = "---\n";
     let weekday = curDate.weekday();
+    // front matter tags
     if (weekday == 0 || weekday == 6) {
         frontmatter += "tags: " + "\n";
     }
     else {
         frontmatter += "tags: " + "work_log" + "\n";
     }
+    // frontmatter mood
+    let mood = randomIntFromInterval(1, 10);
+    frontmatter += "mood: " + mood + "\n";
     frontmatter += "---\n";
     content += frontmatter;
 

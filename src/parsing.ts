@@ -24,11 +24,11 @@ export function getRenderInfoFromYaml(
 
     // Search type
     let searchType = "";
-    if (yaml.searchType === "tag" || yaml.searchType === "text") {
+    if (yaml.searchType === "tag" || yaml.searchType === "text" || yaml.searchType === "frontmatter") {
         searchType = yaml.searchType;
     } else {
         let errorMessage =
-            "Invalid search type (searchType), choose 'tag' or 'text'";
+            "Invalid search type (searchType), choose 'tag', 'frontmatter', or 'text'";
         return errorMessage;
     }
     // console.log(searchType);

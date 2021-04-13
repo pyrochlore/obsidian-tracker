@@ -224,6 +224,31 @@ export default class Tracker extends Plugin {
                     }
                 } // Search frontmatter tags
 
+                // console.log("Search frontmatter keys");
+                if (query.type === "frontmatter" && query.target !== "tags") {
+                    let fileCache = this.app.metadataCache.getFileCache(file);
+                    if (fileCache) {
+                        let frontMatter = fileCache.frontmatter;
+                        if (frontMatter && frontMatter[query.target]) {
+                            // console.log(frontMatter[query.target]);
+                            let value = frontMatter[query.target];
+                            if (Array.isArray(value)) {
+                                // multiple values not support yet
+                            } else {
+                                value = parseFloat(value);
+                                if (typeof value === "number") {
+                                    this.addToDataMap(
+                                        dataMap,
+                                        fileDate.format(this.dateFormat),
+                                        query,
+                                        value
+                                    );
+                                }
+                            }
+                        }
+                    }
+                } // console.log("Search frontmatter keys");
+
                 // console.log("Search inline tags");
                 if (query.type === "tag") {
                     // Add inline tags
