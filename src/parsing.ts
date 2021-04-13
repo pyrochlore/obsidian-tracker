@@ -1,5 +1,5 @@
 import Tracker from "./main";
-import { RenderInfo, SummaryInfo } from "./rendering";
+import { RenderInfo, SummaryInfo } from "./data";
 import { TFolder, normalizePath } from "obsidian";
 import * as Yaml from "yaml";
 import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
