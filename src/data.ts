@@ -50,7 +50,7 @@ export class DataSet implements IterableIterator<DataPoint> {
     public setValue(date: Moment, value: NullableNumber) {
         let ind = this.parent.getIndexOfDate(date);
         // console.log(ind);
-        if (ind > 0) {
+        if (ind >= 0) {
             this.values[ind] = value;
         }
     }
@@ -97,11 +97,6 @@ export class DataSet implements IterableIterator<DataPoint> {
 
     next(): IteratorResult<DataPoint> {
         if (this.currentIndex < this.values.length) {
-            if (this.values[this.currentIndex] === null) {
-                this.currentIndex++;
-                return this.next();
-            }
-
             let ind = this.currentIndex++;
             return {
                 done: false,
