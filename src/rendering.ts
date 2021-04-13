@@ -1,9 +1,202 @@
 import * as d3 from "d3";
 import { Moment } from "moment";
 
-export class DataPoint {
+export type NullableNumber = number | null;
+
+export interface DataPoint {
     date: Moment;
-    value: number | null;
+    value: NullableNumber;
+}
+
+export class Query {
+    type: string;
+    target: string;
+
+    constructor(searchType: string, searchTarget: string) {
+        this.type = searchType;
+        this.target = searchTarget;
+    }
+
+    public equalTo(other: Query): boolean {
+        if (this.type === other.type && this.target === other.target) {
+            return true;
+        }
+        return false;
+    }
+}
+
+export interface QueryValuePair {
+    query: Query;
+    value: NullableNumber;
+}
+
+export class DataSet implements IterableIterator<DataPoint> {
+    // Array of DataPoints
+    private query: Query;
+    private values: NullableNumber[];
+    private parent: DataSets;
+
+    private arrayPointer = 0; // IterableIterator
+
+    constructor(parent: DataSets, query: Query) {
+        this.query = query;
+        this.values = [];
+        this.parent = parent;
+
+        for (let ind = 0; ind < parent.getDates().length; ind++) {
+            this.values.push(null);
+        }
+    }
+
+    public setValue(date: Moment, value: NullableNumber) {
+        let ind = this.parent.getIndexOfDate(date);
+        // console.log(ind);
+        if (ind > 0) {
+            this.values[ind] = value;
+        }
+    }
+
+    public setPenalty(penalty: number) {
+        for (let ind = 0; ind < this.values.length; ind++) {
+            if (this.values[ind] === null) {
+                this.values[ind] = penalty;
+            }
+        }
+    }
+
+    public getQuery(): Query {
+        return this.query;
+    }
+
+    public accumulateValues() {
+        let accumValue = 0.0;
+        for (let ind = 0; ind < this.values.length; ind++) {
+            if (this.values[ind] !== null) {
+                accumValue += this.values[ind];
+            }
+            this.values[ind] = accumValue;
+        }
+    }
+
+    public getValues() {
+        return this.values;
+    }
+
+    public getLength() {
+        return this.values.length;
+    }
+
+    public getLengthNotNull() {
+        let countNotNull = 0;
+        for (let ind = 0; ind < this.values.length; ind++) {
+            if (this.values[ind] !== null) {
+                countNotNull++;
+            }
+        }
+        return countNotNull;
+    }
+
+    next(): IteratorResult<DataPoint> {
+        if (this.arrayPointer < this.values.length) {
+            return {
+                done: false,
+                value: {
+                    date: this.parent.getDates()[this.arrayPointer],
+                    value: this.values[this.arrayPointer++],
+                },
+            };
+        } else {
+            this.arrayPointer = 0;
+            return {
+                done: true,
+                value: null,
+            };
+        }
+    }
+
+    [Symbol.iterator](): IterableIterator<DataPoint> {
+        return this;
+    }
+}
+
+export class DataSets implements IterableIterator<DataSet> {
+    // Iterable of DataSet
+    private dates: Moment[];
+    private dataSets: DataSet[];
+
+    private arrayPointer = 0; // IterableIterator
+
+    constructor(startDate: Moment, endDate: Moment) {
+        this.dates = [];
+        this.dataSets = [];
+        let cData = startDate.creationData();
+        for (
+            let curDate = startDate.clone();
+            curDate <= endDate;
+            curDate.add(1, "days")
+        ) {
+            this.dates.push(
+                window.moment(curDate.format(cData.format.toString()))
+            );
+        }
+        // console.log(this.dates);
+    }
+
+    public createDataSet(query: Query) {
+        let dataSet = new DataSet(this, query);
+        this.dataSets.push(dataSet);
+
+        return dataSet;
+    }
+
+    public getIndexOfDate(date: Moment) {
+        let cData = date.creationData();
+        for (let ind = 0; ind < this.dates.length; ind++) {
+            if (
+                this.dates[ind].format(cData.format.toString()) ===
+                date.format(cData.format.toString())
+            ) {
+                return ind;
+            }
+        }
+        return -1;
+    }
+
+    public getDataSetByQuery(query: Query) {
+        for (let dataSet of this.dataSets) {
+            if (dataSet.getQuery().equalTo(query)) {
+                return dataSet;
+            }
+        }
+        return null;
+    }
+
+    public getDataSetById(id: number) {
+        return this.dataSets[id];
+    }
+
+    public getDates() {
+        return this.dates;
+    }
+
+    next(): IteratorResult<DataSet> {
+        if (this.arrayPointer < this.dataSets.length) {
+            return {
+                done: false,
+                value: this.dataSets[this.arrayPointer++],
+            };
+        } else {
+            this.arrayPointer = 0;
+            return {
+                done: true,
+                value: null,
+            };
+        }
+    }
+
+    [Symbol.iterator](): IterableIterator<DataSet> {
+        return this;
+    }
 }
 
 export class RenderInfo {
@@ -24,8 +217,7 @@ export class RenderInfo {
     line: LineInfo | null;
     summary: SummaryInfo | null;
 
-    // Inner data
-    data: DataPoint[];
+    public dataSets: DataSets | null;
 
     constructor(searchType: string, searchTarget: string) {
         this.searchType = searchType;
@@ -44,7 +236,7 @@ export class RenderInfo {
         this.line = new LineInfo();
         this.summary = null;
 
-        this.data = [];
+        this.dataSets = null;
     }
 }
 
@@ -102,8 +294,9 @@ export class SummaryInfo {
     }
 }
 
-function getTickInterval(days: number) {
+function getTickInterval(dataSets: DataSets) {
     let tickInterval;
+    let days = dataSets.getDates().length;
 
     if (days <= 15) {
         // number of ticks: 0-15
@@ -127,8 +320,9 @@ function getTickInterval(days: number) {
     return tickInterval;
 }
 
-function getTickFormat(days: number) {
+function getTickFormat(dataSets: DataSets) {
     let tickFormat;
+    let days = dataSets.getDates().length;
 
     if (days <= 15) {
         // number of ticks: 0-15
@@ -153,21 +347,17 @@ function getTickFormat(days: number) {
 }
 
 export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
-    // console.log(renderInfo.data);
+    // console.log(renderInfo.dataSets);
 
     // Data preprocessing
-    let tagMeasureAccum = 0.0;
-    for (let dataPoint of renderInfo.data) {
-        if (renderInfo.penalty !== null) {
-            if (dataPoint.value === null) {
-                dataPoint.value = renderInfo.penalty;
-            }
+    if (renderInfo.penalty !== null) {
+        for (let dataSet of renderInfo.dataSets) {
+            dataSet.setPenalty(renderInfo.penalty);
         }
-        if (renderInfo.accum) {
-            if (dataPoint.value !== null) {
-                tagMeasureAccum += dataPoint.value;
-                dataPoint.value = tagMeasureAccum;
-            }
+    }
+    if (renderInfo.accum) {
+        for (let dataSet of renderInfo.dataSets) {
+            dataSet.accumulateValues();
         }
     }
 
@@ -188,6 +378,7 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
 
 function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log("renderLine");
+    // console.log(renderInfo);
 
     // Draw line chart
     let margin = { top: 10, right: 70, bottom: 70, left: 70 };
@@ -222,13 +413,11 @@ function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
     }
 
     // Add X axis
-    let xDomain = d3.extent(renderInfo.data, function (p) {
-        return p.date;
-    });
+    let xDomain = d3.extent(renderInfo.dataSets.getDates());
     let xScale = d3.scaleTime().domain(xDomain).range([0, width]);
 
-    let tickInterval = getTickInterval(renderInfo.data.length);
-    let tickFormat = getTickFormat(renderInfo.data.length);
+    let tickInterval = getTickInterval(renderInfo.dataSets);
+    let tickFormat = getTickFormat(renderInfo.dataSets);
 
     let xAxisGen = d3
         .axisBottom(xScale)
@@ -266,22 +455,22 @@ function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
         xAxisLabel.style("fill", renderInfo.line.labelColor);
     }
 
+    let dataSet = renderInfo.dataSets.getDataSetById(0); // For now, allow only one line
+    if (dataSet === null) return;
+    // console.log(dataSet);
+
     // Add Y axis
     let yMin = renderInfo.line.yMin;
     let yMinAssigned = false;
     if (typeof yMin !== "number") {
-        yMin = d3.min(renderInfo.data, function (p) {
-            return p.value;
-        });
+        yMin = d3.min(dataSet.getValues());
     } else {
         yMinAssigned = true;
     }
     let yMax = renderInfo.line.yMax;
     let yMaxAssigned = false;
     if (typeof yMax !== "number") {
-        yMax = d3.max(renderInfo.data, function (p) {
-            return p.value;
-        });
+        yMax = d3.max(dataSet.getValues());
     } else {
         yMaxAssigned = true;
     }
@@ -384,13 +573,9 @@ function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
             .style("stroke-width", renderInfo.line.lineWidth);
 
         if (renderInfo.line.fillGap) {
-            line.datum(
-                renderInfo.data.filter(function (p) {
-                    return p.value !== null;
-                })
-            ).attr("d", lineGen as any);
+            line.datum(dataSet).attr("d", lineGen as any);
         } else {
-            line.datum(renderInfo.data).attr("d", lineGen as any);
+            line.datum(dataSet).attr("d", lineGen as any);
         }
 
         if (renderInfo.line.lineColor) {
@@ -402,11 +587,7 @@ function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
     if (renderInfo.line.showPoint) {
         let dots = dataArea
             .selectAll("dot")
-            .data(
-                renderInfo.data.filter(function (p) {
-                    return p.value != null;
-                })
-            )
+            .data(dataSet)
             .enter()
             .append("circle")
             .attr("r", renderInfo.line.pointSize)
@@ -500,52 +681,31 @@ function checkSummaryTemplateValid(summaryTemplate: string): boolean {
 
 let fnSet = {
     "{{min}}": function (renderInfo: RenderInfo) {
-        let dataNotNull = renderInfo.data.filter(function (p) {
-            return p.value !== null;
-        });
-        if (dataNotNull.length > 0) {
-            return d3.min(dataNotNull, function (p) {
-                return p.value;
-            });
-        }
-        return null;
+        let dataSet = renderInfo.dataSets.getDataSetById(0);
+        return d3.min(dataSet.getValues());
     },
     "{{max}}": function (renderInfo: RenderInfo) {
-        let dataNotNull = renderInfo.data.filter(function (p) {
-            return p.value !== null;
-        });
-        if (dataNotNull.length > 0) {
-            return d3.max(dataNotNull, function (p) {
-                return p.value;
-            });
-        }
-        return null;
+        let dataSet = renderInfo.dataSets.getDataSetById(0);
+        return d3.max(dataSet.getValues());
     },
     "{{sum}}": function (renderInfo: RenderInfo) {
-        let dataNotNull = renderInfo.data.filter(function (p) {
-            return p.value !== null;
-        });
-        if (dataNotNull.length > 0) {
-            return d3.sum(dataNotNull, function (p) {
-                return p.value;
-            });
-        }
-        return null;
+        let dataSet = renderInfo.dataSets.getDataSetById(0);
+        return d3.sum(dataSet.getValues());
     },
     "{{count}}": function (renderInfo: RenderInfo) {
-        let dataNotNull = renderInfo.data.filter(function (p) {
-            return p.value !== null;
-        });
-        return dataNotNull.length;
+        let dataSet = renderInfo.dataSets.getDataSetById(0);
+        return dataSet.getLengthNotNull();
     },
     "{{days}}": function (renderInfo: RenderInfo) {
-        let result = renderInfo.data.length;
+        let dataSet = renderInfo.dataSets.getDataSetById(0);
+        let result = dataSet.getLength();
         return result;
     },
     "{{maxStreak}}": function (renderInfo: RenderInfo) {
         let streak = 0;
         let maxStreak = 0;
-        for (let dataPoint of renderInfo.data) {
+        let dataSet = renderInfo.dataSets.getDataSetById(0);
+        for (let dataPoint of dataSet) {
             if (dataPoint.value !== null) {
                 streak++;
             } else {
@@ -560,7 +720,9 @@ let fnSet = {
     "{{maxBreak}}": function (renderInfo: RenderInfo) {
         let streak = 0;
         let maxBreak = 0;
-        for (let dataPoint of renderInfo.data) {
+        let dataSet = renderInfo.dataSets.getDataSetById(0);
+
+        for (let dataPoint of dataSet) {
             if (dataPoint.value === null) {
                 streak++;
             } else {
@@ -573,39 +735,21 @@ let fnSet = {
         return maxBreak;
     },
     "{{average}}": function (renderInfo: RenderInfo) {
-        let dataNotNull = renderInfo.data.filter(function (p) {
-            return p.value !== null;
-        });
-        let count = dataNotNull.length;
-        if (count > 0) {
-            let sum = d3.sum(dataNotNull, function (p) {
-                return p.value;
-            });
-            return sum / count;
+        let dataSet = renderInfo.dataSets.getDataSetById(0);
+        let countNotNull = dataSet.getLengthNotNull();
+        if (countNotNull > 0) {
+            let sum = d3.sum(dataSet.getValues());
+            return sum / countNotNull;
         }
         return null;
     },
     "{{median}}": function (renderInfo: RenderInfo) {
-        let dataNotNull = renderInfo.data.filter(function (p) {
-            return p.value !== null;
-        });
-        if (dataNotNull.length > 0) {
-            return d3.median(dataNotNull, function (p) {
-                return p.value;
-            });
-        }
-        return null;
+        let dataSet = renderInfo.dataSets.getDataSetById(0);
+        return d3.median(dataSet.getValues());
     },
     "{{variance}}": function (renderInfo: RenderInfo) {
-        let dataNotNull = renderInfo.data.filter(function (p) {
-            return p.value !== null;
-        });
-        if (dataNotNull.length > 0) {
-            return d3.variance(dataNotNull, function (p) {
-                return p.value;
-            });
-        }
-        return null;
+        let dataSet = renderInfo.dataSets.getDataSetById(0);
+        return d3.variance(dataSet.getValues());
     },
 };
 

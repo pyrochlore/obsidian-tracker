@@ -1,7 +1,14 @@
 import { App, Plugin } from "obsidian";
 import { MarkdownPostProcessorContext, MarkdownView, Editor } from "obsidian";
 import { TFile, TFolder, normalizePath } from "obsidian";
-import { DataPoint, render, renderErrorMessage } from "./rendering";
+import {
+    NullableNumber,
+    Query,
+    QueryValuePair,
+    DataSets,
+    render,
+    renderErrorMessage,
+} from "./rendering";
 import { getRenderInfoFromYaml } from "./parsing";
 import { Moment } from "moment";
 
@@ -84,6 +91,22 @@ export default class Tracker extends Plugin {
         return files;
     }
 
+    addToDataMap(
+        dataMap: Map<string, Array<QueryValuePair>>,
+        date: string,
+        query: Query,
+        value: NullableNumber
+    ) {
+        if (!dataMap.has(date)) {
+            let queryValuePairs = new Array<QueryValuePair>();
+            queryValuePairs.push({ query: query, value: value });
+            dataMap.set(date, queryValuePairs);
+        } else {
+            let targetValuePairs = dataMap.get(date);
+            targetValuePairs.push({ query: query, value: value });
+        }
+    }
+
     async postprocessor(
         source: string,
         el: HTMLElement,
@@ -112,188 +135,196 @@ export default class Tracker extends Plugin {
         }
         // console.log(files);
 
-        // Get data from files
+        // Collecting data to dataMap first
         let minDate = window.moment("");
         let maxDate = window.moment("");
         let fileCounter = 0;
-        let data: DataPoint[] = [];
-        for (let file of files) {
-            let fileBaseName = file.basename;
-            // console.log(fileBaseName);
-            let fileDateString = fileBaseName;
-            let fileDate = window.moment(fileDateString, this.dateFormat);
-            // console.log(fileDate);
-            if (!fileDate.isValid()) continue;
-            fileCounter++;
 
-            // Get min/max date
-            if (fileCounter == 1) {
-                minDate = fileDate.clone();
-                maxDate = fileDate.clone();
-            } else {
-                if (fileDate < minDate) {
+        let queries = new Array<Query>();
+        queries.push(new Query(renderInfo.searchType, renderInfo.searchTarget));
+
+        let dataMap = new Map<string, Array<QueryValuePair>>(); // {strDate: [query: value, ...]}
+
+        for (let query of queries) {
+            for (let file of files) {
+                let fileBaseName = file.basename;
+                // console.log(fileBaseName);
+                let fileDateString = fileBaseName;
+                let fileDate = window.moment(fileDateString, this.dateFormat);
+                // console.log(fileDate);
+                if (!fileDate.isValid()) continue;
+                fileCounter++;
+
+                // Get min/max date
+                if (fileCounter == 1) {
                     minDate = fileDate.clone();
-                }
-                if (fileDate > maxDate) {
                     maxDate = fileDate.clone();
-                }
-            }
-
-            // rules for assigning tag value
-            // simple tag
-            //   tag exists --> constant value
-            //   tag not exists --> null
-            // valued-attached tag
-            //   tag exists
-            //     with value --> that value
-            //     without value --> null
-            //   tag not exists --> null
-
-            // console.log("Search frontmatter tags");
-            if (renderInfo.searchType === "tag") {
-                // Add frontmatter tags, allow simple tag only
-                let fileCache = this.app.metadataCache.getFileCache(file);
-                if (fileCache) {
-                    let frontMatter = fileCache.frontmatter;
-                    let frontMatterTags: string[] = [];
-                    if (frontMatter && frontMatter.tags) {
-                        // console.log(frontMatter.tags);
-                        let tagMeasure = 0.0;
-                        let tagExist = false;
-                        if (Array.isArray(frontMatter.tags)) {
-                            frontMatterTags = frontMatterTags.concat(
-                                frontMatter.tags
-                            );
-                        } else {
-                            frontMatterTags.push(frontMatter.tags);
-                        }
-
-                        for (let tag of frontMatterTags) {
-                            // nested tag in frontmatter is not supported yet
-                            if (tag === renderInfo.searchTarget) {
-                                // simple tag
-                                tagMeasure = tagMeasure + renderInfo.constValue;
-                                tagExist = true;
-                            } else if (
-                                tag.startsWith(renderInfo.searchTarget + "/")
-                            ) {
-                                // nested tag
-                                tagMeasure = tagMeasure + renderInfo.constValue;
-                                tagExist = true;
-                            } else {
-                                continue;
-                            }
-
-                            // valued-tag in frontmatter is not supported
-                            // because the "tag:value" in frontmatter will be consider as a new tag for different values
-
-                            let newPoint = new DataPoint();
-                            newPoint.date = fileDate.clone();
-                            if (tagExist) {
-                                newPoint.value = tagMeasure;
-                            } else {
-                                newPoint.value = null;
-                            }
-                            data.push(newPoint);
-                            //console.log(newPoint);
-                        }
+                } else {
+                    if (fileDate < minDate) {
+                        minDate = fileDate.clone();
+                    }
+                    if (fileDate > maxDate) {
+                        maxDate = fileDate.clone();
                     }
                 }
-            }
 
-            // console.log("Search inline tags");
-            if (renderInfo.searchType === "tag") {
-                // Add inline tags
-                let content = await this.app.vault.adapter.read(file.path);
+                // rules for assigning tag value
+                // simple tag
+                //   tag exists --> constant value
+                //   tag not exists --> null
+                // valued-attached tag
+                //   tag exists
+                //     with value --> that value
+                //     without value --> null
+                //   tag not exists --> null
 
-                // console.log(content);
-                // Test this in Regex101
-                //(^|\s)#tagName(\/[\w]+)*(:(?<value>[\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)(?<unit>\w*)?)?([\.!,\?;~-]*)?(\s|$)
-                let strHashtagRegex =
-                    "(^|\\s)#" +
-                    renderInfo.searchTarget +
-                    "(\\/[\\w]+)*" +
-                    "(:(?<value>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?([\\.!,\\?;~-]*)?(\\s|$)";
-                // console.log(strHashtagRegex);
-                let hashTagRegex = new RegExp(strHashtagRegex, "gm");
-                let match;
-                let tagMeasure = 0.0;
-                let tagExist = false;
-                while ((match = hashTagRegex.exec(content))) {
-                    // console.log(match);
-                    if (
-                        !renderInfo.ignoreAttachedValue &&
-                        match[0].includes(":")
-                    ) {
-                        // match[0] whole match
-                        // console.log("valued-tag");
-                        if (typeof match.groups.value !== "undefined") {
-                            // set as null for missing value if it is valued-tag
-                            let value = parseFloat(match.groups.value);
-                            // console.log(value);
-                            if (!Number.isNaN(value)) {
-                                if (
-                                    !renderInfo.ignoreZeroValue ||
-                                    value !== 0
-                                ) {
-                                    tagMeasure += value;
+                // console.log("Search frontmatter tags");
+                if (query.type === "tag") {
+                    // Add frontmatter tags, allow simple tag only
+                    let fileCache = this.app.metadataCache.getFileCache(file);
+                    if (fileCache) {
+                        let frontMatter = fileCache.frontmatter;
+                        let frontMatterTags: string[] = [];
+                        if (frontMatter && frontMatter.tags) {
+                            // console.log(frontMatter.tags);
+                            let tagMeasure = 0.0;
+                            let tagExist = false;
+                            if (Array.isArray(frontMatter.tags)) {
+                                frontMatterTags = frontMatterTags.concat(
+                                    frontMatter.tags
+                                );
+                            } else {
+                                frontMatterTags.push(frontMatter.tags);
+                            }
+
+                            for (let tag of frontMatterTags) {
+                                if (tag === query.target) {
+                                    // simple tag
+                                    tagMeasure =
+                                        tagMeasure + renderInfo.constValue;
                                     tagExist = true;
+                                } else if (tag.startsWith(query.target + "/")) {
+                                    // nested tag
+                                    tagMeasure =
+                                        tagMeasure + renderInfo.constValue;
+                                    tagExist = true;
+                                } else {
+                                    continue;
+                                }
+
+                                // valued-tag in frontmatter is not supported
+                                // because the "tag:value" in frontmatter will be consider as a new tag for different values
+
+                                let value = null;
+                                if (tagExist) {
+                                    value = tagMeasure;
+                                }
+                                this.addToDataMap(
+                                    dataMap,
+                                    fileDate.format(this.dateFormat),
+                                    query,
+                                    value
+                                );
+                            }
+                        }
+                    }
+                } // Search frontmatter tags
+
+                // console.log("Search inline tags");
+                if (query.type === "tag") {
+                    // Add inline tags
+                    let content = await this.app.vault.adapter.read(file.path);
+
+                    // console.log(content);
+                    // Test this in Regex101
+                    //(^|\s)#tagName(\/[\w]+)*(:(?<value>[\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)(?<unit>\w*)?)?([\.!,\?;~-]*)?(\s|$)
+                    let strHashtagRegex =
+                        "(^|\\s)#" +
+                        query.target +
+                        "(\\/[\\w]+)*" +
+                        "(:(?<value>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?([\\.!,\\?;~-]*)?(\\s|$)";
+                    // console.log(strHashtagRegex);
+                    let hashTagRegex = new RegExp(strHashtagRegex, "gm");
+                    let match;
+                    let tagMeasure = 0.0;
+                    let tagExist = false;
+                    while ((match = hashTagRegex.exec(content))) {
+                        // console.log(match);
+                        if (
+                            !renderInfo.ignoreAttachedValue &&
+                            match[0].includes(":")
+                        ) {
+                            // match[0] whole match
+                            // console.log("valued-tag");
+                            if (typeof match.groups.value !== "undefined") {
+                                // set as null for missing value if it is valued-tag
+                                let value = parseFloat(match.groups.value);
+                                // console.log(value);
+                                if (!Number.isNaN(value)) {
+                                    if (
+                                        !renderInfo.ignoreZeroValue ||
+                                        value !== 0
+                                    ) {
+                                        tagMeasure += value;
+                                        tagExist = true;
+                                    }
                                 }
                             }
+                        } else {
+                            // console.log("simple-tag");
+                            tagMeasure = tagMeasure + renderInfo.constValue;
+                            tagExist = true;
                         }
-                    } else {
-                        // console.log("simple-tag");
-                        tagMeasure = tagMeasure + renderInfo.constValue;
-                        tagExist = true;
                     }
-                }
 
-                let newPoint = new DataPoint();
-                newPoint.date = fileDate.clone();
-                if (tagExist) {
-                    newPoint.value = tagMeasure;
-                } else {
-                    newPoint.value = null;
-                }
-                // console.log(newPoint);
+                    let value = null;
+                    if (tagExist) {
+                        value = tagMeasure;
+                    }
+                    this.addToDataMap(
+                        dataMap,
+                        fileDate.format(this.dateFormat),
+                        query,
+                        value
+                    );
+                } // Search inline tags
 
-                data.push(newPoint);
-            }
+                // console.log("Search text");
+                if (query.type === "text") {
+                    let content = await this.app.vault.adapter.read(file.path);
+                    // console.log(content);
 
-            if (renderInfo.searchType === "text") {
-                let content = await this.app.vault.adapter.read(file.path);
-                // console.log(content);
+                    let strTextRegex = query.target.replace(
+                        /[|\\{}()[\]^$+*?.]/g,
+                        "\\$&"
+                    );
+                    // console.log(strHashtagRegex);
+                    let textRegex = new RegExp(strTextRegex, "gm");
+                    let match;
+                    let tagMeasure = 0.0;
+                    let tagExist = false;
+                    while ((match = textRegex.exec(content))) {
+                        // console.log(match);
+                        tagExist = true;
+                        tagMeasure = tagMeasure + renderInfo.constValue;
+                    }
 
-                let strTextRegex = renderInfo.searchTarget.replace(
-                    /[|\\{}()[\]^$+*?.]/g,
-                    "\\$&"
-                );
-                // console.log(strHashtagRegex);
-                let textRegex = new RegExp(strTextRegex, "gm");
-                let match;
-                let tagMeasure = 0.0;
-                let tagExist = false;
-                while ((match = textRegex.exec(content))) {
-                    // console.log(match);
-                    tagExist = true;
-                    tagMeasure = tagMeasure + renderInfo.constValue;
-                }
-
-                let newPoint = new DataPoint();
-                newPoint.date = fileDate.clone();
-                if (tagExist) {
-                    newPoint.value = tagMeasure;
-                } else {
-                    newPoint.value = null;
-                }
-                // console.log(newPoint);
-
-                data.push(newPoint);
-            }
-        } // end loof of files
+                    let value = null;
+                    if (tagExist) {
+                        value = tagMeasure;
+                    }
+                    this.addToDataMap(
+                        dataMap,
+                        fileDate.format(this.dateFormat),
+                        query,
+                        value
+                    );
+                } // Search text
+            } // end loof of files
+        }
         // console.log(minDate);
         // console.log(maxDate);
-        // console.log(data);
+        // console.log(dataMap);
 
         // Check date range
         if (!minDate.isValid() || !maxDate.isValid()) {
@@ -343,50 +374,51 @@ export default class Tracker extends Plugin {
                 return;
             }
         }
-        // console.log(startDate);
-        // console.log(endDate);
+        // console.log(renderInfo.startDate);
+        // console.log(renderInfo.endDate);
 
-        // Preprocess data
-        for (
-            let curDate = renderInfo.startDate.clone();
-            curDate <= renderInfo.endDate;
-            curDate.add(1, "days")
-        ) {
-            // console.log(curDate);
-            let dataPoints = data.filter((p) => curDate.isSame(p.date));
+        // Reshape data for rendering
+        let dataSets = new DataSets(renderInfo.startDate, renderInfo.endDate);
+        for (let query of queries) {
+            let dataSet = dataSets.createDataSet(query);
+            for (
+                let curDate = renderInfo.startDate.clone();
+                curDate <= renderInfo.endDate;
+                curDate.add(1, "days")
+            ) {
+                // console.log(curDate);
 
-            if (dataPoints.length > 0) {
-                // Add point to renderInfo
-
-                // Merge data points of the same day
-                let dataPoint = dataPoints[0];
-                let dataPointValue = 0;
-                let dataPointHasValue = false;
-                for (
-                    let indDataPoint = 0;
-                    indDataPoint < dataPoints.length;
-                    indDataPoint++
-                ) {
-                    if (dataPoints[indDataPoint].value !== null) {
-                        dataPointValue += dataPoints[indDataPoint].value;
-                        dataPointHasValue = true;
+                // dataMap --> {date: [query: value, ...]}
+                if (dataMap.has(curDate.format(this.dateFormat))) {
+                    let queryValuePairs = dataMap
+                        .get(curDate.format(this.dateFormat))
+                        .filter(function (pair) {
+                            return pair.query.equalTo(query);
+                        });
+                    if (queryValuePairs.length > 0) {
+                        // Merge values of the same day same query
+                        let pair = queryValuePairs[0];
+                        let value = 0;
+                        let hasValue = false;
+                        for (
+                            let indPair = 0;
+                            indPair < queryValuePairs.length;
+                            indPair++
+                        ) {
+                            if (queryValuePairs[indPair].value !== null) {
+                                value += queryValuePairs[indPair].value;
+                                hasValue = true;
+                            }
+                        }
+                        // console.log(value);
+                        if (hasValue) {
+                            dataSet.setValue(curDate, value);
+                        }
                     }
                 }
-                if (dataPointHasValue) {
-                    dataPoint.value = dataPointValue;
-                }
-
-                renderInfo.data.push(dataPoint);
-            } else {
-                // Add missing point of this day
-
-                let newPoint = new DataPoint();
-                newPoint.date = curDate.clone();
-                newPoint.value = null;
-
-                renderInfo.data.push(newPoint);
             }
         }
+        renderInfo.dataSets = dataSets;
         // console.log(renderInfo);
 
         let result = render(canvas, renderInfo);
