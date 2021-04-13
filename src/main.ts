@@ -1,12 +1,9 @@
 import { App, Plugin } from "obsidian";
 import { MarkdownPostProcessorContext, MarkdownView, Editor } from "obsidian";
 import { TFile, TFolder, normalizePath } from "obsidian";
-import {
-    render,
-    renderErrorMessage,
-} from "./rendering";
+import { render, renderErrorMessage } from "./rendering";
 import { getRenderInfoFromYaml } from "./parsing";
-import { NullableNumber, DataSets, Query, QueryValuePair} from "./data"
+import { NullableNumber, DataSets, Query, QueryValuePair } from "./data";
 import { Moment } from "moment";
 
 declare global {

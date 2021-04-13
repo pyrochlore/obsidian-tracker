@@ -35,7 +35,7 @@ export class DataSet implements IterableIterator<DataPoint> {
     private values: NullableNumber[];
     private parent: DataSets;
 
-    private arrayPointer = 0; // IterableIterator
+    private currentIndex = 0; // IterableIterator
 
     constructor(parent: DataSets, query: Query) {
         this.query = query;
@@ -96,16 +96,22 @@ export class DataSet implements IterableIterator<DataPoint> {
     }
 
     next(): IteratorResult<DataPoint> {
-        if (this.arrayPointer < this.values.length) {
+        if (this.currentIndex < this.values.length) {
+            if (this.values[this.currentIndex] === null) {
+                this.currentIndex++;
+                return this.next();
+            }
+
+            let ind = this.currentIndex++;
             return {
                 done: false,
                 value: {
-                    date: this.parent.getDates()[this.arrayPointer],
-                    value: this.values[this.arrayPointer++],
+                    date: this.parent.getDates()[ind],
+                    value: this.values[ind],
                 },
             };
         } else {
-            this.arrayPointer = 0;
+            this.currentIndex = 0;
             return {
                 done: true,
                 value: null,
@@ -123,7 +129,7 @@ export class DataSets implements IterableIterator<DataSet> {
     private dates: Moment[];
     private dataSets: DataSet[];
 
-    private arrayPointer = 0; // IterableIterator
+    private currentIndex = 0; // IterableIterator
 
     constructor(startDate: Moment, endDate: Moment) {
         this.dates = [];
@@ -179,13 +185,13 @@ export class DataSets implements IterableIterator<DataSet> {
     }
 
     next(): IteratorResult<DataSet> {
-        if (this.arrayPointer < this.dataSets.length) {
+        if (this.currentIndex < this.dataSets.length) {
             return {
                 done: false,
-                value: this.dataSets[this.arrayPointer++],
+                value: this.dataSets[this.currentIndex++],
             };
         } else {
-            this.arrayPointer = 0;
+            this.currentIndex = 0;
             return {
                 done: true,
                 value: null,
