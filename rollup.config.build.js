@@ -1,6 +1,7 @@
 import typescript from '@rollup/plugin-typescript';
-import {nodeResolve} from '@rollup/plugin-node-resolve';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
+import { terser } from "rollup-plugin-terser";
 
 export default {
   input: 'src/main.ts',
@@ -15,6 +16,7 @@ export default {
     typescript(),
     nodeResolve({browser: true}),
     commonjs(),
+    terser()
   ],
   onwarn: function(warning, warner){
     if (warning.code === 'CIRCULAR_DEPENDENCY'){
