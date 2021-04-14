@@ -100,6 +100,10 @@ for (let curDate = startDate.clone(); curDate <= endDate; curDate.add(1, 'days')
 
     content += "\n";
 
+    // wiki links
+    content += "[[todo_family|To-Do @Family]]" + "\n";
+    content += "[[todo_work|To-Do @Work]]" + "\n";
+
     fs.writeFileSync(fh, content);
     fs.closeSync(fh);
 }

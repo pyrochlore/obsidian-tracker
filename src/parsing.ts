@@ -24,11 +24,11 @@ export function getRenderInfoFromYaml(
 
     // Search type
     let searchType = "";
-    if (yaml.searchType === "tag" || yaml.searchType === "text" || yaml.searchType === "frontmatter") {
+    if (yaml.searchType === "tag" || yaml.searchType === "text" || yaml.searchType === "frontmatter" || yaml.searchType === "wiki") {
         searchType = yaml.searchType;
     } else {
         let errorMessage =
-            "Invalid search type (searchType), choose 'tag', 'frontmatter', or 'text'";
+            "Invalid search type (searchType), choose 'tag', 'frontmatter', 'wiki', or 'text'";
         return errorMessage;
     }
     // console.log(searchType);
@@ -46,7 +46,7 @@ export function getRenderInfoFromYaml(
                 searchTarget = yaml.searchTarget;
             }
         } else {
-            // yaml.searchType === "text"
+            // yaml.searchType === "text", "frontmatter", "wiki"
             searchTarget = yaml.searchTarget;
         }
     } else {

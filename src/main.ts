@@ -172,10 +172,11 @@ export default class Tracker extends Plugin {
                 //     without value --> null
                 //   tag not exists --> null
 
+                let fileCache = this.app.metadataCache.getFileCache(file);
+
                 // console.log("Search frontmatter tags");
                 if (query.type === "tag") {
                     // Add frontmatter tags, allow simple tag only
-                    let fileCache = this.app.metadataCache.getFileCache(file);
                     if (fileCache) {
                         let frontMatter = fileCache.frontmatter;
                         let frontMatterTags: string[] = [];
@@ -226,7 +227,6 @@ export default class Tracker extends Plugin {
 
                 // console.log("Search frontmatter keys");
                 if (query.type === "frontmatter" && query.target !== "tags") {
-                    let fileCache = this.app.metadataCache.getFileCache(file);
                     if (fileCache) {
                         let frontMatter = fileCache.frontmatter;
                         if (frontMatter && frontMatter[query.target]) {
@@ -248,6 +248,33 @@ export default class Tracker extends Plugin {
                         }
                     }
                 } // console.log("Search frontmatter keys");
+
+                // console.log("Search wiki links");
+                if (query.type === "wiki") {
+                    if (fileCache) {
+                        let links = fileCache.links;
+
+                        let linkMeasure = 0.0;
+                        let linkExist = false;
+                        for (let link of links) {
+                            if (link.link === query.target) {
+                                linkExist = true;
+                                linkMeasure = linkMeasure + renderInfo.constValue;
+                            }
+                        }
+
+                        let linkValue = null;
+                        if (linkExist) {
+                            linkValue = linkMeasure;
+                        }
+                        this.addToDataMap(
+                            dataMap,
+                            fileDate.format(this.dateFormat),
+                            query,
+                            linkValue
+                        );
+                    }
+                }
 
                 // console.log("Search inline tags");
                 if (query.type === "tag") {
