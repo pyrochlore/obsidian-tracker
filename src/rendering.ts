@@ -296,7 +296,7 @@ function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
             .selectAll("dot")
             .data(
                 Array.from(dataSet).filter(function (p) {
-                    p.value !== null;
+                    return p.value !== null;
                 })
             )
             .enter()

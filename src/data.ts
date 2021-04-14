@@ -2,9 +2,14 @@ import { Moment } from "moment";
 
 export type NullableNumber = number | null;
 
-export interface DataPoint {
+export class DataPoint {
     date: Moment;
     value: NullableNumber;
+
+    constructor(date: Moment, value: NullableNumber) {
+        this.date = date;
+        this.value = value;
+    }
 }
 
 export class Query {
@@ -98,12 +103,13 @@ export class DataSet implements IterableIterator<DataPoint> {
     next(): IteratorResult<DataPoint> {
         if (this.currentIndex < this.values.length) {
             let ind = this.currentIndex++;
+            let dataPoint = new DataPoint(
+                this.parent.getDates()[ind],
+                this.values[ind]
+            );
             return {
                 done: false,
-                value: {
-                    date: this.parent.getDates()[ind],
-                    value: this.values[ind],
-                },
+                value: dataPoint,
             };
         } else {
             this.currentIndex = 0;
