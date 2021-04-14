@@ -294,7 +294,11 @@ function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
     if (renderInfo.line.showPoint) {
         let dots = dataArea
             .selectAll("dot")
-            .data(dataSet)
+            .data(
+                Array.from(dataSet).filter(function (p) {
+                    p.value !== null;
+                })
+            )
             .enter()
             .append("circle")
             .attr("r", renderInfo.line.pointSize)
