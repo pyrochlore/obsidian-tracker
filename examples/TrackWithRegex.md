@@ -1,7 +1,9 @@
 # Track Text with Regular Expression
 
 **Important**!!
-Use single quotes to wrap the regular expression, or use double quotes with all back slashes (escape characters) duplicated
+1. Use single quotes to wrap the regular expression, or use double quotes with all back slashes (escape characters) duplicated.
+2. Make your own expression, or find a suitable one from website like [regex101](https://regex101.com).
+3. Use a named group "(?<value>XXXXXX)" in your expression if you need values be retrieved from text.
 
 ## Count Occurencies (No Value)
 ### Occurencies of Email
@@ -16,6 +18,17 @@ line:
 	title: Email Occurencies
 	yAxisLabel: Count
 	lineColor: yellow
+```
+
+``` tracker
+searchType: text
+searchTarget: '.+\@.+\..+'
+folder: diary
+startDate: 2021-01-01
+endDate: 2021-01-31
+summary:
+	template: "Total number of emails found: {{sum}}"
+	style: "font-size:20px;color:red;margin-left: 50px;margin-top:00px;"
 ```
 
 ## Count Values
