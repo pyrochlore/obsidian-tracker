@@ -15,9 +15,9 @@ folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
-	title: Email Occurencies
-	yAxisLabel: Count
-	lineColor: yellow
+    title: Email Occurencies
+    yAxisLabel: Count
+    lineColor: yellow
 ```
 
 ``` tracker
@@ -27,8 +27,8 @@ folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 summary:
-	template: "Total number of emails found: {{sum}}"
-	style: "font-size:20px;color:red;margin-left: 50px;margin-top:00px;"
+    template: "Total number of emails found: {{sum}}"
+    style: "font-size:20px;color:red;margin-left: 50px;margin-top:00px;"
 ```
 
 ## Count Values
@@ -42,7 +42,9 @@ folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
-	title: Weight Lifting
-	yAxisLabel: Count
-	lineColor: yellow
+    title: Weight Lifting
+    yAxisLabel: Count
+    lineColor: yellow
 ```
+
+Please also check those search targets in markdown files under folder 'diary'.

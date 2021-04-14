@@ -6,9 +6,9 @@ searchTarget: finance
 folder: diary
 accum: true
 line:
-	title: Finace
-	yAxisLabel: USD
-	lineWidth: 4
+    title: Finace
+    yAxisLabel: USD
+    lineWidth: 4
 ```
 
 
@@ -18,8 +18,8 @@ searchTarget: finance/bank1
 folder: diary
 accum: true
 line:
-	title: Bank1
-	yAxisLabel: USD
+    title: Bank1
+    yAxisLabel: USD
 ```
 
 
@@ -29,7 +29,9 @@ searchTarget: finance/bank2
 folder: diary
 accum: true
 line:
-	title: Bank2
-	yAxisLabel: USD
-	fillGap: true
+    title: Bank2
+    yAxisLabel: USD
+    fillGap: true
 ```
+
+Please also check those search targets in markdown files under folder 'diary'.
