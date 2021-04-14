@@ -259,7 +259,8 @@ export default class Tracker extends Plugin {
                         for (let link of links) {
                             if (link.link === query.target) {
                                 linkExist = true;
-                                linkMeasure = linkMeasure + renderInfo.constValue;
+                                linkMeasure =
+                                    linkMeasure + renderInfo.constValue;
                             }
                         }
 
@@ -339,32 +340,48 @@ export default class Tracker extends Plugin {
                 if (query.type === "text") {
                     let content = await this.app.vault.adapter.read(file.path);
                     // console.log(content);
+                    let strTextRegex = query.target;
 
-                    let strTextRegex = query.target.replace(
-                        /[|\\{}()[\]^$+*?.]/g,
-                        "\\$&"
-                    );
-                    // console.log(strHashtagRegex);
                     let textRegex = new RegExp(strTextRegex, "gm");
                     let match;
-                    let tagMeasure = 0.0;
-                    let tagExist = false;
+                    let textMeasure = 0.0;
+                    let textExist = false;
                     while ((match = textRegex.exec(content))) {
-                        // console.log(match);
-                        tagExist = true;
-                        tagMeasure = tagMeasure + renderInfo.constValue;
+                        if (
+                            !renderInfo.ignoreAttachedValue &&
+                            typeof match.groups !== "undefined"
+                        ) {
+                            // match[0] whole match
+                            // console.log("valued-text");
+                            if (typeof match.groups.value !== "undefined") {
+                                // set as null for missing value if it is valued-tag
+                                let value = parseFloat(match.groups.value);
+                                // console.log(value);
+                                if (!Number.isNaN(value)) {
+                                    if (
+                                        !renderInfo.ignoreZeroValue ||
+                                        value !== 0
+                                    ) {
+                                        textMeasure += value;
+                                        textExist = true;
+                                    }
+                                }
+                            }
+                        } else {
+                            // console.log("simple-text");
+                            textMeasure = textMeasure + renderInfo.constValue;
+                            textExist = true;
+                        }
                     }
 
-                    let value = null;
-                    if (tagExist) {
-                        value = tagMeasure;
+                    if (textExist) {
+                        this.addToDataMap(
+                            dataMap,
+                            fileDate.format(this.dateFormat),
+                            query,
+                            textMeasure
+                        );
                     }
-                    this.addToDataMap(
-                        dataMap,
-                        fileDate.format(this.dateFormat),
-                        query,
-                        value
-                    );
                 } // Search text
             } // end loof of files
         }

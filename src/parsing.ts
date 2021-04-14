@@ -24,7 +24,12 @@ export function getRenderInfoFromYaml(
 
     // Search type
     let searchType = "";
-    if (yaml.searchType === "tag" || yaml.searchType === "text" || yaml.searchType === "frontmatter" || yaml.searchType === "wiki") {
+    if (
+        yaml.searchType === "tag" ||
+        yaml.searchType === "text" ||
+        yaml.searchType === "frontmatter" ||
+        yaml.searchType === "wiki"
+    ) {
         searchType = yaml.searchType;
     } else {
         let errorMessage =
