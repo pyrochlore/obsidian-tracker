@@ -4,6 +4,11 @@ import { TFile, TFolder, normalizePath } from "obsidian";
 import { render, renderErrorMessage } from "./rendering";
 import { getRenderInfoFromYaml } from "./parsing";
 import { NullableNumber, DataSets, Query, QueryValuePair } from "./data";
+import {
+    TrackerSettings,
+    DEFAULT_SETTINGS,
+    TrackerSettingTab,
+} from "./settings";
 import { Moment } from "moment";
 
 declare global {
@@ -23,9 +28,14 @@ enum OutputType {
 export default class Tracker extends Plugin {
     folder: string;
     dateFormat: string;
+    settings: TrackerSettings;
 
     async onload() {
         console.log("loading obsidian-tracker plugin");
+
+        await this.loadSettings();
+
+        this.addSettingTab(new TrackerSettingTab(this.app, this));
 
         this.registerMarkdownCodeBlockProcessor(
             "tracker",
@@ -43,6 +53,18 @@ export default class Tracker extends Plugin {
             name: "Add Summary Tracker",
             callback: () => this.addCodeBlock(OutputType.Summary),
         });
+    }
+
+    async loadSettings() {
+        this.settings = Object.assign(
+            {},
+            DEFAULT_SETTINGS,
+            await this.loadData()
+        );
+    }
+
+    async saveSettings() {
+        await this.saveData(this.settings);
     }
 
     onunload() {
