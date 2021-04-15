@@ -1,26 +1,27 @@
-# Key-Value Pairs
+# Input Parameters
+Obsidian-tracker receives key-value pairs in YAML format as input parameters. Here is a complete list of these parameters.
 
-## Key-Value Pairs for Data Collection, Target Evaluation, and Data Preprocessing
-These keys are placed under the YAML root
+## Root Parameters
+These key-value pairs are placed under the YAML root. They were used for collecting data, evaluating targets, and preprocessing data.
 
 | Key | Default | Description |
 |:--------:|:-------:|:-----------:|
-| **searchType** | 'tag' or 'text' | The type of your search target |
-| **searchTarget** | Empty string | The tag name or text to search |
-| **folder** | Default folder location | The folder path of your daily notes |
-| **dateFormat** | Default date format | The date format of your dialy note title |
-| **startDate** | Min date found | The start date to count |
-| **endDate** | Max date found | The end date to count |
-| **constValue** | 1.0 | The constant value of all simple tags |
-| **ignoreAttachedValue** | false | Use constant value event if the tag has a value attached on |
+| **searchType** | Empty string | The type of searchTarget |
+| **searchTarget** | Empty string | [The target to search](TargetEvaluation.md) |
+| **folder** | Root of this vault | The folder path of your daily notes |
+| **dateFormat** | "YYYY-MM-DD" | The date format of your daily note title |
+| **startDate** | Min date found | The start date for collecting data |
+| **endDate** | Max date found | The end date for collecting data |
+| **constValue** | 1.0 | The constant value of a target if no value attached |
+| **ignoreAttachedValue** | false | Use constant value even if the target has a value attached on |
 | **ignoreZeroValue** | false | Treat zero value as missing value |
 | **accum** | false | Accumulatively sum the values over time |
 | **penalty** | null | The value to use if search target is missing on the day |
 | **line** | | All line-chart related keys should be placed under this key |
 | **summary** | | All summary keys should be placed under this key |
 
-### Line Chart Related Keys
-These keys should be placed under the root key '**line**'.
+## Line Chart Related Parameters
+These key-value pairs should be placed under the key '**line**'.
 
 | Key | Default | Description |
 |:--------:|:-----------:|:-----------:|
@@ -43,8 +44,8 @@ These keys should be placed under the root key '**line**'.
 | **allowInspectData** | true | Show data value aside data point |
 | **fillGap** | false | Connect points over missing data |
 
-### Summary Related Keys
-These keys should be placed under the root key '**summary**'.
+## Summary Related Parameters
+These key-value pairs should be placed under the key '**summary**'.
 
-| **template** | Empty string | Text template (May include [template variables](docs/TextExpansion.md)) |
+| **template** | Empty string | Text template (May include [template variables](TemplateVariables.md)) |
 | **style** | Empty string | css style for the rendered text block |
