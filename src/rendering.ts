@@ -447,6 +447,20 @@ let fnSet = {
         }
         return maxBreak;
     },
+    "{{lastStreak}}": function (renderInfo: RenderInfo) {
+        let streak = 0;
+        let dataSet = renderInfo.dataSets.getDataSetById(0);
+        let values = dataSet.getValues();
+        for (let ind = values.length - 1; ind >= 0; ind--) {
+            let value = values[ind];
+            if (value === null) {
+                break;
+            } else {
+                streak++;
+            }
+        }
+        return streak;
+    },
     "{{average}}": function (renderInfo: RenderInfo) {
         let dataSet = renderInfo.dataSets.getDataSetById(0);
         let countNotNull = dataSet.getLengthNotNull();
