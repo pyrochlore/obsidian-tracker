@@ -68,7 +68,7 @@ Plugin settings 'default folder' and 'default date format, are removed in versio
 ## Release Notes
 ### v1.2.0
 - Enable using regular expression in text searching.
-- New search type 'frontmatter', searching for key-value pair in the front matter.
+- New search type 'frontmatter', searching for key-value pairs in the front matter.
 - New search type 'wiki', searching for wiki links.
 - Reduce package size.
 
@@ -105,7 +105,8 @@ First version released at 2021-03-23.
 - [x] Support tracking key-value pairs in frontmatter.
 - [ ] Add data post-process function, like 'moving average'.
 - [ ] Add an 'Explode' button to the rendered blocks, it will replace the code block with the rendered result.
-- [ ] Support graphs showing the correlation between sets of data
+- [ ] Support graphs showing the correlation between sets of data.
+- [ ] Add a helper panel for adding frequently used tracking targets to article.
 
 And more ...
 
