@@ -1,12 +1,13 @@
 # Star Tracker
 ## Summary
+
 ``` tracker
 searchType: text
 searchTarget: ⭐
 folder: diary
 summary:
-	template: "I have {{sum}} stars in total."
-	style: "font-size:20px;color:yellow;margin-left: 50px;margin-top:00px;"
+    template: "I have {{sum}} stars in total."
+    style: "font-size:20px;color:yellow;margin-left: 50px;margin-top:00px;"
 ```
 
 ``` tracker
@@ -19,3 +20,5 @@ line:
     yAxisLabel: Count
     showLine: false
 ```
+
+Please also check those search targets in markdown files under folder 'diary'.

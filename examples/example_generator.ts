@@ -1,6 +1,6 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as moment from 'moment';
+import * as fs from "fs";
+import * as path from "path";
+import * as moment from "moment";
 
 let root_folder = __dirname;
 let subfolder = "diary";
@@ -17,30 +17,37 @@ function randomFloatFromInterval(min: number, max: number) {
 }
 
 // Check subfolder exists
-let subfolderPath = path.join(root_folder, subfolder)
+let subfolderPath = path.join(root_folder, subfolder);
 if (!fs.existsSync(subfolderPath)) {
     fs.mkdirSync(subfolderPath);
 }
 
 let dayCount = 0;
-for (let curDate = startDate.clone(); curDate <= endDate; curDate.add(1, 'days')) {
+for (
+    let curDate = startDate.clone();
+    curDate <= endDate;
+    curDate.add(1, "days")
+) {
     dayCount++;
     let fileName = curDate.format(dateFormat);
     let filePath = path.join(subfolderPath, fileName + ".md");
 
     let fh = fs.openSync(filePath, "w+");
 
-    let content:string = "";
+    let content: string = "";
 
     // fontmatter
     let frontmatter = "---\n";
     let weekday = curDate.weekday();
+    // front matter tags
     if (weekday == 0 || weekday == 6) {
         frontmatter += "tags: " + "\n";
-    }
-    else {
+    } else {
         frontmatter += "tags: " + "work_log" + "\n";
     }
+    // frontmatter mood
+    let mood = randomIntFromInterval(1, 10);
+    frontmatter += "mood: " + mood + "\n";
     frontmatter += "---\n";
     content += frontmatter;
 
@@ -67,8 +74,8 @@ for (let curDate = startDate.clone(); curDate <= endDate; curDate.add(1, 'days')
 
     // meditation
     let tagMeditation = "#meditation";
-    let missed = randomIntFromInterval(0, 1);
-    if (!missed) {
+    let missedMeditation = randomIntFromInterval(0, 1);
+    if (!missedMeditation) {
         content += tagMeditation + "\n";
     }
 
@@ -96,7 +103,36 @@ for (let curDate = startDate.clone(); curDate <= endDate; curDate.add(1, 'days')
 
     content += "\n";
 
+    // wiki links
+    content += "[[todo_family|To-Do @Family]]" + "\n";
+    content += "[[todo_work|To-Do @Work]]" + "\n";
+
+    content += "\n";
+
+    // searching text use regex
+    let addEmail1 = randomIntFromInterval(0, 1);
+    if (addEmail1) {
+        content += "obsidian-tracker@gmail.com" + "\n";
+    }
+    let addEmail2 = randomIntFromInterval(0, 1);
+    if (addEmail2) {
+        content += "obsidian-tracker+1@gmail.com" + "\n";
+    }
+    let addEmail3 = randomIntFromInterval(0, 1);
+    if (addEmail3) {
+        content += "obsidian-tracker@yahoo.com" + "\n";
+    }
+
+    content += "\n";
+
+    let countWeightLifting = randomIntFromInterval(10, 20);
+    let addWeightLifting = randomIntFromInterval(0, 5);
+    if (addWeightLifting > 0) {
+        content += "weightlifting: " + countWeightLifting + "\n";
+    }
+
+    content += "\n";
+
     fs.writeFileSync(fh, content);
     fs.closeSync(fh);
 }
-

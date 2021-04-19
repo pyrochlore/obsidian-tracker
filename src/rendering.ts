@@ -1,107 +1,9 @@
 import * as d3 from "d3";
-import { Moment } from "moment";
+import { DataSets, DataPoint, RenderInfo } from "./data";
 
-export class DataPoint {
-    date: Moment;
-    value: number | null;
-}
-
-export class RenderInfo {
-    // Input
-    searchType: string;
-    searchTarget: string;
-    folder: string;
-    dateFormat: string;
-    startDate: Moment;
-    endDate: Moment;
-    constValue: number;
-    ignoreAttachedValue: boolean;
-    ignoreZeroValue: boolean;
-    accum: boolean;
-    penalty: number;
-
-    output: string;
-    line: LineInfo | null;
-    summary: SummaryInfo | null;
-
-    // Inner data
-    data: DataPoint[];
-
-    constructor(searchType: string, searchTarget: string) {
-        this.searchType = searchType;
-        this.searchTarget = searchTarget;
-        this.folder = "";
-        this.dateFormat = "";
-        this.startDate = window.moment("");
-        this.endDate = window.moment("");
-        this.constValue = 1.0;
-        this.ignoreAttachedValue = false;
-        this.ignoreZeroValue = false;
-        this.accum = false; // accum values start from zero over days
-        this.penalty = null; // use this value instead of null value
-
-        this.output = "";
-        this.line = new LineInfo();
-        this.summary = null;
-
-        this.data = [];
-    }
-}
-
-export class LineInfo {
-    title: string;
-    xAxisLabel: string;
-    yAxisLabel: string;
-    labelColor: string;
-    yAxisUnit: string;
-    yMin: number | null;
-    yMax: number | null;
-    axisColor: string;
-    lineColor: string;
-    lineWidth: number;
-    showLine: boolean;
-    showPoint: boolean;
-    pointColor: string;
-    pointBorderColor: string;
-    pointBorderWidth: number;
-    pointSize: number;
-    allowInspectData: boolean;
-    fillGap: boolean;
-
-    constructor() {
-        this.title = "";
-        this.xAxisLabel = "Date";
-        this.yAxisLabel = "Value";
-        this.labelColor = "";
-        this.yAxisUnit = "";
-        this.yMin = null;
-        this.yMax = null;
-        this.axisColor = "";
-        this.lineColor = "";
-        this.lineWidth = 1.5;
-        this.showLine = true;
-        this.showPoint = true;
-        this.pointColor = "#69b3a2";
-        this.pointBorderColor = "#69b3a2";
-        this.pointBorderWidth = 0.0;
-        this.pointSize = 3.0;
-        this.allowInspectData = true;
-        this.fillGap = false;
-    }
-}
-
-export class SummaryInfo {
-    template: string;
-    style: string;
-
-    constructor() {
-        this.template = "";
-        this.style = "";
-    }
-}
-
-function getTickInterval(days: number) {
+function getTickInterval(dataSets: DataSets) {
     let tickInterval;
+    let days = dataSets.getDates().length;
 
     if (days <= 15) {
         // number of ticks: 0-15
@@ -125,8 +27,9 @@ function getTickInterval(days: number) {
     return tickInterval;
 }
 
-function getTickFormat(days: number) {
+function getTickFormat(dataSets: DataSets) {
     let tickFormat;
+    let days = dataSets.getDates().length;
 
     if (days <= 15) {
         // number of ticks: 0-15
@@ -150,12 +53,43 @@ function getTickFormat(days: number) {
     return tickFormat;
 }
 
-export function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
+export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
+    // console.log(renderInfo.dataSets);
+
+    // Data preprocessing
+    if (renderInfo.penalty !== null) {
+        for (let dataSet of renderInfo.dataSets) {
+            dataSet.setPenalty(renderInfo.penalty);
+        }
+    }
+    if (renderInfo.accum) {
+        for (let dataSet of renderInfo.dataSets) {
+            dataSet.accumulateValues();
+        }
+    }
+
+    if (renderInfo.output === "") {
+        if (renderInfo.summary !== null) {
+            return renderSummary(canvas, renderInfo);
+        }
+        // Default
+        return renderLine(canvas, renderInfo);
+    } else if (renderInfo.output === "line") {
+        return renderLine(canvas, renderInfo);
+    } else if (renderInfo.output === "summary") {
+        return renderSummary(canvas, renderInfo);
+    }
+
+    return "Unknown output type";
+}
+
+function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log("renderLine");
+    // console.log(renderInfo);
 
     // Draw line chart
-    let margin = { top: 10, right: 30, bottom: 70, left: 70 };
-    let width = 460 - margin.left - margin.right;
+    let margin = { top: 10, right: 70, bottom: 70, left: 70 };
+    let width = 500 - margin.left - margin.right;
     let height = 400 - margin.top - margin.bottom;
     let tooltipSize = { width: 90, height: 45 };
 
@@ -186,13 +120,11 @@ export function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
     }
 
     // Add X axis
-    let xDomain = d3.extent(renderInfo.data, function (p) {
-        return p.date;
-    });
+    let xDomain = d3.extent(renderInfo.dataSets.getDates());
     let xScale = d3.scaleTime().domain(xDomain).range([0, width]);
 
-    let tickInterval = getTickInterval(renderInfo.data.length);
-    let tickFormat = getTickFormat(renderInfo.data.length);
+    let tickInterval = getTickInterval(renderInfo.dataSets);
+    let tickFormat = getTickFormat(renderInfo.dataSets);
 
     let xAxisGen = d3
         .axisBottom(xScale)
@@ -230,22 +162,22 @@ export function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
         xAxisLabel.style("fill", renderInfo.line.labelColor);
     }
 
+    let dataSet = renderInfo.dataSets.getDataSetById(0); // For now, allow only one line
+    if (dataSet === null) return;
+    // console.log(dataSet);
+
     // Add Y axis
     let yMin = renderInfo.line.yMin;
     let yMinAssigned = false;
     if (typeof yMin !== "number") {
-        yMin = d3.min(renderInfo.data, function (p) {
-            return p.value;
-        });
+        yMin = d3.min(dataSet.getValues());
     } else {
         yMinAssigned = true;
     }
     let yMax = renderInfo.line.yMax;
     let yMaxAssigned = false;
     if (typeof yMax !== "number") {
-        yMax = d3.max(renderInfo.data, function (p) {
-            return p.value;
-        });
+        yMax = d3.max(dataSet.getValues());
     } else {
         yMaxAssigned = true;
     }
@@ -282,11 +214,20 @@ export function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
     }
     yScale.domain([yLower, yUpper]).range([height, 0]);
 
-    let yAxisGen = d3.axisLeft(yScale);
+    let yAxisLocation = renderInfo.line.yAxisLocation;
+    let yAxisGen;
+    if (yAxisLocation === "left") {
+        yAxisGen = d3.axisLeft(yScale);
+    } else {
+        yAxisGen = d3.axisRight(yScale);
+    }
     let yAxis = graphArea
         .append("g")
         .call(yAxisGen)
         .attr("class", "tracker-axis");
+    if (yAxisLocation == "right") {
+        yAxis.attr("transform", "translate(" + width + " ,0)");
+    }
     if (renderInfo.line.axisColor) {
         yAxis.style("stroke", renderInfo.line.axisColor);
     }
@@ -306,9 +247,13 @@ export function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
         .append("text")
         .text(yAxisLabelText)
         .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin.left / 2)
         .attr("x", 0 - height / 2)
         .attr("class", "tracker-axis-label");
+    if (yAxisLocation === "left") {
+        yAxisLabel.attr("y", 0 - margin.left / 2);
+    } else {
+        yAxisLabel.attr("y", 0 + margin.right / 1.5);
+    }
     if (renderInfo.line.labelColor) {
         yAxisLabel.style("fill", renderInfo.line.labelColor);
     }
@@ -335,13 +280,9 @@ export function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
             .style("stroke-width", renderInfo.line.lineWidth);
 
         if (renderInfo.line.fillGap) {
-            line.datum(
-                renderInfo.data.filter(function (p) {
-                    return p.value !== null;
-                })
-            ).attr("d", lineGen as any);
+            line.datum(dataSet).attr("d", lineGen as any);
         } else {
-            line.datum(renderInfo.data).attr("d", lineGen as any);
+            line.datum(dataSet).attr("d", lineGen as any);
         }
 
         if (renderInfo.line.lineColor) {
@@ -354,8 +295,8 @@ export function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
         let dots = dataArea
             .selectAll("dot")
             .data(
-                renderInfo.data.filter(function (p) {
-                    return p.value != null;
+                Array.from(dataSet).filter(function (p) {
+                    return p.value !== null;
                 })
             )
             .enter()
@@ -371,10 +312,12 @@ export function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
                 return d3.timeFormat("%y-%m-%d")(p.date as any);
             })
             .attr("value", function (p) {
-                if (Number.isInteger(p.value)) {
-                    return p.value.toFixed(0);
+                if (p.value !== null) {
+                    if (Number.isInteger(p.value)) {
+                        return p.value.toFixed(0);
+                    }
+                    return p.value.toFixed(2);
                 }
-                return p.value.toFixed(2);
             })
             .attr("class", "tracker-dot");
         if (renderInfo.line.pointColor) {
@@ -451,52 +394,31 @@ function checkSummaryTemplateValid(summaryTemplate: string): boolean {
 
 let fnSet = {
     "{{min}}": function (renderInfo: RenderInfo) {
-        let dataNotNull = renderInfo.data.filter(function (p) {
-            return p.value !== null;
-        });
-        if (dataNotNull.length > 0) {
-            return d3.min(dataNotNull, function (p) {
-                return p.value;
-            });
-        }
-        return null;
+        let dataSet = renderInfo.dataSets.getDataSetById(0);
+        return d3.min(dataSet.getValues());
     },
     "{{max}}": function (renderInfo: RenderInfo) {
-        let dataNotNull = renderInfo.data.filter(function (p) {
-            return p.value !== null;
-        });
-        if (dataNotNull.length > 0) {
-            return d3.max(dataNotNull, function (p) {
-                return p.value;
-            });
-        }
-        return null;
+        let dataSet = renderInfo.dataSets.getDataSetById(0);
+        return d3.max(dataSet.getValues());
     },
     "{{sum}}": function (renderInfo: RenderInfo) {
-        let dataNotNull = renderInfo.data.filter(function (p) {
-            return p.value !== null;
-        });
-        if (dataNotNull.length > 0) {
-            return d3.sum(dataNotNull, function (p) {
-                return p.value;
-            });
-        }
-        return null;
+        let dataSet = renderInfo.dataSets.getDataSetById(0);
+        return d3.sum(dataSet.getValues());
     },
     "{{count}}": function (renderInfo: RenderInfo) {
-        let dataNotNull = renderInfo.data.filter(function (p) {
-            return p.value !== null;
-        });
-        return dataNotNull.length;
+        let dataSet = renderInfo.dataSets.getDataSetById(0);
+        return dataSet.getLengthNotNull();
     },
     "{{days}}": function (renderInfo: RenderInfo) {
-        let result = renderInfo.data.length;
+        let dataSet = renderInfo.dataSets.getDataSetById(0);
+        let result = dataSet.getLength();
         return result;
     },
     "{{maxStreak}}": function (renderInfo: RenderInfo) {
         let streak = 0;
         let maxStreak = 0;
-        for (let dataPoint of renderInfo.data) {
+        let dataSet = renderInfo.dataSets.getDataSetById(0);
+        for (let dataPoint of dataSet) {
             if (dataPoint.value !== null) {
                 streak++;
             } else {
@@ -511,7 +433,9 @@ let fnSet = {
     "{{maxBreak}}": function (renderInfo: RenderInfo) {
         let streak = 0;
         let maxBreak = 0;
-        for (let dataPoint of renderInfo.data) {
+        let dataSet = renderInfo.dataSets.getDataSetById(0);
+
+        for (let dataPoint of dataSet) {
             if (dataPoint.value === null) {
                 streak++;
             } else {
@@ -523,44 +447,40 @@ let fnSet = {
         }
         return maxBreak;
     },
+    "{{lastStreak}}": function (renderInfo: RenderInfo) {
+        let streak = 0;
+        let dataSet = renderInfo.dataSets.getDataSetById(0);
+        let values = dataSet.getValues();
+        for (let ind = values.length - 1; ind >= 0; ind--) {
+            let value = values[ind];
+            if (value === null) {
+                break;
+            } else {
+                streak++;
+            }
+        }
+        return streak;
+    },
     "{{average}}": function (renderInfo: RenderInfo) {
-        let dataNotNull = renderInfo.data.filter(function (p) {
-            return p.value !== null;
-        });
-        let count = dataNotNull.length;
-        if (count > 0) {
-            let sum = d3.sum(dataNotNull, function (p) {
-                return p.value;
-            });
-            return sum / count;
+        let dataSet = renderInfo.dataSets.getDataSetById(0);
+        let countNotNull = dataSet.getLengthNotNull();
+        if (countNotNull > 0) {
+            let sum = d3.sum(dataSet.getValues());
+            return sum / countNotNull;
         }
         return null;
     },
     "{{median}}": function (renderInfo: RenderInfo) {
-        let dataNotNull = renderInfo.data.filter(function (p) {
-            return p.value !== null;
-        });
-        if (dataNotNull.length > 0) {
-            return d3.median(dataNotNull, function (p) {
-                return p.value;
-            });
-        }
-        return null;
+        let dataSet = renderInfo.dataSets.getDataSetById(0);
+        return d3.median(dataSet.getValues());
     },
     "{{variance}}": function (renderInfo: RenderInfo) {
-        let dataNotNull = renderInfo.data.filter(function (p) {
-            return p.value !== null;
-        });
-        if (dataNotNull.length > 0) {
-            return d3.variance(dataNotNull, function (p) {
-                return p.value;
-            });
-        }
-        return null;
+        let dataSet = renderInfo.dataSets.getDataSetById(0);
+        return d3.variance(dataSet.getValues());
     },
 };
 
-export function renderSummary(canvas: HTMLElement, renderInfo: RenderInfo) {
+function renderSummary(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log("renderSummary");
     // console.log(renderInfo);
 
@@ -611,4 +531,15 @@ export function renderSummary(canvas: HTMLElement, renderInfo: RenderInfo) {
             textBlock.attr("style", renderInfo.summary.style);
         }
     }
+}
+
+export function renderErrorMessage(canvas: HTMLElement, errorMessage: string) {
+    let svg = d3
+        .select(canvas)
+        .append("div")
+        .text(errorMessage)
+        .style("background-color", "white")
+        .style("margin-bottom", "20px")
+        .style("padding", "10px")
+        .style("color", "red");
 }

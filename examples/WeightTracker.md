@@ -7,10 +7,10 @@ folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
-	title: Weight Log
-	yAxisLabel: Weight
-	yAxisUnit: kg
-	lineColor: yellow
+    title: Weight Log
+    yAxisLabel: Weight
+    yAxisUnit: kg
+    lineColor: yellow
 ```
 
 ## Summary
@@ -27,13 +27,14 @@ searchType: tag
 searchTarget: weight
 folder: diary
 line:
-	title: Weight Log
-	yAxisLabel: Weight
-	yAxisUnit: kg
-	showPoint: false
-	lineColor: "#b16286"
+    title: Weight Log
+    yAxisLabel: Weight
+    yAxisUnit: kg
+    showPoint: false
+    lineColor: "#b16286"
 ```
 
+Please also check those search targets in markdown files under folder 'diary'.
 
 
 
