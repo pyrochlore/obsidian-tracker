@@ -7,7 +7,7 @@ These key-value pairs are placed under the YAML root. They were used for collect
 | Key | Default | Description |
 |:--------:|:-------:|:-----------:|
 | **searchType** | Empty string | The type of searchTarget |
-| **searchTarget** | Empty string | [The target to search](TargetEvaluation.md) |
+| **searchTarget** | Empty string | [The target to search](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md) |
 | **folder** | Root of this vault | The folder path of your daily notes |
 | **dateFormat** | "YYYY-MM-DD" | The date format of your daily note title |
 | **startDate** | Min date found | The start date for collecting data |
@@ -47,5 +47,5 @@ These key-value pairs should be placed under the key '**line**'.
 ## Summary Related Parameters
 These key-value pairs should be placed under the key '**summary**'.
 
-| **template** | Empty string | Text template (May include [template variables](TemplateVariables.md)) |
+| **template** | Empty string | Text template (you may embed [template variables](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TemplateVariables.md) |
 | **style** | Empty string | css style for the rendered text block |

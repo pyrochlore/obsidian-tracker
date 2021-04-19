@@ -1,21 +1,24 @@
 # Obsidian Tracker Plugin
 ![GitHub release](https://img.shields.io/github/v/release/pyrochlore/obsidian-tracker)
 
-This is an [Obsidian](https://obsidian.md/) plugin that helps you do tracking in daily notes. You can track:
-tags
-track the number of occurrences of in-line tags (e.g. #meditation)
-track the number of occurrences of front matter tags (e.g. tags: meditation)
-track the value after a tag (e.g. #weight:60.5kg)
-track the value after a nested inline tag (e.g. #finance/bank1/transfer:100000USD and the parent tag #finance/bank1)
-front matter key-value pairs  
-track the value of a key in the front matter (e.g. mood: 10)
-wiki links 
-track the number of occurrences of wiki links (e.g. [[journal]])
-text
-track the number of occurrences of texts (e.g.  '⭐', 'love', or any text that matches your regex expression)
-track the value embedded in texts using regular expression (e.g. walk 1000 steps, weightlifting: 50)
-
 <img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/docs/images/Screenshot_v1.1.png" width="800">
+
+This is an [Obsidian](https://obsidian.md/) plugin that helps you do tracking in daily notes. You can:
+### tags
+- track the number of occurrences of in-line tags (e.g. #meditation)
+- track the number of occurrences of front matter tags (e.g. tags: meditation)
+- track the values after tags (e.g. #weight:60.5kg)
+- track the values after a nested inline tags (e.g. #finance/bank1/transfer:100000USD and the parent tag #finance/bank1)
+
+### front matter key-value pairs  
+- track the values of a key in the front matter (e.g. mood: 10)
+
+### wiki links 
+- track the number of occurrences of wiki links (e.g. [[journal]])
+
+### text
+- track the number of occurrences of texts (e.g.  '⭐', 'love', or any text that matches your [regex expression](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TrackWithRegex.md))
+- track the values embedded in texts using regular expression (e.g. walk 1000 steps, weightlifting: 50)
 
 ## Installation
 ### Install from Obsidian Settings Panel
@@ -29,7 +32,7 @@ track the value embedded in texts using regular expression (e.g. walk 1000 steps
 Download the latest [release](https://github.com/pyrochlore/obsidian-tracker/releases). Extract and put the three files (main.js, manifest.json, styles.css) to folder '{{obsidian_vault}}/.obsidian/plugins/obsidian-tracker'.
 
 ## Usage
-1. Have some tags or texts you want to track in daily notes. Take a look at [Target Evaluation](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md) for what you can track and how targets are evaluated as numbers.
+1. Have some targets you want to track in daily notes. Take a look at [Target Evaluation](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md) for what you can track and how targets are evaluated as numbers.
 2. Add a new note for displaying the tracker.
 3. Add tracker code blocks manually or using commands. See [Commands](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Commands.md) for more detail.
 4. Switch the document view mode to 'Preview', then the code block will get rendered.
@@ -47,12 +50,12 @@ This plugin was designed to read code blocks in [YAML format](https://en.wikiped
 Providing key '**searchType**' and '**searchTarget**' is the minimum requirement for a successful data collection and rendering. The value of key '**searchType**' can be '**tag**', '**frontmatter**', '**wiki**', or '**text**', and the cooresponding '**searchTarget**' is the name of a tag or a piece of text as your search target.
 
 ### Target Evaluation
-Depends on the searchType and the format of your targets, the target evaluation would be different. You can simply track the occurrences of a target or track value attached or embedded in it.
+Depends on the searchType and the format of your targets, the target evaluation would be different. You can simply track the occurrences of a target or track value attached/embedded in it.
 
 For more information about the tag evaluation, please check documents for [Target Evaluation](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md)
 
 ### Rendering Output
-Currently, obsidian-tracker provides two kinds of rendering output, the default one 'line' for line chart and 'summary' for text description. 
+Currently, obsidian-tracker provides two kinds of rendering output, the default one 'line' for line chart and 'summary' for a text description. 
 
 For 'line' output, the plugin will generate a customizable line chart. For 'summary' output, you can use [pre-defined template variables](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TemplateVariables.md) in text template (key '**template**' under key '**summary**').
 
@@ -65,8 +68,8 @@ Plugin settings 'default folder' and 'default date format, are removed in versio
 ## Release Notes
 ### v1.2.0
 - Enable using regular expression in text searching.
-- New search type 'frontmatter', searching numerical key-value pair in the front matter.
-- New search type 'wiki'.
+- New search type 'frontmatter', searching for key-value pair in the front matter.
+- New search type 'wiki', searching for wiki links.
 - Reduce package size.
 
 ### v1.1.0
