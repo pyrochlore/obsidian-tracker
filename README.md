@@ -107,6 +107,7 @@ First version released at 2021-03-23.
 - [ ] Add an 'Explode' button to the rendered blocks, it will replace the code block with the rendered result.
 - [ ] Support graphs showing the correlation between sets of data.
 - [ ] Add a helper panel for adding frequently used tracking targets to article.
+- [ ] Add a dateTarget key for tracking notes not named in the date format.
 
 And more ...
 
