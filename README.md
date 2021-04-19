@@ -3,22 +3,22 @@
 
 <img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/docs/images/Screenshot_v1.1.png" width="800">
 
-This is an [Obsidian](https://obsidian.md/) plugin that helps you do tracking in daily notes. You can:
+This is an [Obsidian](https://obsidian.md/) plugin that helps you do tracking in daily notes. You can track:
 ### tags
-- track the number of occurrences of in-line tags (e.g. #meditation)
-- track the number of occurrences of front matter tags (e.g. tags: meditation)
-- track the values after tags (e.g. #weight:60.5kg)
-- track the values after a nested inline tags (e.g. #finance/bank1/transfer:100000USD and the parent tag #finance/bank1)
+- the number of occurrences of in-line tags (e.g. #meditation)
+- the number of occurrences of front matter tags (e.g. tags: meditation)
+- the values after tags (e.g. #weight:60.5kg)
+- the values after a nested inline tags (e.g. #finance/bank1/transfer:100000USD and the parent tag #finance/bank1)
 
 ### front matter key-value pairs  
-- track the values of a key in the front matter (e.g. mood: 10)
+- the values of a key in the front matter (e.g. mood: 10)
 
 ### wiki links 
-- track the number of occurrences of wiki links (e.g. [[journal]])
+- the number of occurrences of wiki links (e.g. [[journal]])
 
 ### text
-- track the number of occurrences of texts (e.g.  '⭐', 'love', or any text that matches your [regex expression](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TrackWithRegex.md))
-- track the values embedded in texts using regular expression (e.g. walk 1000 steps, weightlifting: 50)
+- the number of occurrences of texts (e.g.  '⭐', 'love', or any text that matches your [regex expression](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TrackWithRegex.md))
+- the values embedded in texts using regular expression (e.g. walk 1000 steps, weightlifting: 50)
 
 ## Installation
 ### Install from Obsidian Settings Panel
