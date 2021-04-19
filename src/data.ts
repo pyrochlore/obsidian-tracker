@@ -207,8 +207,7 @@ export class DataSets implements IterableIterator<DataSet> {
 
 export class RenderInfo {
     // Input
-    searchType: string;
-    searchTarget: string;
+    queries: Query[];
     folder: string;
     dateFormat: string;
     startDate: Moment;
@@ -225,9 +224,8 @@ export class RenderInfo {
 
     public dataSets: DataSets | null;
 
-    constructor(searchType: string, searchTarget: string) {
-        this.searchType = searchType;
-        this.searchTarget = searchTarget;
+    constructor(queries: Query[]) {
+        this.queries = queries;
         this.folder = "";
         this.dateFormat = "";
         this.startDate = window.moment("");

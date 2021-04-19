@@ -1,5 +1,5 @@
 import Tracker from "./main";
-import { RenderInfo, SummaryInfo } from "./data";
+import { Query, RenderInfo, SummaryInfo } from "./data";
 import { TFolder, normalizePath } from "obsidian";
 import * as Yaml from "yaml";
 import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
@@ -22,46 +22,151 @@ export function getRenderInfoFromYaml(
     }
     // console.log(yaml);
 
-    // Search type
-    let searchType = "";
-    if (
-        yaml.searchType === "tag" ||
-        yaml.searchType === "text" ||
-        yaml.searchType === "frontmatter" ||
-        yaml.searchType === "wiki"
-    ) {
-        searchType = yaml.searchType;
-    } else {
-        let errorMessage =
-            "Invalid search type (searchType), choose 'tag', 'frontmatter', 'wiki', or 'text'";
+    let errorMessage = "";
+
+    // Search target
+    let searchTarget: Array<string> = [];
+    if (typeof yaml.searchTarget === "object") {
+        if (Array.isArray(yaml.searchTarget)) {
+            for (let target of yaml.searchTarget) {
+                if (typeof target === 'string') {
+                    if (target !== "") {
+                        searchTarget.push(target);
+                    }
+                    else {
+                        errorMessage = "Empty search target is not allowed.";
+                        break;
+                    }
+                }
+            }
+        }
+    } else if (typeof yaml.searchTarget === "string") {
+        if (yaml.searchTarget.includes(",")) {
+            let splitted = yaml.searchTarget.split(",");
+            for (let piece of splitted) {
+                piece = piece.trim();
+                if (piece !== "") {
+                    searchTarget.push(piece);
+                }
+                else {
+                    errorMessage = "Empty search target is not allowed.";
+                    break;
+                }
+            }
+        }
+        else if (yaml.searchTarget === "") {
+            errorMessage = "Empty search target is not allowed.";
+        }
+        else {
+            searchTarget.push(yaml.searchTarget);
+        }
+    }
+    else {
+        errorMessage = "Invalid search target (searchTarget)";
+    }
+    // console.log(searchTarget);
+    
+    if (errorMessage !== "") {
         return errorMessage;
+    }
+
+    // Search type
+    let searchType: Array<string> = [];
+    if (typeof yaml.searchType === "object") {
+        if (Array.isArray(yaml.searchType)) {
+            for (let type of yaml.searchType) {
+                if (typeof type === 'string') {
+                    searchType.push(type);
+                }
+            }
+        }
+    }
+    else if (typeof yaml.searchType === "string") {
+        if (yaml.searchType.includes(",")) {
+            let splitted = yaml.searchType.split(",");
+            for (let piece of splitted) {
+                searchType.push(piece.trim());// can be empty string
+            }
+        }
+        else if (yaml.searchType === "") {
+            errorMessage = "No search type assigned.";
+        }
+        else {
+            searchType.push(yaml.searchType);
+        }
+    } else {
+        errorMessage = "Invalid search type (searchType), choose 'tag', 'frontmatter', 'wiki', or 'text'";
     }
     // console.log(searchType);
 
-    // Search target
-    let searchTarget = "";
-    if (typeof yaml.searchTarget === "string" && yaml.searchTarget !== "") {
-        if (yaml.searchType === "tag") {
-            if (
-                yaml.searchTarget.startsWith("#") &&
-                yaml.searchTarget.length > 2
-            ) {
-                searchTarget = yaml.searchTarget.substring(1);
-            } else {
-                searchTarget = yaml.searchTarget;
-            }
-        } else {
-            // yaml.searchType === "text", "frontmatter", "wiki"
-            searchTarget = yaml.searchTarget;
-        }
-    } else {
-        let errorMessage = "Invalid search target (searchTarget)";
+    if (errorMessage !== "") {
         return errorMessage;
     }
-    // console.log(searchTarget);
+    
+    // Check search target and search type
+    if (searchType.length > searchTarget.length) {
+        return errorMessage = "Number of targets and types does not match.";
+    }
+    else {
+        while(searchTarget.length > searchType.length)
+            searchType.push("");
+    }
+    function checkType(type: string) {
+        if (
+            type === "tag" ||
+            type === "text" ||
+            type === "frontmatter" ||
+            type === "wiki"
+        ) {
+            return true;
+        }
+        return false;
+    }
+
+    let queries: Array<Query> = [];
+    for (
+        let ind = 0;
+        ind < searchTarget.length;
+        ind++
+    )
+    {
+        let type = searchType[ind];
+        if (ind > 0) {
+            let prevType = searchType[ind-1];
+            if (type === "") {
+                searchType[ind] = prevType;
+                queries.push(new Query(searchType[ind], searchTarget[ind]));
+            }
+            else {
+                if (!checkType(type)) {
+                    errorMessage = "Invalid search type (searchType), choose 'tag', 'frontmatter', 'wiki', or 'text'";
+                    break;
+                }
+                queries.push(new Query(searchType[ind], searchTarget[ind]));
+            }
+        }
+        else {
+            if (type === "") {
+                errorMessage = "First search type cannot be empty.";
+                break;
+            }
+            else {
+                if (!checkType(type)) {
+                    errorMessage = "Invalid search type (searchType), choose 'tag', 'frontmatter', 'wiki', or 'text'";
+                    break;
+                }
+                queries.push(new Query(searchType[ind], searchTarget[ind]));
+            }
+        }
+    }
+    // console.log(queries);
+
+    if (errorMessage !== "") {
+        return errorMessage;
+    }
 
     // Create grarph info
-    let renderInfo = new RenderInfo(searchType, searchTarget);
+    let renderInfo = new RenderInfo(queries);
 
     // Get daily notes settings using obsidian-daily-notes-interface
     let dailyNotesSettings = getDailyNoteSettings();

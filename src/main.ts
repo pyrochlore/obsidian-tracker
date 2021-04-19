@@ -156,12 +156,9 @@ export default class Tracker extends Plugin {
         let maxDate = window.moment("");
         let fileCounter = 0;
 
-        let queries = new Array<Query>();
-        queries.push(new Query(renderInfo.searchType, renderInfo.searchTarget));
-
         let dataMap = new Map<string, Array<QueryValuePair>>(); // {strDate: [query: value, ...]}
 
-        for (let query of queries) {
+        for (let query of renderInfo.queries) {
             for (let file of files) {
                 let fileBaseName = file.basename;
                 // console.log(fileBaseName);
@@ -464,7 +461,7 @@ export default class Tracker extends Plugin {
 
         // Reshape data for rendering
         let dataSets = new DataSets(renderInfo.startDate, renderInfo.endDate);
-        for (let query of queries) {
+        for (let query of renderInfo.queries) {
             let dataSet = dataSets.createDataSet(query);
             for (
                 let curDate = renderInfo.startDate.clone();
