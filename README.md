@@ -17,7 +17,7 @@ This is an [Obsidian](https://obsidian.md/) plugin that helps you do tracking in
 - the number of occurrences of wiki links (e.g. [[journal]])
 
 ### text
-- the number of occurrences of texts (e.g.  '⭐', 'love', or any text that matches your [regex expression](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TrackWithRegex.md))
+- the number of occurrences of texts (e.g.  '⭐', 'love', or any text that matches your [regex expression](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TrackUsingRegex.md))
 - the values embedded in texts using regular expression (e.g. walk 1000 steps, weightlifting: 50)
 
 ## Installation
