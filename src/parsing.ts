@@ -29,11 +29,10 @@ export function getRenderInfoFromYaml(
     if (typeof yaml.searchTarget === "object") {
         if (Array.isArray(yaml.searchTarget)) {
             for (let target of yaml.searchTarget) {
-                if (typeof target === 'string') {
+                if (typeof target === "string") {
                     if (target !== "") {
                         searchTarget.push(target);
-                    }
-                    else {
+                    } else {
                         errorMessage = "Empty search target is not allowed.";
                         break;
                     }
@@ -47,25 +46,21 @@ export function getRenderInfoFromYaml(
                 piece = piece.trim();
                 if (piece !== "") {
                     searchTarget.push(piece);
-                }
-                else {
+                } else {
                     errorMessage = "Empty search target is not allowed.";
                     break;
                 }
             }
-        }
-        else if (yaml.searchTarget === "") {
+        } else if (yaml.searchTarget === "") {
             errorMessage = "Empty search target is not allowed.";
-        }
-        else {
+        } else {
             searchTarget.push(yaml.searchTarget);
         }
-    }
-    else {
+    } else {
         errorMessage = "Invalid search target (searchTarget)";
     }
     // console.log(searchTarget);
-    
+
     if (errorMessage !== "") {
         return errorMessage;
     }
@@ -75,41 +70,37 @@ export function getRenderInfoFromYaml(
     if (typeof yaml.searchType === "object") {
         if (Array.isArray(yaml.searchType)) {
             for (let type of yaml.searchType) {
-                if (typeof type === 'string') {
+                if (typeof type === "string") {
                     searchType.push(type);
                 }
             }
         }
-    }
-    else if (typeof yaml.searchType === "string") {
+    } else if (typeof yaml.searchType === "string") {
         if (yaml.searchType.includes(",")) {
             let splitted = yaml.searchType.split(",");
             for (let piece of splitted) {
-                searchType.push(piece.trim());// can be empty string
+                searchType.push(piece.trim()); // can be empty string
             }
-        }
-        else if (yaml.searchType === "") {
+        } else if (yaml.searchType === "") {
             errorMessage = "No search type assigned.";
-        }
-        else {
+        } else {
             searchType.push(yaml.searchType);
         }
     } else {
-        errorMessage = "Invalid search type (searchType), choose 'tag', 'frontmatter', 'wiki', or 'text'";
+        errorMessage =
+            "Invalid search type (searchType), choose 'tag', 'frontmatter', 'wiki', or 'text'";
     }
     // console.log(searchType);
 
     if (errorMessage !== "") {
         return errorMessage;
     }
-    
+
     // Check search target and search type
     if (searchType.length > searchTarget.length) {
-        return errorMessage = "Number of targets and types does not match.";
-    }
-    else {
-        while(searchTarget.length > searchType.length)
-            searchType.push("");
+        return (errorMessage = "Number of targets and types does not match.");
+    } else {
+        while (searchTarget.length > searchType.length) searchType.push("");
     }
     function checkType(type: string) {
         if (
@@ -124,35 +115,29 @@ export function getRenderInfoFromYaml(
     }
 
     let queries: Array<Query> = [];
-    for (
-        let ind = 0;
-        ind < searchTarget.length;
-        ind++
-    )
-    {
+    for (let ind = 0; ind < searchTarget.length; ind++) {
         let type = searchType[ind];
         if (ind > 0) {
-            let prevType = searchType[ind-1];
+            let prevType = searchType[ind - 1];
             if (type === "") {
                 searchType[ind] = prevType;
                 queries.push(new Query(searchType[ind], searchTarget[ind]));
-            }
-            else {
+            } else {
                 if (!checkType(type)) {
-                    errorMessage = "Invalid search type (searchType), choose 'tag', 'frontmatter', 'wiki', or 'text'";
+                    errorMessage =
+                        "Invalid search type (searchType), choose 'tag', 'frontmatter', 'wiki', or 'text'";
                     break;
                 }
                 queries.push(new Query(searchType[ind], searchTarget[ind]));
             }
-        }
-        else {
+        } else {
             if (type === "") {
                 errorMessage = "First search type cannot be empty.";
                 break;
-            }
-            else {
+            } else {
                 if (!checkType(type)) {
-                    errorMessage = "Invalid search type (searchType), choose 'tag', 'frontmatter', 'wiki', or 'text'";
+                    errorMessage =
+                        "Invalid search type (searchType), choose 'tag', 'frontmatter', 'wiki', or 'text'";
                     break;
                 }
                 queries.push(new Query(searchType[ind], searchTarget[ind]));
