@@ -108,7 +108,7 @@ First version released at 2021-03-23.
 - [ ] Support graphs showing the correlation between sets of data.
 - [ ] Add a helper panel for adding frequently used tracking targets to article.
 - [ ] Add a dateTarget key for tracking notes not named in the date format.
-
+- [ ] Add a 'targetDataSet' key to graph, allow the graph drawing selected dataset.
 And more ...
 
 P.S. Items may not be implemented in the order above.
