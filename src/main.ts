@@ -157,9 +157,8 @@ export default class Tracker extends Plugin {
         let fileCounter = 0;
 
         let dataMap = new Map<string, Array<QueryValuePair>>(); // {strDate: [query: value, ...]}
-
-        for (let query of renderInfo.queries) {
-            for (let file of files) {
+        for (let file of files) {
+            for (let query of renderInfo.queries) {
                 let fileBaseName = file.basename;
                 // console.log(fileBaseName);
                 let fileDateString = fileBaseName;
