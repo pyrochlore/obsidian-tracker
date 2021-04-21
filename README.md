@@ -109,6 +109,8 @@ First version released at 2021-03-23.
 - [ ] Add a helper panel for adding frequently used tracking targets to article.
 - [ ] Add a dateTarget key for tracking notes not named in the date format.
 - [ ] Add a 'targetDataSet' key to graph, allow the graph drawing selected dataset.
+- [ ] Allow tracking datetime value.
+
 And more ...
 
 P.S. Items may not be implemented in the order above.
