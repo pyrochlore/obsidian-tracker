@@ -13,16 +13,16 @@ export class DataPoint {
 }
 
 export class Query {
-    type: string;
-    target: string;
-    parentTarget: string | null;
-    id: number;
-    subId: number;
+    private type: string;
+    private target: string;
+    private parentTarget: string | null;
+    private id: number;
+    private subId: number;
 
-    constructor(searchType: string, searchTarget: string) {
+    constructor(id: number, searchType: string, searchTarget: string) {
         this.type = searchType;
         this.target = searchTarget;
-        this.id = -1;
+        this.id = id;
         this.subId = -1;
         
         let strRegex = "\\[(?<value>[0-9]+)\\]";
@@ -47,6 +47,26 @@ export class Query {
         }
         return false;
     }
+
+    public getType() {
+        return this.type;
+    }
+
+    public getTarget() {
+        return this.target;
+    }
+
+    public getParentTarget() {
+        return this.parentTarget;
+    }
+
+    public getId() {
+        return this.id;
+    }
+
+    public getSubId() {
+        return this.subId;
+    }
 }
 
 export interface QueryValuePair {
@@ -60,6 +80,9 @@ export class DataSet implements IterableIterator<DataPoint> {
     private values: NullableNumber[];
     private parent: DataSets;
     private id: number;
+    private yMin: NullableNumber;
+    private yMax: NullableNumber;
+
     private currentIndex = 0; // IterableIterator
 
     constructor(parent: DataSets, query: Query) {
@@ -67,6 +90,8 @@ export class DataSet implements IterableIterator<DataPoint> {
         this.values = [];
         this.parent = parent;
         this.id = -1;
+        this.yMin = null;
+        this.yMax = null;
 
         for (let ind = 0; ind < parent.getDates().length; ind++) {
             this.values.push(null);
@@ -80,6 +105,7 @@ export class DataSet implements IterableIterator<DataPoint> {
     public setId(id: number) {
         this.id = id;
     }
+
 
     public setValue(date: Moment, value: NullableNumber) {
         let ind = this.parent.getIndexOfDate(date);
@@ -179,7 +205,7 @@ export class DataSets implements IterableIterator<DataSet> {
 
     public createDataSet(query: Query) {
         let dataSet = new DataSet(this, query);
-        dataSet.setId(this.dataSets.length);
+        dataSet.setId(query.getId());
         this.dataSets.push(dataSet);
 
         return dataSet;

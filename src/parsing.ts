@@ -558,8 +558,7 @@ export function getRenderInfoFromYaml(
     // Create queries
     let queries: Array<Query> = [];
     for (let ind = 0; ind < searchTarget.length; ind++) {
-        let query = new Query(searchType[ind], searchTarget[ind]);
-        query.id = queries.length;
+        let query = new Query(queries.length, searchType[ind], searchTarget[ind]);
         queries.push(query);
     }
     // console.log(queries);

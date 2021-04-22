@@ -198,7 +198,7 @@ export default class Tracker extends Plugin {
                 let fileCache = this.app.metadataCache.getFileCache(file);
 
                 // console.log("Search frontmatter tags");
-                if (query.type === "tag") {
+                if (query.getType() === "tag") {
                     // Add frontmatter tags, allow simple tag only
                     if (fileCache) {
                         let frontMatter = fileCache.frontmatter;
@@ -216,17 +216,17 @@ export default class Tracker extends Plugin {
                             }
 
                             for (let tag of frontMatterTags) {
-                                if (tag === query.target) {
+                                if (tag === query.getTarget()) {
                                     // simple tag
                                     tagMeasure =
                                         tagMeasure +
-                                        renderInfo.constValue[query.id];
+                                        renderInfo.constValue[query.getId()];
                                     tagExist = true;
-                                } else if (tag.startsWith(query.target + "/")) {
+                                } else if (tag.startsWith(query.getTarget() + "/")) {
                                     // nested tag
                                     tagMeasure =
                                         tagMeasure +
-                                        renderInfo.constValue[query.id];
+                                        renderInfo.constValue[query.getId()];
                                     tagExist = true;
                                 } else {
                                     continue;
@@ -251,13 +251,13 @@ export default class Tracker extends Plugin {
                 } // Search frontmatter tags
 
                 // console.log("Search frontmatter keys");
-                if (query.type === "frontmatter" && query.target !== "tags") {
+                if (query.getType() === "frontmatter" && query.getTarget() !== "tags") {
                     if (fileCache) {
                         let frontMatter = fileCache.frontmatter;
                         if (frontMatter) {
-                            if (frontMatter[query.target]) {
+                            if (frontMatter[query.getTarget()]) {
                                 // console.log(frontMatter[query.target]);
-                                let value = frontMatter[query.target];
+                                let value = frontMatter[query.getTarget()];
                                 value = parseFloat(value);
                                 if (Number.isNumber(value)) {
                                     this.addToDataMap(
@@ -268,13 +268,13 @@ export default class Tracker extends Plugin {
                                     );
                                 }
                             }
-                            else if (query.parentTarget && frontMatter[query.parentTarget]) {
+                            else if (query.getParentTarget() && frontMatter[query.getParentTarget()]) {
                                 // console.log(frontMatter[query.parentTarget]);
-                                let values = frontMatter[query.parentTarget];
+                                let values = frontMatter[query.getParentTarget()];
                                 if (typeof values === "string") {
                                     let splitted = values.split(separator);
-                                    if ((splitted.length > query.subId) && (query.subId >= 0)) {
-                                        let value = parseFloat(splitted[query.subId].trim());
+                                    if ((splitted.length > query.getSubId()) && (query.getSubId() >= 0)) {
+                                        let value = parseFloat(splitted[query.getSubId()].trim());
                                         if (Number.isNumber(value)) {
                                             this.addToDataMap(
                                                 dataMap,
@@ -291,18 +291,18 @@ export default class Tracker extends Plugin {
                 } // console.log("Search frontmatter keys");
 
                 // console.log("Search wiki links");
-                if (query.type === "wiki") {
+                if (query.getType() === "wiki") {
                     if (fileCache) {
                         let links = fileCache.links;
 
                         let linkMeasure = 0.0;
                         let linkExist = false;
                         for (let link of links) {
-                            if (link.link === query.target) {
+                            if (link.link === query.getTarget()) {
                                 linkExist = true;
                                 linkMeasure =
                                     linkMeasure +
-                                    renderInfo.constValue[query.id];
+                                    renderInfo.constValue[query.getId()];
                             }
                         }
 
@@ -320,7 +320,7 @@ export default class Tracker extends Plugin {
                 }
 
                 // console.log("Search inline tags");
-                if (query.type === "tag") {
+                if (query.getType() === "tag") {
                     // Add inline tags
                     let content = await this.app.vault.adapter.read(file.path);
 
@@ -329,7 +329,7 @@ export default class Tracker extends Plugin {
                     //(^|\s)#tagName(\/[\w]+)*(:(?<value>[\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)(?<unit>\w*)?)?([\.!,\?;~-]*)?(\s|$)
                     let strHashtagRegex =
                         "(^|\\s)#" +
-                        query.target +
+                        query.getTarget() +
                         "(\\/[\\w]+)*" +
                         "(:(?<value>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?([\\.!,\\?;~-]*)?(\\s|$)";
                     // console.log(strHashtagRegex);
@@ -340,7 +340,7 @@ export default class Tracker extends Plugin {
                     while ((match = hashTagRegex.exec(content))) {
                         // console.log(match);
                         if (
-                            !renderInfo.ignoreAttachedValue[query.id] &&
+                            !renderInfo.ignoreAttachedValue[query.getId()] &&
                             match[0].includes(":")
                         ) {
                             // match[0] whole match
@@ -351,7 +351,7 @@ export default class Tracker extends Plugin {
                                 // console.log(value);
                                 if (!Number.isNaN(value)) {
                                     if (
-                                        !renderInfo.ignoreZeroValue[query.id] ||
+                                        !renderInfo.ignoreZeroValue[query.getId()] ||
                                         value !== 0
                                     ) {
                                         tagMeasure += value;
@@ -362,7 +362,7 @@ export default class Tracker extends Plugin {
                         } else {
                             // console.log("simple-tag");
                             tagMeasure =
-                                tagMeasure + renderInfo.constValue[query.id];
+                                tagMeasure + renderInfo.constValue[query.getId()];
                             tagExist = true;
                         }
                     }
@@ -380,10 +380,10 @@ export default class Tracker extends Plugin {
                 } // Search inline tags
 
                 // console.log("Search text");
-                if (query.type === "text") {
+                if (query.getType() === "text") {
                     let content = await this.app.vault.adapter.read(file.path);
                     // console.log(content);
-                    let strTextRegex = query.target;
+                    let strTextRegex = query.getTarget();
 
                     let textRegex = new RegExp(strTextRegex, "gm");
                     let match;
@@ -391,7 +391,7 @@ export default class Tracker extends Plugin {
                     let textExist = false;
                     while ((match = textRegex.exec(content))) {
                         if (
-                            !renderInfo.ignoreAttachedValue[query.id] &&
+                            !renderInfo.ignoreAttachedValue[query.getId()] &&
                             typeof match.groups !== "undefined"
                         ) {
                             // match[0] whole match
@@ -402,7 +402,7 @@ export default class Tracker extends Plugin {
                                 // console.log(value);
                                 if (!Number.isNaN(value)) {
                                     if (
-                                        !renderInfo.ignoreZeroValue[query.id] ||
+                                        !renderInfo.ignoreZeroValue[query.getId()] ||
                                         value !== 0
                                     ) {
                                         textMeasure += value;
@@ -413,7 +413,7 @@ export default class Tracker extends Plugin {
                         } else {
                             // console.log("simple-text");
                             textMeasure =
-                                textMeasure + renderInfo.constValue[query.id];
+                                textMeasure + renderInfo.constValue[query.getId()];
                             textExist = true;
                         }
                     }
