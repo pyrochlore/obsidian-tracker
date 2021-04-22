@@ -24,7 +24,7 @@ export class Query {
         this.target = searchTarget;
         this.id = id;
         this.subId = -1;
-        
+
         let strRegex = "\\[(?<value>[0-9]+)\\]";
         let regex = new RegExp(strRegex, "gm");
         let match;
@@ -37,7 +37,6 @@ export class Query {
                 }
                 break;
             }
-            
         }
     }
 
@@ -105,7 +104,6 @@ export class DataSet implements IterableIterator<DataPoint> {
     public setId(id: number) {
         this.id = id;
     }
-
 
     public setValue(date: Moment, value: NullableNumber) {
         let ind = this.parent.getIndexOfDate(date);

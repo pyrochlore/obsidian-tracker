@@ -222,7 +222,9 @@ export default class Tracker extends Plugin {
                                         tagMeasure +
                                         renderInfo.constValue[query.getId()];
                                     tagExist = true;
-                                } else if (tag.startsWith(query.getTarget() + "/")) {
+                                } else if (
+                                    tag.startsWith(query.getTarget() + "/")
+                                ) {
                                     // nested tag
                                     tagMeasure =
                                         tagMeasure +
@@ -251,7 +253,10 @@ export default class Tracker extends Plugin {
                 } // Search frontmatter tags
 
                 // console.log("Search frontmatter keys");
-                if (query.getType() === "frontmatter" && query.getTarget() !== "tags") {
+                if (
+                    query.getType() === "frontmatter" &&
+                    query.getTarget() !== "tags"
+                ) {
                     if (fileCache) {
                         let frontMatter = fileCache.frontmatter;
                         if (frontMatter) {
@@ -267,18 +272,28 @@ export default class Tracker extends Plugin {
                                         value
                                     );
                                 }
-                            }
-                            else if (query.getParentTarget() && frontMatter[query.getParentTarget()]) {
+                            } else if (
+                                query.getParentTarget() &&
+                                frontMatter[query.getParentTarget()]
+                            ) {
                                 // console.log(frontMatter[query.parentTarget]);
-                                let values = frontMatter[query.getParentTarget()];
+                                let values =
+                                    frontMatter[query.getParentTarget()];
                                 if (typeof values === "string") {
                                     let splitted = values.split(separator);
-                                    if ((splitted.length > query.getSubId()) && (query.getSubId() >= 0)) {
-                                        let value = parseFloat(splitted[query.getSubId()].trim());
+                                    if (
+                                        splitted.length > query.getSubId() &&
+                                        query.getSubId() >= 0
+                                    ) {
+                                        let value = parseFloat(
+                                            splitted[query.getSubId()].trim()
+                                        );
                                         if (Number.isNumber(value)) {
                                             this.addToDataMap(
                                                 dataMap,
-                                                fileDate.format(this.dateFormat),
+                                                fileDate.format(
+                                                    this.dateFormat
+                                                ),
                                                 query,
                                                 value
                                             );
@@ -351,7 +366,9 @@ export default class Tracker extends Plugin {
                                 // console.log(value);
                                 if (!Number.isNaN(value)) {
                                     if (
-                                        !renderInfo.ignoreZeroValue[query.getId()] ||
+                                        !renderInfo.ignoreZeroValue[
+                                            query.getId()
+                                        ] ||
                                         value !== 0
                                     ) {
                                         tagMeasure += value;
@@ -362,7 +379,8 @@ export default class Tracker extends Plugin {
                         } else {
                             // console.log("simple-tag");
                             tagMeasure =
-                                tagMeasure + renderInfo.constValue[query.getId()];
+                                tagMeasure +
+                                renderInfo.constValue[query.getId()];
                             tagExist = true;
                         }
                     }
@@ -402,7 +420,9 @@ export default class Tracker extends Plugin {
                                 // console.log(value);
                                 if (!Number.isNaN(value)) {
                                     if (
-                                        !renderInfo.ignoreZeroValue[query.getId()] ||
+                                        !renderInfo.ignoreZeroValue[
+                                            query.getId()
+                                        ] ||
                                         value !== 0
                                     ) {
                                         textMeasure += value;
@@ -413,7 +433,8 @@ export default class Tracker extends Plugin {
                         } else {
                             // console.log("simple-text");
                             textMeasure =
-                                textMeasure + renderInfo.constValue[query.getId()];
+                                textMeasure +
+                                renderInfo.constValue[query.getId()];
                             textExist = true;
                         }
                     }
