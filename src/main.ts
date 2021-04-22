@@ -272,18 +272,16 @@ export default class Tracker extends Plugin {
                                 // console.log(frontMatter[query.parentTarget]);
                                 let values = frontMatter[query.parentTarget];
                                 if (typeof values === "string") {
-                                    if (separator.test(values)) {
-                                        let splitted = values.split(separator);
-                                        if (splitted.length > query.subId) {
-                                            let value = parseFloat(splitted[query.subId]);
-                                            if (Number.isNumber(value)) {
-                                                this.addToDataMap(
-                                                    dataMap,
-                                                    fileDate.format(this.dateFormat),
-                                                    query,
-                                                    value
-                                                );
-                                            }
+                                    let splitted = values.split(separator);
+                                    if ((splitted.length > query.subId) && (query.subId >= 0)) {
+                                        let value = parseFloat(splitted[query.subId].trim());
+                                        if (Number.isNumber(value)) {
+                                            this.addToDataMap(
+                                                dataMap,
+                                                fileDate.format(this.dateFormat),
+                                                query,
+                                                value
+                                            );
                                         }
                                     }
                                 }
