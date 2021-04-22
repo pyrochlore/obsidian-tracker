@@ -57,12 +57,12 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log(renderInfo.dataSets);
 
     // Data preprocessing
-    
+
     for (let dataSet of renderInfo.dataSets) {
         if (renderInfo.penalty[dataSet.getId()] !== null) {
             dataSet.setPenalty(renderInfo.penalty[dataSet.getId()]);
         }
-    }    
+    }
     for (let dataSet of renderInfo.dataSets) {
         if (renderInfo.accum[dataSet.getId()]) {
             dataSet.accumulateValues();
@@ -73,10 +73,15 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
         if (renderInfo.summary !== null) {
             return renderSummary(canvas, renderInfo);
         }
+        if (renderInfo.bar !== null) {
+            return renderBar(canvas, renderInfo);
+        }
         // Default
         return renderLine(canvas, renderInfo);
     } else if (renderInfo.output === "line") {
         return renderLine(canvas, renderInfo);
+    } else if (renderInfo.output === "bar") {
+        return renderBar(canvas, renderInfo);
     } else if (renderInfo.output === "summary") {
         return renderSummary(canvas, renderInfo);
     }
@@ -393,6 +398,210 @@ function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
             });
         }
     }
+}
+
+function renderBar(canvas: HTMLElement, renderInfo: RenderInfo) {
+    // console.log("renderBar");
+    let margin = { top: 10, right: 70, bottom: 70, left: 70 };
+    let width = 500 - margin.left - margin.right;
+    let height = 400 - margin.top - margin.bottom;
+    let tooltipSize = { width: 90, height: 45 };
+
+    if (renderInfo.bar.title) {
+        margin.top += 20;
+    }
+
+    let svg = d3
+        .select(canvas)
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom);
+
+    let graphArea = svg
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // Add graph title
+    if (renderInfo.bar.title) {
+        graphArea
+            .append("text")
+            .text(renderInfo.line.title)
+            .attr(
+                "transform",
+                "translate(" + width / 2 + "," + margin.top / 4 + ")"
+            )
+            .attr("class", "tracker-title");
+    }
+
+    // Add X axis
+    let xDomain = d3.extent(renderInfo.dataSets.getDates());
+    let xScale = d3.scaleTime().domain(xDomain).range([0, width]);
+
+    // let xScale = d3.scaleBand()
+    //     .domain(xDomain)
+    //     .range([ 0, width ]).padding(0.4);
+
+    let tickInterval = getTickInterval(renderInfo.dataSets);
+    let tickFormat = getTickFormat(renderInfo.dataSets);
+
+    let xAxisGen = d3
+        .axisBottom(xScale)
+        .ticks(tickInterval)
+        .tickFormat(tickFormat);
+    let xAxisGroup = svg.append("g");
+    let xAxis = graphArea
+        .append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxisGen)
+        .attr("class", "tracker-axis");
+    if (renderInfo.bar.axisColor) {
+        xAxis.style("stroke", renderInfo.bar.axisColor);
+    }
+
+    let xAxisTickLabels = xAxis
+        .selectAll("text")
+        .attr("x", -9)
+        .attr("y", 0)
+        .attr("transform", "rotate(-65)")
+        .style("text-anchor", "end")
+        .attr("class", "tracker-tick-label");
+    if (renderInfo.bar.labelColor) {
+        xAxisTickLabels.style("fill", renderInfo.bar.labelColor);
+    }
+
+    let xAxisLabel = xAxis
+        .append("text")
+        .text(renderInfo.bar.xAxisLabel)
+        .attr(
+            "transform",
+            "translate(" + width / 2 + " ," + margin.bottom + ")"
+        )
+        .attr("class", "tracker-axis-label");
+    if (renderInfo.bar.labelColor) {
+        xAxisLabel.style("fill", renderInfo.bar.labelColor);
+    }
+
+    let dataSet = renderInfo.dataSets.getDataSetById(0); // For now, allow only one line
+    if (dataSet === null) return;
+    // console.log(dataSet);
+
+    // Add Y axis
+    let yMin = renderInfo.bar.yMin;
+    let yMinAssigned = false;
+    if (typeof yMin !== "number") {
+        yMin = d3.min(dataSet.getValues());
+    } else {
+        yMinAssigned = true;
+    }
+    let yMax = renderInfo.bar.yMax;
+    let yMaxAssigned = false;
+    if (typeof yMax !== "number") {
+        yMax = d3.max(dataSet.getValues());
+    } else {
+        yMaxAssigned = true;
+    }
+    if (yMax < yMin) {
+        let yTmp = yMin;
+        yMin = yMax;
+        yMax = yTmp;
+        let yTmpAssigned = yMinAssigned;
+        yMinAssigned = yMaxAssigned;
+        yMaxAssigned = yTmpAssigned;
+    }
+    let yExtent = yMax - yMin;
+
+    let yScale = d3.scaleLinear();
+    let yLower, yUpper;
+    if (yMin >= 0 && renderInfo.accum[dataSet.getId()] && !yMinAssigned) {
+        yLower = 0;
+        if (yMaxAssigned) {
+            yUpper = yMax;
+        } else {
+            yUpper = yMax * 1.2;
+        }
+    } else {
+        if (yMinAssigned) {
+            yLower = yMin;
+        } else {
+            yLower = yMin - yExtent * 0.2;
+        }
+        if (yMaxAssigned) {
+            yUpper = yMax;
+        } else {
+            yUpper = yMax + yExtent * 0.2;
+        }
+    }
+    yScale.domain([yLower, yUpper]).range([height, 0]);
+
+    let yAxisLocation = renderInfo.bar.yAxisLocation;
+    let yAxisGen;
+    if (yAxisLocation === "left") {
+        yAxisGen = d3.axisLeft(yScale);
+    } else {
+        yAxisGen = d3.axisRight(yScale);
+    }
+    let yAxis = graphArea
+        .append("g")
+        .call(yAxisGen)
+        .attr("class", "tracker-axis");
+    if (yAxisLocation == "right") {
+        yAxis.attr("transform", "translate(" + width + " ,0)");
+    }
+    if (renderInfo.bar.axisColor) {
+        yAxis.style("stroke", renderInfo.bar.axisColor);
+    }
+
+    let yAxisTickLabels = yAxis
+        .selectAll("text")
+        .attr("class", "tracker-tick-label");
+    if (renderInfo.bar.labelColor) {
+        yAxisTickLabels.style("fill", renderInfo.bar.labelColor);
+    }
+
+    let yAxisLabelText = renderInfo.bar.yAxisLabel;
+    if (renderInfo.bar.yAxisUnit) {
+        yAxisLabelText += " (" + renderInfo.bar.yAxisUnit + ")";
+    }
+    let yAxisLabel = yAxis
+        .append("text")
+        .text(yAxisLabelText)
+        .attr("transform", "rotate(-90)")
+        .attr("x", 0 - height / 2)
+        .attr("class", "tracker-axis-label");
+    if (yAxisLocation === "left") {
+        yAxisLabel.attr("y", 0 - margin.left / 2);
+    } else {
+        yAxisLabel.attr("y", 0 + margin.right / 1.5);
+    }
+    if (renderInfo.bar.labelColor) {
+        yAxisLabel.style("fill", renderInfo.bar.labelColor);
+    }
+
+    let dataArea = graphArea.append("g");
+
+    // Add bar
+    let bars = dataArea
+        .selectAll("bar")
+        .data(
+            Array.from(dataSet).filter(function (p) {
+                return p.value !== null;
+            })
+        )
+        .enter()
+        .append("rect")
+        .attr("x", function (p) {
+            return xScale(p.date);
+        })
+        .attr("y", function (p) {
+            return yScale(p.value);
+        })
+        .attr("width", 2)
+        .attr("height", function (p) {
+            if (p.value !== null) {
+                return height - yScale(p.value);
+            }
+        })
+        .attr("fill", "#69b3a2");
 }
 
 function checkSummaryTemplateValid(summaryTemplate: string): boolean {

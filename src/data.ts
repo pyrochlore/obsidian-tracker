@@ -236,6 +236,7 @@ export class RenderInfo {
 
     output: string;
     line: LineInfo | null;
+    bar: BarInfo | null;
     summary: SummaryInfo | null;
 
     public dataSets: DataSets | null;
@@ -255,6 +256,7 @@ export class RenderInfo {
         this.output = "";
         this.line = new LineInfo();
         this.summary = null;
+        this.bar = null;
 
         this.dataSets = null;
     }
@@ -301,6 +303,34 @@ export class LineInfo {
         this.pointSize = []; // 3.0
         this.allowInspectData = true;
         this.fillGap = []; // false
+    }
+}
+
+export class BarInfo {
+    title: string;
+    xAxisLabel: string;
+    yAxisLabel: string;
+    labelColor: string;
+    yAxisUnit: string;
+    yAxisLocation: string;
+    yMin: number | null;
+    yMax: number | null;
+    axisColor: string;
+    barColor: string[];
+    allowInspectData: boolean;
+
+    constructor() {
+        this.title = "";
+        this.xAxisLabel = "Date";
+        this.yAxisLabel = "Value";
+        this.labelColor = "";
+        this.yAxisUnit = "";
+        this.yAxisLocation = "left";
+        this.yMin = null;
+        this.yMax = null;
+        this.axisColor = "";
+        this.barColor = []; // #69b3a2
+        this.allowInspectData = true;
     }
 }
 

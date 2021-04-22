@@ -1,9 +1,8 @@
 import Tracker from "./main";
-import { Query, RenderInfo, SummaryInfo } from "./data";
+import { BarInfo, Query, RenderInfo, SummaryInfo } from "./data";
 import { TFolder, normalizePath } from "obsidian";
 import * as Yaml from "yaml";
 import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
-import { drag } from "d3-drag";
 
 let separator = new RegExp("[,/]", "gm");
 
@@ -887,7 +886,75 @@ export function getRenderInfoFromYaml(
         renderInfo.line.fillGap = retFillGap;
         // console.log(renderInfo.line.fillGap);
     } // line related parameters
+    if (typeof yaml.bar !== "undefined") {
+        renderInfo.bar = new BarInfo();
 
+        // title
+        if (typeof yaml.bar.title === "string") {
+            renderInfo.bar.title = yaml.bar.title;
+        }
+        // xAxisLabel
+        if (typeof yaml.bar.xAxisLabel === "string") {
+            renderInfo.bar.xAxisLabel = yaml.bar.xAxisLabel;
+        }
+        // yAxisLabel, left label and right label
+        if (typeof yaml.bar.yAxisLabel === "string") {
+            renderInfo.bar.yAxisLabel = yaml.bar.yAxisLabel;
+        }
+
+        // labelColor
+        if (typeof yaml.bar.labelColor === "string") {
+            renderInfo.bar.labelColor = yaml.bar.labelColor;
+        }
+
+        // yAxisUnit, left axis unit, right axis unit
+        if (typeof yaml.bar.yAxisUnit === "string") {
+            renderInfo.bar.yAxisUnit = yaml.bar.yAxisUnit;
+        }
+
+        // yAxisLocation
+        if (typeof yaml.bar.yAxisLocation === "string") {
+            if (
+                yaml.bar.yAxisLocation === "left" ||
+                yaml.bar.yAxisLocation === "right"
+            ) {
+                renderInfo.bar.yAxisLocation = yaml.bar.yAxisLocation;
+            }
+        }
+        // yMin
+        if (typeof yaml.bar.yMin === "number") {
+            renderInfo.bar.yMin = yaml.bar.yMin;
+        }
+        // yMax
+        if (typeof yaml.bar.yMax === "number") {
+            renderInfo.bar.yMax = yaml.bar.yMax;
+        }
+        // axisColor
+        if (typeof yaml.bar.axisColor === "string") {
+            renderInfo.bar.axisColor = yaml.bar.axisColor;
+        }
+
+        // lineColor
+        let retBarColor = getStringArrayFromInput(
+            "barColor",
+            yaml.bar.barColor,
+            numDataSets,
+            "",
+            null,
+            true
+        );
+        if (typeof retBarColor === "string") {
+            return retBarColor; // errorMessage
+        }
+        renderInfo.bar.barColor = retBarColor;
+        // console.log(renderInfo.bar.barColor);
+
+        // allowInspectData
+        if (typeof yaml.bar.allowInspectData === "boolean") {
+            renderInfo.bar.allowInspectData = yaml.bar.allowInspectData;
+        }
+        // console.log(renderInfo.bar.allowInspectData);
+    } // bar related parameters
     // summary related parameters
     if (typeof yaml.summary !== "undefined") {
         renderInfo.summary = new SummaryInfo();

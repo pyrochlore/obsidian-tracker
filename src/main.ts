@@ -20,6 +20,8 @@ declare global {
 
 enum OutputType {
     Line,
+    Bar,
+    Radar,
     Summary,
     Table,
     Heatmap,
