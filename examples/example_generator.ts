@@ -48,6 +48,22 @@ for (
     // frontmatter mood
     let mood = randomIntFromInterval(1, 10);
     frontmatter += "mood: " + mood + "\n";
+
+    // blood pressure
+    let progress = dayCount;
+    if (progress > 100) {
+        progress = 100;
+    }
+    let systolicStart = 180;
+    let diastolicStart = 120;
+    let systolicEnd = 120;
+    let diastolicEnd = 100;
+    let systolicDeviation = randomIntFromInterval(-5, 5);
+    let diastolicDeviation = randomIntFromInterval(-2, 2);
+    let systolic  = (systolicEnd - systolicStart) * dayCount/100 + systolicStart + systolicDeviation;
+    let diastolic = (diastolicEnd - diastolicStart) * dayCount/100 + diastolicStart + diastolicDeviation;
+    frontmatter += "bloodpressure: " + systolic + "/" + diastolic + "\n";
+
     frontmatter += "---\n";
     content += frontmatter;
 
