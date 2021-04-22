@@ -3,6 +3,479 @@ import { Query, RenderInfo, SummaryInfo } from "./data";
 import { TFolder, normalizePath } from "obsidian";
 import * as Yaml from "yaml";
 import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
+import { drag } from "d3-drag";
+
+let separator = new RegExp("[,/]", "gm");
+
+function strToBool(str: string): boolean | null {
+    str = str.trim().toLowerCase();
+    switch (str) {
+        case "true":
+        case "1":
+        case "on":
+        case "yes":
+            return true;
+        case "false":
+        case "0":
+        case "off":
+        case "no":
+            return false;
+    }
+    return null;
+}
+
+function validateSearchType(searchType: string): boolean {
+    if (
+        searchType === "tag" ||
+        searchType === "text" ||
+        searchType === "frontmatter" ||
+        searchType === "wiki"
+    ) {
+        return true;
+    }
+    return false;
+}
+
+function getBoolArrayFromInput(
+    name: string,
+    input: any,
+    numDataSet: number,
+    defaultValue: boolean,
+    allowNoValidValue: boolean
+): Array<boolean> | string {
+    let array: Array<boolean> = [];
+    let errorMessage = "";
+    let numValidValue = 0;
+
+    while (numDataSet > array.length) {
+        array.push(defaultValue);
+    }
+
+    if (typeof input === "undefined") {
+        // all defaultValue
+    } else if (typeof input === "object") {
+        if (Array.isArray(input)) {
+            if (input.length > numDataSet) {
+                errorMessage = "Too many input parameters for " + name;
+                return errorMessage;
+            }
+            if (input.length === 0) {
+                errorMessage = "Empty array not allowd for " + name;
+                return errorMessage;
+            }
+            for (let ind = 0; ind < array.length; ind++) {
+                if (ind < input.length) {
+                    let curr = input[ind];
+                    let prev = null;
+                    if (ind > 0) {
+                        prev = input[ind - 1].trim();
+                    }
+                    if (typeof curr === "string") {
+                        curr = curr.trim();
+                        if (curr === "") {
+                            if (prev !== null) {
+                                array[ind] = prev;
+                            } else {
+                                array[ind] = defaultValue;
+                            }
+                        } else {
+                            errorMessage = "Invalid inputs for " + name;
+                            break;
+                        }
+                    } else if (typeof curr === "boolean") {
+                        array[ind] = curr;
+                        numValidValue++;
+                    } else {
+                        errorMessage = "Invalid inputs for " + name;
+                        break;
+                    }
+                } else {
+                    // Exceeds the length of input, use prev value
+                    let last = input[input.length - 1];
+                    if (numValidValue > 0) {
+                        array[ind] = last;
+                    } else {
+                        array[ind] = defaultValue;
+                    }
+                }
+            }
+        }
+    } else if (typeof input === "string") {
+        if (separator.test(input)) {
+            let splitted = input.split(separator);
+            if (splitted.length > numDataSet) {
+                errorMessage = "Too many input parameters for " + name;
+                return errorMessage;
+            }
+            for (let ind = 0; ind < array.length; ind++) {
+                if (ind < splitted.length) {
+                    let curr = splitted[ind].trim();
+                    let prev = null;
+                    if (ind > 0) {
+                        prev = strToBool(splitted[ind - 1].trim());
+                    }
+                    if (curr === "") {
+                        if (prev !== null) {
+                            array[ind] = prev;
+                        } else {
+                            array[ind] = defaultValue;
+                        }
+                    } else {
+                        let currBool = strToBool(curr);
+                        if (currBool !== null) {
+                            array[ind] = currBool;
+                            numValidValue++;
+                        } else {
+                            errorMessage = "Invalid inputs for " + name;
+                            break;
+                        }
+                    }
+                } else {
+                    // Exceeds the length of input, use prev value
+                    let last = strToBool(splitted[splitted.length - 1].trim());
+                    if (numValidValue > 0 && last !== null) {
+                        array[ind] = last;
+                    } else {
+                        array[ind] = defaultValue;
+                    }
+                }
+            }
+        } else {
+            if (input === "") {
+                // all defaultValue
+            } else {
+                let inputBool = strToBool(input);
+                if (inputBool !== null) {
+                    array[0] = inputBool;
+                    numValidValue++;
+                    for (let ind = 1; ind < array.length; ind++) {
+                        array[ind] = inputBool;
+                    }
+                } else {
+                    errorMessage = "Invalid inputs for " + name;
+                }
+            }
+        }
+    } else if (typeof input === "boolean") {
+        array[0] = input;
+        numValidValue++;
+        for (let ind = 1; ind < array.length; ind++) {
+            array[ind] = input;
+        }
+    } else {
+        errorMessage = "Invalid inputs for " + name;
+    }
+
+    if (!allowNoValidValue && numValidValue === 0) {
+        errorMessage = "No valid input for " + name;
+    }
+
+    if (errorMessage !== "") {
+        return errorMessage;
+    }
+
+    return array;
+}
+
+function getNumberArrayFromInput(
+    name: string,
+    input: any,
+    numDataSet: number,
+    defaultValue: number,
+    allowNoValidValue: boolean
+): Array<number> | string {
+    let array: Array<number> = [];
+    let errorMessage = "";
+    let numValidValue = 0;
+
+    while (numDataSet > array.length) {
+        array.push(defaultValue);
+    }
+
+    if (typeof input === "undefined") {
+        // all defaultValue
+    } else if (typeof input === "object") {
+        if (Array.isArray(input)) {
+            if (input.length > numDataSet) {
+                errorMessage = "Too many input parameters for " + name;
+                return errorMessage;
+            }
+            if (input.length === 0) {
+                errorMessage = "Empty array not allowd for " + name;
+                return errorMessage;
+            }
+            for (let ind = 0; ind < array.length; ind++) {
+                if (ind < input.length) {
+                    let curr = input[ind];
+                    let prev = null;
+                    if (ind > 0) {
+                        prev = input[ind - 1].trim();
+                    }
+                    if (typeof curr === "string") {
+                        curr = curr.trim();
+                        if (curr === "") {
+                            if (prev !== null) {
+                                array[ind] = prev;
+                            } else {
+                                array[ind] = defaultValue;
+                            }
+                        } else {
+                            errorMessage = "Invalid inputs for " + name;
+                            break;
+                        }
+                    } else if (typeof curr === "number") {
+                        array[ind] = curr;
+                        numValidValue++;
+                    } else {
+                        errorMessage = "Invalid inputs for " + name;
+                        break;
+                    }
+                } else {
+                    // Exceeds the length of input, use prev value
+                    let last = input[input.length - 1];
+                    if (numValidValue > 0) {
+                        array[ind] = last;
+                    } else {
+                        array[ind] = defaultValue;
+                    }
+                }
+            }
+        }
+    } else if (typeof input === "string") {
+        if (separator.test(input)) {
+            let splitted = input.split(separator);
+            if (splitted.length > numDataSet) {
+                errorMessage = "Too many input parameters for " + name;
+                return errorMessage;
+            }
+            for (let ind = 0; ind < array.length; ind++) {
+                if (ind < splitted.length) {
+                    let curr = splitted[ind].trim();
+                    let prev = null;
+                    if (ind > 0) {
+                        prev = parseFloat(splitted[ind - 1].trim());
+                    }
+                    if (curr === "") {
+                        if (prev !== null && Number.isNumber(prev)) {
+                            array[ind] = prev;
+                        } else {
+                            array[ind] = defaultValue;
+                        }
+                    } else {
+                        let currNum = parseFloat(curr);
+                        if (Number.isNumber(currNum)) {
+                            array[ind] = currNum;
+                            numValidValue++;
+                        } else {
+                            errorMessage = "Invalid inputs for " + name;
+                            break;
+                        }
+                    }
+                } else {
+                    // Exceeds the length of input, use prev value
+                    let last = parseFloat(splitted[input.length - 1].trim());
+                    if (numValidValue > 0 && Number.isNumber(last)) {
+                        array[ind] = last;
+                    } else {
+                        array[ind] = defaultValue;
+                    }
+                }
+            }
+        } else {
+            if (input === "") {
+                // all defaultValue
+            } else {
+                let inputNum = parseFloat(input);
+                if (Number.isNumber(inputNum)) {
+                    array[0] = inputNum;
+                    numValidValue++;
+                    for (let ind = 1; ind < array.length; ind++) {
+                        array[ind] = inputNum;
+                    }
+                } else {
+                    errorMessage = "Invalid inputs for " + name;
+                }
+            }
+        }
+    } else if (typeof input === "number") {
+        if (Number.isNumber(input)) {
+            array[0] = input;
+            numValidValue++;
+            for (let ind = 1; ind < array.length; ind++) {
+                array[ind] = input;
+            }
+        } else {
+            errorMessage = "Invalid inputs for " + name;
+        }
+    } else {
+        errorMessage = "Invalid inputs for " + name;
+    }
+
+    if (!allowNoValidValue && numValidValue === 0) {
+        errorMessage = "No valid input for " + name;
+    }
+
+    if (errorMessage !== "") {
+        return errorMessage;
+    }
+
+    return array;
+}
+
+function getStringArrayFromInput(
+    name: string,
+    input: any,
+    numDataSet: number,
+    defaultValue: string,
+    validator: Function,
+    allowNoValidValue: boolean
+): Array<string> | string {
+    let array: Array<string> = [];
+    let errorMessage = "";
+    let numValidValue = 0;
+
+    // console.log(input);
+    while (numDataSet > array.length) {
+        array.push(defaultValue);
+    }
+
+    if (typeof input === "undefined") {
+        // all defaultValue
+    } else if (typeof input === "object") {
+        if (Array.isArray(input)) {
+            if (input.length > numDataSet) {
+                errorMessage = "Too many input parameters for " + name;
+                return errorMessage;
+            }
+            if (input.length === 0) {
+                errorMessage = "Empty array not allowd for " + name;
+                return errorMessage;
+            }
+            for (let ind = 0; ind < array.length; ind++) {
+                if (ind < input.length) {
+                    let curr = input[ind];
+                    let prev = null;
+                    if (ind > 0) {
+                        prev = input[ind - 1].trim();
+                    }
+                    if (typeof curr === "string") {
+                        curr = curr.trim();
+                        if (curr === "") {
+                            if (prev !== null) {
+                                array[ind] = prev;
+                            } else {
+                                array[ind] = defaultValue;
+                            }
+                        } else {
+                            if (validator) {
+                                if (validator(curr)) {
+                                    array[ind] = curr;
+                                    numValidValue++;
+                                } else {
+                                    errorMessage = "Invalid inputs for " + name;
+                                    break;
+                                }
+                            } else {
+                                array[ind] = curr;
+                                numValidValue++;
+                            }
+                        }
+                    } else {
+                        errorMessage = "Invalid inputs for " + name;
+                        break;
+                    }
+                } else {
+                    // Exceeds the length of input, use prev value
+                    let last = input[input.length - 1].trim();
+                    if (numValidValue > 0) {
+                        array[ind] = last;
+                    } else {
+                        array[ind] = defaultValue;
+                    }
+                }
+            }
+        }
+    } else if (typeof input === "string") {
+        if (separator.test(input)) {
+            let splitted = input.split(separator);
+            if (splitted.length > numDataSet) {
+                errorMessage = "Too many input parameters for " + name;
+                return errorMessage;
+            }
+            for (let ind = 0; ind < array.length; ind++) {
+                if (ind < splitted.length) {
+                    let curr = splitted[ind].trim();
+                    let prev = null;
+                    if (ind > 0) {
+                        prev = splitted[ind - 1].trim();
+                    }
+                    if (curr === "") {
+                        if (prev !== null) {
+                            array[ind] = prev;
+                        } else {
+                            array[ind] = defaultValue;
+                        }
+                    } else {
+                        if (validator) {
+                            if (validator(curr)) {
+                                array[ind] = curr;
+                                numValidValue++;
+                            } else {
+                                errorMessage = "Invalid inputs for " + name;
+                                break;
+                            }
+                        } else {
+                            array[ind] = curr;
+                            numValidValue++;
+                        }
+                    }
+                } else {
+                    // Exceeds the length of input, use prev value
+                    let last = splitted[splitted.length - 1].trim();
+                    if (numValidValue > 0) {
+                        array[ind] = last;
+                    } else {
+                        array[ind] = defaultValue;
+                    }
+                }
+            }
+        } else {
+            if (input === "") {
+                // all defaultValue
+            } else {
+                if (validator) {
+                    if (validator(input)) {
+                        array[0] = input;
+                        numValidValue++;
+                        for (let ind = 1; ind < array.length; ind++) {
+                            array[ind] = input;
+                        }
+                    } else {
+                        errorMessage = "Invalid inputs for " + name;
+                    }
+                } else {
+                    array[0] = input;
+                    numValidValue++;
+                    for (let ind = 1; ind < array.length; ind++) {
+                        array[ind] = input;
+                    }
+                }
+            }
+        }
+    } else {
+        errorMessage = "Invalid inputs for " + name;
+    }
+
+    if (!allowNoValidValue && numValidValue === 0) {
+        errorMessage = "No valid input for " + name;
+    }
+
+    if (errorMessage !== "") {
+        return errorMessage;
+    }
+
+    return array;
+}
 
 export function getRenderInfoFromYaml(
     yamlText: string,
@@ -40,8 +513,8 @@ export function getRenderInfoFromYaml(
             }
         }
     } else if (typeof yaml.searchTarget === "string") {
-        if (yaml.searchTarget.includes(",")) {
-            let splitted = yaml.searchTarget.split(",");
+        if (separator.test(yaml.searchTarget)) {
+            let splitted = yaml.searchTarget.split(separator);
             for (let piece of splitted) {
                 piece = piece.trim();
                 if (piece !== "") {
@@ -65,90 +538,32 @@ export function getRenderInfoFromYaml(
         return errorMessage;
     }
 
+    let numDataSets = searchTarget.length;
+
     // Search type
     let searchType: Array<string> = [];
-    if (typeof yaml.searchType === "object") {
-        if (Array.isArray(yaml.searchType)) {
-            for (let type of yaml.searchType) {
-                if (typeof type === "string") {
-                    searchType.push(type);
-                }
-            }
-        }
-    } else if (typeof yaml.searchType === "string") {
-        if (yaml.searchType.includes(",")) {
-            let splitted = yaml.searchType.split(",");
-            for (let piece of splitted) {
-                searchType.push(piece.trim()); // can be empty string
-            }
-        } else if (yaml.searchType === "") {
-            errorMessage = "No search type assigned.";
-        } else {
-            searchType.push(yaml.searchType);
-        }
-    } else {
-        errorMessage =
-            "Invalid search type (searchType), choose 'tag', 'frontmatter', 'wiki', or 'text'";
+    let retSearchType = getStringArrayFromInput(
+        "search type",
+        yaml.searchType,
+        numDataSets,
+        "",
+        validateSearchType,
+        false
+    );
+    if (typeof retSearchType === "string") {
+        return retSearchType; // errorMessage
     }
+    searchType = retSearchType;
     // console.log(searchType);
 
-    if (errorMessage !== "") {
-        return errorMessage;
-    }
-
-    // Check search target and search type
-    if (searchType.length > searchTarget.length) {
-        return (errorMessage = "Number of targets and types does not match.");
-    } else {
-        while (searchTarget.length > searchType.length) searchType.push("");
-    }
-    function checkType(type: string) {
-        if (
-            type === "tag" ||
-            type === "text" ||
-            type === "frontmatter" ||
-            type === "wiki"
-        ) {
-            return true;
-        }
-        return false;
-    }
-
+    // Create queries
     let queries: Array<Query> = [];
     for (let ind = 0; ind < searchTarget.length; ind++) {
-        let type = searchType[ind];
-        if (ind > 0) {
-            let prevType = searchType[ind - 1];
-            if (type === "") {
-                searchType[ind] = prevType;
-                queries.push(new Query(searchType[ind], searchTarget[ind]));
-            } else {
-                if (!checkType(type)) {
-                    errorMessage =
-                        "Invalid search type (searchType), choose 'tag', 'frontmatter', 'wiki', or 'text'";
-                    break;
-                }
-                queries.push(new Query(searchType[ind], searchTarget[ind]));
-            }
-        } else {
-            if (type === "") {
-                errorMessage = "First search type cannot be empty.";
-                break;
-            } else {
-                if (!checkType(type)) {
-                    errorMessage =
-                        "Invalid search type (searchType), choose 'tag', 'frontmatter', 'wiki', or 'text'";
-                    break;
-                }
-                queries.push(new Query(searchType[ind], searchTarget[ind]));
-            }
-        }
+        let query = new Query(searchType[ind], searchTarget[ind]);
+        query.id = queries.length;
+        queries.push(query);
     }
     // console.log(queries);
-
-    if (errorMessage !== "") {
-        return errorMessage;
-    }
 
     // Create grarph info
     let renderInfo = new RenderInfo(queries);
@@ -219,30 +634,73 @@ export function getRenderInfoFromYaml(
     // console.log(renderInfo.endDate);
 
     // constValue
-    if (typeof yaml.constValue === "number") {
-        renderInfo.constValue = yaml.constValue;
+    let retConstValue = getNumberArrayFromInput(
+        "constValue",
+        yaml.constValue,
+        numDataSets,
+        1.0,
+        true
+    );
+    if (typeof retConstValue === "string") {
+        return retConstValue; // errorMessage
     }
+    renderInfo.constValue = retConstValue;
+    // console.log(renderInfo.constValue);
 
     // ignoreAttachedValue
-    if (typeof yaml.ignoreAttachedValue === "boolean") {
-        renderInfo.ignoreAttachedValue = yaml.ignoreAttachedValue;
+    let retIgnoreAttachedValue = getBoolArrayFromInput(
+        "ignoreAttachedValue",
+        yaml.ignoreAttachedValue,
+        numDataSets,
+        false,
+        true
+    );
+    if (typeof retIgnoreAttachedValue === "string") {
+        return retIgnoreAttachedValue;
     }
+    renderInfo.ignoreAttachedValue = retIgnoreAttachedValue;
+    // console.log(renderInfo.ignoreAttachedValue);
 
     // ignoreZeroValue
-    if (typeof yaml.ignoreZeroValue === "boolean") {
-        renderInfo.ignoreZeroValue = yaml.ignoreZeroValue;
+    let retIgnoreZeroValue = getBoolArrayFromInput(
+        "ignoreZeroValue",
+        yaml.ignoreZeroValue,
+        numDataSets,
+        false,
+        true
+    );
+    if (typeof retIgnoreZeroValue === "string") {
+        return retIgnoreZeroValue;
     }
+    renderInfo.ignoreZeroValue = retIgnoreZeroValue;
+    // console.log(renderInfo.ignoreAttachedValue);
 
     // accum
-    if (typeof yaml.accum === "boolean") {
-        renderInfo.accum = yaml.accum;
+    let retAccum = getBoolArrayFromInput(
+        "accum",
+        yaml.accum,
+        numDataSets,
+        false,
+        true
+    );
+    if (typeof retAccum === "string") {
+        return retAccum;
     }
+    renderInfo.accum = retAccum;
     // console.log(renderInfo.accum);
 
     // penalty
-    if (typeof yaml.penalty === "number") {
-        renderInfo.penalty = yaml.penalty;
+    let retPenalty = getNumberArrayFromInput(
+        "penalty",
+        yaml.penalty,
+        numDataSets,
+        null,
+        true
+    );
+    if (typeof retPenalty === "string") {
+        return retPenalty;
     }
+    renderInfo.penalty = retPenalty;
     // console.log(renderInfo.penalty);
 
     // line related parameters
@@ -258,18 +716,21 @@ export function getRenderInfoFromYaml(
         if (typeof yaml.line.xAxisLabel === "string") {
             renderInfo.line.xAxisLabel = yaml.line.xAxisLabel;
         }
-        // yAxisLabel
+        // yAxisLabel, left label and right label
         if (typeof yaml.line.yAxisLabel === "string") {
             renderInfo.line.yAxisLabel = yaml.line.yAxisLabel;
         }
+
         // labelColor
         if (typeof yaml.line.labelColor === "string") {
             renderInfo.line.labelColor = yaml.line.labelColor;
         }
-        // yAxisUnit
+
+        // yAxisUnit, left axis unit, right axis unit
         if (typeof yaml.line.yAxisUnit === "string") {
             renderInfo.line.yAxisUnit = yaml.line.yAxisUnit;
         }
+
         // yAxisLocation
         if (typeof yaml.line.yAxisLocation === "string") {
             if (
@@ -291,47 +752,140 @@ export function getRenderInfoFromYaml(
         if (typeof yaml.line.axisColor === "string") {
             renderInfo.line.axisColor = yaml.line.axisColor;
         }
+
         // lineColor
-        if (typeof yaml.line.lineColor === "string") {
-            renderInfo.line.lineColor = yaml.line.lineColor;
+        let retLineColor = getStringArrayFromInput(
+            "lineColor",
+            yaml.line.lineColor,
+            numDataSets,
+            "",
+            null,
+            true
+        );
+        if (typeof retLineColor === "string") {
+            return retLineColor; // errorMessage
         }
+        renderInfo.line.lineColor = retLineColor;
+        // console.log(renderInfo.line.lineColor);
+
         // lineWidth
-        if (typeof yaml.line.lineWidth === "number") {
-            renderInfo.line.lineWidth = yaml.line.lineWidth;
+        let retLineWidth = getNumberArrayFromInput(
+            "lineWidth",
+            yaml.line.lineWidth,
+            numDataSets,
+            1.5,
+            true
+        );
+        if (typeof retLineWidth === "string") {
+            return retLineWidth; // errorMessage
         }
+        renderInfo.line.lineWidth = retLineWidth;
+        // console.log(renderInfo.line.lineWidth);
+
         // showLine
-        if (typeof yaml.line.showLine === "boolean") {
-            renderInfo.line.showLine = yaml.line.showLine;
+        let retShowLine = getBoolArrayFromInput(
+            "showLine",
+            yaml.line.showLine,
+            numDataSets,
+            true,
+            true
+        );
+        if (typeof retShowLine === "string") {
+            return retShowLine;
         }
+        renderInfo.line.showLine = retShowLine;
+        // console.log(renderInfo.line.showLine);
+
         // showPoint
-        if (typeof yaml.line.showPoint === "boolean") {
-            renderInfo.line.showPoint = yaml.line.showPoint;
+        let retShowPoint = getBoolArrayFromInput(
+            "showPoint",
+            yaml.line.showPoint,
+            numDataSets,
+            true,
+            true
+        );
+        if (typeof retShowPoint === "string") {
+            return retShowPoint;
         }
+        renderInfo.line.showPoint = retShowPoint;
+        // console.log(renderInfo.line.showPoint);
+
         // pointColor
-        if (typeof yaml.line.pointColor === "string") {
-            renderInfo.line.pointColor = yaml.line.pointColor;
+        let retPointColor = getStringArrayFromInput(
+            "pointColor",
+            yaml.line.pointColor,
+            numDataSets,
+            "#69b3a2",
+            null,
+            true
+        );
+        if (typeof retPointColor === "string") {
+            return retPointColor;
         }
+        renderInfo.line.pointColor = retPointColor;
+        // console.log(renderInfo.line.pointColor);
+
         // pointBorderColor
-        if (typeof yaml.line.pointBorderColor === "string") {
-            renderInfo.line.pointBorderColor = yaml.line.pointBorderColor;
+        let retPointBorderColor = getStringArrayFromInput(
+            "pointBorderColor",
+            yaml.line.pointBorderColor,
+            numDataSets,
+            "#69b3a2",
+            null,
+            true
+        );
+        if (typeof retPointBorderColor === "string") {
+            return retPointBorderColor;
         }
+        renderInfo.line.pointBorderColor = retPointBorderColor;
+        // console.log(renderInfo.line.pointBorderColor);
+
         // pointBorderWidth
-        if (typeof yaml.line.pointBorderWidth === "number") {
-            renderInfo.line.pointBorderWidth = yaml.line.pointBorderWidth;
+        let retPointBorderWidth = getNumberArrayFromInput(
+            "pointBorderWidth",
+            yaml.line.pointBorderWidth,
+            numDataSets,
+            0.0,
+            true
+        );
+        if (typeof retPointBorderWidth === "string") {
+            return retPointBorderWidth; // errorMessage
         }
+        renderInfo.line.pointBorderWidth = retPointBorderWidth;
+        // console.log(renderInfo.line.pointBorderWidth);
+
         // pointSize
-        if (typeof yaml.line.pointSize === "number") {
-            renderInfo.line.pointSize = yaml.line.pointSize;
+        let retPointSize = getNumberArrayFromInput(
+            "pointSize",
+            yaml.line.pointSize,
+            numDataSets,
+            3.0,
+            true
+        );
+        if (typeof retPointSize === "string") {
+            return retPointSize; // errorMessage
         }
+        renderInfo.line.pointSize = retPointSize;
+        // console.log(renderInfo.line.pointSize);
+
         // allowInspectData
         if (typeof yaml.line.allowInspectData === "boolean") {
             renderInfo.line.allowInspectData = yaml.line.allowInspectData;
         }
+
         // fillGap
-        if (typeof yaml.line.fillGap === "boolean") {
-            renderInfo.line.fillGap = yaml.line.fillGap;
+        let retFillGap = getBoolArrayFromInput(
+            "fillGap",
+            yaml.line.fillGap,
+            numDataSets,
+            false,
+            true
+        );
+        if (typeof retFillGap === "string") {
+            return retFillGap;
         }
-        // console.log(renderInfo.line.fillGap)
+        renderInfo.line.fillGap = retFillGap;
+        // console.log(renderInfo.line.fillGap);
     } // line related parameters
 
     // summary related parameters

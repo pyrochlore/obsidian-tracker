@@ -214,12 +214,14 @@ export default class Tracker extends Plugin {
                                 if (tag === query.target) {
                                     // simple tag
                                     tagMeasure =
-                                        tagMeasure + renderInfo.constValue;
+                                        tagMeasure +
+                                        renderInfo.constValue[query.id];
                                     tagExist = true;
                                 } else if (tag.startsWith(query.target + "/")) {
                                     // nested tag
                                     tagMeasure =
-                                        tagMeasure + renderInfo.constValue;
+                                        tagMeasure +
+                                        renderInfo.constValue[query.id];
                                     tagExist = true;
                                 } else {
                                     continue;
@@ -278,7 +280,8 @@ export default class Tracker extends Plugin {
                             if (link.link === query.target) {
                                 linkExist = true;
                                 linkMeasure =
-                                    linkMeasure + renderInfo.constValue;
+                                    linkMeasure +
+                                    renderInfo.constValue[query.id];
                             }
                         }
 
@@ -316,7 +319,7 @@ export default class Tracker extends Plugin {
                     while ((match = hashTagRegex.exec(content))) {
                         // console.log(match);
                         if (
-                            !renderInfo.ignoreAttachedValue &&
+                            !renderInfo.ignoreAttachedValue[query.id] &&
                             match[0].includes(":")
                         ) {
                             // match[0] whole match
@@ -327,7 +330,7 @@ export default class Tracker extends Plugin {
                                 // console.log(value);
                                 if (!Number.isNaN(value)) {
                                     if (
-                                        !renderInfo.ignoreZeroValue ||
+                                        !renderInfo.ignoreZeroValue[query.id] ||
                                         value !== 0
                                     ) {
                                         tagMeasure += value;
@@ -337,7 +340,8 @@ export default class Tracker extends Plugin {
                             }
                         } else {
                             // console.log("simple-tag");
-                            tagMeasure = tagMeasure + renderInfo.constValue;
+                            tagMeasure =
+                                tagMeasure + renderInfo.constValue[query.id];
                             tagExist = true;
                         }
                     }
@@ -366,7 +370,7 @@ export default class Tracker extends Plugin {
                     let textExist = false;
                     while ((match = textRegex.exec(content))) {
                         if (
-                            !renderInfo.ignoreAttachedValue &&
+                            !renderInfo.ignoreAttachedValue[query.id] &&
                             typeof match.groups !== "undefined"
                         ) {
                             // match[0] whole match
@@ -377,7 +381,7 @@ export default class Tracker extends Plugin {
                                 // console.log(value);
                                 if (!Number.isNaN(value)) {
                                     if (
-                                        !renderInfo.ignoreZeroValue ||
+                                        !renderInfo.ignoreZeroValue[query.id] ||
                                         value !== 0
                                     ) {
                                         textMeasure += value;
@@ -387,7 +391,8 @@ export default class Tracker extends Plugin {
                             }
                         } else {
                             // console.log("simple-text");
-                            textMeasure = textMeasure + renderInfo.constValue;
+                            textMeasure =
+                                textMeasure + renderInfo.constValue[query.id];
                             textExist = true;
                         }
                     }

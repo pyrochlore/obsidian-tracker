@@ -15,10 +15,12 @@ export class DataPoint {
 export class Query {
     type: string;
     target: string;
+    id: number;
 
     constructor(searchType: string, searchTarget: string) {
         this.type = searchType;
         this.target = searchTarget;
+        this.id = -1;
     }
 
     public equalTo(other: Query): boolean {
@@ -39,17 +41,26 @@ export class DataSet implements IterableIterator<DataPoint> {
     private query: Query;
     private values: NullableNumber[];
     private parent: DataSets;
-
+    private id: number;
     private currentIndex = 0; // IterableIterator
 
     constructor(parent: DataSets, query: Query) {
         this.query = query;
         this.values = [];
         this.parent = parent;
+        this.id = -1;
 
         for (let ind = 0; ind < parent.getDates().length; ind++) {
             this.values.push(null);
         }
+    }
+
+    public getId() {
+        return this.id;
+    }
+
+    public setId(id: number) {
+        this.id = id;
     }
 
     public setValue(date: Moment, value: NullableNumber) {
@@ -150,6 +161,7 @@ export class DataSets implements IterableIterator<DataSet> {
 
     public createDataSet(query: Query) {
         let dataSet = new DataSet(this, query);
+        dataSet.setId(this.dataSets.length);
         this.dataSets.push(dataSet);
 
         return dataSet;
@@ -178,7 +190,11 @@ export class DataSets implements IterableIterator<DataSet> {
     }
 
     public getDataSetById(id: number) {
-        return this.dataSets[id];
+        for (let dataSet of this.dataSets) {
+            if (dataSet.getId() === id) {
+                return dataSet;
+            }
+        }
     }
 
     public getDates() {
@@ -212,11 +228,11 @@ export class RenderInfo {
     dateFormat: string;
     startDate: Moment;
     endDate: Moment;
-    constValue: number;
-    ignoreAttachedValue: boolean;
-    ignoreZeroValue: boolean;
-    accum: boolean;
-    penalty: number;
+    constValue: number[];
+    ignoreAttachedValue: boolean[];
+    ignoreZeroValue: boolean[];
+    accum: boolean[];
+    penalty: number[];
 
     output: string;
     line: LineInfo | null;
@@ -230,11 +246,11 @@ export class RenderInfo {
         this.dateFormat = "";
         this.startDate = window.moment("");
         this.endDate = window.moment("");
-        this.constValue = 1.0;
-        this.ignoreAttachedValue = false;
-        this.ignoreZeroValue = false;
-        this.accum = false; // accum values start from zero over days
-        this.penalty = null; // use this value instead of null value
+        this.constValue = [1.0];
+        this.ignoreAttachedValue = []; // false
+        this.ignoreZeroValue = []; // false
+        this.accum = []; // false, accum values start from zero over days
+        this.penalty = []; // null, use this value instead of null value
 
         this.output = "";
         this.line = new LineInfo();
@@ -254,16 +270,16 @@ export class LineInfo {
     yMin: number | null;
     yMax: number | null;
     axisColor: string;
-    lineColor: string;
-    lineWidth: number;
-    showLine: boolean;
-    showPoint: boolean;
-    pointColor: string;
-    pointBorderColor: string;
-    pointBorderWidth: number;
-    pointSize: number;
+    lineColor: string[];
+    lineWidth: number[];
+    showLine: boolean[];
+    showPoint: boolean[];
+    pointColor: string[];
+    pointBorderColor: string[];
+    pointBorderWidth: number[];
+    pointSize: number[];
     allowInspectData: boolean;
-    fillGap: boolean;
+    fillGap: boolean[];
 
     constructor() {
         this.title = "";
@@ -275,16 +291,16 @@ export class LineInfo {
         this.yMin = null;
         this.yMax = null;
         this.axisColor = "";
-        this.lineColor = "";
-        this.lineWidth = 1.5;
-        this.showLine = true;
-        this.showPoint = true;
-        this.pointColor = "#69b3a2";
-        this.pointBorderColor = "#69b3a2";
-        this.pointBorderWidth = 0.0;
-        this.pointSize = 3.0;
+        this.lineColor = []; // ""
+        this.lineWidth = []; // 1.5
+        this.showLine = []; // true
+        this.showPoint = []; // true
+        this.pointColor = []; // #69b3a2
+        this.pointBorderColor = [];
+        this.pointBorderWidth = []; // 0.0
+        this.pointSize = []; // 3.0
         this.allowInspectData = true;
-        this.fillGap = false;
+        this.fillGap = []; // false
     }
 }
 

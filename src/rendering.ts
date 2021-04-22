@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { DataSets, DataPoint, RenderInfo } from "./data";
+import { DataSets, DataPoint, RenderInfo, DataSet } from "./data";
 
 function getTickInterval(dataSets: DataSets) {
     let tickInterval;
@@ -57,13 +57,14 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log(renderInfo.dataSets);
 
     // Data preprocessing
-    if (renderInfo.penalty !== null) {
-        for (let dataSet of renderInfo.dataSets) {
-            dataSet.setPenalty(renderInfo.penalty);
+    
+    for (let dataSet of renderInfo.dataSets) {
+        if (renderInfo.penalty[dataSet.getId()] !== null) {
+            dataSet.setPenalty(renderInfo.penalty[dataSet.getId()]);
         }
-    }
-    if (renderInfo.accum) {
-        for (let dataSet of renderInfo.dataSets) {
+    }    
+    for (let dataSet of renderInfo.dataSets) {
+        if (renderInfo.accum[dataSet.getId()]) {
             dataSet.accumulateValues();
         }
     }
@@ -193,7 +194,7 @@ function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
 
     let yScale = d3.scaleLinear();
     let yLower, yUpper;
-    if (yMin >= 0 && renderInfo.accum && !yMinAssigned) {
+    if (yMin >= 0 && renderInfo.accum[dataSet.getId()] && !yMinAssigned) {
         yLower = 0;
         if (yMaxAssigned) {
             yUpper = yMax;
@@ -261,7 +262,7 @@ function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
     let dataArea = graphArea.append("g");
 
     // Add line
-    if (renderInfo.line.showLine) {
+    if (renderInfo.line.showLine[dataSet.getId()]) {
         let lineGen = d3
             .line<DataPoint>()
             .defined(function (p) {
@@ -277,21 +278,21 @@ function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
         let line = dataArea
             .append("path")
             .attr("class", "tracker-line")
-            .style("stroke-width", renderInfo.line.lineWidth);
+            .style("stroke-width", renderInfo.line.lineWidth[dataSet.getId()]);
 
-        if (renderInfo.line.fillGap) {
+        if (renderInfo.line.fillGap[dataSet.getId()]) {
             line.datum(dataSet).attr("d", lineGen as any);
         } else {
             line.datum(dataSet).attr("d", lineGen as any);
         }
 
-        if (renderInfo.line.lineColor) {
-            line.style("stroke", renderInfo.line.lineColor);
+        if (renderInfo.line.lineColor[dataSet.getId()]) {
+            line.style("stroke", renderInfo.line.lineColor[dataSet.getId()]);
         }
     }
 
     // Add dots
-    if (renderInfo.line.showPoint) {
+    if (renderInfo.line.showPoint[dataSet.getId()]) {
         let dots = dataArea
             .selectAll("dot")
             .data(
@@ -301,7 +302,7 @@ function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
             )
             .enter()
             .append("circle")
-            .attr("r", renderInfo.line.pointSize)
+            .attr("r", renderInfo.line.pointSize[dataSet.getId()])
             .attr("cx", function (p) {
                 return xScale(p.date);
             })
@@ -320,15 +321,21 @@ function renderLine(canvas: HTMLElement, renderInfo: RenderInfo) {
                 }
             })
             .attr("class", "tracker-dot");
-        if (renderInfo.line.pointColor) {
-            dots.style("fill", renderInfo.line.pointColor);
+        if (renderInfo.line.pointColor[dataSet.getId()]) {
+            dots.style("fill", renderInfo.line.pointColor[dataSet.getId()]);
 
             if (
-                renderInfo.line.pointBorderColor &&
-                renderInfo.line.pointBorderWidth > 0.0
+                renderInfo.line.pointBorderColor[dataSet.getId()] &&
+                renderInfo.line.pointBorderWidth[dataSet.getId()] > 0.0
             ) {
-                dots.style("stroke", renderInfo.line.pointBorderColor);
-                dots.style("stroke-width", renderInfo.line.pointBorderWidth);
+                dots.style(
+                    "stroke",
+                    renderInfo.line.pointBorderColor[dataSet.getId()]
+                );
+                dots.style(
+                    "stroke-width",
+                    renderInfo.line.pointBorderWidth[dataSet.getId()]
+                );
             }
         }
 
