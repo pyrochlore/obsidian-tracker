@@ -15,12 +15,30 @@ export class DataPoint {
 export class Query {
     type: string;
     target: string;
+    parentTarget: string | null;
     id: number;
+    subId: number;
 
     constructor(searchType: string, searchTarget: string) {
         this.type = searchType;
         this.target = searchTarget;
         this.id = -1;
+        this.subId = -1;
+        
+        let strRegex = "\\[(?<value>[0-9]+)\\]";
+        let regex = new RegExp(strRegex, "gm");
+        let match;
+        while ((match = regex.exec(searchTarget))) {
+            if (typeof match.groups.value !== "undefined") {
+                let value = parseFloat(match.groups.value);
+                if (Number.isNumber(value)) {
+                    this.subId = value;
+                    this.parentTarget = searchTarget.replace(regex, "");
+                }
+                break;
+            }
+            
+        }
     }
 
     public equalTo(other: Query): boolean {
@@ -259,6 +277,14 @@ export class RenderInfo {
         this.bar = null;
 
         this.dataSets = null;
+    }
+
+    public getQueryById(id: number) {
+        for (let query of this.queries) {
+            if (query.id === id) {
+                return query;
+            }
+        }
     }
 }
 

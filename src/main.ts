@@ -18,6 +18,8 @@ declare global {
     }
 }
 
+let separator = new RegExp("[,/]", "gm");
+
 enum OutputType {
     Line,
     Bar,
@@ -140,6 +142,7 @@ export default class Tracker extends Plugin {
             el.appendChild(canvas);
             return;
         }
+        // console.log(renderInfo);
 
         // Get files
         let files: TFile[];
@@ -251,20 +254,38 @@ export default class Tracker extends Plugin {
                 if (query.type === "frontmatter" && query.target !== "tags") {
                     if (fileCache) {
                         let frontMatter = fileCache.frontmatter;
-                        if (frontMatter && frontMatter[query.target]) {
-                            // console.log(frontMatter[query.target]);
-                            let value = frontMatter[query.target];
-                            if (Array.isArray(value)) {
-                                // multiple values not support yet
-                            } else {
+                        if (frontMatter) {
+                            if (frontMatter[query.target]) {
+                                // console.log(frontMatter[query.target]);
+                                let value = frontMatter[query.target];
                                 value = parseFloat(value);
-                                if (typeof value === "number") {
+                                if (Number.isNumber(value)) {
                                     this.addToDataMap(
                                         dataMap,
                                         fileDate.format(this.dateFormat),
                                         query,
                                         value
                                     );
+                                }
+                            }
+                            else if (query.parentTarget && frontMatter[query.parentTarget]) {
+                                // console.log(frontMatter[query.parentTarget]);
+                                let values = frontMatter[query.parentTarget];
+                                if (typeof values === "string") {
+                                    if (separator.test(values)) {
+                                        let splitted = values.split(separator);
+                                        if (splitted.length > query.subId) {
+                                            let value = parseFloat(splitted[query.subId]);
+                                            if (Number.isNumber(value)) {
+                                                this.addToDataMap(
+                                                    dataMap,
+                                                    fileDate.format(this.dateFormat),
+                                                    query,
+                                                    value
+                                                );
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
