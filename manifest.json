@@ -3,7 +3,7 @@
 	"name": "Tracker",
 	"version": "1.2.0",
 	"minAppVersion": "0.9.12",
-	"description": "Do tracking in your dialy notes",
+	"description": "Track everything in your daily notes",
 	"author": "pyrochlore",
 	"authorUrl": "",
 	"isDesktopOnly": false
