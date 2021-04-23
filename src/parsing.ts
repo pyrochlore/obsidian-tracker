@@ -67,49 +67,39 @@ export function getRenderInfoFromYaml(
     let dailyNotesSettings = getDailyNoteSettings();
 
     // Root folder to search
-    if (typeof yaml.folder !== "string") {
-        if (
-            typeof dailyNotesSettings.folder === "undefined" ||
-            dailyNotesSettings.folder === null
-        ) {
-            plugin.folder = "/";
+    if (typeof yaml.folder === "string") {
+        if (yaml.folder === "") {
+            renderInfo.folder = plugin.folder;
         } else {
-            plugin.folder = dailyNotesSettings.folder;
+            renderInfo.folder = yaml.folder;
         }
     } else {
-        if (yaml.folder === "") {
-            plugin.folder = "/";
-        } else {
-            plugin.folder = yaml.folder;
-        }
+        renderInfo.folder = plugin.folder;
     }
+    // console.log("renderInfo folder: " + renderInfo.folder);
+
     let abstractFolder = plugin.app.vault.getAbstractFileByPath(
-        normalizePath(plugin.folder)
+        normalizePath(renderInfo.folder)
     );
     if (!abstractFolder || !(abstractFolder instanceof TFolder)) {
-        let errorMessage = "Folder '" + plugin.folder + "' doesn't exist";
+        let errorMessage = "Folder '" + renderInfo.folder + "' doesn't exist";
         return errorMessage;
     }
-    renderInfo.folder = plugin.folder;
-    // console.log(renderInfo.folder);
 
     // Date format
-    if (typeof yaml.dateFormat !== "string") {
-        if (
-            typeof dailyNotesSettings.format === "undefined" ||
-            dailyNotesSettings.format === null
-        ) {
-            plugin.dateFormat = "YYYY-MM-DD";
+    const dateFormat = yaml.dateFormat;
+    //?? not sure why I need this to make it works,
+    // without that, the assigned the renderInfo.dateFormat will become undefined
+    if (typeof yaml.dateFormat === "string") {
+        if (yaml.dateFormat === "") {
+            renderInfo.dateFormat = plugin.dateFormat;
         } else {
-            plugin.dateFormat = dailyNotesSettings.format;
+            renderInfo.dateFormat = dateFormat;
         }
     } else {
-        if (yaml.dateFormat === "") {
-            plugin.dateFormat = "YYYY-MM-DD";
-        } else {
-            plugin.dateFormat = yaml.dateForamt;
-        }
+        renderInfo.dateFormat = plugin.dateFormat;
     }
+    // console.log("renderInfo dateFormat: " + renderInfo.dateFormat);
 
     // startDate, endDate
     if (typeof yaml.startDate === "string") {
