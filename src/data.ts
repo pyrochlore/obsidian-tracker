@@ -514,12 +514,12 @@ export class Timer {
         if (this.timeStart !== null) {
             this.timeEnd = process.hrtime(this.timeStart);
             this.timeStart = null;
-            console.log("Time spent on '" + this.sectionName + "': %dms", this.timeEnd[1]/100000);
-        }
-        else {
+            console.log(
+                "Time spent on '" + this.sectionName + "': %dms",
+                this.timeEnd[1] / 100000
+            );
+        } else {
             console.log("Start the timer first");
         }
     }
-
-
 }

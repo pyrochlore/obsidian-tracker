@@ -172,6 +172,7 @@ export default class Tracker extends Plugin {
         // console.log(renderInfo.queries);
         let dataMap = new Map<string, Array<QueryValuePair>>(); // {strDate: [query: value, ...]}
         for (let file of files) {
+            console.log(file.name);
             for (let query of renderInfo.queries) {
                 let fileBaseName = file.basename;
 
@@ -468,9 +469,12 @@ export default class Tracker extends Plugin {
                     );
                 } // Search inline tags
 
-                // console.log("Search text");
+                console.log("Search text");
+                let timer2 = new Timer();
                 if (query.getType() === "text") {
+                    timer2.start("readingFile");
                     let content = await this.app.vault.adapter.read(file.path);
+                    timer2.endAndPrint();
                     // console.log(content);
                     let strTextRegex = query.getTarget();
 
@@ -478,13 +482,20 @@ export default class Tracker extends Plugin {
                     let match;
                     let textMeasure = 0.0;
                     let textExist = false;
+
+                    let matchCount = 0;
                     while ((match = textRegex.exec(content))) {
+                        if (matchCount > 10000) {
+                            break;
+                        }
+                        matchCount++;
                         if (
                             !renderInfo.ignoreAttachedValue[query.getId()] &&
                             typeof match.groups !== "undefined"
                         ) {
                             // match[0] whole match
-                            // console.log("valued-text");
+                            console.log("valued-text");
+                            timer2.start("regexMatching");
                             if (typeof match.groups.value !== "undefined") {
                                 // set as null for missing value if it is valued-tag
                                 let value = parseFloat(match.groups.value);
@@ -501,8 +512,9 @@ export default class Tracker extends Plugin {
                                     }
                                 }
                             }
+                            timer2.endAndPrint();
                         } else {
-                            // console.log("simple-text");
+                            console.log("simple-text");
                             textMeasure =
                                 textMeasure +
                                 renderInfo.constValue[query.getId()];
