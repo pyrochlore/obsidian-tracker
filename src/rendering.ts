@@ -463,23 +463,102 @@ function renderBar(
     }
 }
 
+function renderLegend(
+    svg: any,
+    dataSets: DataSets,
+    position: string | { x: number; y: number }
+) {
+    let legendX = 0.0;
+    let legendY = 0.0;
+    if (typeof position === "string") {
+        if (position.toLowerCase() === "top") {
+        } else if (position.toLowerCase() === "bottom") {
+            legendX = width / 2.0 + margin.left - 60;
+            legendY = height + margin.bottom + margin.top + 40;
+        } else if (position.toLowerCase() === "left") {
+        } else if (position.toLowerCase() === "right") {
+        } else if (position.toLowerCase() === "center") {
+            legendX = width / 2.0 + margin.left;
+            legendY = height / 2.0 + margin.top;
+        }
+    } else {
+        legendX = position.x;
+        legendY = position.y;
+    }
+
+    let legend = svg
+        .append("g")
+        .attr("transform", "translate(" + legendX + "," + legendY + ")");
+    // console.log('legendX: %d, legendY: %d', legendX, legendY);
+
+    // Get datasets names
+    let names = dataSets.getNames();
+
+    let firstMarkerX = 10;
+    let firstMarkerY = 10;
+    let markerYSpacing = 25;
+    let firstLabelX = firstMarkerX + 20;
+    let firstLabelY = firstMarkerY;
+
+    // points
+    legend
+        .selectAll("dots")
+        .data(names)
+        .enter()
+        .append("circle")
+        .attr("cx", firstMarkerX)
+        .attr("cy", function (name: string, i: number) {
+            return firstMarkerY + i * markerYSpacing;
+        })
+        .attr("r", function (name: string, i: number) {
+            return dataSets.getDataSetById(i).getLineInfo().pointSize[i];
+        })
+        .style("fill", function (name: string, i: number) {
+            return dataSets.getDataSetById(i).getLineInfo().pointColor[i];
+        });
+
+    // names
+    legend
+        .selectAll("labels")
+        .data(names)
+        .enter()
+        .append("text")
+        .attr("x", firstLabelX)
+        .attr("y", function (name: string, i: number) {
+            return firstLabelY + i * markerYSpacing;
+        }) // 100 is where the first dot appears. 25 is the distance between dots
+        .style("fill", function (name: string, i: number) {
+            return dataSets.getDataSetById(i).getLineInfo().lineColor[i];
+        })
+        .text(function (name: string) {
+            return name;
+        })
+        .attr("text-anchor", "left")
+        .style("alignment-baseline", "middle");
+}
+
 function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log("renderLineChart");
     // console.log(renderInfo);
 
+    let marginTop = margin.top;
+    let marginBottom = margin.bottom;
     if (renderInfo.line.title) {
-        margin.top += 20;
+        marginTop += 20;
+    }
+    if (renderInfo.line.showLegend) {
+        marginBottom += 20 + renderInfo.dataSets.getNames().length * 25;
     }
 
     let svg = d3
         .select(canvas)
         .append("svg")
         .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom);
+        .attr("height", height + marginTop + marginBottom);
 
     let graphArea = svg
         .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        .attr("transform", "translate(" + margin.left + "," + marginTop + ")");
 
     // Add graph title
     if (renderInfo.line.title) {
@@ -558,25 +637,33 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
             );
         }
     }
+
+    if (renderInfo.line.showLegend) {
+        renderLegend(svg, renderInfo.dataSets, renderInfo.line.legendPosition);
+    }
 }
 
 function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log("renderBarChart");
     // console.log(renderInfo);
-
+    let marginTop = margin.top;
+    let marginBottom = margin.bottom;
     if (renderInfo.bar.title) {
-        margin.top += 20;
+        marginTop += 20;
+    }
+    if (renderInfo.bar.showLegend) {
+        marginBottom += 20 + renderInfo.dataSets.getNames().length * 25;
     }
 
     let svg = d3
         .select(canvas)
         .append("svg")
         .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom);
+        .attr("height", height + marginTop + marginBottom);
 
     let graphArea = svg
         .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        .attr("transform", "translate(" + margin.left + "," + marginTop + ")");
 
     // Add graph title
     if (renderInfo.bar.title) {
@@ -658,6 +745,10 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
             rightYScale,
             xOffset
         );
+    }
+
+    if (renderInfo.bar.showLegend) {
+        renderLegend(svg, renderInfo.dataSets, renderInfo.bar.legendPosition);
     }
 }
 

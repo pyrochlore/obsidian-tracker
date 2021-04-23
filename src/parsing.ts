@@ -636,6 +636,21 @@ export function getRenderInfoFromYaml(
     // console.log(renderInfo.startDate);
     // console.log(renderInfo.endDate);
 
+    // Dataset name
+    let retDataSetName = getStringArrayFromInput(
+        "dataSetName",
+        yaml.dataSetName,
+        numDataSets,
+        "untitled",
+        null,
+        true
+    );
+    if (typeof retDataSetName === "string") {
+        return retDataSetName; // errorMessage
+    }
+    renderInfo.dataSetName = retDataSetName;
+    // console.log(renderInfo.dataSetName);
+
     // constValue
     let retConstValue = getNumberArrayFromInput(
         "constValue",
@@ -934,6 +949,16 @@ export function getRenderInfoFromYaml(
         // allowInspectData
         if (typeof yaml.line.allowInspectData === "boolean") {
             renderInfo.line.allowInspectData = yaml.line.allowInspectData;
+        }
+
+        // showLegend
+        if (typeof yaml.line.showLegend === "boolean") {
+            renderInfo.line.showLegend = yaml.line.showLegend;
+        }
+
+        // legendPosition
+        if (typeof yaml.line.legendPosition === "string") {
+            renderInfo.line.legendPosition = yaml.line.legendPosition;
         }
 
         // fillGap

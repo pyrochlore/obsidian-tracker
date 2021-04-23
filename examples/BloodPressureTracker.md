@@ -5,6 +5,7 @@
 ``` tracker
 searchType: frontmatter
 searchTarget: bloodpressure[0], bloodpressure[1]
+dataSetName: systolic, diastolic
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
@@ -14,12 +15,14 @@ line:
     yAxisUnit: mmHg
     lineColor: yellow/red
 	barColor: yellow/red
+	showLegend: true
 ```
 
 
 ``` tracker
 searchType: frontmatter
 searchTarget: bloodpressure[0], bloodpressure[1]
+dataSetName: systolic, diastolic
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
@@ -32,6 +35,7 @@ line:
 	yAxisLocation: left, right
     lineColor: yellow/red
 	barColor: yellow/red
+	showLegend: true
 ```
 
 Please also check those search targets in markdown files under folder 'diary'.

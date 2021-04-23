@@ -75,26 +75,55 @@ export interface QueryValuePair {
 
 export class DataSet implements IterableIterator<DataPoint> {
     // Array of DataPoints
+    private name: string;
     private query: Query;
     private values: NullableNumber[];
     private parent: DataSets;
     private id: number;
     private yMin: NullableNumber;
     private yMax: NullableNumber;
+    private lineInfo: LineInfo;
+    private barInfo: BarInfo;
 
     private currentIndex = 0; // IterableIterator
 
     constructor(parent: DataSets, query: Query) {
+        this.name = "untitled";
         this.query = query;
         this.values = [];
         this.parent = parent;
         this.id = -1;
         this.yMin = null;
         this.yMax = null;
+        this.lineInfo = null;
+        this.barInfo = null;
 
         for (let ind = 0; ind < parent.getDates().length; ind++) {
             this.values.push(null);
         }
+    }
+
+    public getName() {
+        return this.name;
+    }
+
+    public setName(name: string) {
+        this.name = name;
+    }
+    public getLineInfo() {
+        return this.lineInfo;
+    }
+
+    public setLineInfo(lineInfo: LineInfo) {
+        this.lineInfo = lineInfo;
+    }
+
+    public getBarInfo() {
+        return this.barInfo;
+    }
+
+    public setBarInfo(barInfo: BarInfo) {
+        this.barInfo = barInfo;
     }
 
     public getId() {
@@ -216,9 +245,20 @@ export class DataSets implements IterableIterator<DataSet> {
         // console.log(this.dates);
     }
 
-    public createDataSet(query: Query) {
+    public createDataSet(query: Query, renderInfo: RenderInfo) {
         let dataSet = new DataSet(this, query);
         dataSet.setId(query.getId());
+        if (renderInfo) {
+            dataSet.setName(renderInfo.dataSetName[query.getId()]);
+
+            if (renderInfo.line) {
+                dataSet.setLineInfo(renderInfo.line);
+            }
+            if (renderInfo.bar) {
+                dataSet.setBarInfo(renderInfo.bar);
+            }
+        }
+
         this.dataSets.push(dataSet);
 
         return dataSet;
@@ -258,6 +298,14 @@ export class DataSets implements IterableIterator<DataSet> {
         return this.dates;
     }
 
+    public getNames() {
+        let names = [];
+        for (let dataSet of this.dataSets) {
+            names.push(dataSet.getName());
+        }
+        return names;
+    }
+
     next(): IteratorResult<DataSet> {
         if (this.currentIndex < this.dataSets.length) {
             return {
@@ -285,6 +333,7 @@ export class RenderInfo {
     dateFormat: string;
     startDate: Moment;
     endDate: Moment;
+    dataSetName: string[];
     constValue: number[];
     ignoreAttachedValue: boolean[];
     ignoreZeroValue: boolean[];
@@ -304,6 +353,7 @@ export class RenderInfo {
         this.dateFormat = "";
         this.startDate = window.moment("");
         this.endDate = window.moment("");
+        this.dataSetName = []; // untitled
         this.constValue = [1.0];
         this.ignoreAttachedValue = []; // false
         this.ignoreZeroValue = []; // false
@@ -347,6 +397,8 @@ export class LineInfo {
     pointSize: number[];
     allowInspectData: boolean;
     fillGap: boolean[];
+    showLegend: boolean;
+    legendPosition: string | { x: number; y: number };
 
     constructor() {
         this.title = "";
@@ -368,6 +420,8 @@ export class LineInfo {
         this.pointSize = []; // 3.0
         this.allowInspectData = true;
         this.fillGap = []; // false
+        this.showLegend = false;
+        this.legendPosition = "bottom";
     }
 }
 
@@ -383,6 +437,8 @@ export class BarInfo {
     axisColor: string;
     barColor: string[];
     allowInspectData: boolean;
+    showLegend: boolean;
+    legendPosition: string | { x: number; y: number };
 
     constructor() {
         this.title = "";
@@ -396,6 +452,8 @@ export class BarInfo {
         this.axisColor = "";
         this.barColor = []; // #69b3a2
         this.allowInspectData = true;
+        this.showLegend = false;
+        this.legendPosition = "bottom";
     }
 }
 
