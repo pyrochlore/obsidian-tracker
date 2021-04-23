@@ -704,7 +704,7 @@ export function getRenderInfoFromYaml(
         return retAccum;
     }
     renderInfo.accum = retAccum;
-    console.log(renderInfo.accum);
+    // console.log(renderInfo.accum);
 
     // penalty
     let retPenalty = getNumberArrayFromInput(

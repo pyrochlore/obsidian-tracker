@@ -75,8 +75,6 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
         if (renderInfo.penalty[dataSet.getId()] !== null) {
             dataSet.setPenalty(renderInfo.penalty[dataSet.getId()]);
         }
-    }
-    for (let dataSet of renderInfo.dataSets) {
         if (renderInfo.accum[dataSet.getId()]) {
             dataSet.accumulateValues();
         }
@@ -320,8 +318,8 @@ function renderPoints(
     xScale: any,
     yScale: any
 ) {
-    // console.log(lineInfo);
-    // console.log(dataSet);
+    console.log(lineInfo);
+    console.log(dataSet);
 
     if (lineInfo.showPoint[dataSet.getId()]) {
         let dots = dataArea

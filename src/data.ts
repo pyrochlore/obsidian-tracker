@@ -161,6 +161,12 @@ export class DataSet implements IterableIterator<DataPoint> {
         for (let ind = 0; ind < this.values.length; ind++) {
             if (this.values[ind] === null) {
                 this.values[ind] = penalty;
+                if (penalty < this.yMin) {
+                    this.yMin = penalty;
+                }
+                if (penalty > this.yMax) {
+                    this.yMax = penalty;
+                }
             }
         }
     }
@@ -176,6 +182,12 @@ export class DataSet implements IterableIterator<DataPoint> {
                 accumValue += this.values[ind];
             }
             this.values[ind] = accumValue;
+            if (accumValue < this.yMin) {
+                this.yMin = accumValue;
+            }
+            if (accumValue > this.yMax) {
+                this.yMax = accumValue;
+            }
         }
     }
 
