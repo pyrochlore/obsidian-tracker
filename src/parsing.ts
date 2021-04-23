@@ -100,8 +100,8 @@ function getBoolArrayFromInput(
             }
         }
     } else if (typeof input === "string") {
-        if (separator.test(input)) {
-            let splitted = input.split(separator);
+        let splitted = input.split(separator);
+        if (splitted.length > 1) {
             if (splitted.length > numDataSet) {
                 errorMessage = "Too many input parameters for " + name;
                 return errorMessage;
@@ -396,8 +396,8 @@ function getStringArrayFromInput(
             }
         }
     } else if (typeof input === "string") {
-        if (separator.test(input)) {
-            let splitted = input.split(separator);
+        let splitted = input.split(separator);
+        if (splitted.length > 1) {
             if (splitted.length > numDataSet) {
                 errorMessage = "Too many input parameters for " + name;
                 return errorMessage;
@@ -513,8 +513,8 @@ export function getRenderInfoFromYaml(
             }
         }
     } else if (typeof yaml.searchTarget === "string") {
-        if (separator.test(yaml.searchTarget)) {
-            let splitted = yaml.searchTarget.split(separator);
+        let splitted = yaml.searchTarget.split(separator);
+        if (splitted.length > 1) {
             for (let piece of splitted) {
                 piece = piece.trim();
                 if (piece !== "") {
