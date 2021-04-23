@@ -1,7 +1,7 @@
 {
   "name": "obsidian-tracker",
-  "version": "1.2.0",
-  "description": "Track tags and texts in your dialy notes",
+  "version": "1.2.1",
+  "description": "Track everything in your daily notes",
   "main": "main.js",
   "scripts": {
     "dev": "rollup --config rollup.config.dev.js -w",
