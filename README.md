@@ -62,10 +62,20 @@ For 'line' output, the plugin will generate a customizable line chart. For 'summ
 Description of keys for rendering line-chart and summary output can be found [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/InputParameters.md)
 
 ### Plugin Settings
+You can set the default folder location and date format in the plugin's settings panel. You can also override them by key '**folder**' and '**dateFormat**' in the code block respectively.
 
-Plugin settings 'default folder' and 'default date format, are removed in version 1.2.0. Now the default folder and date format align the settings in the core plugin 'Daily notes'. If the plugin isn't installed, the default values would be '/' and 'YYYY-MM-DD'. You can still override them by using the keys 'folder' and 'dateFormat' in YAML.
+| Setting Item | Default | Description |
+|:--------:|:-------:|:---------:|
+| Default folder location | Root of the vault | The folder your daily notes reside |
+| Default date format | YYYY-MM-DD | The date format of your daily note title |
+
+For more information about the dateFormat settings, check the [TestDateFormats example](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TestDateFormats.md) and [moment.js string format](https://momentjs.com/docs/#/parsing/string-format/). 
 
 ## Release Notes
+### v1.2.1
+- Fix files with the specified dateFormat are not recognized.
+- Restore plugin's settings panel for dateFormat and folder.
+
 ### v1.2.0
 - Enable using regular expression in text searching.
 - New search type 'frontmatter', searching for key-value pairs in the front matter.
