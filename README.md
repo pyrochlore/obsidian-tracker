@@ -69,7 +69,7 @@ You can set the default folder location and date format in the plugin's settings
 | Default folder location | Root of the vault | The folder your daily notes reside |
 | Default date format | YYYY-MM-DD | The date format of your daily note title |
 
-For more information about the dateFormat settings, check the [TestDateFormats example](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TestDateFormats.md) and [moment.js string format](https://momentjs.com/docs/#/parsing/string-format/). 
+For more information about the dateFormat settings, check the [TestDateFormats example](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md) and [moment.js string format](https://momentjs.com/docs/#/parsing/string-format/). 
 
 ## Release Notes
 ### v1.2.1
