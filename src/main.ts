@@ -10,7 +10,7 @@ import {
     TrackerSettingTab,
 } from "./settings";
 import { Moment } from "moment";
-import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
+// import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
 
 declare global {
     interface Window {
@@ -27,8 +27,6 @@ enum OutputType {
 }
 
 export default class Tracker extends Plugin {
-    folder: string;
-    dateFormat: string;
     settings: TrackerSettings;
 
     async onload() {
@@ -54,37 +52,6 @@ export default class Tracker extends Plugin {
             name: "Add Summary Tracker",
             callback: () => this.addCodeBlock(OutputType.Summary),
         });
-
-        let dailyNotesSettings = getDailyNoteSettings();
-        // console.log(dailyNotesSettings);
-        // I always got YYYY-MM-DD from dailyNotesSettings.format
-        // Use own settings panel for now
-
-        // folder
-        if (
-            dailyNotesSettings &&
-            typeof dailyNotesSettings.folder === "undefined" &&
-            dailyNotesSettings.folder === null
-        ) {
-            this.folder = dailyNotesSettings.folder;
-        } else {
-            this.folder = "/";
-        }
-        // console.log("plugin folder: " + this.folder);
-
-        // dateFormat
-        console.log(dailyNotesSettings.format);
-        if (
-            dailyNotesSettings &&
-            typeof dailyNotesSettings.format !== "undefined" &&
-            dailyNotesSettings.format !== null
-        ) {
-            // console.log("got date format from obsidian-daily-notes-interface")
-            this.dateFormat = dailyNotesSettings.format;
-        } else {
-            this.dateFormat = "YYYY-MM-DD";
-        }
-        console.log("plugin dateFormat: " + this.dateFormat);
     }
 
     async loadSettings() {
@@ -182,6 +149,11 @@ export default class Tracker extends Plugin {
             return;
         }
         // console.log(files);
+
+        // let dailyNotesSettings = getDailyNoteSettings();
+        // console.log(dailyNotesSettings);
+        // I always got YYYY-MM-DD from dailyNotesSettings.format
+        // Use own settings panel for now
 
         // Collecting data to dataMap first
         let minDate = window.moment("");
