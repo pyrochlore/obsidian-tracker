@@ -56,6 +56,9 @@ export default class Tracker extends Plugin {
         });
 
         let dailyNotesSettings = getDailyNoteSettings();
+        // console.log(dailyNotesSettings);
+        // I always got YYYY-MM-DD from dailyNotesSettings.format
+        // Use own settings panel for now
 
         // folder
         if (
@@ -70,6 +73,7 @@ export default class Tracker extends Plugin {
         // console.log("plugin folder: " + this.folder);
 
         // dateFormat
+        console.log(dailyNotesSettings.format);
         if (
             dailyNotesSettings &&
             typeof dailyNotesSettings.format !== "undefined" &&
@@ -80,7 +84,7 @@ export default class Tracker extends Plugin {
         } else {
             this.dateFormat = "YYYY-MM-DD";
         }
-        // console.log("plugin dateFormat: " + this.dateFormat);
+        console.log("plugin dateFormat: " + this.dateFormat);
     }
 
     async loadSettings() {
@@ -454,13 +458,13 @@ export default class Tracker extends Plugin {
             el.appendChild(canvas);
             return;
         }
-        if (!renderInfo.startDate.isValid() && !renderInfo.endDate.isValid()) {
+        if (renderInfo.startDate === null && renderInfo.endDate === null) {
             // No date arguments
             renderInfo.startDate = minDate.clone();
             renderInfo.endDate = maxDate.clone();
         } else if (
-            renderInfo.startDate.isValid() &&
-            !renderInfo.endDate.isValid()
+            renderInfo.startDate !== null &&
+            renderInfo.endDate === null
         ) {
             if (renderInfo.startDate < maxDate) {
                 renderInfo.endDate = maxDate.clone();
@@ -471,8 +475,8 @@ export default class Tracker extends Plugin {
                 return;
             }
         } else if (
-            renderInfo.endDate.isValid() &&
-            !renderInfo.startDate.isValid()
+            renderInfo.endDate !== null &&
+            renderInfo.startDate === null
         ) {
             if (renderInfo.endDate > minDate) {
                 renderInfo.startDate = minDate.clone();

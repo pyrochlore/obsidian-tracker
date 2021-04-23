@@ -215,8 +215,8 @@ export class RenderInfo {
     searchTarget: string;
     folder: string;
     dateFormat: string;
-    startDate: Moment;
-    endDate: Moment;
+    startDate: Moment | null;
+    endDate: Moment | null;
     constValue: number;
     ignoreAttachedValue: boolean;
     ignoreZeroValue: boolean;
@@ -234,8 +234,8 @@ export class RenderInfo {
         this.searchTarget = searchTarget;
         this.folder = "/";
         this.dateFormat = "YYYY-MM-DD";
-        this.startDate = window.moment("");
-        this.endDate = window.moment("");
+        this.startDate = null;
+        this.endDate = null;
         this.constValue = 1.0;
         this.ignoreAttachedValue = false;
         this.ignoreZeroValue = false;

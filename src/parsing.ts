@@ -103,15 +103,31 @@ export function getRenderInfoFromYaml(
 
     // startDate, endDate
     if (typeof yaml.startDate === "string") {
-        renderInfo.startDate = window.moment(yaml.startDate, plugin.dateFormat);
+        let startDate = window.moment(yaml.startDate, renderInfo.dateFormat, true);
+        console.log(renderInfo.dateFormat);
+        console.log(startDate);
+        if (startDate.isValid()) {
+            renderInfo.startDate = startDate;
+        }
+        else {
+            let errorMessage = "The format of startDate doesn't fit your dateFormat " + renderInfo.dateFormat;
+            return errorMessage;
+        }
     }
     if (typeof yaml.endDate === "string") {
-        renderInfo.endDate = window.moment(yaml.endDate, plugin.dateFormat);
+        let endDate = window.moment(yaml.endDate, renderInfo.dateFormat, true);
+        if (endDate.isValid()) {
+            renderInfo.endDate = endDate;
+        }
+        else {
+            let errorMessage = "The format of endDate doesn't fit your dateFormat " + renderInfo.dateFormat;
+            return errorMessage;
+        }
     }
     if (renderInfo.startDate.isValid() && renderInfo.endDate.isValid()) {
         // Make sure endDate > startDate
         if (renderInfo.endDate < renderInfo.startDate) {
-            let errorMessage = "Invalid date range (startDate and endDate)";
+            let errorMessage = "Invalid date range (startDate larger than endDate)";
             return errorMessage;
         }
     }
