@@ -3,22 +3,22 @@
 
 <img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/docs/images/Screenshot_v1.1.png" width="800">
 
-This is an [Obsidian](https://obsidian.md/) plugin that helps you do tracking in daily notes. You can:
+This is an [Obsidian](https://obsidian.md/) plugin that helps you do tracking in daily notes. You can track:
 ### tags
-- track the number of occurrences of in-line tags (e.g. #meditation)
-- track the number of occurrences of front matter tags (e.g. tags: meditation)
-- track the values after tags (e.g. #weight:60.5kg)
-- track the values after a nested inline tags (e.g. #finance/bank1/transfer:100000USD and the parent tag #finance/bank1)
+- the number of occurrences of in-line tags (e.g. #meditation)
+- the number of occurrences of front matter tags (e.g. tags: meditation)
+- the values after tags (e.g. #weight:60.5kg)
+- the values after a nested inline tags (e.g. #finance/bank1/transfer:100000USD and the parent tag #finance/bank1)
 
 ### front matter key-value pairs  
-- track the values of a key in the front matter (e.g. mood: 10)
+- the values of a key in the front matter (e.g. mood: 10)
 
 ### wiki links 
-- track the number of occurrences of wiki links (e.g. [[journal]])
+- the number of occurrences of wiki links (e.g. [[journal]])
 
 ### text
-- track the number of occurrences of texts (e.g.  '⭐', 'love', or any text that matches your [regex expression](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TrackWithRegex.md))
-- track the values embedded in texts using regular expression (e.g. walk 1000 steps, weightlifting: 50)
+- the number of occurrences of texts (e.g.  '⭐', 'love', or any text that matches your [regex expression](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TrackUsingRegex.md))
+- the values embedded in texts using regular expression (e.g. walk 1000 steps, weightlifting: 50)
 
 ## Installation
 ### Install from Obsidian Settings Panel
@@ -62,13 +62,23 @@ For 'line' output, the plugin will generate a customizable line chart. For 'summ
 Description of keys for rendering line-chart and summary output can be found [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/InputParameters.md)
 
 ### Plugin Settings
+You can set the default folder location and date format in the plugin's settings panel. You can also override them by key '**folder**' and '**dateFormat**' in the code block respectively.
 
-Plugin settings 'default folder' and 'default date format, are removed in version 1.2.0. Now the default folder and date format align the settings in the core plugin 'Daily notes'. If the plugin isn't installed, the default values would be '/' and 'YYYY-MM-DD'. You can still override them by using the keys 'folder' and 'dateFormat' in YAML.
+| Setting Item | Default | Description |
+|:--------:|:-------:|:---------:|
+| Default folder location | Root of the vault | The folder your daily notes reside |
+| Default date format | YYYY-MM-DD | The date format of your daily note title |
+
+For more information about the dateFormat settings, check the [TestDateFormats example](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md) and [moment.js string format](https://momentjs.com/docs/#/parsing/string-format/). 
 
 ## Release Notes
+### v1.2.1
+- Fix files with the specified dateFormat are not recognized.
+- Restore plugin's settings panel for dateFormat and folder.
+
 ### v1.2.0
 - Enable using regular expression in text searching.
-- New search type 'frontmatter', searching for key-value pair in the front matter.
+- New search type 'frontmatter', searching for key-value pairs in the front matter.
 - New search type 'wiki', searching for wiki links.
 - Reduce package size.
 
@@ -105,7 +115,11 @@ First version released at 2021-03-23.
 - [x] Support tracking key-value pairs in frontmatter.
 - [ ] Add data post-process function, like 'moving average'.
 - [ ] Add an 'Explode' button to the rendered blocks, it will replace the code block with the rendered result.
-- [ ] Support graphs showing the correlation between sets of data
+- [ ] Support graphs showing the correlation between sets of data.
+- [ ] Add a helper panel for adding frequently used tracking targets to article.
+- [ ] Add a dateTarget key for tracking notes not named in the date format.
+- [ ] Add a 'targetDataSet' key to graph, allow the graph drawing selected dataset.
+- [ ] Allow tracking datetime value.
 
 And more ...
 

@@ -574,61 +574,77 @@ export function getRenderInfoFromYaml(
     let dailyNotesSettings = getDailyNoteSettings();
 
     // Root folder to search
-    if (typeof yaml.folder !== "string") {
-        if (
-            typeof dailyNotesSettings.folder === "undefined" ||
-            dailyNotesSettings.folder === null
-        ) {
-            plugin.folder = "/";
+    if (typeof yaml.folder === "string") {
+        if (yaml.folder === "") {
+            renderInfo.folder = plugin.settings.folder;
         } else {
-            plugin.folder = dailyNotesSettings.folder;
+            renderInfo.folder = yaml.folder;
         }
     } else {
-        if (yaml.folder === "") {
-            plugin.folder = "/";
-        } else {
-            plugin.folder = yaml.folder;
-        }
+        renderInfo.folder = plugin.settings.folder;
     }
+    // console.log("renderInfo folder: " + renderInfo.folder);
+
     let abstractFolder = plugin.app.vault.getAbstractFileByPath(
-        normalizePath(plugin.folder)
+        normalizePath(renderInfo.folder)
     );
     if (!abstractFolder || !(abstractFolder instanceof TFolder)) {
-        let errorMessage = "Folder '" + plugin.folder + "' doesn't exist";
+        let errorMessage = "Folder '" + renderInfo.folder + "' doesn't exist";
         return errorMessage;
     }
-    renderInfo.folder = plugin.folder;
-    // console.log(renderInfo.folder);
 
     // Date format
-    if (typeof yaml.dateFormat !== "string") {
-        if (
-            typeof dailyNotesSettings.format === "undefined" ||
-            dailyNotesSettings.format === null
-        ) {
-            plugin.dateFormat = "YYYY-MM-DD";
+    const dateFormat = yaml.dateFormat;
+    //?? not sure why I need this to make it works,
+    // without that, the assigned the renderInfo.dateFormat will become undefined
+    if (typeof yaml.dateFormat === "string") {
+        if (yaml.dateFormat === "") {
+            renderInfo.dateFormat = plugin.settings.dateFormat;
         } else {
-            plugin.dateFormat = dailyNotesSettings.format;
+            renderInfo.dateFormat = dateFormat;
         }
     } else {
-        if (yaml.dateFormat === "") {
-            plugin.dateFormat = "YYYY-MM-DD";
-        } else {
-            plugin.dateFormat = yaml.dateForamt;
-        }
+        renderInfo.dateFormat = plugin.settings.dateFormat;
     }
+    // console.log("renderInfo dateFormat: " + renderInfo.dateFormat);
 
     // startDate, endDate
     if (typeof yaml.startDate === "string") {
-        renderInfo.startDate = window.moment(yaml.startDate, plugin.dateFormat);
+        let startDate = window.moment(
+            yaml.startDate,
+            renderInfo.dateFormat,
+            true
+        );
+        if (startDate.isValid()) {
+            renderInfo.startDate = startDate;
+        } else {
+            let errorMessage =
+                "The format of startDate doesn't fit your dateFormat " +
+                renderInfo.dateFormat;
+            return errorMessage;
+        }
     }
     if (typeof yaml.endDate === "string") {
-        renderInfo.endDate = window.moment(yaml.endDate, plugin.dateFormat);
+        let endDate = window.moment(yaml.endDate, renderInfo.dateFormat, true);
+        if (endDate.isValid()) {
+            renderInfo.endDate = endDate;
+        } else {
+            let errorMessage =
+                "The format of endDate doesn't fit your dateFormat " +
+                renderInfo.dateFormat;
+            return errorMessage;
+        }
     }
-    if (renderInfo.startDate.isValid() && renderInfo.endDate.isValid()) {
+    if (
+        renderInfo.startDate !== null &&
+        renderInfo.startDate.isValid() &&
+        renderInfo.endDate !== null &&
+        renderInfo.endDate.isValid()
+    ) {
         // Make sure endDate > startDate
         if (renderInfo.endDate < renderInfo.startDate) {
-            let errorMessage = "Invalid date range (startDate and endDate)";
+            let errorMessage =
+                "Invalid date range (startDate larger than endDate)";
             return errorMessage;
         }
     }

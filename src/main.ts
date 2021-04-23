@@ -10,6 +10,7 @@ import {
     TrackerSettingTab,
 } from "./settings";
 import { Moment } from "moment";
+// import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
 
 declare global {
     interface Window {
@@ -30,8 +31,6 @@ enum OutputType {
 }
 
 export default class Tracker extends Plugin {
-    folder: string;
-    dateFormat: string;
     settings: TrackerSettings;
 
     async onload() {
@@ -156,6 +155,11 @@ export default class Tracker extends Plugin {
         }
         // console.log(files);
 
+        // let dailyNotesSettings = getDailyNoteSettings();
+        // console.log(dailyNotesSettings);
+        // I always got YYYY-MM-DD from dailyNotesSettings.format
+        // Use own settings panel for now
+
         // Collecting data to dataMap first
         let minDate = window.moment("");
         let maxDate = window.moment("");
@@ -166,11 +170,19 @@ export default class Tracker extends Plugin {
             for (let query of renderInfo.queries) {
                 let fileBaseName = file.basename;
                 // console.log(fileBaseName);
-                let fileDateString = fileBaseName;
-                let fileDate = window.moment(fileDateString, this.dateFormat);
+                let fileDate = window.moment(
+                    fileBaseName,
+                    renderInfo.dateFormat,
+                    true
+                );
                 // console.log(fileDate);
-                if (!fileDate.isValid()) continue;
-                fileCounter++;
+                if (!fileDate.isValid()) {
+                    // console.log("file " + fileBaseName + " rejected");
+                    continue;
+                } else {
+                    // console.log("file " + fileBaseName + " accepted");
+                    fileCounter++;
+                }
 
                 // Get min/max date
                 if (fileCounter == 1) {
@@ -243,7 +255,7 @@ export default class Tracker extends Plugin {
                                 }
                                 this.addToDataMap(
                                     dataMap,
-                                    fileDate.format(this.dateFormat),
+                                    fileDate.format(renderInfo.dateFormat),
                                     query,
                                     value
                                 );
@@ -267,7 +279,7 @@ export default class Tracker extends Plugin {
                                 if (Number.isNumber(value)) {
                                     this.addToDataMap(
                                         dataMap,
-                                        fileDate.format(this.dateFormat),
+                                        fileDate.format(renderInfo.dateFormat),
                                         query,
                                         value
                                     );
@@ -292,7 +304,7 @@ export default class Tracker extends Plugin {
                                             this.addToDataMap(
                                                 dataMap,
                                                 fileDate.format(
-                                                    this.dateFormat
+                                                    renderInfo.dateFormat
                                                 ),
                                                 query,
                                                 value
@@ -327,7 +339,7 @@ export default class Tracker extends Plugin {
                         }
                         this.addToDataMap(
                             dataMap,
-                            fileDate.format(this.dateFormat),
+                            fileDate.format(renderInfo.dateFormat),
                             query,
                             linkValue
                         );
@@ -391,7 +403,7 @@ export default class Tracker extends Plugin {
                     }
                     this.addToDataMap(
                         dataMap,
-                        fileDate.format(this.dateFormat),
+                        fileDate.format(renderInfo.dateFormat),
                         query,
                         value
                     );
@@ -442,7 +454,7 @@ export default class Tracker extends Plugin {
                     if (textExist) {
                         this.addToDataMap(
                             dataMap,
-                            fileDate.format(this.dateFormat),
+                            fileDate.format(renderInfo.dateFormat),
                             query,
                             textMeasure
                         );
@@ -461,13 +473,13 @@ export default class Tracker extends Plugin {
             el.appendChild(canvas);
             return;
         }
-        if (!renderInfo.startDate.isValid() && !renderInfo.endDate.isValid()) {
+        if (renderInfo.startDate === null && renderInfo.endDate === null) {
             // No date arguments
             renderInfo.startDate = minDate.clone();
             renderInfo.endDate = maxDate.clone();
         } else if (
-            renderInfo.startDate.isValid() &&
-            !renderInfo.endDate.isValid()
+            renderInfo.startDate !== null &&
+            renderInfo.endDate === null
         ) {
             if (renderInfo.startDate < maxDate) {
                 renderInfo.endDate = maxDate.clone();
@@ -478,8 +490,8 @@ export default class Tracker extends Plugin {
                 return;
             }
         } else if (
-            renderInfo.endDate.isValid() &&
-            !renderInfo.startDate.isValid()
+            renderInfo.endDate !== null &&
+            renderInfo.startDate === null
         ) {
             if (renderInfo.endDate > minDate) {
                 renderInfo.startDate = minDate.clone();
@@ -517,9 +529,9 @@ export default class Tracker extends Plugin {
                 // console.log(curDate);
 
                 // dataMap --> {date: [query: value, ...]}
-                if (dataMap.has(curDate.format(this.dateFormat))) {
+                if (dataMap.has(curDate.format(renderInfo.dateFormat))) {
                     let queryValuePairs = dataMap
-                        .get(curDate.format(this.dateFormat))
+                        .get(curDate.format(renderInfo.dateFormat))
                         .filter(function (pair) {
                             return pair.query.equalTo(query);
                         });
@@ -548,7 +560,7 @@ export default class Tracker extends Plugin {
             }
         }
         renderInfo.dataSets = dataSets;
-        // console.log(renderInfo);
+        // console.log(renderInfo.dataSets);
 
         let result = render(canvas, renderInfo);
         if (typeof result === "string") {

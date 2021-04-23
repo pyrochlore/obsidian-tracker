@@ -318,8 +318,8 @@ function renderPoints(
     xScale: any,
     yScale: any
 ) {
-    console.log(lineInfo);
-    console.log(dataSet);
+    // console.log(lineInfo);
+    // console.log(dataSet);
 
     if (lineInfo.showPoint[dataSet.getId()]) {
         let dots = dataArea
