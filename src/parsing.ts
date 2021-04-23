@@ -4,7 +4,7 @@ import { TFolder, normalizePath } from "obsidian";
 import * as Yaml from "yaml";
 import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
 
-let separator = new RegExp("[,/]", "gm");
+let separator = new RegExp(",", "gm");
 
 function strToBool(str: string): boolean | null {
     str = str.trim().toLowerCase();
@@ -297,7 +297,6 @@ function getNumberArrayFromInput(
             }
         }
     } else if (typeof input === "number") {
-        console.log("input is number");
         if (Number.isNumber(input)) {
             array[0] = input;
             numValidValue++;
@@ -705,7 +704,7 @@ export function getRenderInfoFromYaml(
         return retAccum;
     }
     renderInfo.accum = retAccum;
-    // console.log(renderInfo.accum);
+    console.log(renderInfo.accum);
 
     // penalty
     let retPenalty = getNumberArrayFromInput(

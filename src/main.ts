@@ -18,7 +18,7 @@ declare global {
     }
 }
 
-let separator = new RegExp("[,/]", "gm");
+let separator = new RegExp(",", "gm");
 
 enum OutputType {
     Line,
