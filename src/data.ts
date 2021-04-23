@@ -494,3 +494,32 @@ export class SummaryInfo {
         this.style = "";
     }
 }
+
+export class Timer {
+    private timeStart: any;
+    private timeEnd: any;
+    private sectionName: string;
+
+    constructor() {
+        this.timeStart = null;
+        this.timeEnd = null;
+    }
+
+    public start(sectionName: string) {
+        this.sectionName = sectionName;
+        this.timeStart = process.hrtime();
+    }
+
+    public endAndPrint() {
+        if (this.timeStart !== null) {
+            this.timeEnd = process.hrtime(this.timeStart);
+            this.timeStart = null;
+            console.log("Time spent on '" + this.sectionName + "': %dms", this.timeEnd[1]/100000);
+        }
+        else {
+            console.log("Start the timer first");
+        }
+    }
+
+
+}

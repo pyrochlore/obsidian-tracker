@@ -10,7 +10,7 @@ import {
     TrackerSettingTab,
 } from "./settings";
 import { Moment } from "moment";
-// import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
+import { Timer } from "./data";
 
 declare global {
     interface Window {
@@ -131,6 +131,9 @@ export default class Tracker extends Plugin {
     ) {
         const canvas = document.createElement("div");
 
+        let timer = new Timer();
+        timer.start("getRenderInfoFromYAML");
+
         let yamlText = source.trim();
         let renderInfo = getRenderInfoFromYaml(yamlText, this);
         if (typeof renderInfo === "string") {
@@ -140,6 +143,9 @@ export default class Tracker extends Plugin {
             return;
         }
         // console.log(renderInfo);
+
+        timer.endAndPrint();
+        timer.start("collectingData");
 
         // Get files
         let files: TFile[];
@@ -570,6 +576,9 @@ export default class Tracker extends Plugin {
         // console.log(renderInfo.startDate);
         // console.log(renderInfo.endDate);
 
+        timer.endAndPrint();
+        timer.start("reshapeData");
+
         // Reshape data for rendering
         let datasets = new Datasets(renderInfo.startDate, renderInfo.endDate);
         for (let query of renderInfo.queries) {
@@ -615,6 +624,9 @@ export default class Tracker extends Plugin {
         renderInfo.datasets = datasets;
         // console.log(renderInfo.datasets);
 
+        timer.endAndPrint();
+        timer.start("rendering");
+
         let result = render(canvas, renderInfo);
         if (typeof result === "string") {
             let errorMessage = result;
@@ -624,6 +636,8 @@ export default class Tracker extends Plugin {
         }
 
         el.appendChild(canvas);
+
+        timer.endAndPrint();
     }
 
     getEditor(): Editor {
