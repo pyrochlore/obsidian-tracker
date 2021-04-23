@@ -136,14 +136,18 @@ export class DataSets implements IterableIterator<DataSet> {
         this.dates = [];
         this.dataSets = [];
         let cData = startDate.creationData();
+        const dateFormat = cData.format.toString();
         for (
             let curDate = startDate.clone();
             curDate <= endDate;
             curDate.add(1, "days")
         ) {
-            this.dates.push(
-                window.moment(curDate.format(cData.format.toString()))
+            let newDate = window.moment(
+                curDate.format(dateFormat),
+                dateFormat,
+                true
             );
+            this.dates.push(newDate);
         }
         // console.log(this.dates);
     }
@@ -157,10 +161,10 @@ export class DataSets implements IterableIterator<DataSet> {
 
     public getIndexOfDate(date: Moment) {
         let cData = date.creationData();
+        const dateFormat = cData.format.toString();
         for (let ind = 0; ind < this.dates.length; ind++) {
             if (
-                this.dates[ind].format(cData.format.toString()) ===
-                date.format(cData.format.toString())
+                this.dates[ind].format(dateFormat) === date.format(dateFormat)
             ) {
                 return ind;
             }
@@ -211,8 +215,8 @@ export class RenderInfo {
     searchTarget: string;
     folder: string;
     dateFormat: string;
-    startDate: Moment;
-    endDate: Moment;
+    startDate: Moment | null;
+    endDate: Moment | null;
     constValue: number;
     ignoreAttachedValue: boolean;
     ignoreZeroValue: boolean;
@@ -228,10 +232,10 @@ export class RenderInfo {
     constructor(searchType: string, searchTarget: string) {
         this.searchType = searchType;
         this.searchTarget = searchTarget;
-        this.folder = "";
-        this.dateFormat = "";
-        this.startDate = window.moment("");
-        this.endDate = window.moment("");
+        this.folder = "/";
+        this.dateFormat = "YYYY-MM-DD";
+        this.startDate = null;
+        this.endDate = null;
         this.constValue = 1.0;
         this.ignoreAttachedValue = false;
         this.ignoreZeroValue = false;

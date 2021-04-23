@@ -1,9 +1,9 @@
 {
 	"id": "obsidian-tracker",
 	"name": "Tracker",
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"minAppVersion": "0.9.12",
-	"description": "Do tracking in your dialy notes",
+	"description": "Track everything in your daily notes",
 	"author": "pyrochlore",
 	"authorUrl": "",
 	"isDesktopOnly": false
