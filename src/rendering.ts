@@ -182,14 +182,14 @@ function renderYAxis(
     // console.log(yMinOfDataSets);
     // console.log(yMaxOfDataSets);
 
-    let yMin = renderInfo.yMin;
+    let yMin = location === "left" ? renderInfo.yMin[0] : renderInfo.yMin[1];
     let yMinAssigned = false;
     if (typeof yMin !== "number") {
         yMin = yMinOfDataSets;
     } else {
         yMinAssigned = true;
     }
-    let yMax = renderInfo.yMax;
+    let yMax = location === "left" ? renderInfo.yMax[0] : renderInfo.yMax[1];
     let yMaxAssigned = false;
     if (typeof yMax !== "number") {
         yMax = yMaxOfDataSets;
@@ -245,8 +245,13 @@ function renderYAxis(
         yAxisTickLabels.style("fill", renderInfo.labelColor);
     }
 
-    let yAxisLabelText = renderInfo.yAxisLabel;
-    if (renderInfo.yAxisUnit) {
+    let yAxisLabelText =
+        location === "left"
+            ? renderInfo.yAxisLabel[0]
+            : renderInfo.yAxisLabel[1];
+    let yAxisUnitText =
+        location === "left" ? renderInfo.yAxisUnit[0] : renderInfo.yAxisUnit[1];
+    if (yAxisUnitText !== "") {
         yAxisLabelText += " (" + renderInfo.yAxisUnit + ")";
     }
     let yAxisLabel = yAxis
