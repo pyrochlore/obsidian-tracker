@@ -128,7 +128,12 @@ export function getRenderInfoFromYaml(
             return errorMessage;
         }
     }
-    if (renderInfo.startDate.isValid() && renderInfo.endDate.isValid()) {
+    if (
+        renderInfo.startDate !== null &&
+        renderInfo.startDate.isValid() &&
+        renderInfo.endDate !== null &&
+        renderInfo.endDate.isValid()
+    ) {
         // Make sure endDate > startDate
         if (renderInfo.endDate < renderInfo.startDate) {
             let errorMessage =
