@@ -734,14 +734,20 @@ export function getRenderInfoFromYaml(
         }
 
         // yAxisLocation
-        if (typeof yaml.line.yAxisLocation === "string") {
-            if (
-                yaml.line.yAxisLocation === "left" ||
-                yaml.line.yAxisLocation === "right"
-            ) {
-                renderInfo.line.yAxisLocation = yaml.line.yAxisLocation;
-            }
+        let retYAxisLocation = getStringArrayFromInput(
+            "yAxisLocation",
+            yaml.line.yAxisLocation,
+            numDataSets,
+            "left",
+            null,
+            true
+        );
+        if (typeof retYAxisLocation === "string") {
+            return retYAxisLocation; // errorMessage
         }
+        renderInfo.line.yAxisLocation = retYAxisLocation;
+        // console.log(renderInfo.line.yAxisLocation);
+
         // yMin
         if (typeof yaml.line.yMin === "number") {
             renderInfo.line.yMin = yaml.line.yMin;
@@ -916,14 +922,20 @@ export function getRenderInfoFromYaml(
         }
 
         // yAxisLocation
-        if (typeof yaml.bar.yAxisLocation === "string") {
-            if (
-                yaml.bar.yAxisLocation === "left" ||
-                yaml.bar.yAxisLocation === "right"
-            ) {
-                renderInfo.bar.yAxisLocation = yaml.bar.yAxisLocation;
-            }
+        let retYAxisLocation = getStringArrayFromInput(
+            "yAxisLocation",
+            yaml.bar.yAxisLocation,
+            numDataSets,
+            "left",
+            null,
+            true
+        );
+        if (typeof retYAxisLocation === "string") {
+            return retYAxisLocation; // errorMessage
         }
+        renderInfo.bar.yAxisLocation = retYAxisLocation;
+        // console.log(renderInfo.bar.yAxisLocation);
+
         // yMin
         if (typeof yaml.bar.yMin === "number") {
             renderInfo.bar.yMin = yaml.bar.yMin;

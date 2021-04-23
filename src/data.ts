@@ -110,7 +110,22 @@ export class DataSet implements IterableIterator<DataPoint> {
         // console.log(ind);
         if (ind >= 0) {
             this.values[ind] = value;
+
+            if (this.yMin === null || value < this.yMin) {
+                this.yMin = value;
+            }
+            if (this.yMax === null || value > this.yMax) {
+                this.yMax = value;
+            }
         }
+    }
+
+    public getYMin() {
+        return this.yMin;
+    }
+
+    public getYMax() {
+        return this.yMax;
     }
 
     public setPenalty(penalty: number) {
@@ -318,7 +333,7 @@ export class LineInfo {
     yAxisLabel: string;
     labelColor: string;
     yAxisUnit: string;
-    yAxisLocation: string;
+    yAxisLocation: string[];
     yMin: number | null;
     yMax: number | null;
     axisColor: string;
@@ -339,7 +354,7 @@ export class LineInfo {
         this.yAxisLabel = "Value";
         this.labelColor = "";
         this.yAxisUnit = "";
-        this.yAxisLocation = "left";
+        this.yAxisLocation = []; // left
         this.yMin = null;
         this.yMax = null;
         this.axisColor = "";
@@ -362,7 +377,7 @@ export class BarInfo {
     yAxisLabel: string;
     labelColor: string;
     yAxisUnit: string;
-    yAxisLocation: string;
+    yAxisLocation: string[];
     yMin: number | null;
     yMax: number | null;
     axisColor: string;
@@ -375,7 +390,7 @@ export class BarInfo {
         this.yAxisLabel = "Value";
         this.labelColor = "";
         this.yAxisUnit = "";
-        this.yAxisLocation = "left";
+        this.yAxisLocation = []; // left
         this.yMin = null;
         this.yMax = null;
         this.axisColor = "";

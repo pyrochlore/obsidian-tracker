@@ -12,7 +12,8 @@ line:
     title: Blood Pressures
     yAxisLabel: BP
     yAxisUnit: mmHg
-    barColor: yellow/red
+    lineColor: yellow/red
+	barColor: yellow/red
 ```
 
 
