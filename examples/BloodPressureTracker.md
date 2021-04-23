@@ -13,8 +13,8 @@ line:
     title: Blood Pressures
     yAxisLabel: BP
     yAxisUnit: mmHg
-    lineColor: yellow/red
-	barColor: yellow/red
+    lineColor: yellow, red
+	barColor: yellow, red
 	showLegend: true
 ```
 
@@ -33,8 +33,8 @@ line:
 	yMin: 150, 110
 	yMax: 190, 125
 	yAxisLocation: left, right
-    lineColor: yellow/red
-	barColor: yellow/red
+    lineColor: yellow, red
+	barColor: yellow, red
 	showLegend: true
 ```
 

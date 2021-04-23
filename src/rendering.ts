@@ -250,7 +250,7 @@ function renderYAxis(
     let yAxisUnitText =
         location === "left" ? renderInfo.yAxisUnit[0] : renderInfo.yAxisUnit[1];
     if (yAxisUnitText !== "") {
-        yAxisLabelText += " (" + renderInfo.yAxisUnit + ")";
+        yAxisLabelText += " (" + yAxisUnitText + ")";
     }
     let yAxisLabel = yAxis
         .append("text")

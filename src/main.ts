@@ -19,8 +19,6 @@ declare global {
     }
 }
 
-let separator = new RegExp(",", "gm");
-
 enum OutputType {
     Line,
     Bar,
@@ -292,7 +290,7 @@ export default class Tracker extends Plugin {
                                 let values =
                                     frontMatter[query.getParentTarget()];
                                 if (typeof values === "string") {
-                                    let splitted = values.split(separator);
+                                    let splitted = values.split("/");
                                     if (
                                         splitted.length > query.getSubId() &&
                                         query.getSubId() >= 0

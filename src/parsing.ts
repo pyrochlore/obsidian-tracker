@@ -4,8 +4,6 @@ import { TFolder, normalizePath } from "obsidian";
 import * as Yaml from "yaml";
 import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
 
-let separator = new RegExp(",", "gm");
-
 function strToBool(str: string): boolean | null {
     str = str.trim().toLowerCase();
     switch (str) {
@@ -100,7 +98,7 @@ function getBoolArrayFromInput(
             }
         }
     } else if (typeof input === "string") {
-        let splitted = input.split(separator);
+        let splitted = input.split(",");
         if (splitted.length > 1) {
             if (splitted.length > numDataSet) {
                 errorMessage = "Too many input parameters for " + name;
@@ -241,7 +239,7 @@ function getNumberArrayFromInput(
             }
         }
     } else if (typeof input === "string") {
-        let splitted = input.split(separator);
+        let splitted = input.split(",");
         if (splitted.length > 1) {
             if (splitted.length > numDataSet) {
                 errorMessage = "Too many input parameters for " + name;
@@ -395,7 +393,7 @@ function getStringArrayFromInput(
             }
         }
     } else if (typeof input === "string") {
-        let splitted = input.split(separator);
+        let splitted = input.split(",");
         if (splitted.length > 1) {
             if (splitted.length > numDataSet) {
                 errorMessage = "Too many input parameters for " + name;
@@ -512,7 +510,7 @@ export function getRenderInfoFromYaml(
             }
         }
     } else if (typeof yaml.searchTarget === "string") {
-        let splitted = yaml.searchTarget.split(separator);
+        let splitted = yaml.searchTarget.split(",");
         if (splitted.length > 1) {
             for (let piece of splitted) {
                 piece = piece.trim();
