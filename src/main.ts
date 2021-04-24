@@ -10,7 +10,9 @@ import {
     TrackerSettingTab,
 } from "./settings";
 import { Moment } from "moment";
+/* test-code-start */
 import { Timer } from "./data";
+/* test-code-end */
 
 declare global {
     interface Window {
@@ -131,8 +133,10 @@ export default class Tracker extends Plugin {
     ) {
         const canvas = document.createElement("div");
 
-        let timer = new Timer();
+        /* test-code-start */
+        let timer = new Timer("Main");
         timer.start("getRenderInfoFromYAML");
+        /* test-code-end */
 
         let yamlText = source.trim();
         let renderInfo = getRenderInfoFromYaml(yamlText, this);
@@ -144,8 +148,10 @@ export default class Tracker extends Plugin {
         }
         // console.log(renderInfo);
 
+        /* test-code-start */
         timer.endAndPrint();
         timer.start("collectingData");
+        /* test-code-end */
 
         // Get files
         let files: TFile[];
@@ -172,7 +178,7 @@ export default class Tracker extends Plugin {
         // console.log(renderInfo.queries);
         let dataMap = new Map<string, Array<QueryValuePair>>(); // {strDate: [query: value, ...]}
         for (let file of files) {
-            console.log(file.name);
+            // console.log(file.name);
             for (let query of renderInfo.queries) {
                 let fileBaseName = file.basename;
 
@@ -469,12 +475,18 @@ export default class Tracker extends Plugin {
                     );
                 } // Search inline tags
 
-                console.log("Search text");
-                let timer2 = new Timer();
+                /* test-code-start */
+                let timerTextSearch = new Timer("timerTextSearch");
+                /* test-code-start */
+
                 if (query.getType() === "text") {
-                    timer2.start("readingFile");
+                    /* test-code-start */
+                    timerTextSearch.start("readingFile");
+                    /* test-code-end */
                     let content = await this.app.vault.adapter.read(file.path);
-                    timer2.endAndPrint();
+                    /* test-code-start */
+                    timerTextSearch.endAndPrint();
+                    /* test-code-end */
                     // console.log(content);
                     let strTextRegex = query.getTarget();
 
@@ -494,8 +506,10 @@ export default class Tracker extends Plugin {
                             typeof match.groups !== "undefined"
                         ) {
                             // match[0] whole match
-                            console.log("valued-text");
-                            timer2.start("regexMatching");
+                            // console.log("valued-text");
+                            /* test-code-start */
+                            timerTextSearch.start("regexMatching");
+                            /* test-code-start */
                             if (typeof match.groups.value !== "undefined") {
                                 // set as null for missing value if it is valued-tag
                                 let value = parseFloat(match.groups.value);
@@ -512,9 +526,11 @@ export default class Tracker extends Plugin {
                                     }
                                 }
                             }
-                            timer2.endAndPrint();
+                            /* test-code-start */
+                            timerTextSearch.endAndPrint();
+                            /* test-code-end */
                         } else {
-                            console.log("simple-text");
+                            // console.log("simple-text");
                             textMeasure =
                                 textMeasure +
                                 renderInfo.constValue[query.getId()];
@@ -588,8 +604,10 @@ export default class Tracker extends Plugin {
         // console.log(renderInfo.startDate);
         // console.log(renderInfo.endDate);
 
+        /* test-code-start */
         timer.endAndPrint();
         timer.start("reshapeData");
+        /* test-code-end */
 
         // Reshape data for rendering
         let datasets = new Datasets(renderInfo.startDate, renderInfo.endDate);
@@ -636,8 +654,10 @@ export default class Tracker extends Plugin {
         renderInfo.datasets = datasets;
         // console.log(renderInfo.datasets);
 
+        /* test-code-start */
         timer.endAndPrint();
         timer.start("rendering");
+        /* test-code-end */
 
         let result = render(canvas, renderInfo);
         if (typeof result === "string") {
@@ -649,7 +669,9 @@ export default class Tracker extends Plugin {
 
         el.appendChild(canvas);
 
+        /* test-code-start */
         timer.endAndPrint();
+        /* test-code-end */
     }
 
     getEditor(): Editor {

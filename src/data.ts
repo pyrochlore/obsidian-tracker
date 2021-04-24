@@ -495,12 +495,15 @@ export class SummaryInfo {
     }
 }
 
+/* test-code-start */
 export class Timer {
+    private name: string;
     private timeStart: any;
     private timeEnd: any;
     private sectionName: string;
 
-    constructor() {
+    constructor(name: string) {
+        this.name = name;
         this.timeStart = null;
         this.timeEnd = null;
     }
@@ -515,7 +518,8 @@ export class Timer {
             this.timeEnd = process.hrtime(this.timeStart);
             this.timeStart = null;
             console.log(
-                "Time spent on '" + this.sectionName + "': %dms",
+                this.name + ": " +
+                "time spent on '" + this.sectionName + "': %dms",
                 this.timeEnd[1] / 100000
             );
         } else {
@@ -523,3 +527,4 @@ export class Timer {
         }
     }
 }
+/* test-code-end */
