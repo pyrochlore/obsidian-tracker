@@ -73,12 +73,12 @@ export interface QueryValuePair {
     value: NullableNumber;
 }
 
-export class DataSet implements IterableIterator<DataPoint> {
+export class Dataset implements IterableIterator<DataPoint> {
     // Array of DataPoints
     private name: string;
     private query: Query;
     private values: NullableNumber[];
-    private parent: DataSets;
+    private parent: Datasets;
     private id: number;
     private yMin: NullableNumber;
     private yMax: NullableNumber;
@@ -87,7 +87,7 @@ export class DataSet implements IterableIterator<DataPoint> {
 
     private currentIndex = 0; // IterableIterator
 
-    constructor(parent: DataSets, query: Query) {
+    constructor(parent: Datasets, query: Query) {
         this.name = "untitled";
         this.query = query;
         this.values = [];
@@ -234,16 +234,16 @@ export class DataSet implements IterableIterator<DataPoint> {
     }
 }
 
-export class DataSets implements IterableIterator<DataSet> {
-    // Iterable of DataSet
+export class Datasets implements IterableIterator<Dataset> {
+    // Iterable of Dataset
     private dates: Moment[];
-    private dataSets: DataSet[];
+    private datasets: Dataset[];
 
     private currentIndex = 0; // IterableIterator
 
     constructor(startDate: Moment, endDate: Moment) {
         this.dates = [];
-        this.dataSets = [];
+        this.datasets = [];
         let cData = startDate.creationData();
         const dateFormat = cData.format.toString();
         for (
@@ -261,23 +261,23 @@ export class DataSets implements IterableIterator<DataSet> {
         // console.log(this.dates);
     }
 
-    public createDataSet(query: Query, renderInfo: RenderInfo) {
-        let dataSet = new DataSet(this, query);
-        dataSet.setId(query.getId());
+    public createDataset(query: Query, renderInfo: RenderInfo) {
+        let dataset = new Dataset(this, query);
+        dataset.setId(query.getId());
         if (renderInfo) {
-            dataSet.setName(renderInfo.dataSetName[query.getId()]);
+            dataset.setName(renderInfo.datasetName[query.getId()]);
 
             if (renderInfo.line) {
-                dataSet.setLineInfo(renderInfo.line);
+                dataset.setLineInfo(renderInfo.line);
             }
             if (renderInfo.bar) {
-                dataSet.setBarInfo(renderInfo.bar);
+                dataset.setBarInfo(renderInfo.bar);
             }
         }
 
-        this.dataSets.push(dataSet);
+        this.datasets.push(dataset);
 
-        return dataSet;
+        return dataset;
     }
 
     public getIndexOfDate(date: Moment) {
@@ -293,19 +293,19 @@ export class DataSets implements IterableIterator<DataSet> {
         return -1;
     }
 
-    public getDataSetByQuery(query: Query) {
-        for (let dataSet of this.dataSets) {
-            if (dataSet.getQuery().equalTo(query)) {
-                return dataSet;
+    public getDatasetByQuery(query: Query) {
+        for (let dataset of this.datasets) {
+            if (dataset.getQuery().equalTo(query)) {
+                return dataset;
             }
         }
         return null;
     }
 
-    public getDataSetById(id: number) {
-        for (let dataSet of this.dataSets) {
-            if (dataSet.getId() === id) {
-                return dataSet;
+    public getDatasetById(id: number) {
+        for (let dataset of this.datasets) {
+            if (dataset.getId() === id) {
+                return dataset;
             }
         }
     }
@@ -316,17 +316,17 @@ export class DataSets implements IterableIterator<DataSet> {
 
     public getNames() {
         let names = [];
-        for (let dataSet of this.dataSets) {
-            names.push(dataSet.getName());
+        for (let dataset of this.datasets) {
+            names.push(dataset.getName());
         }
         return names;
     }
 
-    next(): IteratorResult<DataSet> {
-        if (this.currentIndex < this.dataSets.length) {
+    next(): IteratorResult<Dataset> {
+        if (this.currentIndex < this.datasets.length) {
             return {
                 done: false,
-                value: this.dataSets[this.currentIndex++],
+                value: this.datasets[this.currentIndex++],
             };
         } else {
             this.currentIndex = 0;
@@ -337,7 +337,7 @@ export class DataSets implements IterableIterator<DataSet> {
         }
     }
 
-    [Symbol.iterator](): IterableIterator<DataSet> {
+    [Symbol.iterator](): IterableIterator<Dataset> {
         return this;
     }
 }
@@ -349,7 +349,7 @@ export class RenderInfo {
     dateFormat: string;
     startDate: Moment | null;
     endDate: Moment | null;
-    dataSetName: string[];
+    datasetName: string[];
     constValue: number[];
     ignoreAttachedValue: boolean[];
     ignoreZeroValue: boolean[];
@@ -361,7 +361,7 @@ export class RenderInfo {
     bar: BarInfo | null;
     summary: SummaryInfo | null;
 
-    public dataSets: DataSets | null;
+    public datasets: Datasets | null;
 
     constructor(queries: Query[]) {
         this.queries = queries;
@@ -369,7 +369,7 @@ export class RenderInfo {
         this.dateFormat = "YYYY-MM-DD";
         this.startDate = null;
         this.endDate = null;
-        this.dataSetName = []; // untitled
+        this.datasetName = []; // untitled
         this.constValue = [1.0];
         this.ignoreAttachedValue = []; // false
         this.ignoreZeroValue = []; // false
@@ -381,7 +381,7 @@ export class RenderInfo {
         this.summary = null;
         this.bar = null;
 
-        this.dataSets = null;
+        this.datasets = null;
     }
 
     public getQueryById(id: number) {

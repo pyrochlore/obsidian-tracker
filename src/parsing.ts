@@ -36,7 +36,7 @@ function validateSearchType(searchType: string): boolean {
 function getBoolArrayFromInput(
     name: string,
     input: any,
-    numDataSet: number,
+    numDataset: number,
     defaultValue: boolean,
     allowNoValidValue: boolean
 ): Array<boolean> | string {
@@ -44,7 +44,7 @@ function getBoolArrayFromInput(
     let errorMessage = "";
     let numValidValue = 0;
 
-    while (numDataSet > array.length) {
+    while (numDataset > array.length) {
         array.push(defaultValue);
     }
 
@@ -52,7 +52,7 @@ function getBoolArrayFromInput(
         // all defaultValue
     } else if (typeof input === "object") {
         if (Array.isArray(input)) {
-            if (input.length > numDataSet) {
+            if (input.length > numDataset) {
                 errorMessage = "Too many input parameters for " + name;
                 return errorMessage;
             }
@@ -100,7 +100,7 @@ function getBoolArrayFromInput(
     } else if (typeof input === "string") {
         let splitted = input.split(",");
         if (splitted.length > 1) {
-            if (splitted.length > numDataSet) {
+            if (splitted.length > numDataset) {
                 errorMessage = "Too many input parameters for " + name;
                 return errorMessage;
             }
@@ -177,7 +177,7 @@ function getBoolArrayFromInput(
 function getNumberArrayFromInput(
     name: string,
     input: any,
-    numDataSet: number,
+    numDataset: number,
     defaultValue: number,
     allowNoValidValue: boolean
 ): Array<number> | string {
@@ -185,7 +185,7 @@ function getNumberArrayFromInput(
     let errorMessage = "";
     let numValidValue = 0;
 
-    while (numDataSet > array.length) {
+    while (numDataset > array.length) {
         array.push(defaultValue);
     }
 
@@ -193,7 +193,7 @@ function getNumberArrayFromInput(
         // all defaultValue
     } else if (typeof input === "object") {
         if (Array.isArray(input)) {
-            if (input.length > numDataSet) {
+            if (input.length > numDataset) {
                 errorMessage = "Too many input parameters for " + name;
                 return errorMessage;
             }
@@ -241,7 +241,7 @@ function getNumberArrayFromInput(
     } else if (typeof input === "string") {
         let splitted = input.split(",");
         if (splitted.length > 1) {
-            if (splitted.length > numDataSet) {
+            if (splitted.length > numDataset) {
                 errorMessage = "Too many input parameters for " + name;
                 return errorMessage;
             }
@@ -322,7 +322,7 @@ function getNumberArrayFromInput(
 function getStringArrayFromInput(
     name: string,
     input: any,
-    numDataSet: number,
+    numDataset: number,
     defaultValue: string,
     validator: Function,
     allowNoValidValue: boolean
@@ -332,7 +332,7 @@ function getStringArrayFromInput(
     let numValidValue = 0;
 
     // console.log(input);
-    while (numDataSet > array.length) {
+    while (numDataset > array.length) {
         array.push(defaultValue);
     }
 
@@ -340,7 +340,7 @@ function getStringArrayFromInput(
         // all defaultValue
     } else if (typeof input === "object") {
         if (Array.isArray(input)) {
-            if (input.length > numDataSet) {
+            if (input.length > numDataset) {
                 errorMessage = "Too many input parameters for " + name;
                 return errorMessage;
             }
@@ -395,7 +395,7 @@ function getStringArrayFromInput(
     } else if (typeof input === "string") {
         let splitted = input.split(",");
         if (splitted.length > 1) {
-            if (splitted.length > numDataSet) {
+            if (splitted.length > numDataset) {
                 errorMessage = "Too many input parameters for " + name;
                 return errorMessage;
             }
@@ -535,14 +535,14 @@ export function getRenderInfoFromYaml(
         return errorMessage;
     }
 
-    let numDataSets = searchTarget.length;
+    let numDatasets = searchTarget.length;
 
     // Search type
     let searchType: Array<string> = [];
     let retSearchType = getStringArrayFromInput(
         "search type",
         yaml.searchType,
-        numDataSets,
+        numDatasets,
         "",
         validateSearchType,
         false
@@ -650,25 +650,25 @@ export function getRenderInfoFromYaml(
     // console.log(renderInfo.endDate);
 
     // Dataset name
-    let retDataSetName = getStringArrayFromInput(
-        "dataSetName",
-        yaml.dataSetName,
-        numDataSets,
+    let retDatasetName = getStringArrayFromInput(
+        "datasetName",
+        yaml.datasetName,
+        numDatasets,
         "untitled",
         null,
         true
     );
-    if (typeof retDataSetName === "string") {
-        return retDataSetName; // errorMessage
+    if (typeof retDatasetName === "string") {
+        return retDatasetName; // errorMessage
     }
-    renderInfo.dataSetName = retDataSetName;
-    // console.log(renderInfo.dataSetName);
+    renderInfo.datasetName = retDatasetName;
+    // console.log(renderInfo.datasetName);
 
     // constValue
     let retConstValue = getNumberArrayFromInput(
         "constValue",
         yaml.constValue,
-        numDataSets,
+        numDatasets,
         1.0,
         true
     );
@@ -682,7 +682,7 @@ export function getRenderInfoFromYaml(
     let retIgnoreAttachedValue = getBoolArrayFromInput(
         "ignoreAttachedValue",
         yaml.ignoreAttachedValue,
-        numDataSets,
+        numDatasets,
         false,
         true
     );
@@ -696,7 +696,7 @@ export function getRenderInfoFromYaml(
     let retIgnoreZeroValue = getBoolArrayFromInput(
         "ignoreZeroValue",
         yaml.ignoreZeroValue,
-        numDataSets,
+        numDatasets,
         false,
         true
     );
@@ -710,7 +710,7 @@ export function getRenderInfoFromYaml(
     let retAccum = getBoolArrayFromInput(
         "accum",
         yaml.accum,
-        numDataSets,
+        numDatasets,
         false,
         true
     );
@@ -724,7 +724,7 @@ export function getRenderInfoFromYaml(
     let retPenalty = getNumberArrayFromInput(
         "penalty",
         yaml.penalty,
-        numDataSets,
+        numDatasets,
         null,
         true
     );
@@ -794,7 +794,7 @@ export function getRenderInfoFromYaml(
         let retYAxisLocation = getStringArrayFromInput(
             "yAxisLocation",
             yaml.line.yAxisLocation,
-            numDataSets,
+            numDatasets,
             "left",
             null,
             true
@@ -848,7 +848,7 @@ export function getRenderInfoFromYaml(
         let retLineColor = getStringArrayFromInput(
             "lineColor",
             yaml.line.lineColor,
-            numDataSets,
+            numDatasets,
             "",
             null,
             true
@@ -863,7 +863,7 @@ export function getRenderInfoFromYaml(
         let retLineWidth = getNumberArrayFromInput(
             "lineWidth",
             yaml.line.lineWidth,
-            numDataSets,
+            numDatasets,
             1.5,
             true
         );
@@ -877,7 +877,7 @@ export function getRenderInfoFromYaml(
         let retShowLine = getBoolArrayFromInput(
             "showLine",
             yaml.line.showLine,
-            numDataSets,
+            numDatasets,
             true,
             true
         );
@@ -891,7 +891,7 @@ export function getRenderInfoFromYaml(
         let retShowPoint = getBoolArrayFromInput(
             "showPoint",
             yaml.line.showPoint,
-            numDataSets,
+            numDatasets,
             true,
             true
         );
@@ -905,7 +905,7 @@ export function getRenderInfoFromYaml(
         let retPointColor = getStringArrayFromInput(
             "pointColor",
             yaml.line.pointColor,
-            numDataSets,
+            numDatasets,
             "#69b3a2",
             null,
             true
@@ -920,7 +920,7 @@ export function getRenderInfoFromYaml(
         let retPointBorderColor = getStringArrayFromInput(
             "pointBorderColor",
             yaml.line.pointBorderColor,
-            numDataSets,
+            numDatasets,
             "#69b3a2",
             null,
             true
@@ -935,7 +935,7 @@ export function getRenderInfoFromYaml(
         let retPointBorderWidth = getNumberArrayFromInput(
             "pointBorderWidth",
             yaml.line.pointBorderWidth,
-            numDataSets,
+            numDatasets,
             0.0,
             true
         );
@@ -949,7 +949,7 @@ export function getRenderInfoFromYaml(
         let retPointSize = getNumberArrayFromInput(
             "pointSize",
             yaml.line.pointSize,
-            numDataSets,
+            numDatasets,
             3.0,
             true
         );
@@ -978,7 +978,7 @@ export function getRenderInfoFromYaml(
         let retFillGap = getBoolArrayFromInput(
             "fillGap",
             yaml.line.fillGap,
-            numDataSets,
+            numDatasets,
             false,
             true
         );
@@ -1046,7 +1046,7 @@ export function getRenderInfoFromYaml(
         let retYAxisLocation = getStringArrayFromInput(
             "yAxisLocation",
             yaml.bar.yAxisLocation,
-            numDataSets,
+            numDatasets,
             "left",
             null,
             true
@@ -1100,7 +1100,7 @@ export function getRenderInfoFromYaml(
         let retBarColor = getStringArrayFromInput(
             "barColor",
             yaml.bar.barColor,
-            numDataSets,
+            numDatasets,
             "",
             null,
             true

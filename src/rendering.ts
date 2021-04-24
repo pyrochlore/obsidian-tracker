@@ -1,9 +1,9 @@
 import * as d3 from "d3";
 import {
-    DataSets,
+    Datasets,
     DataPoint,
     RenderInfo,
-    DataSet,
+    Dataset,
     LineInfo,
     BarInfo,
 } from "./data";
@@ -14,9 +14,9 @@ let width = 500 - margin.left - margin.right;
 let height = 400 - margin.top - margin.bottom;
 let tooltipSize = { width: 90, height: 45 };
 
-function getTickInterval(dataSets: DataSets) {
+function getTickInterval(datasets: Datasets) {
     let tickInterval;
-    let days = dataSets.getDates().length;
+    let days = datasets.getDates().length;
 
     if (days <= 15) {
         // number of ticks: 0-15
@@ -40,9 +40,9 @@ function getTickInterval(dataSets: DataSets) {
     return tickInterval;
 }
 
-function getTickFormat(dataSets: DataSets) {
+function getTickFormat(datasets: Datasets) {
     let tickFormat;
-    let days = dataSets.getDates().length;
+    let days = datasets.getDates().length;
 
     if (days <= 15) {
         // number of ticks: 0-15
@@ -67,16 +67,16 @@ function getTickFormat(dataSets: DataSets) {
 }
 
 export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
-    // console.log(renderInfo.dataSets);
+    // console.log(renderInfo.datasets);
 
     // Data preprocessing
 
-    for (let dataSet of renderInfo.dataSets) {
-        if (renderInfo.penalty[dataSet.getId()] !== null) {
-            dataSet.setPenalty(renderInfo.penalty[dataSet.getId()]);
+    for (let dataset of renderInfo.datasets) {
+        if (renderInfo.penalty[dataset.getId()] !== null) {
+            dataset.setPenalty(renderInfo.penalty[dataset.getId()]);
         }
-        if (renderInfo.accum[dataSet.getId()]) {
-            dataSet.accumulateValues();
+        if (renderInfo.accum[dataset.getId()]) {
+            dataset.accumulateValues();
         }
     }
 
@@ -102,14 +102,14 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
 
 function renderXAxis(
     graphArea: any,
-    dataSets: DataSets,
+    datasets: Datasets,
     renderInfo: LineInfo | BarInfo
 ) {
-    let xDomain = d3.extent(dataSets.getDates());
+    let xDomain = d3.extent(datasets.getDates());
     let xScale = d3.scaleTime().domain(xDomain).range([0, width]);
 
-    let tickInterval = getTickInterval(dataSets);
-    let tickFormat = getTickFormat(dataSets);
+    let tickInterval = getTickInterval(datasets);
+    let tickFormat = getTickFormat(datasets);
 
     let xAxisGen = d3
         .axisBottom(xScale)
@@ -152,45 +152,45 @@ function renderXAxis(
 
 function renderYAxis(
     graphArea: any,
-    dataSets: DataSets,
+    datasets: Datasets,
     renderInfo: LineInfo | BarInfo,
     location: string,
-    dataSetIds: Array<number>
+    datasetIds: Array<number>
 ) {
-    // console.log(dataSets);
+    // console.log(datasets);
     // console.log(renderInfo);
-    // console.log(dataSetIds);
+    // console.log(datasetIds);
 
-    if (dataSetIds.length === 0) {
+    if (datasetIds.length === 0) {
         return null;
     }
 
-    let yMinOfDataSets = null;
-    let yMaxOfDataSets = null;
-    for (let dataSetId of dataSetIds) {
-        let dataSet = dataSets.getDataSetById(dataSetId);
+    let yMinOfDatasets = null;
+    let yMaxOfDatasets = null;
+    for (let datasetId of datasetIds) {
+        let dataset = datasets.getDatasetById(datasetId);
 
-        if (yMinOfDataSets === null || dataSet.getYMin() < yMinOfDataSets) {
-            yMinOfDataSets = dataSet.getYMin();
+        if (yMinOfDatasets === null || dataset.getYMin() < yMinOfDatasets) {
+            yMinOfDatasets = dataset.getYMin();
         }
-        if (yMaxOfDataSets === null || dataSet.getYMax() > yMaxOfDataSets) {
-            yMaxOfDataSets = dataSet.getYMax();
+        if (yMaxOfDatasets === null || dataset.getYMax() > yMaxOfDatasets) {
+            yMaxOfDatasets = dataset.getYMax();
         }
     }
-    // console.log(yMinOfDataSets);
-    // console.log(yMaxOfDataSets);
+    // console.log(yMinOfDatasets);
+    // console.log(yMaxOfDatasets);
 
     let yMin = location === "left" ? renderInfo.yMin[0] : renderInfo.yMin[1];
     let yMinAssigned = false;
     if (typeof yMin !== "number") {
-        yMin = yMinOfDataSets;
+        yMin = yMinOfDatasets;
     } else {
         yMinAssigned = true;
     }
     let yMax = location === "left" ? renderInfo.yMax[0] : renderInfo.yMax[1];
     let yMaxAssigned = false;
     if (typeof yMax !== "number") {
-        yMax = yMaxOfDataSets;
+        yMax = yMaxOfDatasets;
     } else {
         yMaxAssigned = true;
     }
@@ -273,14 +273,14 @@ function renderYAxis(
 function renderLine(
     dataArea: any,
     lineInfo: LineInfo,
-    dataSet: DataSet,
+    dataset: Dataset,
     xScale: any,
     yScale: any
 ) {
-    // console.log(dataSet);
+    // console.log(dataset);
     // console.log(lineInfo);
 
-    if (lineInfo.showLine[dataSet.getId()]) {
+    if (lineInfo.showLine[dataset.getId()]) {
         let lineGen = d3
             .line<DataPoint>()
             .defined(function (p: DataPoint) {
@@ -296,16 +296,16 @@ function renderLine(
         let line = dataArea
             .append("path")
             .attr("class", "tracker-line")
-            .style("stroke-width", lineInfo.lineWidth[dataSet.getId()]);
+            .style("stroke-width", lineInfo.lineWidth[dataset.getId()]);
 
-        if (lineInfo.fillGap[dataSet.getId()]) {
-            line.datum(dataSet).attr("d", lineGen as any);
+        if (lineInfo.fillGap[dataset.getId()]) {
+            line.datum(dataset).attr("d", lineGen as any);
         } else {
-            line.datum(dataSet).attr("d", lineGen as any);
+            line.datum(dataset).attr("d", lineGen as any);
         }
 
-        if (lineInfo.lineColor[dataSet.getId()]) {
-            line.style("stroke", lineInfo.lineColor[dataSet.getId()]);
+        if (lineInfo.lineColor[dataset.getId()]) {
+            line.style("stroke", lineInfo.lineColor[dataset.getId()]);
         }
     }
 }
@@ -314,24 +314,24 @@ function renderPoints(
     dataArea: any,
     svg: any,
     lineInfo: LineInfo,
-    dataSet: DataSet,
+    dataset: Dataset,
     xScale: any,
     yScale: any
 ) {
     // console.log(lineInfo);
-    // console.log(dataSet);
+    // console.log(dataset);
 
-    if (lineInfo.showPoint[dataSet.getId()]) {
+    if (lineInfo.showPoint[dataset.getId()]) {
         let dots = dataArea
             .selectAll("dot")
             .data(
-                Array.from(dataSet).filter(function (p: DataPoint) {
+                Array.from(dataset).filter(function (p: DataPoint) {
                     return p.value !== null;
                 })
             )
             .enter()
             .append("circle")
-            .attr("r", lineInfo.pointSize[dataSet.getId()])
+            .attr("r", lineInfo.pointSize[dataset.getId()])
             .attr("cx", function (p: DataPoint) {
                 return xScale(p.date);
             })
@@ -350,20 +350,20 @@ function renderPoints(
                 }
             })
             .attr("class", "tracker-dot");
-        if (lineInfo.pointColor[dataSet.getId()]) {
-            dots.style("fill", lineInfo.pointColor[dataSet.getId()]);
+        if (lineInfo.pointColor[dataset.getId()]) {
+            dots.style("fill", lineInfo.pointColor[dataset.getId()]);
 
             if (
-                lineInfo.pointBorderColor[dataSet.getId()] &&
-                lineInfo.pointBorderWidth[dataSet.getId()] > 0.0
+                lineInfo.pointBorderColor[dataset.getId()] &&
+                lineInfo.pointBorderWidth[dataset.getId()] > 0.0
             ) {
                 dots.style(
                     "stroke",
-                    lineInfo.pointBorderColor[dataSet.getId()]
+                    lineInfo.pointBorderColor[dataset.getId()]
                 );
                 dots.style(
                     "stroke-width",
-                    lineInfo.pointBorderWidth[dataSet.getId()]
+                    lineInfo.pointBorderWidth[dataset.getId()]
                 );
             }
         }
@@ -427,18 +427,18 @@ function renderPoints(
 function renderBar(
     dataArea: any,
     barInfo: BarInfo,
-    dataSet: DataSet,
+    dataset: Dataset,
     xScale: any,
     yScale: any,
     xOffset: number
 ) {
-    // console.log(dataSet);
+    // console.log(dataset);
     // console.log(barInfo);
 
     let bars = dataArea
         .selectAll("bar")
         .data(
-            Array.from(dataSet).filter(function (p: DataPoint) {
+            Array.from(dataset).filter(function (p: DataPoint) {
                 return p.value !== null;
             })
         )
@@ -456,14 +456,14 @@ function renderBar(
                 return height - yScale(p.value);
             }
         });
-    if (barInfo.barColor[dataSet.getId()]) {
-        bars.attr("fill", barInfo.barColor[dataSet.getId()]);
+    if (barInfo.barColor[dataset.getId()]) {
+        bars.attr("fill", barInfo.barColor[dataset.getId()]);
     }
 }
 
 function renderLegend(
     svg: any,
-    dataSets: DataSets,
+    datasets: Datasets,
     position: string | { x: number; y: number }
 ) {
     let legendX = 0.0;
@@ -490,7 +490,7 @@ function renderLegend(
     // console.log('legendX: %d, legendY: %d', legendX, legendY);
 
     // Get datasets names
-    let names = dataSets.getNames();
+    let names = datasets.getNames();
 
     let firstMarkerX = 10;
     let firstMarkerY = 10;
@@ -509,10 +509,10 @@ function renderLegend(
             return firstMarkerY + i * markerYSpacing;
         })
         .attr("r", function (name: string, i: number) {
-            return dataSets.getDataSetById(i).getLineInfo().pointSize[i];
+            return datasets.getDatasetById(i).getLineInfo().pointSize[i];
         })
         .style("fill", function (name: string, i: number) {
-            return dataSets.getDataSetById(i).getLineInfo().pointColor[i];
+            return datasets.getDatasetById(i).getLineInfo().pointColor[i];
         });
 
     // names
@@ -526,7 +526,7 @@ function renderLegend(
             return firstLabelY + i * markerYSpacing;
         }) // 100 is where the first dot appears. 25 is the distance between dots
         .style("fill", function (name: string, i: number) {
-            return dataSets.getDataSetById(i).getLineInfo().lineColor[i];
+            return datasets.getDatasetById(i).getLineInfo().lineColor[i];
         })
         .text(function (name: string) {
             return name;
@@ -545,7 +545,7 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         marginTop += 20;
     }
     if (renderInfo.line.showLegend) {
-        marginBottom += 20 + renderInfo.dataSets.getNames().length * 25;
+        marginBottom += 20 + renderInfo.datasets.getNames().length * 25;
     }
 
     let svg = d3
@@ -572,39 +572,39 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
 
     let dataArea = graphArea.append("g");
 
-    let xScale = renderXAxis(graphArea, renderInfo.dataSets, renderInfo.line);
+    let xScale = renderXAxis(graphArea, renderInfo.datasets, renderInfo.line);
 
-    let dataSetOnLeftYAxis = [];
-    let dataSetOnRightYAxis = [];
+    let datasetOnLeftYAxis = [];
+    let datasetOnRightYAxis = [];
     for (let ind = 0; ind < renderInfo.line.yAxisLocation.length; ind++) {
         let yAxisLocation = renderInfo.line.yAxisLocation[ind];
         if (yAxisLocation.toLowerCase() === "left") {
-            dataSetOnLeftYAxis.push(ind);
+            datasetOnLeftYAxis.push(ind);
         } else {
             // right
-            dataSetOnRightYAxis.push(ind);
+            datasetOnRightYAxis.push(ind);
         }
     }
 
     let leftYScale = renderYAxis(
         graphArea,
-        renderInfo.dataSets,
+        renderInfo.datasets,
         renderInfo.line,
         "left",
-        dataSetOnLeftYAxis
+        datasetOnLeftYAxis
     );
 
     if (leftYScale) {
-        for (let dataSetId of dataSetOnLeftYAxis) {
-            let dataSet = renderInfo.dataSets.getDataSetById(dataSetId);
+        for (let datasetId of datasetOnLeftYAxis) {
+            let dataset = renderInfo.datasets.getDatasetById(datasetId);
 
-            renderLine(dataArea, renderInfo.line, dataSet, xScale, leftYScale);
+            renderLine(dataArea, renderInfo.line, dataset, xScale, leftYScale);
 
             renderPoints(
                 dataArea,
                 svg,
                 renderInfo.line,
-                dataSet,
+                dataset,
                 xScale,
                 leftYScale
             );
@@ -613,23 +613,23 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
 
     let rightYScale = renderYAxis(
         graphArea,
-        renderInfo.dataSets,
+        renderInfo.datasets,
         renderInfo.line,
         "right",
-        dataSetOnRightYAxis
+        datasetOnRightYAxis
     );
 
     if (rightYScale) {
-        for (let dataSetId of dataSetOnRightYAxis) {
-            let dataSet = renderInfo.dataSets.getDataSetById(dataSetId);
+        for (let datasetId of datasetOnRightYAxis) {
+            let dataset = renderInfo.datasets.getDatasetById(datasetId);
 
-            renderLine(dataArea, renderInfo.line, dataSet, xScale, rightYScale);
+            renderLine(dataArea, renderInfo.line, dataset, xScale, rightYScale);
 
             renderPoints(
                 dataArea,
                 svg,
                 renderInfo.line,
-                dataSet,
+                dataset,
                 xScale,
                 rightYScale
             );
@@ -637,7 +637,7 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     }
 
     if (renderInfo.line.showLegend) {
-        renderLegend(svg, renderInfo.dataSets, renderInfo.line.legendPosition);
+        renderLegend(svg, renderInfo.datasets, renderInfo.line.legendPosition);
     }
 }
 
@@ -650,7 +650,7 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         marginTop += 20;
     }
     if (renderInfo.bar.showLegend) {
-        marginBottom += 20 + renderInfo.dataSets.getNames().length * 25;
+        marginBottom += 20 + renderInfo.datasets.getNames().length * 25;
     }
 
     let svg = d3
@@ -677,33 +677,33 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
 
     let dataArea = graphArea.append("g");
 
-    let xScale = renderXAxis(graphArea, renderInfo.dataSets, renderInfo.bar);
+    let xScale = renderXAxis(graphArea, renderInfo.datasets, renderInfo.bar);
 
-    let dataSetOnLeftYAxis = [];
-    let dataSetOnRightYAxis = [];
+    let datasetOnLeftYAxis = [];
+    let datasetOnRightYAxis = [];
     for (let ind = 0; ind < renderInfo.bar.yAxisLocation.length; ind++) {
         let yAxisLocation = renderInfo.bar.yAxisLocation[ind];
         if (yAxisLocation.toLowerCase() === "left") {
-            dataSetOnLeftYAxis.push(ind);
+            datasetOnLeftYAxis.push(ind);
         } else {
             // right
-            dataSetOnRightYAxis.push(ind);
+            datasetOnRightYAxis.push(ind);
         }
     }
 
     let leftYScale = renderYAxis(
         graphArea,
-        renderInfo.dataSets,
+        renderInfo.datasets,
         renderInfo.bar,
         "left",
-        dataSetOnLeftYAxis
+        datasetOnLeftYAxis
     );
 
-    for (let dataSetId of dataSetOnLeftYAxis) {
-        let dataSet = renderInfo.dataSets.getDataSetById(dataSetId);
+    for (let datasetId of datasetOnLeftYAxis) {
+        let dataset = renderInfo.datasets.getDatasetById(datasetId);
 
         let xOffset = 0;
-        if (dataSet.getId() === 0) {
+        if (dataset.getId() === 0) {
             xOffset = -3;
         } else {
             xOffset = 3;
@@ -711,7 +711,7 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         renderBar(
             dataArea,
             renderInfo.bar,
-            dataSet,
+            dataset,
             xScale,
             leftYScale,
             xOffset
@@ -720,17 +720,17 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
 
     let rightYScale = renderYAxis(
         graphArea,
-        renderInfo.dataSets,
+        renderInfo.datasets,
         renderInfo.bar,
         "right",
-        dataSetOnRightYAxis
+        datasetOnRightYAxis
     );
 
-    for (let dataSetId of dataSetOnRightYAxis) {
-        let dataSet = renderInfo.dataSets.getDataSetById(dataSetId);
+    for (let datasetId of datasetOnRightYAxis) {
+        let dataset = renderInfo.datasets.getDatasetById(datasetId);
 
         let xOffset = 0;
-        if (dataSet.getId() === 0) {
+        if (dataset.getId() === 0) {
             xOffset = -3;
         } else {
             xOffset = 3;
@@ -738,7 +738,7 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         renderBar(
             dataArea,
             renderInfo.bar,
-            dataSet,
+            dataset,
             xScale,
             rightYScale,
             xOffset
@@ -746,7 +746,7 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     }
 
     if (renderInfo.bar.showLegend) {
-        renderLegend(svg, renderInfo.dataSets, renderInfo.bar.legendPosition);
+        renderLegend(svg, renderInfo.datasets, renderInfo.bar.legendPosition);
     }
 }
 
@@ -756,31 +756,31 @@ function checkSummaryTemplateValid(summaryTemplate: string): boolean {
 
 let fnSet = {
     "{{min}}": function (renderInfo: RenderInfo) {
-        let dataSet = renderInfo.dataSets.getDataSetById(0);
-        return d3.min(dataSet.getValues());
+        let dataset = renderInfo.datasets.getDatasetById(0);
+        return d3.min(dataset.getValues());
     },
     "{{max}}": function (renderInfo: RenderInfo) {
-        let dataSet = renderInfo.dataSets.getDataSetById(0);
-        return d3.max(dataSet.getValues());
+        let dataset = renderInfo.datasets.getDatasetById(0);
+        return d3.max(dataset.getValues());
     },
     "{{sum}}": function (renderInfo: RenderInfo) {
-        let dataSet = renderInfo.dataSets.getDataSetById(0);
-        return d3.sum(dataSet.getValues());
+        let dataset = renderInfo.datasets.getDatasetById(0);
+        return d3.sum(dataset.getValues());
     },
     "{{count}}": function (renderInfo: RenderInfo) {
-        let dataSet = renderInfo.dataSets.getDataSetById(0);
-        return dataSet.getLengthNotNull();
+        let dataset = renderInfo.datasets.getDatasetById(0);
+        return dataset.getLengthNotNull();
     },
     "{{days}}": function (renderInfo: RenderInfo) {
-        let dataSet = renderInfo.dataSets.getDataSetById(0);
-        let result = dataSet.getLength();
+        let dataset = renderInfo.datasets.getDatasetById(0);
+        let result = dataset.getLength();
         return result;
     },
     "{{maxStreak}}": function (renderInfo: RenderInfo) {
         let streak = 0;
         let maxStreak = 0;
-        let dataSet = renderInfo.dataSets.getDataSetById(0);
-        for (let dataPoint of dataSet) {
+        let dataset = renderInfo.datasets.getDatasetById(0);
+        for (let dataPoint of dataset) {
             if (dataPoint.value !== null) {
                 streak++;
             } else {
@@ -795,9 +795,9 @@ let fnSet = {
     "{{maxBreak}}": function (renderInfo: RenderInfo) {
         let streak = 0;
         let maxBreak = 0;
-        let dataSet = renderInfo.dataSets.getDataSetById(0);
+        let dataset = renderInfo.datasets.getDatasetById(0);
 
-        for (let dataPoint of dataSet) {
+        for (let dataPoint of dataset) {
             if (dataPoint.value === null) {
                 streak++;
             } else {
@@ -811,8 +811,8 @@ let fnSet = {
     },
     "{{lastStreak}}": function (renderInfo: RenderInfo) {
         let streak = 0;
-        let dataSet = renderInfo.dataSets.getDataSetById(0);
-        let values = dataSet.getValues();
+        let dataset = renderInfo.datasets.getDatasetById(0);
+        let values = dataset.getValues();
         for (let ind = values.length - 1; ind >= 0; ind--) {
             let value = values[ind];
             if (value === null) {
@@ -824,21 +824,21 @@ let fnSet = {
         return streak;
     },
     "{{average}}": function (renderInfo: RenderInfo) {
-        let dataSet = renderInfo.dataSets.getDataSetById(0);
-        let countNotNull = dataSet.getLengthNotNull();
+        let dataset = renderInfo.datasets.getDatasetById(0);
+        let countNotNull = dataset.getLengthNotNull();
         if (countNotNull > 0) {
-            let sum = d3.sum(dataSet.getValues());
+            let sum = d3.sum(dataset.getValues());
             return sum / countNotNull;
         }
         return null;
     },
     "{{median}}": function (renderInfo: RenderInfo) {
-        let dataSet = renderInfo.dataSets.getDataSetById(0);
-        return d3.median(dataSet.getValues());
+        let dataset = renderInfo.datasets.getDatasetById(0);
+        return d3.median(dataset.getValues());
     },
     "{{variance}}": function (renderInfo: RenderInfo) {
-        let dataSet = renderInfo.dataSets.getDataSetById(0);
-        return d3.variance(dataSet.getValues());
+        let dataset = renderInfo.datasets.getDatasetById(0);
+        return d3.variance(dataset.getValues());
     },
 };
 

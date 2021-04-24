@@ -3,7 +3,7 @@ import { MarkdownPostProcessorContext, MarkdownView, Editor } from "obsidian";
 import { TFile, TFolder, normalizePath } from "obsidian";
 import { render, renderErrorMessage } from "./rendering";
 import { getRenderInfoFromYaml } from "./parsing";
-import { NullableNumber, DataSets, Query, QueryValuePair } from "./data";
+import { NullableNumber, Datasets, Query, QueryValuePair } from "./data";
 import {
     TrackerSettings,
     DEFAULT_SETTINGS,
@@ -516,9 +516,9 @@ export default class Tracker extends Plugin {
         // console.log(renderInfo.endDate);
 
         // Reshape data for rendering
-        let dataSets = new DataSets(renderInfo.startDate, renderInfo.endDate);
+        let datasets = new Datasets(renderInfo.startDate, renderInfo.endDate);
         for (let query of renderInfo.queries) {
-            let dataSet = dataSets.createDataSet(query, renderInfo);
+            let dataset = datasets.createDataset(query, renderInfo);
             for (
                 let curDate = renderInfo.startDate.clone();
                 curDate <= renderInfo.endDate;
@@ -551,14 +551,14 @@ export default class Tracker extends Plugin {
                         // console.log(hasValue);
                         // console.log(value);
                         if (hasValue) {
-                            dataSet.setValue(curDate, value);
+                            dataset.setValue(curDate, value);
                         }
                     }
                 }
             }
         }
-        renderInfo.dataSets = dataSets;
-        // console.log(renderInfo.dataSets);
+        renderInfo.datasets = datasets;
+        // console.log(renderInfo.datasets);
 
         let result = render(canvas, renderInfo);
         if (typeof result === "string") {
