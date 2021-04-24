@@ -120,6 +120,7 @@ First version released at 2021-03-23.
 - [ ] Add a dateTarget key for tracking notes not named in the date format.
 - [ ] Add a 'targetDataSet' key to graph, allow the graph drawing selected dataset.
 - [ ] Allow tracking datetime value.
+- [ ] Evaluate template by predefined function and arithmetics.
 
 And more ...
 
