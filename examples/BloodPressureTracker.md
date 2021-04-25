@@ -18,6 +18,17 @@ line:
 	showLegend: true
 ```
 
+``` tracker
+searchType: frontmatter
+searchTarget: bloodpressure[0], bloodpressure[1]
+dataSetName: systolic, diastolic
+folder: diary
+startDate: 2021-01-01
+endDate: 2021-01-31
+summary:
+    template: "Average: {{average(Dataset(0))}}/{{average(Dataset(1))}}"
+```
+
 
 ``` tracker
 searchType: frontmatter

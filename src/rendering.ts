@@ -755,31 +755,31 @@ function checkSummaryTemplateValid(summaryTemplate: string): boolean {
 }
 
 let fnSet = {
-    "{{min}}": function (renderInfo: RenderInfo) {
-        let dataset = renderInfo.datasets.getDatasetById(0);
+    min: function (renderInfo: RenderInfo, datasetId: number) {
+        let dataset = renderInfo.datasets.getDatasetById(datasetId);
         return d3.min(dataset.getValues());
     },
-    "{{max}}": function (renderInfo: RenderInfo) {
-        let dataset = renderInfo.datasets.getDatasetById(0);
+    max: function (renderInfo: RenderInfo, datasetId: number) {
+        let dataset = renderInfo.datasets.getDatasetById(datasetId);
         return d3.max(dataset.getValues());
     },
-    "{{sum}}": function (renderInfo: RenderInfo) {
-        let dataset = renderInfo.datasets.getDatasetById(0);
+    sum: function (renderInfo: RenderInfo, datasetId: number) {
+        let dataset = renderInfo.datasets.getDatasetById(datasetId);
         return d3.sum(dataset.getValues());
     },
-    "{{count}}": function (renderInfo: RenderInfo) {
-        let dataset = renderInfo.datasets.getDatasetById(0);
+    count: function (renderInfo: RenderInfo, datasetId: number) {
+        let dataset = renderInfo.datasets.getDatasetById(datasetId);
         return dataset.getLengthNotNull();
     },
-    "{{days}}": function (renderInfo: RenderInfo) {
-        let dataset = renderInfo.datasets.getDatasetById(0);
+    days: function (renderInfo: RenderInfo, datasetId: number) {
+        let dataset = renderInfo.datasets.getDatasetById(datasetId);
         let result = dataset.getLength();
         return result;
     },
-    "{{maxStreak}}": function (renderInfo: RenderInfo) {
+    maxStreak: function (renderInfo: RenderInfo, datasetId: number) {
         let streak = 0;
         let maxStreak = 0;
-        let dataset = renderInfo.datasets.getDatasetById(0);
+        let dataset = renderInfo.datasets.getDatasetById(datasetId);
         for (let dataPoint of dataset) {
             if (dataPoint.value !== null) {
                 streak++;
@@ -792,10 +792,10 @@ let fnSet = {
         }
         return maxStreak;
     },
-    "{{maxBreak}}": function (renderInfo: RenderInfo) {
+    maxBreak: function (renderInfo: RenderInfo, datasetId: number) {
         let streak = 0;
         let maxBreak = 0;
-        let dataset = renderInfo.datasets.getDatasetById(0);
+        let dataset = renderInfo.datasets.getDatasetById(datasetId);
 
         for (let dataPoint of dataset) {
             if (dataPoint.value === null) {
@@ -809,9 +809,9 @@ let fnSet = {
         }
         return maxBreak;
     },
-    "{{lastStreak}}": function (renderInfo: RenderInfo) {
+    lastStreak: function (renderInfo: RenderInfo, datasetId: number) {
         let streak = 0;
-        let dataset = renderInfo.datasets.getDatasetById(0);
+        let dataset = renderInfo.datasets.getDatasetById(datasetId);
         let values = dataset.getValues();
         for (let ind = values.length - 1; ind >= 0; ind--) {
             let value = values[ind];
@@ -823,8 +823,8 @@ let fnSet = {
         }
         return streak;
     },
-    "{{average}}": function (renderInfo: RenderInfo) {
-        let dataset = renderInfo.datasets.getDatasetById(0);
+    average: function (renderInfo: RenderInfo, datasetId: number) {
+        let dataset = renderInfo.datasets.getDatasetById(datasetId);
         let countNotNull = dataset.getLengthNotNull();
         if (countNotNull > 0) {
             let sum = d3.sum(dataset.getValues());
@@ -832,12 +832,12 @@ let fnSet = {
         }
         return null;
     },
-    "{{median}}": function (renderInfo: RenderInfo) {
-        let dataset = renderInfo.datasets.getDatasetById(0);
+    median: function (renderInfo: RenderInfo, datasetId: number) {
+        let dataset = renderInfo.datasets.getDatasetById(datasetId);
         return d3.median(dataset.getValues());
     },
-    "{{variance}}": function (renderInfo: RenderInfo) {
-        let dataset = renderInfo.datasets.getDatasetById(0);
+    variance: function (renderInfo: RenderInfo, datasetId: number) {
+        let dataset = renderInfo.datasets.getDatasetById(datasetId);
         return d3.variance(dataset.getValues());
     },
 };
@@ -846,7 +846,7 @@ function renderSummary(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log("renderSummary");
     // console.log(renderInfo);
 
-    // Notice renderInfo.text may be null
+    // Notice renderInfo.summary may be null
     if (renderInfo.summary === null) {
         return "Key 'summary' not foundin YAML";
     }
@@ -858,25 +858,73 @@ function renderSummary(canvas: HTMLElement, renderInfo: RenderInfo) {
         return "Invalid summary template";
     }
 
-    // Loop over fnSet
-    Object.entries(fnSet).forEach(([strRegex, fn]) => {
+    let replaceMap: { [key: string]: string } = {};
+    // Loop over fnSet, prepare replaceMap
+    Object.entries(fnSet).forEach(([fnName, fn]) => {
+        // {{\s*max(\(\s*Dataset\(\s*(?<datasetId>\d+)\s*\)\s*\))?\s*}}
+        let strRegex =
+            "{{\\s*" +
+            fnName +
+            "(\\(\\s*Dataset\\(\\s*(?<datasetId>\\d+)\\s*\\)\\s*\\))?\\s*}}";
+        // console.log(strRegex);
         let regex = new RegExp(strRegex, "gm");
-        if (regex.test(outputSummary)) {
-            // console.log("Found " + strRegex + " in text template")
-            let result = fn(renderInfo);
-            // console.log(result);
-            if (typeof result !== "undefined" && result !== null) {
-                if (Number.isInteger(result)) {
-                    result = result.toFixed(0);
-                } else {
-                    result = result.toFixed(2);
+        let match;
+        while ((match = regex.exec(outputSummary))) {
+            // console.log(match);
+            if (
+                typeof match.groups !== "undefined" &&
+                typeof match.groups.datasetId !== "undefined"
+            ) {
+                let datasetId = parseInt(match.groups.datasetId);
+                // console.log(datasetId);
+                if (Number.isInteger(datasetId)) {
+                    let strReplaceRegex =
+                        "{{" +
+                        fnName +
+                        "(\\(Dataset\\(" +
+                        datasetId.toString() +
+                        "\\)\\))?}}";
+
+                    if (!(strReplaceRegex in replaceMap)) {
+                        let result = fn(renderInfo, datasetId); // calculate result
+                        let strResult = "{{NA}}";
+                        if (typeof result !== "undefined" && result !== null) {
+                            if (Number.isInteger(result)) {
+                                strResult = result.toFixed(0);
+                            } else {
+                                strResult = result.toFixed(2);
+                            }
+                        }
+
+                        replaceMap[strReplaceRegex] = strResult;
+                    }
                 }
-                outputSummary = outputSummary.replace(regex, result);
             } else {
-                outputSummary = outputSummary.replace(regex, "{{NA}}");
+                // no datasetId assigned use id 0
+                let strReplaceRegex = "{{" + fnName + "}}";
+                if (!(strReplaceRegex in replaceMap)) {
+                    let result = fn(renderInfo, 0); // calculate result
+                    let strResult = "{{NA}}";
+                    if (typeof result !== "undefined" && result !== null) {
+                        if (Number.isInteger(result)) {
+                            strResult = result.toFixed(0);
+                        } else {
+                            strResult = result.toFixed(2);
+                        }
+                    }
+
+                    replaceMap[strReplaceRegex] = strResult;
+                }
             }
         }
     });
+    // console.log(replaceMap);
+    // Do replace
+    for (let strReplaceRegex in replaceMap) {
+        let strResult = replaceMap[strReplaceRegex];
+        let regex = new RegExp(strReplaceRegex, "gi");
+        outputSummary = outputSummary.replace(regex, strResult);
+    }
 
     if (outputSummary !== "") {
         let textBlock = d3.select(canvas).append("div");
