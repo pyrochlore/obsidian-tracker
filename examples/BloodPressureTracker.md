@@ -5,7 +5,7 @@
 ``` tracker
 searchType: frontmatter
 searchTarget: bloodpressure[0], bloodpressure[1]
-dataSetName: systolic, diastolic
+datasetName: systolic, diastolic
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
@@ -14,7 +14,6 @@ line:
     yAxisLabel: BP
     yAxisUnit: mmHg
     lineColor: yellow, red
-	barColor: yellow, red
 	showLegend: true
 ```
 
@@ -33,7 +32,7 @@ summary:
 ``` tracker
 searchType: frontmatter
 searchTarget: bloodpressure[0], bloodpressure[1]
-dataSetName: systolic, diastolic
+datasetName: systolic, diastolic
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
@@ -44,6 +43,8 @@ line:
 	yMin: 150, 110
 	yMax: 190, 125
 	yAxisLocation: left, right
+	yAxisColor: yellow, red
+	yAxisLabelColor: yellow, red
     lineColor: yellow, red
 	barColor: yellow, red
 	showLegend: true

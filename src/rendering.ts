@@ -120,8 +120,8 @@ function renderXAxis(
         .attr("transform", "translate(0," + height + ")")
         .call(xAxisGen)
         .attr("class", "tracker-axis");
-    if (renderInfo.axisColor) {
-        xAxis.style("stroke", renderInfo.axisColor);
+    if (renderInfo.xAxisColor) {
+        xAxis.style("stroke", renderInfo.xAxisColor);
     }
 
     let xAxisTickLabels = xAxis
@@ -131,8 +131,8 @@ function renderXAxis(
         .attr("transform", "rotate(-65)")
         .style("text-anchor", "end")
         .attr("class", "tracker-tick-label");
-    if (renderInfo.labelColor) {
-        xAxisTickLabels.style("fill", renderInfo.labelColor);
+    if (renderInfo.xAxisColor) {
+        xAxisTickLabels.style("fill", renderInfo.xAxisColor);
     }
 
     let xAxisLabel = xAxis
@@ -143,8 +143,8 @@ function renderXAxis(
             "translate(" + width / 2 + " ," + margin.bottom + ")"
         )
         .attr("class", "tracker-axis-label");
-    if (renderInfo.labelColor) {
-        xAxisLabel.style("fill", renderInfo.labelColor);
+    if (renderInfo.xAxisLabelColor) {
+        xAxisLabel.style("fill", renderInfo.xAxisLabelColor);
     }
 
     return xScale;
@@ -218,7 +218,21 @@ function renderYAxis(
     }
     yScale.domain([yLower, yUpper]).range([height, 0]);
 
-    let yAxisLocation = renderInfo.yAxisLocation;
+    let yAxisColor =
+        location === "left"
+            ? renderInfo.yAxisColor[0]
+            : renderInfo.yAxisColor[1];
+    let yAxisLabelColor =
+        location === "left"
+            ? renderInfo.yAxisLabelColor[0]
+            : renderInfo.yAxisLabelColor[1];
+    let yAxisLabelText =
+        location === "left"
+            ? renderInfo.yAxisLabel[0]
+            : renderInfo.yAxisLabel[1];
+    let yAxisUnitText =
+        location === "left" ? renderInfo.yAxisUnit[0] : renderInfo.yAxisUnit[1];
+
     let yAxisGen;
     if (location === "left") {
         yAxisGen = d3.axisLeft(yScale);
@@ -232,23 +246,24 @@ function renderYAxis(
     if (location == "right") {
         yAxis.attr("transform", "translate(" + width + " ,0)");
     }
-    if (renderInfo.axisColor) {
-        yAxis.style("stroke", renderInfo.axisColor);
+
+    let yAxisLine = yAxis.selectAll("path");
+    if (yAxisColor) {
+        yAxisLine.style("stroke", yAxisColor);
+    }
+
+    let yAxisTicks = yAxis.selectAll("line");
+    if (yAxisColor) {
+        yAxisTicks.style("stroke", yAxisColor);
     }
 
     let yAxisTickLabels = yAxis
         .selectAll("text")
         .attr("class", "tracker-tick-label");
-    if (renderInfo.labelColor) {
-        yAxisTickLabels.style("fill", renderInfo.labelColor);
+    if (yAxisColor) {
+        yAxisTickLabels.style("fill", yAxisColor);
     }
 
-    let yAxisLabelText =
-        location === "left"
-            ? renderInfo.yAxisLabel[0]
-            : renderInfo.yAxisLabel[1];
-    let yAxisUnitText =
-        location === "left" ? renderInfo.yAxisUnit[0] : renderInfo.yAxisUnit[1];
     if (yAxisUnitText !== "") {
         yAxisLabelText += " (" + yAxisUnitText + ")";
     }
@@ -263,8 +278,8 @@ function renderYAxis(
     } else {
         yAxisLabel.attr("y", 0 + margin.right / 1.5);
     }
-    if (renderInfo.labelColor) {
-        yAxisLabel.style("fill", renderInfo.labelColor);
+    if (yAxisLabelColor) {
+        yAxisLabel.style("fill", yAxisLabelColor);
     }
 
     return yScale;

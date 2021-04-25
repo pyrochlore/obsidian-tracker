@@ -396,13 +396,15 @@ export class RenderInfo {
 export class LineInfo {
     title: string;
     xAxisLabel: string;
+    xAxisColor: string;
+    xAxisLabelColor: string;
     yAxisLabel: string[];
-    labelColor: string;
+    yAxisColor: string[];
+    yAxisLabelColor: string[];
     yAxisUnit: string[];
     yAxisLocation: string[];
     yMin: NullableNumber[];
     yMax: NullableNumber[];
-    axisColor: string;
     lineColor: string[];
     lineWidth: number[];
     showLine: boolean[];
@@ -419,13 +421,15 @@ export class LineInfo {
     constructor() {
         this.title = "";
         this.xAxisLabel = "Date";
+        this.xAxisColor = "";
+        this.xAxisLabelColor = "";
         this.yAxisLabel = []; // "Value", 2 elements
-        this.labelColor = "";
+        this.yAxisColor = []; // "", 2 elements
+        this.yAxisLabelColor = []; // "", 2 elements
         this.yAxisUnit = []; // "", 2 elements
         this.yAxisLocation = []; // left, for each target
         this.yMin = []; // null, 2 elements
         this.yMax = []; // null, 2 elements
-        this.axisColor = "";
         this.lineColor = []; // ""
         this.lineWidth = []; // 1.5
         this.showLine = []; // true
@@ -444,13 +448,15 @@ export class LineInfo {
 export class BarInfo {
     title: string;
     xAxisLabel: string;
+    xAxisColor: string;
+    xAxisLabelColor: string;
     yAxisLabel: string[];
-    labelColor: string;
+    yAxisColor: string[];
+    yAxisLabelColor: string[];
     yAxisUnit: string[];
     yAxisLocation: string[];
     yMin: NullableNumber[];
     yMax: NullableNumber[];
-    axisColor: string;
     barColor: string[];
     allowInspectData: boolean;
     showLegend: boolean;
@@ -459,13 +465,15 @@ export class BarInfo {
     constructor() {
         this.title = "";
         this.xAxisLabel = "Date";
+        this.xAxisColor = "";
+        this.xAxisLabelColor = "";
         this.yAxisLabel = []; // "Value", 2 elements
-        this.labelColor = "";
+        this.yAxisColor = []; // "", 2 elements
+        this.yAxisLabelColor = []; // "", 2 elements
         this.yAxisUnit = []; // "", 2 elements
         this.yAxisLocation = []; // left, for each target
         this.yMin = []; // null, 2 elements
         this.yMax = []; // null, 2 elements
-        this.axisColor = "";
         this.barColor = []; // #69b3a2
         this.allowInspectData = true;
         this.showLegend = false;
