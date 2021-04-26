@@ -66,6 +66,15 @@ function getTickFormat(datasets: Datasets) {
     return tickFormat;
 }
 
+// Is there a better way to measure text size??
+function measureTextSize(text: string) {
+    var container = d3.select("body").append("svg");
+    container.append("text").attr("x", -99999).attr("y", -99999).text(text);
+    var size = container.node().getBBox();
+    container.remove();
+    return { width: size.width, height: size.height };
+}
+
 export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log(renderInfo.datasets);
 
@@ -501,19 +510,26 @@ function renderLegend(
 
     let legend = svg
         .append("g")
+        .attr("id", "legend")
         .attr("transform", "translate(" + legendX + "," + legendY + ")");
     // console.log('legendX: %d, legendY: %d', legendX, legendY);
 
     // Get datasets names
     let names = datasets.getNames();
 
-    let firstMarkerX = 10;
-    let firstMarkerY = 10;
+    let legendMargin = { top: 15, right: 10, bottom: 15, left: 10 };
+    let firstMarkerX = legendMargin.left;
+    let firstMarkerY = legendMargin.top;
     let markerYSpacing = 25;
-    let firstLabelX = firstMarkerX + 20;
+    let markerTextSpacing = 20;
+    let firstLabelX = firstMarkerX + markerTextSpacing;
     let firstLabelY = firstMarkerY;
 
+    let legendBg = legend.append("rect").attr("class", "tracker-legend");
+
     // points
+    let maxDotRadius = 0.0;
+    let numPoints = 0;
     legend
         .selectAll("dots")
         .data(names)
@@ -524,12 +540,19 @@ function renderLegend(
             return firstMarkerY + i * markerYSpacing;
         })
         .attr("r", function (name: string, i: number) {
-            return datasets.getDatasetById(i).getLineInfo().pointSize[i];
+            numPoints++;
+            let radius = datasets.getDatasetById(i).getLineInfo().pointSize[i];
+            if (radius > maxDotRadius) {
+                maxDotRadius = radius;
+            }
+            return radius;
         })
         .style("fill", function (name: string, i: number) {
             return datasets.getDatasetById(i).getLineInfo().pointColor[i];
         });
 
+    let maxTextWidth = 0.0;
+    let maxTextHeight = 0.0;
     // names
     legend
         .selectAll("labels")
@@ -544,10 +567,36 @@ function renderLegend(
             return datasets.getDatasetById(i).getLineInfo().lineColor[i];
         })
         .text(function (name: string) {
+            let textWidth = measureTextSize(name).width;
+            let textHeight = measureTextSize(name).height;
+            if (textWidth > maxTextWidth) {
+                maxTextWidth = textWidth;
+            }
+            if (textHeight > maxTextHeight) {
+                maxTextHeight = textHeight;
+            }
             return name;
         })
         .attr("text-anchor", "left")
         .style("alignment-baseline", "middle");
+
+    // Set the size of legendBg rectangle
+    legendBg
+        .attr(
+            "width",
+            legendMargin.left +
+                maxDotRadius * numPoints +
+                markerTextSpacing +
+                maxTextWidth +
+                legendMargin.right
+        )
+        .attr(
+            "height",
+            legendMargin.top +
+                maxTextHeight * numPoints +
+                markerYSpacing * (numPoints - 1) +
+                legendMargin.bottom
+        );
 }
 
 function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {

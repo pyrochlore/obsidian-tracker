@@ -78,3 +78,9 @@
     stroke: none;
     font-size: 12px;
 }
+
+.tracker-legend {
+    fill: "black";
+    stroke: "white";
+    stroke-width: 1px;
+}
