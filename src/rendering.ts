@@ -462,11 +462,14 @@ function renderBar(
     // console.log("%d/%d", currBarSet, totalNumOfBarSets);
 
     let barGap = 1;
-    let barWidth = width/dataset.getLength();
-    if ((barWidth - barGap) > 0) {
-        barWidth = barWidth - barGap;
+    let barSetWidth = width/dataset.getLength();
+    let barWidth = barSetWidth;
+    if ((barSetWidth - barGap) > 0) {
+        barWidth = barSetWidth - barGap;
     }
     barWidth = barWidth / totalNumOfBarSets;
+
+    let portionLeft = (currBarSet + 1) / totalNumOfBarSets
 
     let bars = dataArea
         .selectAll("bar")
@@ -479,16 +482,33 @@ function renderBar(
         .append("rect")
         .attr("x", function (p: DataPoint, i: number) {
             if (i === 0) {
-                return xScale(p.date);
+                let portionVisible = (currBarSet + 1) - totalNumOfBarSets / 2.0;
+                if (portionVisible < 1.0) {
+                    return xScale(p.date) - barSetWidth / 2.0 + currBarSet * barWidth + portionVisible * barWidth;
+                }
             }
-            return xScale(p.date) - barWidth / 2.0;
+            return xScale(p.date) - barSetWidth / 2.0 + currBarSet * barWidth;
         })
         .attr("y", function (p: DataPoint) {
             return yScale(p.value);
         })
         .attr("width", function (p: DataPoint, i: number) {
-            if (i === 0 || i === (dataset.getLength() -1)) {
-                return barWidth / 2.0;
+            if (i === 0) {
+                let portionVisible = (currBarSet + 1) - totalNumOfBarSets / 2.0;
+                if (portionVisible < 0.0) {
+                    return 0.0;
+                } else if (portionVisible < 1.0) {
+                    return barWidth * portionVisible;
+                }
+                return barWidth;
+            } else if (i === (dataset.getLength() -1)) {
+                let portionVisible = 1.0 - ((currBarSet + 1) - totalNumOfBarSets / 2.0);
+                if (portionVisible < 0.0) {
+                    return 0.0;
+                } else if (portionVisible < 1.0) {
+                    return barWidth * portionVisible;
+                }
+                return barWidth;
             }
             return barWidth;
         })
