@@ -163,9 +163,23 @@ for (
         sinValues.push(sinValue.toFixed(5));
     }
 
-    let tagSin = "#sin-tag";
+    let tagSin = "#sin";
 
     content += tagSin + ":" + sinValues.join("/") + "\n";
+
+    content += "\n";
+
+    let sinSquareValues: Array<string> = [];
+    for (let ind = 0; ind < numSinValues; ind++) {
+        let shift = initPhaseShift + ind * shiftPhase;
+        let sinSquareValue =
+            (amplitude *
+            Math.sin(((2.0 * Math.PI)/period) * (dayCount + shift)))**2;
+        sinSquareValues.push(sinSquareValue.toFixed(5));
+    }
+
+    let tagSinSquare = "#sinsquare";
+    content += tagSinSquare + ":" + sinSquareValues.join("/") + "\n";
 
     content += "\n";
 

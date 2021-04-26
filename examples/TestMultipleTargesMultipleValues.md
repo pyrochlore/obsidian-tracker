@@ -2,7 +2,7 @@
 
 ``` tracker
 searchType: tag
-searchTarget: sin-tag[0]
+searchTarget: sin[0]
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
@@ -14,7 +14,7 @@ line:
 
 ``` tracker
 searchType: tag
-searchTarget: sin-tag[0], sin-tag[1], sin-tag[2], sin-tag[3], sin-tag[4], sin-tag[5], sin-tag[6], sin-tag[7], sin-tag[8]
+searchTarget: sin[0], sin[1], sin[2], sin[3], sin[4], sin[5], sin[6], sin[7], sin[8]
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31

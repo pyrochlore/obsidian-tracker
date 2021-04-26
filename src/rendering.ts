@@ -454,10 +454,19 @@ function renderBar(
     dataset: Dataset,
     xScale: any,
     yScale: any,
-    xOffset: number
+    currBarSet: number,
+    totalNumOfBarSets: number
 ) {
     // console.log(dataset);
     // console.log(barInfo);
+    // console.log("%d/%d", currBarSet, totalNumOfBarSets);
+
+    let barGap = 1;
+    let barWidth = width/dataset.getLength();
+    if ((barWidth - barGap) > 0) {
+        barWidth = barWidth - barGap;
+    }
+    barWidth = barWidth / totalNumOfBarSets;
 
     let bars = dataArea
         .selectAll("bar")
@@ -468,20 +477,30 @@ function renderBar(
         )
         .enter()
         .append("rect")
-        .attr("x", function (p: DataPoint) {
-            return xScale(p.date) + xOffset;
+        .attr("x", function (p: DataPoint, i: number) {
+            if (i === 0) {
+                return xScale(p.date);
+            }
+            return xScale(p.date) - barWidth / 2.0;
         })
         .attr("y", function (p: DataPoint) {
             return yScale(p.value);
         })
-        .attr("width", 2)
+        .attr("width", function (p: DataPoint, i: number) {
+            if (i === 0 || i === (dataset.getLength() -1)) {
+                return barWidth / 2.0;
+            }
+            return barWidth;
+        })
         .attr("height", function (p: DataPoint) {
             if (p.value !== null) {
                 return height - yScale(p.value);
             }
-        });
+        })
+        .attr("class", "tracker-bar");
+    
     if (barInfo.barColor[dataset.getId()]) {
-        bars.attr("fill", barInfo.barColor[dataset.getId()]);
+        bars.style("fill", barInfo.barColor[dataset.getId()]);
     }
 }
 
@@ -708,6 +727,7 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
 function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log("renderBarChart");
     // console.log(renderInfo);
+
     let marginTop = margin.top;
     let marginBottom = margin.bottom;
     if (renderInfo.bar.title) {
@@ -763,6 +783,9 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         datasetOnLeftYAxis
     );
 
+    let totalNumOfBarSets = datasetOnLeftYAxis.length + datasetOnRightYAxis.length;
+    let currBarSet = 0;
+
     for (let datasetId of datasetOnLeftYAxis) {
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
 
@@ -778,8 +801,11 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
             dataset,
             xScale,
             leftYScale,
-            xOffset
+            currBarSet,
+            totalNumOfBarSets
         );
+
+        currBarSet++;
     }
 
     let rightYScale = renderYAxis(
@@ -805,8 +831,11 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
             dataset,
             xScale,
             rightYScale,
-            xOffset
+            currBarSet,
+            totalNumOfBarSets
         );
+
+        currBarSet++;
     }
 
     if (renderInfo.bar.showLegend) {

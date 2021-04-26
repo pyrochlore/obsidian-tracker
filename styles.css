@@ -9,6 +9,9 @@
     --color-dot-fill: #69b3a2;
     --color-dot-stroke: none;
 
+    --color-bar-fill: #69b3a2;
+    --color-bar-stroke: none;
+
     --color-tooltip-bg: #ffffff;
     --color-tooltip-border: #000000;
     --color-tooltip-label: #000000;
@@ -24,6 +27,9 @@
 
     --color-dot-fill: #69b3a2;
     --color-dot-stroke: none;
+
+    --color-bar-fill: #69b3a2;
+    --color-bar-stroke: none;
 
     --color-tooltip-bg: #ffffff;
     --color-tooltip-border: #000000;
@@ -83,4 +89,8 @@
     fill: "black";
     stroke: "white";
     stroke-width: 1px;
+}
+
+.tracker-bar {
+    fill: var(--color-bar-fill);
 }
