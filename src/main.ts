@@ -180,6 +180,17 @@ export default class Tracker extends Plugin {
                     continue;
                 } else {
                     // console.log("file " + fileBaseName + " accepted");
+                    if (renderInfo.startDate !== null)
+                    {
+                        if (fileDate < renderInfo.startDate) {
+                            continue;
+                        }
+                    }
+                    if (renderInfo.endDate !== null) {
+                        if (fileDate > renderInfo.endDate) {
+                            continue;
+                        }
+                    }
                     fileCounter++;
                 }
                 // console.log(query);
