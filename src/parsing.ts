@@ -606,6 +606,16 @@ export function getRenderInfoFromYaml(
     }
     // console.log("renderInfo dateFormat: " + renderInfo.dateFormat);
 
+    // Date format prefix
+    if (typeof yaml.dateFormatPrefix === "string") {
+        renderInfo.dateFormatPrefix = yaml.dateFormatPrefix;
+    }
+
+    // Date fromat suffix
+    if (typeof yaml.dateFormatSuffix === "string") {
+        renderInfo.dateFormatSuffix = yaml.dateFormatSuffix;
+    }
+
     // startDate, endDate
     if (typeof yaml.startDate === "string") {
         let startDate = window.moment(
@@ -617,7 +627,7 @@ export function getRenderInfoFromYaml(
             renderInfo.startDate = startDate;
         } else {
             let errorMessage =
-                "The format of startDate doesn't fit your dateFormat " +
+                "Invalid startDate, the format of startDate may not fit your dateFormat " +
                 renderInfo.dateFormat;
             return errorMessage;
         }
@@ -628,7 +638,7 @@ export function getRenderInfoFromYaml(
             renderInfo.endDate = endDate;
         } else {
             let errorMessage =
-                "The format of endDate doesn't fit your dateFormat " +
+                "Invalid endDate, the format of endDate may not fit your dateFormat " +
                 renderInfo.dateFormat;
             return errorMessage;
         }

@@ -347,6 +347,8 @@ export class RenderInfo {
     queries: Query[];
     folder: string;
     dateFormat: string;
+    dateFormatPrefix: string;
+    dateFormatSuffix: string;
     startDate: Moment | null;
     endDate: Moment | null;
     datasetName: string[];
@@ -367,6 +369,8 @@ export class RenderInfo {
         this.queries = queries;
         this.folder = "/";
         this.dateFormat = "YYYY-MM-DD";
+        this.dateFormatPrefix = "";
+        this.dateFormatSuffix = "";
         this.startDate = null;
         this.endDate = null;
         this.datasetName = []; // untitled

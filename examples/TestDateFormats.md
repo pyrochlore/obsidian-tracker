@@ -62,3 +62,35 @@ line:
     lineColor: yellow
 ```
 
+## dateFormat: YYYYMMDD with prefix D-
+
+``` tracker
+searchType: tag
+searchTarget: weight
+folder: diary
+dateFormatPrefix: D-
+startDate: 20210101
+endDate: 20210105
+line:
+    title: Weight Log
+    yAxisLabel: Weight
+    yAxisUnit: kg
+    lineColor: yellow
+```
+
+## dateFormat: YYYYMMDD with suffix -D
+
+``` tracker
+searchType: tag
+searchTarget: weight
+folder: diary
+dateFormatSuffix: -D
+startDate: 20210101
+endDate: 20210105
+line:
+    title: Weight Log
+    yAxisLabel: Weight
+    yAxisUnit: kg
+    lineColor: yellow
+```
+
