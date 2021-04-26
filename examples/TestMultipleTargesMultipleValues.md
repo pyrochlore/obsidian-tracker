@@ -2,26 +2,25 @@
 
 ``` tracker
 searchType: tag
-searchTarget: crazy-tag[0]
+searchTarget: sin-tag[0]
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
-    title: Crazy Tags
-    yAxisLabel: Crazy Value
+    title: Sin Wave
     lineColor: yellow
 	showLegend: false
 ```
 
 ``` tracker
 searchType: tag
-searchTarget: crazy-tag[0], crazy-tag[1], crazy-tag[2], crazy-tag[3], crazy-tag[4], crazy-tag[5], crazy-tag[6], crazy-tag[7], crazy-tag[8]
+searchTarget: sin-tag[0], sin-tag[1], sin-tag[2], sin-tag[3], sin-tag[4], sin-tag[5], sin-tag[6], sin-tag[7], sin-tag[8]
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
-    title: Crazy Tags
-    yAxisLabel: Crazy Value
-    lineColor: yellow, blue, white, red, black, orange, purple, green
+    title: Sin Wave
+    lineColor: yellow, blue, white, red, black, orange, purple, green, cyan
+	showPoint: false
 	showLegend: false
 ```

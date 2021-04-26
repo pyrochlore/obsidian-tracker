@@ -150,22 +150,22 @@ for (
     content += "\n";
 
     let amplitude = 1.0;
-    let period = 10; // how many days to complete a sin period
-    let numCrazyValues = 9;
-    let initPhaseShift = 0.0;
-    let shiftPhase = 1;
-    let crazyValues: Array<string> = [];
-    for (let ind = 0; ind < numCrazyValues; ind++) {
+    let period = 30; // how many days to complete a sin period
+    let numSinValues = 9;
+    let initPhaseShift = -1.0;
+    let shiftPhase = 1.0;
+    let sinValues: Array<string> = [];
+    for (let ind = 0; ind < numSinValues; ind++) {
         let shift = initPhaseShift + ind * shiftPhase;
-        let crazyValue =
+        let sinValue =
             amplitude *
-            Math.sin((period / (2.0 * Math.PI)) * (dayCount + shift));
-        crazyValues.push(crazyValue.toFixed(5));
+            Math.sin(((2.0 * Math.PI)/period) * (dayCount + shift));
+        sinValues.push(sinValue.toFixed(5));
     }
 
-    let tagCrazy = "#crazy-tag";
+    let tagSin = "#sin-tag";
 
-    content += tagCrazy + ":" + crazyValues.join("/") + "\n";
+    content += tagSin + ":" + sinValues.join("/") + "\n";
 
     content += "\n";
 
