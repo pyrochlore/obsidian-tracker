@@ -1,6 +1,6 @@
 {
   "name": "obsidian-tracker",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Track everything in your daily notes",
   "main": "main.js",
   "scripts": {
