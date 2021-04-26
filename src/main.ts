@@ -163,17 +163,18 @@ export default class Tracker extends Plugin {
         let maxDate = window.moment("");
         let fileCounter = 0;
 
+        // console.log(renderInfo.queries);
         let dataMap = new Map<string, Array<QueryValuePair>>(); // {strDate: [query: value, ...]}
         for (let file of files) {
             for (let query of renderInfo.queries) {
                 let fileBaseName = file.basename;
-                // console.log(fileBaseName);
                 let fileDate = window.moment(
                     fileBaseName,
                     renderInfo.dateFormat,
                     true
                 );
                 // console.log(fileDate);
+                // TODO: should exclude files out of date range
                 if (!fileDate.isValid()) {
                     // console.log("file " + fileBaseName + " rejected");
                     continue;
@@ -181,6 +182,8 @@ export default class Tracker extends Plugin {
                     // console.log("file " + fileBaseName + " accepted");
                     fileCounter++;
                 }
+                // console.log(query);
+                // console.log(fileBaseName);
 
                 // Get min/max date
                 if (fileCounter == 1) {
@@ -271,6 +274,7 @@ export default class Tracker extends Plugin {
                         let frontMatter = fileCache.frontmatter;
                         if (frontMatter) {
                             if (frontMatter[query.getTarget()]) {
+                                // console.log("single value");
                                 // console.log(frontMatter[query.target]);
                                 let value = frontMatter[query.getTarget()];
                                 value = parseFloat(value);
@@ -286,6 +290,7 @@ export default class Tracker extends Plugin {
                                 query.getParentTarget() &&
                                 frontMatter[query.getParentTarget()]
                             ) {
+                                // console.log("multiple values");
                                 // console.log(frontMatter[query.parentTarget]);
                                 let values =
                                     frontMatter[query.getParentTarget()];
@@ -295,6 +300,7 @@ export default class Tracker extends Plugin {
                                         splitted.length > query.getSubId() &&
                                         query.getSubId() >= 0
                                     ) {
+                                        // TODO: it's not efficent to retrieve one value at a time, enhance this
                                         let value = parseFloat(
                                             splitted[query.getSubId()].trim()
                                         );
@@ -351,12 +357,15 @@ export default class Tracker extends Plugin {
 
                     // console.log(content);
                     // Test this in Regex101
-                    //(^|\s)#tagName(\/[\w]+)*(:(?<value>[\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)(?<unit>\w*)?)?([\.!,\?;~-]*)?(\s|$)
+                    // (^|\s)#tagName(:(?<values>[\d\.\/]*)[a-zA-Z]*)?(\s|$|[\.!,\?;~-]*)
+                    let tagName = query.getTarget();
+                    if (query.getParentTarget()) {
+                        tagName = query.getParentTarget(); // use parent tag name for multiple values
+                    }
                     let strHashtagRegex =
                         "(^|\\s)#" +
-                        query.getTarget() +
-                        "(\\/[\\w]+)*" +
-                        "(:(?<value>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?([\\.!,\\?;~-]*)?(\\s|$)";
+                        tagName +
+                        "(:(?<values>[\\d.\\/-]*)[a-zA-Z]*)?(\\s|$|[\\.!,\\?;~-]*)";
                     // console.log(strHashtagRegex);
                     let hashTagRegex = new RegExp(strHashtagRegex, "gm");
                     let match;
@@ -366,13 +375,16 @@ export default class Tracker extends Plugin {
                         // console.log(match);
                         if (
                             !renderInfo.ignoreAttachedValue[query.getId()] &&
-                            match[0].includes(":")
+                            typeof match.groups !== "undefined" &&
+                            typeof match.groups.values !== "undefined"
                         ) {
-                            // match[0] whole match
-                            // console.log("valued-tag");
-                            if (typeof match.groups.value !== "undefined") {
-                                // set as null for missing value if it is valued-tag
-                                let value = parseFloat(match.groups.value);
+                            // console.log("value-attached tag");
+                            let splitted = match.groups.values.split("/");
+                            if (splitted.length === 1) {
+                                // console.log("single-value");
+                                let value = parseFloat(
+                                    match.groups.values.trim()
+                                );
                                 // console.log(value);
                                 if (!Number.isNaN(value)) {
                                     if (
@@ -384,6 +396,19 @@ export default class Tracker extends Plugin {
                                         tagMeasure += value;
                                         tagExist = true;
                                     }
+                                }
+                            } else if (
+                                splitted.length > query.getSubId() &&
+                                query.getSubId() >= 0
+                            ) {
+                                // TODO: it's not efficent to retrieve one value at a time, enhance this
+                                // console.log("multiple-values");
+                                let value = parseFloat(
+                                    splitted[query.getSubId()].trim()
+                                );
+                                if (Number.isNumber(value)) {
+                                    tagMeasure += value;
+                                    tagExist = true;
                                 }
                             }
                         } else {

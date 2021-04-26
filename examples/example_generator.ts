@@ -149,6 +149,26 @@ for (
 
     content += "\n";
 
+    let amplitude = 1.0;
+    let period = 10; // how many days to complete a sin period
+    let numCrazyValues = 9;
+    let initPhaseShift = 0.0;
+    let shiftPhase = 1;
+    let crazyValues: Array<string> = [];
+    for (let ind = 0; ind < numCrazyValues; ind++) {
+        let shift = initPhaseShift + ind * shiftPhase;
+        let crazyValue =
+            amplitude *
+            Math.sin((period / (2.0 * Math.PI)) * (dayCount + shift));
+        crazyValues.push(crazyValue.toFixed(5));
+    }
+
+    let tagCrazy = "#crazy-tag";
+
+    content += tagCrazy + ":" + crazyValues.join("/") + "\n";
+
+    content += "\n";
+
     fs.writeFileSync(fh, content);
     fs.closeSync(fh);
 }
