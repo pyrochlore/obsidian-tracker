@@ -985,37 +985,70 @@ function renderSummary(canvas: HTMLElement, renderInfo: RenderInfo) {
         let strRegex =
             "{{\\s*" +
             fnName +
-            "(\\(\\s*Dataset\\(\\s*(?<datasetId>\\d+)\\s*\\)\\s*\\))?\\s*}}";
+            "(\\(\\s*Dataset\\(\\s*((?<datasetId>\\d+)|(?<datasetName>\\w+))\\s*\\)\\s*\\))?\\s*}}";
         // console.log(strRegex);
         let regex = new RegExp(strRegex, "gm");
         let match;
         while ((match = regex.exec(outputSummary))) {
             // console.log(match);
-            if (
-                typeof match.groups !== "undefined" &&
-                typeof match.groups.datasetId !== "undefined"
-            ) {
-                let datasetId = parseInt(match.groups.datasetId);
-                // console.log(datasetId);
-                if (Number.isInteger(datasetId)) {
-                    let strReplaceRegex =
-                        "{{" +
-                        fnName +
-                        "(\\(Dataset\\(" +
-                        datasetId.toString() +
-                        "\\)\\))?}}";
+            if (typeof match.groups !== "undefined") {
+                if (typeof match.groups.datasetId !== "undefined") {
+                    let datasetId = parseInt(match.groups.datasetId);
+                    // console.log(datasetId);
+                    if (Number.isInteger(datasetId)) {
+                        let strReplaceRegex =
+                            "{{\\s*" +
+                            fnName +
+                            "(\\(\\s*Dataset\\(\\s*" +
+                            datasetId.toString() +
+                            "\\s*\\)\\s*\\))?\\s*}}";
 
+                        if (!(strReplaceRegex in replaceMap)) {
+                            let result = fn(renderInfo, datasetId); // calculate result
+                            let strResult = "{{NA}}";
+                            if (
+                                typeof result !== "undefined" &&
+                                result !== null
+                            ) {
+                                if (Number.isInteger(result)) {
+                                    strResult = result.toFixed(0);
+                                } else {
+                                    strResult = result.toFixed(2);
+                                }
+                            }
+
+                            replaceMap[strReplaceRegex] = strResult;
+                        }
+                    }
+                } else if (typeof match.groups.datasetName !== "undefined") {
+                    let datasetName = match.groups.datasetName;
+                    // console.log(datasetName);
+                    let strReplaceRegex =
+                        "{{\\s*" +
+                        fnName +
+                        "(\\(\\s*Dataset\\(\\s*" +
+                        datasetName +
+                        "\\s*\\)\\s*\\))?\\s*}}";
+
+                    let datasetId = renderInfo.datasetName.indexOf(datasetName);
+                    // console.log(datasetName);
+                    // console.log(renderInfo.datasetName);
+                    // console.log(datasetId);
                     if (!(strReplaceRegex in replaceMap)) {
-                        let result = fn(renderInfo, datasetId); // calculate result
                         let strResult = "{{NA}}";
-                        if (typeof result !== "undefined" && result !== null) {
-                            if (Number.isInteger(result)) {
-                                strResult = result.toFixed(0);
-                            } else {
-                                strResult = result.toFixed(2);
+                        if (datasetId >= 0) {
+                            let result = fn(renderInfo, datasetId); // calculate result
+                            if (
+                                typeof result !== "undefined" &&
+                                result !== null
+                            ) {
+                                if (Number.isInteger(result)) {
+                                    strResult = result.toFixed(0);
+                                } else {
+                                    strResult = result.toFixed(2);
+                                }
                             }
                         }
-
                         replaceMap[strReplaceRegex] = strResult;
                     }
                 }

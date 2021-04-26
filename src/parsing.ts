@@ -661,7 +661,25 @@ export function getRenderInfoFromYaml(
     if (typeof retDatasetName === "string") {
         return retDatasetName; // errorMessage
     }
-    renderInfo.datasetName = retDatasetName;
+    // rename untitled
+    let indUntitled = 0;
+    for (
+        let ind = 0;
+        ind < retDatasetName.length;
+        ind++
+    ) {
+        if (retDatasetName[ind] === "untitled") {
+            retDatasetName[ind] = "untitled" + indUntitled.toString();
+            indUntitled++;
+        }
+    }
+    // Check duplicated names
+    if (new Set(retDatasetName).size === retDatasetName.length) {
+        renderInfo.datasetName = retDatasetName;
+    } else {
+        let errorMessage = "Not enough dataset names or duplicated names";
+        return errorMessage;
+    }
     // console.log(renderInfo.datasetName);
 
     // constValue
