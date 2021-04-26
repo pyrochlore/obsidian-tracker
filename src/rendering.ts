@@ -462,14 +462,14 @@ function renderBar(
     // console.log("%d/%d", currBarSet, totalNumOfBarSets);
 
     let barGap = 1;
-    let barSetWidth = width/dataset.getLength();
+    let barSetWidth = width / dataset.getLength();
     let barWidth = barSetWidth;
-    if ((barSetWidth - barGap) > 0) {
+    if (barSetWidth - barGap > 0) {
         barWidth = barSetWidth - barGap;
     }
     barWidth = barWidth / totalNumOfBarSets;
 
-    let portionLeft = (currBarSet + 1) / totalNumOfBarSets
+    let portionLeft = (currBarSet + 1) / totalNumOfBarSets;
 
     let bars = dataArea
         .selectAll("bar")
@@ -482,9 +482,14 @@ function renderBar(
         .append("rect")
         .attr("x", function (p: DataPoint, i: number) {
             if (i === 0) {
-                let portionVisible = (currBarSet + 1) - totalNumOfBarSets / 2.0;
+                let portionVisible = currBarSet + 1 - totalNumOfBarSets / 2.0;
                 if (portionVisible < 1.0) {
-                    return xScale(p.date) - barSetWidth / 2.0 + currBarSet * barWidth + portionVisible * barWidth;
+                    return (
+                        xScale(p.date) -
+                        barSetWidth / 2.0 +
+                        currBarSet * barWidth +
+                        portionVisible * barWidth
+                    );
                 }
             }
             return xScale(p.date) - barSetWidth / 2.0 + currBarSet * barWidth;
@@ -494,15 +499,16 @@ function renderBar(
         })
         .attr("width", function (p: DataPoint, i: number) {
             if (i === 0) {
-                let portionVisible = (currBarSet + 1) - totalNumOfBarSets / 2.0;
+                let portionVisible = currBarSet + 1 - totalNumOfBarSets / 2.0;
                 if (portionVisible < 0.0) {
                     return 0.0;
                 } else if (portionVisible < 1.0) {
                     return barWidth * portionVisible;
                 }
                 return barWidth;
-            } else if (i === (dataset.getLength() -1)) {
-                let portionVisible = 1.0 - ((currBarSet + 1) - totalNumOfBarSets / 2.0);
+            } else if (i === dataset.getLength() - 1) {
+                let portionVisible =
+                    1.0 - (currBarSet + 1 - totalNumOfBarSets / 2.0);
                 if (portionVisible < 0.0) {
                     return 0.0;
                 } else if (portionVisible < 1.0) {
@@ -518,7 +524,7 @@ function renderBar(
             }
         })
         .attr("class", "tracker-bar");
-    
+
     if (barInfo.barColor[dataset.getId()]) {
         bars.style("fill", barInfo.barColor[dataset.getId()]);
     }
@@ -803,7 +809,8 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         datasetOnLeftYAxis
     );
 
-    let totalNumOfBarSets = datasetOnLeftYAxis.length + datasetOnRightYAxis.length;
+    let totalNumOfBarSets =
+        datasetOnLeftYAxis.length + datasetOnRightYAxis.length;
     let currBarSet = 0;
 
     for (let datasetId of datasetOnLeftYAxis) {

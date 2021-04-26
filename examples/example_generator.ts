@@ -60,8 +60,14 @@ for (
     let diastolicEnd = 100;
     let systolicDeviation = randomIntFromInterval(-5, 5);
     let diastolicDeviation = randomIntFromInterval(-2, 2);
-    let systolic  = (systolicEnd - systolicStart) * dayCount/100 + systolicStart + systolicDeviation;
-    let diastolic = (diastolicEnd - diastolicStart) * dayCount/100 + diastolicStart + diastolicDeviation;
+    let systolic =
+        ((systolicEnd - systolicStart) * dayCount) / 100 +
+        systolicStart +
+        systolicDeviation;
+    let diastolic =
+        ((diastolicEnd - diastolicStart) * dayCount) / 100 +
+        diastolicStart +
+        diastolicDeviation;
     frontmatter += "bloodpressure: " + systolic + "/" + diastolic + "\n";
 
     frontmatter += "---\n";
@@ -159,7 +165,7 @@ for (
         let shift = initPhaseShift + ind * shiftPhase;
         let sinValue =
             amplitude *
-            Math.sin(((2.0 * Math.PI)/period) * (dayCount + shift));
+            Math.sin(((2.0 * Math.PI) / period) * (dayCount + shift));
         sinValues.push(sinValue.toFixed(5));
     }
 
@@ -174,7 +180,8 @@ for (
         let shift = initPhaseShift + ind * shiftPhase;
         let sinSquareValue =
             (amplitude *
-            Math.sin(((2.0 * Math.PI)/period) * (dayCount + shift)))**2;
+                Math.sin(((2.0 * Math.PI) / period) * (dayCount + shift))) **
+            2;
         sinSquareValues.push(sinSquareValue.toFixed(5));
     }
 
