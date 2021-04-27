@@ -121,6 +121,7 @@ First version released at 2021-03-23.
 - [ ] Add a 'targetDataSet' key to graph, allow the graph drawing selected dataset.
 - [ ] Allow tracking datetime value.
 - [ ] Evaluate template by predefined function and arithmetics.
+- [ ] Allow using date defined in frontmatter other than file name.
 
 And more ...
 
