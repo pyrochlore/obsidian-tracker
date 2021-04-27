@@ -1,8 +1,11 @@
 # Test Date Formats
 
+
+## Date Formats
+
 Change the default dateFomat on Tracker settings panel and then check these trackers in the preview mode. Only the one fit dateFomat settings will get rendered.
 
-## dateFomat: YYYY-MM-DD
+### dateFomat: YYYY-MM-DD
 
 ``` tracker
 searchType: tag
@@ -17,7 +20,7 @@ line:
     lineColor: yellow
 ```
 
-## dateFormat: D-YYYYMMDD
+### dateFormat: D-YYYYMMDD
 
 ``` tracker
 searchType: tag
@@ -32,7 +35,7 @@ line:
     lineColor: yellow
 ```
 
-## dateFormat: YYYY-MM-DD-dddd
+### dateFormat: YYYY-MM-DD-dddd
 
 ``` tracker
 searchType: tag
@@ -47,7 +50,7 @@ line:
     lineColor: yellow
 ```
 
-## dateFormat: DD-MM-YYYY
+### dateFormat: DD-MM-YYYY
 
 ``` tracker
 searchType: tag
@@ -62,15 +65,16 @@ line:
     lineColor: yellow
 ```
 
-## dateFormat: YYYYMMDD with prefix D-
+## Stip prefix and suffix
+### dateFormat: YYYYMMDD with prefix D-
 
 ``` tracker
 searchType: tag
 searchTarget: weight
 folder: diary
 dateFormatPrefix: D-
-startDate: 20210101
-endDate: 20210105
+startDate: D-20210101
+endDate: D-20210105
 line:
     title: Weight Log
     yAxisLabel: Weight
@@ -78,15 +82,15 @@ line:
     lineColor: yellow
 ```
 
-## dateFormat: YYYYMMDD with suffix -D
+### dateFormat: YYYYMMDD with suffix -D
 
 ``` tracker
 searchType: tag
 searchTarget: weight
 folder: diary
 dateFormatSuffix: -D
-startDate: 20210101
-endDate: 20210105
+startDate: 20210101-D
+endDate: 20210105-D
 line:
     title: Weight Log
     yAxisLabel: Weight

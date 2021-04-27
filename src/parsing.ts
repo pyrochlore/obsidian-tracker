@@ -618,8 +618,15 @@ export function getRenderInfoFromYaml(
 
     // startDate, endDate
     if (typeof yaml.startDate === "string") {
+        let strStartDate = yaml.startDate;
+        if (renderInfo.dateFormatPrefix && strStartDate.startsWith(renderInfo.dateFormatPrefix)) {
+            strStartDate = strStartDate.slice(renderInfo.dateFormatPrefix.length);
+        }
+        if (renderInfo.dateFormatSuffix && strStartDate.endsWith(renderInfo.dateFormatSuffix)) {
+            strStartDate = strStartDate.slice(0, strStartDate.length - renderInfo.dateFormatSuffix.length);
+        }
         let startDate = window.moment(
-            yaml.startDate,
+            strStartDate,
             renderInfo.dateFormat,
             true
         );
@@ -633,7 +640,14 @@ export function getRenderInfoFromYaml(
         }
     }
     if (typeof yaml.endDate === "string") {
-        let endDate = window.moment(yaml.endDate, renderInfo.dateFormat, true);
+        let strEndDate = yaml.endDate;
+        if (renderInfo.dateFormatPrefix && strEndDate.startsWith(renderInfo.dateFormatPrefix)) {
+            strEndDate = strEndDate.slice(renderInfo.dateFormatPrefix.length);
+        }
+        if (renderInfo.dateFormatSuffix && strEndDate.endsWith(renderInfo.dateFormatSuffix)) {
+            strEndDate = strEndDate.slice(0, strEndDate.length - renderInfo.dateFormatSuffix.length);
+        }
+        let endDate = window.moment(strEndDate, renderInfo.dateFormat, true);
         if (endDate.isValid()) {
             renderInfo.endDate = endDate;
         } else {
