@@ -134,6 +134,12 @@ export default class Tracker extends Plugin {
         const canvas = document.createElement("div");
 
         /* test-code-start */
+        let totalTimeForReadingFiles = 0.0;
+        let timerPostprocessor = new Timer("Postprocessor");
+        timerPostprocessor.start();
+        /* test-code-end */
+
+        /* test-code-start */
         let timer = new Timer("Main");
         timer.start("getRenderInfoFromYAML");
         /* test-code-end */
@@ -483,10 +489,15 @@ export default class Tracker extends Plugin {
                     /* test-code-start */
                     timerTextSearch.start("readingFile");
                     /* test-code-end */
+
                     let content = await this.app.vault.adapter.read(file.path);
+                    // let content = await this.app.vault.cachedRead(file);
+                    // let content = await this.app.vault.read(file);
+
                     /* test-code-start */
-                    timerTextSearch.endAndPrint();
+                    totalTimeForReadingFiles += timerTextSearch.endAndPrint(false);
                     /* test-code-end */
+
                     // console.log(content);
                     let strTextRegex = query.getTarget();
 
@@ -669,8 +680,15 @@ export default class Tracker extends Plugin {
 
         el.appendChild(canvas);
 
-        /* test-code-start */
         timer.endAndPrint();
+        /* test-code-end */
+
+        /* test-code-start */
+        console.log(
+            "total time for reading files: " +
+                totalTimeForReadingFiles.toFixed(0)
+        );
+        timerPostprocessor.endAndPrint();
         /* test-code-end */
     }
 

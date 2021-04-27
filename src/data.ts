@@ -508,23 +508,36 @@ export class Timer {
         this.timeEnd = null;
     }
 
-    public start(sectionName: string) {
+    public start(sectionName: string = "") {
         this.sectionName = sectionName;
         this.timeStart = process.hrtime();
     }
 
-    public endAndPrint() {
+    public endAndPrint(consoleLog: boolean = true) {
+        let msSpent = -1.0;
         if (this.timeStart !== null) {
             this.timeEnd = process.hrtime(this.timeStart);
             this.timeStart = null;
-            console.log(
-                this.name + ": " +
-                "time spent on '" + this.sectionName + "': %dms",
-                this.timeEnd[1] / 100000
-            );
+            msSpent = this.timeEnd[1] / 100000;
+            if (consoleLog) {
+                if (this.sectionName) {
+                    console.log(
+                        this.name +
+                            ": " +
+                            "time spent on '" +
+                            this.sectionName +
+                            "': %dms",
+                        msSpent
+                    );
+                } else {
+                    console.log(this.name + ": %dms", msSpent);
+                }
+            }
         } else {
             console.log("Start the timer first");
         }
+
+        return msSpent;
     }
 }
 /* test-code-end */
