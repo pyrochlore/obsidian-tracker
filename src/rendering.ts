@@ -1051,8 +1051,7 @@ function renderSummary(canvas: HTMLElement, renderInfo: RenderInfo) {
                         }
                         replaceMap[strReplaceRegex] = strResult;
                     }
-                }
-                else {
+                } else {
                     // no datasetId assigned use id 0
                     // console.log("{{" + fnName + "}}")
                     let strReplaceRegex = "{{\\s*" + fnName + "\\s*}}";

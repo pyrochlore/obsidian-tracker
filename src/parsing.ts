@@ -619,11 +619,22 @@ export function getRenderInfoFromYaml(
     // startDate, endDate
     if (typeof yaml.startDate === "string") {
         let strStartDate = yaml.startDate;
-        if (renderInfo.dateFormatPrefix && strStartDate.startsWith(renderInfo.dateFormatPrefix)) {
-            strStartDate = strStartDate.slice(renderInfo.dateFormatPrefix.length);
+        if (
+            renderInfo.dateFormatPrefix &&
+            strStartDate.startsWith(renderInfo.dateFormatPrefix)
+        ) {
+            strStartDate = strStartDate.slice(
+                renderInfo.dateFormatPrefix.length
+            );
         }
-        if (renderInfo.dateFormatSuffix && strStartDate.endsWith(renderInfo.dateFormatSuffix)) {
-            strStartDate = strStartDate.slice(0, strStartDate.length - renderInfo.dateFormatSuffix.length);
+        if (
+            renderInfo.dateFormatSuffix &&
+            strStartDate.endsWith(renderInfo.dateFormatSuffix)
+        ) {
+            strStartDate = strStartDate.slice(
+                0,
+                strStartDate.length - renderInfo.dateFormatSuffix.length
+            );
         }
         let startDate = window.moment(
             strStartDate,
@@ -641,11 +652,20 @@ export function getRenderInfoFromYaml(
     }
     if (typeof yaml.endDate === "string") {
         let strEndDate = yaml.endDate;
-        if (renderInfo.dateFormatPrefix && strEndDate.startsWith(renderInfo.dateFormatPrefix)) {
+        if (
+            renderInfo.dateFormatPrefix &&
+            strEndDate.startsWith(renderInfo.dateFormatPrefix)
+        ) {
             strEndDate = strEndDate.slice(renderInfo.dateFormatPrefix.length);
         }
-        if (renderInfo.dateFormatSuffix && strEndDate.endsWith(renderInfo.dateFormatSuffix)) {
-            strEndDate = strEndDate.slice(0, strEndDate.length - renderInfo.dateFormatSuffix.length);
+        if (
+            renderInfo.dateFormatSuffix &&
+            strEndDate.endsWith(renderInfo.dateFormatSuffix)
+        ) {
+            strEndDate = strEndDate.slice(
+                0,
+                strEndDate.length - renderInfo.dateFormatSuffix.length
+            );
         }
         let endDate = window.moment(strEndDate, renderInfo.dateFormat, true);
         if (endDate.isValid()) {
@@ -687,11 +707,7 @@ export function getRenderInfoFromYaml(
     }
     // rename untitled
     let indUntitled = 0;
-    for (
-        let ind = 0;
-        ind < retDatasetName.length;
-        ind++
-    ) {
+    for (let ind = 0; ind < retDatasetName.length; ind++) {
         if (retDatasetName[ind] === "untitled") {
             retDatasetName[ind] = "untitled" + indUntitled.toString();
             indUntitled++;

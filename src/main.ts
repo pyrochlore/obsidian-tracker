@@ -169,14 +169,25 @@ export default class Tracker extends Plugin {
             for (let query of renderInfo.queries) {
                 let fileBaseName = file.basename;
 
-                if (renderInfo.dateFormatPrefix && fileBaseName.startsWith(renderInfo.dateFormatPrefix)) {
-                    fileBaseName = fileBaseName.slice(renderInfo.dateFormatPrefix.length);
+                if (
+                    renderInfo.dateFormatPrefix &&
+                    fileBaseName.startsWith(renderInfo.dateFormatPrefix)
+                ) {
+                    fileBaseName = fileBaseName.slice(
+                        renderInfo.dateFormatPrefix.length
+                    );
                 }
-                if (renderInfo.dateFormatSuffix && fileBaseName.endsWith(renderInfo.dateFormatSuffix)) {
-                    fileBaseName = fileBaseName.slice(0, fileBaseName.length - renderInfo.dateFormatSuffix.length);
+                if (
+                    renderInfo.dateFormatSuffix &&
+                    fileBaseName.endsWith(renderInfo.dateFormatSuffix)
+                ) {
+                    fileBaseName = fileBaseName.slice(
+                        0,
+                        fileBaseName.length - renderInfo.dateFormatSuffix.length
+                    );
                 }
                 // console.log(fileBaseName);
-                
+
                 let fileDate = window.moment(
                     fileBaseName,
                     renderInfo.dateFormat,
