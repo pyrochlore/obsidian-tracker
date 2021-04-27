@@ -1052,9 +1052,29 @@ function renderSummary(canvas: HTMLElement, renderInfo: RenderInfo) {
                         replaceMap[strReplaceRegex] = strResult;
                     }
                 }
+                else {
+                    // no datasetId assigned use id 0
+                    // console.log("{{" + fnName + "}}")
+                    let strReplaceRegex = "{{\\s*" + fnName + "\\s*}}";
+                    if (!(strReplaceRegex in replaceMap)) {
+                        let result = fn(renderInfo, 0); // calculate result
+                        let strResult = "{{NA}}";
+                        if (typeof result !== "undefined" && result !== null) {
+                            if (Number.isInteger(result)) {
+                                strResult = result.toFixed(0);
+                            } else {
+                                strResult = result.toFixed(2);
+                            }
+                        }
+
+                        replaceMap[strReplaceRegex] = strResult;
+                    }
+                }
             } else {
+                // groups undefined
                 // no datasetId assigned use id 0
-                let strReplaceRegex = "{{" + fnName + "}}";
+                // console.log("{{" + fnName + "}}")
+                let strReplaceRegex = "{{\\s*" + fnName + "\\s*}}";
                 if (!(strReplaceRegex in replaceMap)) {
                     let result = fn(renderInfo, 0); // calculate result
                     let strResult = "{{NA}}";
