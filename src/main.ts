@@ -376,7 +376,7 @@ export default class Tracker extends Plugin {
 
                     // console.log(content);
                     // Test this in Regex101
-                    // (^|\s)#tagName(:(?<values>[\d\.\/]*)[a-zA-Z]*)?(\s|$|[\.!,\?;~-]*)
+                    // (^|\s)#tagName(:(?<values>[\d\.\/-]*)[a-zA-Z]*)?([\\.!,\\?;~-]*)?(\s|$)
                     let tagName = query.getTarget();
                     if (query.getParentTarget()) {
                         tagName = query.getParentTarget(); // use parent tag name for multiple values
@@ -384,7 +384,7 @@ export default class Tracker extends Plugin {
                     let strHashtagRegex =
                         "(^|\\s)#" +
                         tagName +
-                        "(:(?<values>[\\d.\\/-]*)[a-zA-Z]*)?(\\s|$|[\\.!,\\?;~-]*)";
+                        "(:(?<values>[\\d\\.\\/-]*)[a-zA-Z]*)?([\\.!,\\?;~-]*)?(\\s|$)";
                     // console.log(strHashtagRegex);
                     let hashTagRegex = new RegExp(strHashtagRegex, "gm");
                     let match;
