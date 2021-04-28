@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import { NamespaceLocalObject } from "d3";
 import {
     Datasets,
     DataPoint,
@@ -6,6 +7,8 @@ import {
     Dataset,
     LineInfo,
     BarInfo,
+    Size,
+    Transform,
 } from "./data";
 
 // Dimension
@@ -13,6 +16,9 @@ let margin = { top: 10, right: 70, bottom: 70, left: 70 };
 let width = 500 - margin.left - margin.right;
 let height = 400 - margin.top - margin.bottom;
 let tooltipSize = { width: 90, height: 45 };
+let titleHeight = 0.0;
+let xAxisLabelHeight = 0.0;
+let yAxisLabelWidth = 0.0;
 
 function getTickInterval(datasets: Datasets) {
     let tickInterval;
@@ -67,15 +73,30 @@ function getTickFormat(datasets: Datasets) {
 }
 
 // Is there a better way to measure text size??
-function measureTextSize(text: string) {
+function measureTextSize(
+    text: string,
+    styleClass: string = "",
+    rotate: string = ""
+): Size {
     var container = d3.select("body").append("svg");
-    container.append("text").attr("x", -99999).attr("y", -99999).text(text);
+    let textBlock = container
+        .append("text")
+        .text(text)
+        .attr("x", -99999)
+        .attr("y", -99999);
+    if (styleClass) {
+        textBlock.attr("class", styleClass);
+    }
+    if (rotate) {
+        textBlock.attr("transform", "rotate(" + rotate + ")");
+    }
     var size = container.node().getBBox();
     container.remove();
     return { width: size.width, height: size.height };
 }
 
 export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
+    // console.log("render");
     // console.log(renderInfo.datasets);
 
     // Data preprocessing
@@ -110,6 +131,7 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
 }
 
 function renderXAxis(
+    svg: any,
     graphArea: any,
     datasets: Datasets,
     renderInfo: LineInfo | BarInfo
@@ -124,18 +146,21 @@ function renderXAxis(
         .axisBottom(xScale)
         .ticks(tickInterval)
         .tickFormat(tickFormat);
-    let xAxis = graphArea
+    let xAxis = graphArea // axis includes ticks
         .append("g")
-        .attr("transform", "translate(0," + height + ")")
+        .attr("id", "xAxis")
+        .attr("transform", "translate(0," + height + ")") // relative to graphArea
         .call(xAxisGen)
         .attr("class", "tracker-axis");
     if (renderInfo.xAxisColor) {
         xAxis.style("stroke", renderInfo.xAxisColor);
     }
 
+    let textSize = measureTextSize("99-99-99");
+
     let xAxisTickLabels = xAxis
         .selectAll("text")
-        .attr("x", -9)
+        .attr("x", -1 * textSize.height * Math.cos((65 / 180) * Math.PI))
         .attr("y", 0)
         .attr("transform", "rotate(-65)")
         .style("text-anchor", "end")
@@ -144,22 +169,35 @@ function renderXAxis(
         xAxisTickLabels.style("fill", renderInfo.xAxisColor);
     }
 
+    let tickLength = 6;
+    let tickLabelHeight = textSize.width * Math.sin((65 / 180) * Math.PI);
     let xAxisLabel = xAxis
         .append("text")
         .text(renderInfo.xAxisLabel)
         .attr(
             "transform",
-            "translate(" + width / 2 + " ," + margin.bottom + ")"
+            "translate(" +
+                width / 2 +
+                "," +
+                (tickLength + tickLabelHeight) +
+                ")"
         )
         .attr("class", "tracker-axis-label");
     if (renderInfo.xAxisLabelColor) {
         xAxisLabel.style("fill", renderInfo.xAxisLabelColor);
     }
 
-    return xScale;
+    // Expand svg height
+    let svgHeight = parseFloat(svg.attr("height"));
+    svg.attr("height", svgHeight + tickLength + tickLabelHeight);
+
+    xAxis.attr("height", tickLength + tickLabelHeight);
+
+    return [xAxis, xScale];
 }
 
 function renderYAxis(
+    svg: any,
     graphArea: any,
     datasets: Datasets,
     renderInfo: LineInfo | BarInfo,
@@ -171,7 +209,7 @@ function renderYAxis(
     // console.log(datasetIds);
 
     if (datasetIds.length === 0) {
-        return null;
+        return [null, null];
     }
 
     let yMinOfDatasets = null;
@@ -250,6 +288,7 @@ function renderYAxis(
     }
     let yAxis = graphArea
         .append("g")
+        .attr("id", "yAxis")
         .call(yAxisGen)
         .attr("class", "tracker-axis");
     if (location == "right") {
@@ -273,25 +312,53 @@ function renderYAxis(
         yAxisTickLabels.style("fill", yAxisColor);
     }
 
+    // Get max tick label width
+    let yTickFormat = d3.tickFormat(yLower, yUpper, 10);
+    let yLowerLabelSize = measureTextSize(
+        yTickFormat(yLower),
+        "tracker-axis-label"
+    );
+    let yUpperLabelSize = measureTextSize(
+        yTickFormat(yUpper),
+        "tracker-axis-label"
+    );
+    let maxTickLabelWidth = Math.max(
+        yLowerLabelSize.width,
+        yUpperLabelSize.width
+    );
+
     if (yAxisUnitText !== "") {
         yAxisLabelText += " (" + yAxisUnitText + ")";
     }
+    let yTickLength = 6;
+    let yAxisLabelSize = measureTextSize(yAxisLabelText);
     let yAxisLabel = yAxis
         .append("text")
         .text(yAxisLabelText)
         .attr("transform", "rotate(-90)")
-        .attr("x", 0 - height / 2)
+        .attr("x", -height / 2.0)
         .attr("class", "tracker-axis-label");
     if (location === "left") {
-        yAxisLabel.attr("y", 0 - margin.left / 2);
+        yAxisLabel.attr(
+            "y",
+            -yTickLength - maxTickLabelWidth - yAxisLabelSize.height / 2.0
+        );
     } else {
-        yAxisLabel.attr("y", 0 + margin.right / 1.5);
+        yAxisLabel.attr(
+            "y",
+            +yTickLength + maxTickLabelWidth + yAxisLabelSize.height / 2.0
+        );
     }
     if (yAxisLabelColor) {
         yAxisLabel.style("fill", yAxisLabelColor);
     }
 
-    return yScale;
+    yAxis.attr(
+        "width",
+        yAxisLabelSize.height + maxTickLabelWidth + yTickLength
+    );
+
+    return [yAxis, yScale];
 }
 
 function renderLine(
@@ -532,25 +599,113 @@ function renderBar(
 
 function renderLegend(
     svg: any,
+    graphArea: any,
+    title: any,
+    xAxis: any,
+    leftYAxis: any,
+    rightYAxis: any,
     datasets: Datasets,
-    position: string | { x: number; y: number }
+    renderInfo: LineInfo | BarInfo
 ) {
-    let legendX = 0.0;
-    let legendY = 0.0;
-    if (typeof position === "string") {
-        if (position.toLowerCase() === "top") {
-        } else if (position.toLowerCase() === "bottom") {
-            legendX = width / 2.0 + margin.left - 60;
-            legendY = height + margin.bottom + margin.top + 40;
-        } else if (position.toLowerCase() === "left") {
-        } else if (position.toLowerCase() === "right") {
-        } else if (position.toLowerCase() === "center") {
-            legendX = width / 2.0 + margin.left;
-            legendY = height / 2.0 + margin.top;
+    let svgHeight = parseFloat(svg.attr("height"));
+    let svgWidth = parseFloat(svg.attr("width"));
+    let titleHeight = 0.0;
+    if (title) {
+        titleHeight = parseFloat(title.attr("height"));
+    }
+    let xAxisHeight = parseFloat(xAxis.attr("height"));
+    let leftYAxisWidth = 0.0;
+    if (leftYAxis) {
+        leftYAxisWidth = parseFloat(leftYAxis.attr("width"));
+    }
+    let rightYAxisWidth = 0.0;
+    if (rightYAxis) {
+        rightYAxisWidth = parseFloat(rightYAxis.attr("width"));
+    }
+
+    // Get datasets names and dimensions
+    let names = datasets.getNames();
+    let nameSizes = names.map(function (n) {
+        return measureTextSize(n, "tracker-legend-label");
+    });
+    let indMaxName = 0;
+    let maxNameWidth = 0.0;
+    for (let ind = 0; ind < names.length; ind++) {
+        if (nameSizes[ind].width > maxNameWidth) {
+            maxNameWidth = nameSizes[ind].width;
+            indMaxName = ind;
         }
+    }
+    let characterWidth = maxNameWidth / names[indMaxName].length;
+    let nameHeight = nameSizes[indMaxName].height;
+    let numNames = names.length;
+
+    let xSpacing = 2 * characterWidth;
+    let ySpacing = nameHeight;
+    let markerWidth = 2 * characterWidth;
+
+    // Get legend width and height
+    let legendWidth = 0;
+    let legendHeight = 0;
+    if (renderInfo.legendOrientation === "vertical") {
+        legendWidth = xSpacing * 3 + markerWidth + maxNameWidth;
+        legendHeight = (numNames + 1) * ySpacing;
     } else {
-        legendX = position.x;
-        legendY = position.y;
+        legendWidth =
+            xSpacing * (numNames + 1) +
+            markerWidth +
+            d3.sum(nameSizes, function (s) {
+                return s.width;
+            });
+        legendHeight = ySpacing * 2 + nameHeight;
+    }
+
+    let legendX = 0.0; // relative to svg
+    let legendY = 0.0;
+    if (renderInfo.legendPosition === "top") {
+        // below title
+        legendX = margin.left + width / 2.0 - legendWidth / 2.0; // relative to svg
+        legendY = margin.top + titleHeight;
+        // Expand svg
+        svg.attr("height", svgHeight + legendHeight);
+        // Move graphArea down
+        let graphAreaTrans = new Transform(graphArea.attr("transform"));
+        graphArea.attr(
+            "transform",
+            "translate(" +
+                graphAreaTrans.translateX +
+                "," +
+                (graphAreaTrans.translateY + legendHeight) +
+                ")"
+        );
+    } else if (renderInfo.legendPosition === "bottom") {
+        // bellow x-axis label
+        legendX = margin.left + width / 2.0 - legendWidth / 2.0; // relative to svg
+        legendY = margin.top + titleHeight + height + xAxisHeight + ySpacing;
+        // Expand svg
+        svg.attr("height", svgHeight + legendHeight);
+    } else if (renderInfo.legendPosition === "left") {
+        legendX = margin.left - leftYAxisWidth - xSpacing;
+        legendY = margin.top + titleHeight + height / 2.0 - legendHeight / 2.0;
+        // Expand svg
+        svg.attr("width", svgWidth + legendWidth);
+        // Move graphArea right
+        let graphAreaTrans = new Transform(graphArea.attr("transform"));
+        graphArea.attr(
+            "transform",
+            "translate(" +
+                (graphAreaTrans.translateX + legendWidth) +
+                "," +
+                graphAreaTrans.translateY +
+                ")"
+        );
+    } else if (renderInfo.legendPosition === "right") {
+        legendX = margin.left + width + rightYAxisWidth + xSpacing;
+        legendY = margin.top + titleHeight + height / 2.0 - legendHeight / 2.0;
+        // Expand svg
+        svg.attr("width", svgWidth + legendWidth);
+    } else {
+        return;
     }
 
     let legend = svg
@@ -559,129 +714,210 @@ function renderLegend(
         .attr("transform", "translate(" + legendX + "," + legendY + ")");
     // console.log('legendX: %d, legendY: %d', legendX, legendY);
 
-    // Get datasets names
-    let names = datasets.getNames();
+    let legendBg = legend
+        .append("rect")
+        .attr("class", "tracker-legend")
+        .attr("width", legendWidth)
+        .attr("height", legendHeight);
 
-    let legendMargin = { top: 15, right: 10, bottom: 15, left: 10 };
-    let firstMarkerX = legendMargin.left;
-    let firstMarkerY = legendMargin.top;
-    let markerYSpacing = 25;
-    let markerTextSpacing = 20;
-    let firstLabelX = firstMarkerX + markerTextSpacing;
+    let firstMarkerX = xSpacing;
+    let firstMarkerY = nameHeight;
+    let firstLabelX = firstMarkerX + xSpacing + markerWidth; // xSpacing + 2 * xSpaing
     let firstLabelY = firstMarkerY;
 
-    let legendBg = legend.append("rect").attr("class", "tracker-legend");
+    if (renderInfo.legendOrientation === "vertical") {
+        // points
+        legend
+            .selectAll("markers")
+            .data(names)
+            .enter()
+            .append("circle")
+            .attr("cx", firstMarkerX)
+            .attr("cy", function (name: string, i: number) {
+                return firstMarkerY + i * ySpacing;
+            })
+            .attr("r", function (name: string, i: number) {
+                if (datasets.getDatasetById(i).getLineInfo().showPoint[i]) {
+                    return datasets.getDatasetById(i).getLineInfo().pointSize[
+                        i
+                    ];
+                }
+                return 0.0;
+            })
+            .style("fill", function (name: string, i: number) {
+                return datasets.getDatasetById(i).getLineInfo().pointColor[i];
+            });
 
-    // points
-    let maxDotRadius = 0.0;
-    let numPoints = 0;
-    legend
-        .selectAll("dots")
-        .data(names)
-        .enter()
-        .append("circle")
-        .attr("cx", firstMarkerX)
-        .attr("cy", function (name: string, i: number) {
-            return firstMarkerY + i * markerYSpacing;
-        })
-        .attr("r", function (name: string, i: number) {
-            numPoints++;
-            let radius = datasets.getDatasetById(i).getLineInfo().pointSize[i];
-            if (radius > maxDotRadius) {
-                maxDotRadius = radius;
-            }
-            return radius;
-        })
-        .style("fill", function (name: string, i: number) {
-            return datasets.getDatasetById(i).getLineInfo().pointColor[i];
-        });
+        // lines
+        legend
+            .selectAll("markers")
+            .data(names)
+            .enter()
+            .append("line")
+            .attr("x1", firstMarkerX)
+            .attr("x2", firstMarkerX + markerWidth)
+            .attr("y1", function (name: string, i: number) {
+                return firstMarkerY + i * ySpacing;
+            })
+            .attr("y2", function (name: string, i: number) {
+                return firstMarkerY + i * ySpacing;
+            })
+            .style("stroke", function (name: string, i: number) {
+                return datasets.getDatasetById(i).getLineInfo().lineColor[i];
+            });
+        // bars
 
-    let maxTextWidth = 0.0;
-    let maxTextHeight = 0.0;
-    // names
-    legend
-        .selectAll("labels")
-        .data(names)
-        .enter()
+        // names
+        legend
+            .selectAll("labels")
+            .data(names)
+            .enter()
+            .append("text")
+            .attr("x", firstLabelX)
+            .attr("y", function (name: string, i: number) {
+                return firstLabelY + i * ySpacing;
+            }) // 100 is where the first dot appears. 25 is the distance between dots
+            .style("fill", function (name: string, i: number) {
+                return datasets.getDatasetById(i).getLineInfo().lineColor[i];
+            })
+            .text(function (name: string) {
+                return name;
+            })
+            .style("alignment-baseline", "middle")
+            .attr("class", "tracker-legend-label");
+    } else if (renderInfo.legendOrientation === "horizontal") {
+        // points
+        legend
+            .selectAll("markers")
+            .data(names)
+            .enter()
+            .append("circle")
+            .attr("cx", firstMarkerX)
+            .attr("cy", function (name: string, i: number) {
+                return firstMarkerY + i * ySpacing;
+            })
+            .attr("r", function (name: string, i: number) {
+                if (datasets.getDatasetById(i).getLineInfo().showPoint[i]) {
+                    return datasets.getDatasetById(i).getLineInfo().pointSize[
+                        i
+                    ];
+                }
+                return 0.0;
+            })
+            .style("fill", function (name: string, i: number) {
+                return datasets.getDatasetById(i).getLineInfo().pointColor[i];
+            });
+
+        // lines
+        legend
+            .selectAll("markers")
+            .data(names)
+            .enter()
+            .append("line")
+            .attr("x1", firstMarkerX)
+            .attr("x2", firstMarkerX + markerWidth)
+            .attr("y1", function (name: string, i: number) {
+                return firstMarkerY + i * ySpacing;
+            })
+            .attr("y2", function (name: string, i: number) {
+                return firstMarkerY + i * ySpacing;
+            })
+            .style("stroke", function (name: string, i: number) {
+                return datasets.getDatasetById(i).getLineInfo().lineColor[i];
+            });
+        // bars
+
+        // names
+        legend
+            .selectAll("labels")
+            .data(names)
+            .enter()
+            .append("text")
+            .attr("x", firstLabelX)
+            .attr("y", function (name: string, i: number) {
+                return firstLabelY + i * ySpacing;
+            }) // 100 is where the first dot appears. 25 is the distance between dots
+            .style("fill", function (name: string, i: number) {
+                return datasets.getDatasetById(i).getLineInfo().lineColor[i];
+            })
+            .text(function (name: string) {
+                return name;
+            })
+            .style("alignment-baseline", "middle")
+            .attr("class", "tracker-legend-label");
+    }
+}
+
+function renderTitle(svg: any, graphArea: any, strTitle: string) {
+    // console.log("renderTitle")
+
+    let titleSize = measureTextSize(strTitle, "tracker-title");
+
+    // Expand svg height
+    let svgHeight = parseFloat(svg.attr("height"));
+    svg.attr("height", svgHeight + titleSize.height);
+
+    // Move graphArea down
+    let graphAreaTrans = new Transform(graphArea.attr("transform"));
+    graphArea.attr(
+        "transform",
+        "translate(" +
+            graphAreaTrans.translateX +
+            "," +
+            (graphAreaTrans.translateY + titleSize.height) +
+            ")"
+    );
+
+    // Append title
+    let title = svg
         .append("text")
-        .attr("x", firstLabelX)
-        .attr("y", function (name: string, i: number) {
-            return firstLabelY + i * markerYSpacing;
-        }) // 100 is where the first dot appears. 25 is the distance between dots
-        .style("fill", function (name: string, i: number) {
-            return datasets.getDatasetById(i).getLineInfo().lineColor[i];
-        })
-        .text(function (name: string) {
-            let textWidth = measureTextSize(name).width;
-            let textHeight = measureTextSize(name).height;
-            if (textWidth > maxTextWidth) {
-                maxTextWidth = textWidth;
-            }
-            if (textHeight > maxTextHeight) {
-                maxTextHeight = textHeight;
-            }
-            return name;
-        })
-        .attr("text-anchor", "left")
-        .style("alignment-baseline", "middle");
-
-    // Set the size of legendBg rectangle
-    legendBg
+        .text(strTitle) // pivot at center
+        .attr("id", "title")
         .attr(
-            "width",
-            legendMargin.left +
-                maxDotRadius * numPoints +
-                markerTextSpacing +
-                maxTextWidth +
-                legendMargin.right
+            "transform",
+            "translate(" +
+                (margin.left + width / 2.0) +
+                "," +
+                (margin.top + titleSize.height / 2.0) +
+                ")"
         )
-        .attr(
-            "height",
-            legendMargin.top +
-                maxTextHeight * numPoints +
-                markerYSpacing * (numPoints - 1) +
-                legendMargin.bottom
-        );
+        .attr("height", titleSize.height) // for later use
+        .attr("class", "tracker-title");
+
+    return title;
 }
 
 function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log("renderLineChart");
     // console.log(renderInfo);
 
-    let marginTop = margin.top;
-    let marginBottom = margin.bottom;
-    if (renderInfo.line.title) {
-        marginTop += 20;
-    }
-    if (renderInfo.line.showLegend) {
-        marginBottom += 20 + renderInfo.datasets.getNames().length * 25;
-    }
-
+    // whole area for plotting
     let svg = d3
         .select(canvas)
         .append("svg")
+        .attr("id", "svg")
         .attr("width", width + margin.left + margin.right)
-        .attr("height", height + marginTop + marginBottom);
+        .attr("height", height + margin.top + margin.bottom);
 
+    //
     let graphArea = svg
         .append("g")
-        .attr("transform", "translate(" + margin.left + "," + marginTop + ")");
+        .attr("id", "graphArea")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    // Add graph title
+    let dataArea = graphArea.append("g").attr("id", "dataArea");
+
+    let title = null;
     if (renderInfo.line.title) {
-        graphArea
-            .append("text")
-            .text(renderInfo.line.title)
-            .attr(
-                "transform",
-                "translate(" + width / 2 + "," + margin.top / 4 + ")"
-            )
-            .attr("class", "tracker-title");
+        title = renderTitle(svg, graphArea, renderInfo.line.title);
     }
 
-    let dataArea = graphArea.append("g");
-
-    let xScale = renderXAxis(graphArea, renderInfo.datasets, renderInfo.line);
+    let [xAxis, xScale] = renderXAxis(
+        svg,
+        graphArea,
+        renderInfo.datasets,
+        renderInfo.line
+    );
 
     let datasetOnLeftYAxis = [];
     let datasetOnRightYAxis = [];
@@ -695,7 +931,8 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    let leftYScale = renderYAxis(
+    let [leftYAxis, leftYScale] = renderYAxis(
+        svg,
         graphArea,
         renderInfo.datasets,
         renderInfo.line,
@@ -703,7 +940,7 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         datasetOnLeftYAxis
     );
 
-    if (leftYScale) {
+    if (leftYAxis && leftYScale) {
         for (let datasetId of datasetOnLeftYAxis) {
             let dataset = renderInfo.datasets.getDatasetById(datasetId);
 
@@ -720,7 +957,8 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    let rightYScale = renderYAxis(
+    let [rightYAxis, rightYScale] = renderYAxis(
+        svg,
         graphArea,
         renderInfo.datasets,
         renderInfo.line,
@@ -728,7 +966,7 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         datasetOnRightYAxis
     );
 
-    if (rightYScale) {
+    if (rightYAxis && rightYScale) {
         for (let datasetId of datasetOnRightYAxis) {
             let dataset = renderInfo.datasets.getDatasetById(datasetId);
 
@@ -746,7 +984,16 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     }
 
     if (renderInfo.line.showLegend) {
-        renderLegend(svg, renderInfo.datasets, renderInfo.line.legendPosition);
+        renderLegend(
+            svg,
+            graphArea,
+            title,
+            xAxis,
+            leftYAxis,
+            rightYAxis,
+            renderInfo.datasets,
+            renderInfo.line
+        );
     }
 }
 
@@ -754,40 +1001,32 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log("renderBarChart");
     // console.log(renderInfo);
 
-    let marginTop = margin.top;
-    let marginBottom = margin.bottom;
-    if (renderInfo.bar.title) {
-        marginTop += 20;
-    }
-    if (renderInfo.bar.showLegend) {
-        marginBottom += 20 + renderInfo.datasets.getNames().length * 25;
-    }
-
+    // whole area for plotting
     let svg = d3
         .select(canvas)
         .append("svg")
+        .attr("id", "svg")
         .attr("width", width + margin.left + margin.right)
-        .attr("height", height + marginTop + marginBottom);
+        .attr("height", height + margin.top + margin.bottom);
 
     let graphArea = svg
         .append("g")
-        .attr("transform", "translate(" + margin.left + "," + marginTop + ")");
+        .attr("id", "graphArea")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    // Add graph title
+    let dataArea = graphArea.append("g").attr("id", "dataArea");
+
+    let title = null;
     if (renderInfo.bar.title) {
-        graphArea
-            .append("text")
-            .text(renderInfo.bar.title)
-            .attr(
-                "transform",
-                "translate(" + width / 2 + "," + margin.top / 4 + ")"
-            )
-            .attr("class", "tracker-title");
+        title = renderTitle(svg, graphArea, renderInfo.bar.title);
     }
 
-    let dataArea = graphArea.append("g");
-
-    let xScale = renderXAxis(graphArea, renderInfo.datasets, renderInfo.bar);
+    let [xAxis, xScale] = renderXAxis(
+        svg,
+        graphArea,
+        renderInfo.datasets,
+        renderInfo.bar
+    );
 
     let datasetOnLeftYAxis = [];
     let datasetOnRightYAxis = [];
@@ -801,7 +1040,8 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    let leftYScale = renderYAxis(
+    let [leftYAxis, leftYScale] = renderYAxis(
+        svg,
         graphArea,
         renderInfo.datasets,
         renderInfo.bar,
@@ -813,29 +1053,32 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         datasetOnLeftYAxis.length + datasetOnRightYAxis.length;
     let currBarSet = 0;
 
-    for (let datasetId of datasetOnLeftYAxis) {
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
+    if (leftYAxis && leftYScale) {
+        for (let datasetId of datasetOnLeftYAxis) {
+            let dataset = renderInfo.datasets.getDatasetById(datasetId);
 
-        let xOffset = 0;
-        if (dataset.getId() === 0) {
-            xOffset = -3;
-        } else {
-            xOffset = 3;
+            let xOffset = 0;
+            if (dataset.getId() === 0) {
+                xOffset = -3;
+            } else {
+                xOffset = 3;
+            }
+            renderBar(
+                dataArea,
+                renderInfo.bar,
+                dataset,
+                xScale,
+                leftYScale,
+                currBarSet,
+                totalNumOfBarSets
+            );
+
+            currBarSet++;
         }
-        renderBar(
-            dataArea,
-            renderInfo.bar,
-            dataset,
-            xScale,
-            leftYScale,
-            currBarSet,
-            totalNumOfBarSets
-        );
-
-        currBarSet++;
     }
 
-    let rightYScale = renderYAxis(
+    let [rightYAxis, rightYScale] = renderYAxis(
+        svg,
         graphArea,
         renderInfo.datasets,
         renderInfo.bar,
@@ -843,30 +1086,41 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         datasetOnRightYAxis
     );
 
-    for (let datasetId of datasetOnRightYAxis) {
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
+    if (rightYAxis && rightYScale) {
+        for (let datasetId of datasetOnRightYAxis) {
+            let dataset = renderInfo.datasets.getDatasetById(datasetId);
 
-        let xOffset = 0;
-        if (dataset.getId() === 0) {
-            xOffset = -3;
-        } else {
-            xOffset = 3;
+            let xOffset = 0;
+            if (dataset.getId() === 0) {
+                xOffset = -3;
+            } else {
+                xOffset = 3;
+            }
+            renderBar(
+                dataArea,
+                renderInfo.bar,
+                dataset,
+                xScale,
+                rightYScale,
+                currBarSet,
+                totalNumOfBarSets
+            );
+
+            currBarSet++;
         }
-        renderBar(
-            dataArea,
-            renderInfo.bar,
-            dataset,
-            xScale,
-            rightYScale,
-            currBarSet,
-            totalNumOfBarSets
-        );
-
-        currBarSet++;
     }
 
     if (renderInfo.bar.showLegend) {
-        renderLegend(svg, renderInfo.datasets, renderInfo.bar.legendPosition);
+        renderLegend(
+            svg,
+            graphArea,
+            title,
+            xAxis,
+            leftYAxis,
+            rightYAxis,
+            renderInfo.datasets,
+            renderInfo.bar
+        );
     }
 }
 

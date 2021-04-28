@@ -91,6 +91,11 @@
     stroke-width: 1px;
 }
 
+.tracker-legend-label {
+    font-size: 14px;
+    text-anchor: left;
+}
+
 .tracker-bar {
     fill: var(--color-bar-fill);
 }

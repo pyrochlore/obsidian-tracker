@@ -15,6 +15,7 @@ line:
     yAxisUnit: mmHg
     lineColor: yellow, red
 	showLegend: true
+	legendPosition: right
 ```
 
 ``` tracker
@@ -48,6 +49,7 @@ line:
     lineColor: yellow, red
 	barColor: yellow, red
 	showLegend: true
+	legendPosition: right
 ```
 
 Please also check those search targets in markdown files under folder 'diary'.

@@ -1068,6 +1068,16 @@ export function getRenderInfoFromYaml(
             renderInfo.line.legendPosition = yaml.line.legendPosition;
         }
 
+        // legendOrient
+        if (typeof yaml.line.legendOrientation === "string") {
+            renderInfo.line.legendOrientation = yaml.line.legendOrientation;
+        }
+
+        // legendBgColor
+        if (typeof yaml.line.legendBgColor === "string") {
+            renderInfo.line.legendBgColor = yaml.line.legendBgColor;
+        }
+
         // fillGap
         let retFillGap = getBoolArrayFromInput(
             "fillGap",
@@ -1246,6 +1256,26 @@ export function getRenderInfoFromYaml(
             renderInfo.bar.allowInspectData = yaml.bar.allowInspectData;
         }
         // console.log(renderInfo.bar.allowInspectData);
+
+        // showLegend
+        if (typeof yaml.bar.showLegend === "boolean") {
+            renderInfo.bar.showLegend = yaml.bar.showLegend;
+        }
+
+        // legendPosition
+        if (typeof yaml.bar.legendPosition === "string") {
+            renderInfo.bar.legendPosition = yaml.bar.legendPosition;
+        }
+
+        // legendOrient
+        if (typeof yaml.bar.legendOrientation === "string") {
+            renderInfo.bar.legendOrientation = yaml.bar.legendOrientation;
+        }
+
+        // legendBgColor
+        if (typeof yaml.bar.legendBgColor === "string") {
+            renderInfo.bar.legendBgColor = yaml.bar.legendBgColor;
+        }
     } // bar related parameters
     // summary related parameters
     if (typeof yaml.summary !== "undefined") {

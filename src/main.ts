@@ -129,6 +129,7 @@ export default class Tracker extends Plugin {
         el: HTMLElement,
         ctx: MarkdownPostProcessorContext
     ) {
+        // console.log("postprocess");
         const canvas = document.createElement("div");
 
         let yamlText = source.trim();

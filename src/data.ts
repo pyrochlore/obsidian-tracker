@@ -420,7 +420,9 @@ export class LineInfo {
     allowInspectData: boolean;
     fillGap: boolean[];
     showLegend: boolean;
-    legendPosition: string | { x: number; y: number };
+    legendPosition: string;
+    legendOrientation: string;
+    legendBgColor: string;
 
     constructor() {
         this.title = "";
@@ -445,7 +447,9 @@ export class LineInfo {
         this.allowInspectData = true;
         this.fillGap = []; // false
         this.showLegend = false;
-        this.legendPosition = "bottom";
+        this.legendPosition = "bottom"; // top, bottom, left, right
+        this.legendOrientation = "horizontal"; // horizontal, vertical
+        this.legendBgColor = "";
     }
 }
 
@@ -464,7 +468,9 @@ export class BarInfo {
     barColor: string[];
     allowInspectData: boolean;
     showLegend: boolean;
-    legendPosition: string | { x: number; y: number };
+    legendPosition: string;
+    legendOrientation: string;
+    legendBgColor: string;
 
     constructor() {
         this.title = "";
@@ -481,7 +487,9 @@ export class BarInfo {
         this.barColor = []; // #69b3a2
         this.allowInspectData = true;
         this.showLegend = false;
-        this.legendPosition = "bottom";
+        this.legendPosition = "bottom"; // top, bottom, left, right
+        this.legendOrientation = "horizontal"; // horizontal, vertical
+        this.legendBgColor = "";
     }
 }
 
@@ -492,5 +500,28 @@ export class SummaryInfo {
     constructor() {
         this.template = "";
         this.style = "";
+    }
+}
+
+export interface Size {
+    width: number;
+    height: number;
+}
+
+export class Transform {
+    translateX: number;
+    translateY: number;
+
+    constructor(transform: string) {
+        this.translateX = null;
+        this.translateY = null;
+
+        let groups = transform.match(
+            /translate\(\s*(?<x>[\d\.\/-]+)\s*,\s*(?<y>[\d\.\/-]+)\s*\)/
+        ).groups;
+        if (groups) {
+            this.translateX = parseFloat(groups.x);
+            this.translateY = parseFloat(groups.y);
+        }
     }
 }
