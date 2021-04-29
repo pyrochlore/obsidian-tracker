@@ -423,6 +423,7 @@ export class LineInfo {
     legendPosition: string;
     legendOrientation: string;
     legendBgColor: string;
+    legendBorderColor: string;
 
     constructor() {
         this.title = "";
@@ -450,6 +451,7 @@ export class LineInfo {
         this.legendPosition = ""; // top, bottom, left, right
         this.legendOrientation = ""; // horizontal, vertical
         this.legendBgColor = "";
+        this.legendBorderColor = "";
     }
 }
 
@@ -471,6 +473,7 @@ export class BarInfo {
     legendPosition: string;
     legendOrientation: string;
     legendBgColor: string;
+    legendBorderColor: string;
 
     constructor() {
         this.title = "";
@@ -490,6 +493,7 @@ export class BarInfo {
         this.legendPosition = ""; // top, bottom, left, right
         this.legendOrientation = ""; // horizontal, vertical
         this.legendBgColor = "";
+        this.legendBorderColor = "";
     }
 }
 

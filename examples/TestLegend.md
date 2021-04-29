@@ -148,4 +148,5 @@ line:
 	showPoint: false
 	showLegend: true
 	legendOrientation: vertical
+	legendBorderColor: gold
 ```

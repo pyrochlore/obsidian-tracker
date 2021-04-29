@@ -728,6 +728,9 @@ function renderLegend(
     if (renderInfo.legendBgColor) {
         legendBg.style("fill", renderInfo.legendBgColor);
     }
+    if (renderInfo.legendBorderColor) {
+        legendBg.style("stroke", renderInfo.legendBorderColor);
+    }
 
     let firstMarkerX = xSpacing;
     let firstMarkerY = nameHeight;

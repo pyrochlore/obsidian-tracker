@@ -1097,6 +1097,11 @@ export function getRenderInfoFromYaml(
             renderInfo.line.legendBgColor = yaml.line.legendBgColor;
         }
 
+        // legendBorderColor
+        if (typeof yaml.line.legendBorderColor === "string") {
+            renderInfo.line.legendBorderColor = yaml.line.legendBorderColor;
+        }
+
         // fillGap
         let retFillGap = getBoolArrayFromInput(
             "fillGap",
@@ -1310,6 +1315,11 @@ export function getRenderInfoFromYaml(
         // legendBgColor
         if (typeof yaml.bar.legendBgColor === "string") {
             renderInfo.bar.legendBgColor = yaml.bar.legendBgColor;
+        }
+
+        // legendBorderColor
+        if (typeof yaml.bar.legendBorderColor === "string") {
+            renderInfo.bar.legendBorderColor = yaml.bar.legendBorderColor;
         }
     } // bar related parameters
     // summary related parameters
