@@ -1,5 +1,11 @@
 import Tracker from "./main";
-import { BarInfo, Query, RenderInfo, SummaryInfo } from "./data";
+import {
+    BarInfo,
+    CommonChartInfo,
+    Query,
+    RenderInfo,
+    SummaryInfo,
+} from "./data";
 import { TFolder, normalizePath } from "obsidian";
 import * as Yaml from "yaml";
 import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
@@ -475,6 +481,170 @@ function getStringArrayFromInput(
     return array;
 }
 
+function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
+    // title
+    if (typeof yaml.title === "string") {
+        renderInfo.title = yaml.title;
+    }
+
+    // xAxisLabel
+    if (typeof yaml.xAxisLabel === "string") {
+        renderInfo.xAxisLabel = yaml.xAxisLabel;
+    }
+
+    // xAxisColor
+    if (typeof yaml.xAxisColor === "string") {
+        renderInfo.xAxisColor = yaml.xAxisColor;
+    }
+
+    // xAxisLabelColor
+    if (typeof yaml.xAxisLabelColor === "string") {
+        renderInfo.xAxisLabelColor = yaml.xAxisLabelColor;
+    }
+
+    // yAxisLabel
+    let retYAxisLabel = getStringArrayFromInput(
+        "yAxisLabel",
+        yaml.yAxisLabel,
+        2,
+        "Value",
+        null,
+        true
+    );
+    if (typeof retYAxisLabel === "string") {
+        return retYAxisLabel; // errorMessage
+    }
+    if (retYAxisLabel.length > 2) {
+        return "yAxisLabel accepts not more than two values for left and right y-axes";
+    }
+    renderInfo.yAxisLabel = retYAxisLabel;
+    // console.log(renderInfo.yAxisLabel);
+
+    // yAxisColor
+    let retYAxisColor = getStringArrayFromInput(
+        "yAxisColor",
+        yaml.yAxisColor,
+        2,
+        "",
+        null,
+        true
+    );
+    if (typeof retYAxisColor === "string") {
+        return retYAxisColor; // errorMessage
+    }
+    if (retYAxisColor.length > 2) {
+        return "yAxisColor accepts not more than two values for left and right y-axes";
+    }
+    renderInfo.yAxisColor = retYAxisColor;
+    // console.log(renderInfo.yAxisColor);
+
+    // yAxisLabelColor
+    let retYAxisLabelColor = getStringArrayFromInput(
+        "yAxisLabelColor",
+        yaml.yAxisLabelColor,
+        2,
+        "",
+        null,
+        true
+    );
+    if (typeof retYAxisLabelColor === "string") {
+        return retYAxisLabelColor; // errorMessage
+    }
+    if (retYAxisLabelColor.length > 2) {
+        return "yAxisLabelColor accepts not more than two values for left and right y-axes";
+    }
+    renderInfo.yAxisLabelColor = retYAxisLabelColor;
+    // console.log(renderInfo.yAxisLabelColor);
+
+    // yAxisUnit
+    let retYAxisUnit = getStringArrayFromInput(
+        "yAxisUnit",
+        yaml.yAxisUnit,
+        2,
+        "",
+        null,
+        true
+    );
+    if (typeof retYAxisUnit === "string") {
+        return retYAxisUnit; // errorMessage
+    }
+    if (retYAxisUnit.length > 2) {
+        return "yAxisUnit accepts not more than two values for left and right y-axes";
+    }
+    renderInfo.yAxisUnit = retYAxisUnit;
+    // console.log(renderInfo.yAxisUnit);
+
+    // yMin
+    let retYMin = getNumberArrayFromInput("yMin", yaml.yMin, 2, null, true);
+    if (typeof retYMin === "string") {
+        return retYMin; // errorMessage
+    }
+    if (retYMin.length > 2) {
+        return "yMin accepts not more than two values for left and right y-axes";
+    }
+    renderInfo.yMin = retYMin;
+    // console.log(renderInfo.yMin);
+
+    // yMax
+    let retYMax = getNumberArrayFromInput("yMax", yaml.yMax, 2, null, true);
+    if (typeof retYMax === "string") {
+        return retYMax; // errorMessage
+    }
+    if (retYMax.length > 2) {
+        return "yMax accepts not more than two values for left and right y-axes";
+    }
+    renderInfo.yMax = retYMax;
+    // console.log(renderInfo.yMax);
+
+    // allowInspectData
+    if (typeof yaml.allowInspectData === "boolean") {
+        renderInfo.allowInspectData = yaml.allowInspectData;
+    }
+
+    // showLegend
+    if (typeof yaml.showLegend === "boolean") {
+        renderInfo.showLegend = yaml.showLegend;
+    }
+
+    // legendPosition
+    if (typeof yaml.legendPosition === "string") {
+        renderInfo.legendPosition = yaml.legendPosition;
+    } else {
+        renderInfo.legendPosition = "bottom";
+    }
+
+    // legendOrient
+    if (typeof yaml.legendOrientation === "string") {
+        renderInfo.legendOrientation = yaml.legendOrientation;
+    } else {
+        if (
+            renderInfo.legendPosition === "top" ||
+            renderInfo.legendPosition === "bottom"
+        ) {
+            renderInfo.legendOrientation = "horizontal";
+        } else if (
+            renderInfo.legendPosition === "left" ||
+            renderInfo.legendPosition === "right"
+        ) {
+            renderInfo.legendOrientation = "vertical";
+        } else {
+            renderInfo.legendOrientation = "horizontal";
+        }
+    }
+    // console.log(renderInfo.legendPosition);
+    // console.log(renderInfo.legendOrientation);
+
+    // legendBgColor
+    if (typeof yaml.legendBgColor === "string") {
+        renderInfo.legendBgColor = yaml.legendBgColor;
+    }
+
+    // legendBorderColor
+    if (typeof yaml.legendBorderColor === "string") {
+        renderInfo.legendBorderColor = yaml.legendBorderColor;
+    }
+}
+
 export function getRenderInfoFromYaml(
     yamlText: string,
     plugin: Tracker
@@ -798,146 +968,7 @@ export function getRenderInfoFromYaml(
         renderInfo.output = yaml.output;
     }
     if (typeof yaml.line !== "undefined") {
-        // title
-        if (typeof yaml.line.title === "string") {
-            renderInfo.line.title = yaml.line.title;
-        }
-
-        // xAxisLabel
-        if (typeof yaml.line.xAxisLabel === "string") {
-            renderInfo.line.xAxisLabel = yaml.line.xAxisLabel;
-        }
-
-        // xAxisColor
-        if (typeof yaml.line.xAxisColor === "string") {
-            renderInfo.line.xAxisColor = yaml.line.xAxisColor;
-        }
-
-        // xAxisLabelColor
-        if (typeof yaml.line.xAxisLabelColor === "string") {
-            renderInfo.line.xAxisLabelColor = yaml.line.xAxisLabelColor;
-        }
-
-        // yAxisLabel
-        let retYAxisLabel = getStringArrayFromInput(
-            "yAxisLabel",
-            yaml.line.yAxisLabel,
-            2,
-            "Value",
-            null,
-            true
-        );
-        if (typeof retYAxisLabel === "string") {
-            return retYAxisLabel; // errorMessage
-        }
-        if (retYAxisLabel.length > 2) {
-            return "yAxisLabel accepts not more than two values for left and right y-axes";
-        }
-        renderInfo.line.yAxisLabel = retYAxisLabel;
-        // console.log(renderInfo.line.yAxisLabel);
-
-        // yAxisColor
-        let retYAxisColor = getStringArrayFromInput(
-            "yAxisColor",
-            yaml.line.yAxisColor,
-            2,
-            "",
-            null,
-            true
-        );
-        if (typeof retYAxisColor === "string") {
-            return retYAxisColor; // errorMessage
-        }
-        if (retYAxisColor.length > 2) {
-            return "yAxisColor accepts not more than two values for left and right y-axes";
-        }
-        renderInfo.line.yAxisColor = retYAxisColor;
-        // console.log(renderInfo.line.yAxisColor);
-
-        // yAxisLabelColor
-        let retYAxisLabelColor = getStringArrayFromInput(
-            "yAxisLabelColor",
-            yaml.line.yAxisLabelColor,
-            2,
-            "",
-            null,
-            true
-        );
-        if (typeof retYAxisLabelColor === "string") {
-            return retYAxisLabelColor; // errorMessage
-        }
-        if (retYAxisLabelColor.length > 2) {
-            return "yAxisLabelColor accepts not more than two values for left and right y-axes";
-        }
-        renderInfo.line.yAxisLabelColor = retYAxisLabelColor;
-        // console.log(renderInfo.line.yAxisLabelColor);
-
-        // yAxisUnit
-        let retYAxisUnit = getStringArrayFromInput(
-            "yAxisUnit",
-            yaml.line.yAxisUnit,
-            2,
-            "",
-            null,
-            true
-        );
-        if (typeof retYAxisUnit === "string") {
-            return retYAxisUnit; // errorMessage
-        }
-        if (retYAxisUnit.length > 2) {
-            return "yAxisUnit accepts not more than two values for left and right y-axes";
-        }
-        renderInfo.line.yAxisUnit = retYAxisUnit;
-        // console.log(renderInfo.line.yAxisUnit);
-
-        // yAxisLocation
-        let retYAxisLocation = getStringArrayFromInput(
-            "yAxisLocation",
-            yaml.line.yAxisLocation,
-            numDatasets,
-            "left",
-            null,
-            true
-        );
-        if (typeof retYAxisLocation === "string") {
-            return retYAxisLocation; // errorMessage
-        }
-        renderInfo.line.yAxisLocation = retYAxisLocation;
-        // console.log(renderInfo.line.yAxisLocation);
-
-        // yMin
-        let retYMin = getNumberArrayFromInput(
-            "yMin",
-            yaml.line.yMin,
-            2,
-            null,
-            true
-        );
-        if (typeof retYMin === "string") {
-            return retYMin; // errorMessage
-        }
-        if (retYMin.length > 2) {
-            return "yMin accepts not more than two values for left and right y-axes";
-        }
-        renderInfo.line.yMin = retYMin;
-        // console.log(renderInfo.line.yMin);
-
-        // yMax
-        let retYMax = getNumberArrayFromInput(
-            "yMax",
-            yaml.line.yMax,
-            2,
-            null,
-            true
-        );
-        if (typeof retYMax === "string") {
-            return retYMax; // errorMessage
-        }
-        if (retYMax.length > 2) {
-            return "yMax accepts not more than two values for left and right y-axes";
-        }
-        renderInfo.line.yMax = retYMax;
-        // console.log(renderInfo.line.yMax);
+        parseCommonChartInfo(yaml.line, renderInfo.line);
 
         // lineColor
         let retLineColor = getStringArrayFromInput(
@@ -1054,54 +1085,6 @@ export function getRenderInfoFromYaml(
         renderInfo.line.pointSize = retPointSize;
         // console.log(renderInfo.line.pointSize);
 
-        // allowInspectData
-        if (typeof yaml.line.allowInspectData === "boolean") {
-            renderInfo.line.allowInspectData = yaml.line.allowInspectData;
-        }
-
-        // showLegend
-        if (typeof yaml.line.showLegend === "boolean") {
-            renderInfo.line.showLegend = yaml.line.showLegend;
-        }
-
-        // legendPosition
-        if (typeof yaml.line.legendPosition === "string") {
-            renderInfo.line.legendPosition = yaml.line.legendPosition;
-        } else {
-            renderInfo.line.legendPosition = "bottom";
-        }
-
-        // legendOrient
-        if (typeof yaml.line.legendOrientation === "string") {
-            renderInfo.line.legendOrientation = yaml.line.legendOrientation;
-        } else {
-            if (
-                renderInfo.line.legendPosition === "top" ||
-                renderInfo.line.legendPosition === "bottom"
-            ) {
-                renderInfo.line.legendOrientation = "horizontal";
-            } else if (
-                renderInfo.line.legendPosition === "left" ||
-                renderInfo.line.legendPosition === "right"
-            ) {
-                renderInfo.line.legendOrientation = "vertical";
-            } else {
-                renderInfo.line.legendOrientation = "horizontal";
-            }
-        }
-        // console.log(renderInfo.line.legendPosition);
-        // console.log(renderInfo.line.legendOrientation);
-
-        // legendBgColor
-        if (typeof yaml.line.legendBgColor === "string") {
-            renderInfo.line.legendBgColor = yaml.line.legendBgColor;
-        }
-
-        // legendBorderColor
-        if (typeof yaml.line.legendBorderColor === "string") {
-            renderInfo.line.legendBorderColor = yaml.line.legendBorderColor;
-        }
-
         // fillGap
         let retFillGap = getBoolArrayFromInput(
             "fillGap",
@@ -1115,106 +1098,11 @@ export function getRenderInfoFromYaml(
         }
         renderInfo.line.fillGap = retFillGap;
         // console.log(renderInfo.line.fillGap);
-    } // line related parameters
-    if (typeof yaml.bar !== "undefined") {
-        renderInfo.bar = new BarInfo();
-
-        // title
-        if (typeof yaml.bar.title === "string") {
-            renderInfo.bar.title = yaml.bar.title;
-        }
-
-        // xAxisLabel
-        if (typeof yaml.bar.xAxisLabel === "string") {
-            renderInfo.bar.xAxisLabel = yaml.bar.xAxisLabel;
-        }
-
-        // xAxisColor
-        if (typeof yaml.bar.xAxisColor === "string") {
-            renderInfo.bar.xAxisColor = yaml.bar.xAxisColor;
-        }
-
-        // xAxisLabelColor
-        if (typeof yaml.bar.xAxisLabelColor === "string") {
-            renderInfo.bar.xAxisLabelColor = yaml.bar.xAxisLabelColor;
-        }
-
-        // yAxisLabel
-        let retYAxisLabel = getStringArrayFromInput(
-            "yAxisLabel",
-            yaml.bar.yAxisLabel,
-            2,
-            "Value",
-            null,
-            true
-        );
-        if (typeof retYAxisLabel === "string") {
-            return retYAxisLabel; // errorMessage
-        }
-        if (retYAxisLabel.length > 2) {
-            return "yAxisLabel accepts not more than two values for left and right y-axes";
-        }
-        renderInfo.bar.yAxisLabel = retYAxisLabel;
-        // console.log(renderInfo.bar.yAxisLabel);
-
-        // yAxisColor
-        let retYAxisColor = getStringArrayFromInput(
-            "yAxisColor",
-            yaml.bar.yAxisColor,
-            2,
-            "Value",
-            null,
-            true
-        );
-        if (typeof retYAxisColor === "string") {
-            return retYAxisColor; // errorMessage
-        }
-        if (retYAxisColor.length > 2) {
-            return "yAxisColor accepts not more than two values for left and right y-axes";
-        }
-        renderInfo.bar.yAxisColor = retYAxisColor;
-        // console.log(renderInfo.bar.yAxisColor);
-
-        // yAxisLabelColor
-        let retYAxisLabelColor = getStringArrayFromInput(
-            "yAxisLabelColor",
-            yaml.bar.yAxisLabelColor,
-            2,
-            "Value",
-            null,
-            true
-        );
-        if (typeof retYAxisLabelColor === "string") {
-            return retYAxisLabelColor; // errorMessage
-        }
-        if (retYAxisLabelColor.length > 2) {
-            return "yAxisLabelColor accepts not more than two values for left and right y-axes";
-        }
-        renderInfo.bar.yAxisLabelColor = retYAxisLabelColor;
-        // console.log(renderInfo.bar.yAxisLabel);
-
-        // yAxisUnit
-        let retYAxisUnit = getStringArrayFromInput(
-            "yAxisUnit",
-            yaml.bar.yAxisUnit,
-            2,
-            "",
-            null,
-            true
-        );
-        if (typeof retYAxisUnit === "string") {
-            return retYAxisUnit; // errorMessage
-        }
-        if (retYAxisUnit.length > 2) {
-            return "yAxisUnit accepts not more than two values for left and right y-axes";
-        }
-        renderInfo.bar.yAxisUnit = retYAxisUnit;
-        // console.log(renderInfo.bar.yAxisUnit);
 
         // yAxisLocation
         let retYAxisLocation = getStringArrayFromInput(
             "yAxisLocation",
-            yaml.bar.yAxisLocation,
+            yaml.line.yAxisLocation,
             numDatasets,
             "left",
             null,
@@ -1223,42 +1111,13 @@ export function getRenderInfoFromYaml(
         if (typeof retYAxisLocation === "string") {
             return retYAxisLocation; // errorMessage
         }
-        renderInfo.bar.yAxisLocation = retYAxisLocation;
-        // console.log(renderInfo.bar.yAxisLocation);
+        renderInfo.line.yAxisLocation = retYAxisLocation;
+        // console.log(renderInfo.line.yAxisLocation);
+    } // line related parameters
+    if (typeof yaml.bar !== "undefined") {
+        renderInfo.bar = new BarInfo();
 
-        // yMin
-        let retYMin = getNumberArrayFromInput(
-            "yMin",
-            yaml.bar.yMin,
-            2,
-            null,
-            true
-        );
-        if (typeof retYMin === "string") {
-            return retYMin; // errorMessage
-        }
-        if (retYMin.length > 2) {
-            return "yMin accepts not more than two values for left and right y-axes";
-        }
-        renderInfo.bar.yMin = retYMin;
-        // console.log(renderInfo.bar.yMin);
-
-        // yMax
-        let retYMax = getNumberArrayFromInput(
-            "yMax",
-            yaml.bar.yMax,
-            2,
-            null,
-            true
-        );
-        if (typeof retYMax === "string") {
-            return retYMax; // errorMessage
-        }
-        if (retYMax.length > 2) {
-            return "yMax accepts not more than two values for left and right y-axes";
-        }
-        renderInfo.bar.yMax = retYMax;
-        // console.log(renderInfo.bar.yMax);
+        parseCommonChartInfo(yaml.bar, renderInfo.bar);
 
         // barColor
         let retBarColor = getStringArrayFromInput(
@@ -1275,52 +1134,20 @@ export function getRenderInfoFromYaml(
         renderInfo.bar.barColor = retBarColor;
         // console.log(renderInfo.bar.barColor);
 
-        // allowInspectData
-        if (typeof yaml.bar.allowInspectData === "boolean") {
-            renderInfo.bar.allowInspectData = yaml.bar.allowInspectData;
+        // yAxisLocation
+        let retYAxisLocation = getStringArrayFromInput(
+            "yAxisLocation",
+            yaml.bar.yAxisLocation,
+            numDatasets,
+            "left",
+            null,
+            true
+        );
+        if (typeof retYAxisLocation === "string") {
+            return retYAxisLocation; // errorMessage
         }
-        // console.log(renderInfo.bar.allowInspectData);
-
-        // showLegend
-        if (typeof yaml.bar.showLegend === "boolean") {
-            renderInfo.bar.showLegend = yaml.bar.showLegend;
-        }
-
-        // legendPosition
-        if (typeof yaml.bar.legendPosition === "string") {
-            renderInfo.bar.legendPosition = yaml.bar.legendPosition;
-        } else {
-            renderInfo.bar.legendPosition = "bottom";
-        }
-
-        // legendOrient
-        if (typeof yaml.bar.legendOrientation === "string") {
-            renderInfo.bar.legendOrientation = yaml.bar.legendOrientation;
-        } else {
-            if (
-                renderInfo.bar.legendPosition === "top" ||
-                renderInfo.bar.legendPosition === "bottom"
-            ) {
-                renderInfo.bar.legendOrientation = "horizontal";
-            } else if (
-                renderInfo.bar.legendPosition === "left" ||
-                renderInfo.bar.legendPosition === "right"
-            ) {
-                renderInfo.bar.legendOrientation = "vertical";
-            } else {
-                renderInfo.bar.legendOrientation = "horizontal";
-            }
-        }
-
-        // legendBgColor
-        if (typeof yaml.bar.legendBgColor === "string") {
-            renderInfo.bar.legendBgColor = yaml.bar.legendBgColor;
-        }
-
-        // legendBorderColor
-        if (typeof yaml.bar.legendBorderColor === "string") {
-            renderInfo.bar.legendBorderColor = yaml.bar.legendBorderColor;
-        }
+        renderInfo.bar.yAxisLocation = retYAxisLocation;
+        // console.log(renderInfo.bar.yAxisLocation);
     } // bar related parameters
     // summary related parameters
     if (typeof yaml.summary !== "undefined") {

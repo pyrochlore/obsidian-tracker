@@ -397,7 +397,7 @@ export class RenderInfo {
     }
 }
 
-export class LineInfo {
+export class CommonChartInfo {
     title: string;
     xAxisLabel: string;
     xAxisColor: string;
@@ -406,19 +406,9 @@ export class LineInfo {
     yAxisColor: string[];
     yAxisLabelColor: string[];
     yAxisUnit: string[];
-    yAxisLocation: string[];
     yMin: NullableNumber[];
     yMax: NullableNumber[];
-    lineColor: string[];
-    lineWidth: number[];
-    showLine: boolean[];
-    showPoint: boolean[];
-    pointColor: string[];
-    pointBorderColor: string[];
-    pointBorderWidth: number[];
-    pointSize: number[];
     allowInspectData: boolean;
-    fillGap: boolean[];
     showLegend: boolean;
     legendPosition: string;
     legendOrientation: string;
@@ -434,19 +424,9 @@ export class LineInfo {
         this.yAxisColor = []; // "", 2 elements
         this.yAxisLabelColor = []; // "", 2 elements
         this.yAxisUnit = []; // "", 2 elements
-        this.yAxisLocation = []; // left, for each target
         this.yMin = []; // null, 2 elements
         this.yMax = []; // null, 2 elements
-        this.lineColor = []; // ""
-        this.lineWidth = []; // 1.5
-        this.showLine = []; // true
-        this.showPoint = []; // true
-        this.pointColor = []; // #69b3a2
-        this.pointBorderColor = [];
-        this.pointBorderWidth = []; // 0.0
-        this.pointSize = []; // 3.0
         this.allowInspectData = true;
-        this.fillGap = []; // false
         this.showLegend = false;
         this.legendPosition = ""; // top, bottom, left, right
         this.legendOrientation = ""; // horizontal, vertical
@@ -455,49 +435,49 @@ export class LineInfo {
     }
 
     public type() {
+        return "CommonChartInfo";
+    }
+}
+
+export class LineInfo extends CommonChartInfo {
+    lineColor: string[];
+    lineWidth: number[];
+    showLine: boolean[];
+    showPoint: boolean[];
+    pointColor: string[];
+    pointBorderColor: string[];
+    pointBorderWidth: number[];
+    pointSize: number[];
+    fillGap: boolean[];
+    yAxisLocation: string[];
+
+    constructor() {
+        super();
+        this.lineColor = []; // ""
+        this.lineWidth = []; // 1.5
+        this.showLine = []; // true
+        this.showPoint = []; // true
+        this.pointColor = []; // #69b3a2
+        this.pointBorderColor = [];
+        this.pointBorderWidth = []; // 0.0
+        this.pointSize = []; // 3.0
+        this.fillGap = []; // false
+        this.yAxisLocation = []; // left, for each target
+    }
+
+    public type() {
         return "LineInfo";
     }
 }
 
-export class BarInfo {
-    title: string;
-    xAxisLabel: string;
-    xAxisColor: string;
-    xAxisLabelColor: string;
-    yAxisLabel: string[];
-    yAxisColor: string[];
-    yAxisLabelColor: string[];
-    yAxisUnit: string[];
-    yAxisLocation: string[];
-    yMin: NullableNumber[];
-    yMax: NullableNumber[];
+export class BarInfo extends CommonChartInfo {
     barColor: string[];
-    allowInspectData: boolean;
-    showLegend: boolean;
-    legendPosition: string;
-    legendOrientation: string;
-    legendBgColor: string;
-    legendBorderColor: string;
+    yAxisLocation: string[];
 
     constructor() {
-        this.title = "";
-        this.xAxisLabel = "Date";
-        this.xAxisColor = "";
-        this.xAxisLabelColor = "";
-        this.yAxisLabel = []; // "Value", 2 elements
-        this.yAxisColor = []; // "", 2 elements
-        this.yAxisLabelColor = []; // "", 2 elements
-        this.yAxisUnit = []; // "", 2 elements
-        this.yAxisLocation = []; // left, for each target
-        this.yMin = []; // null, 2 elements
-        this.yMax = []; // null, 2 elements
+        super();
         this.barColor = []; // #69b3a2
-        this.allowInspectData = true;
-        this.showLegend = false;
-        this.legendPosition = ""; // top, bottom, left, right
-        this.legendOrientation = ""; // horizontal, vertical
-        this.legendBgColor = "";
-        this.legendBorderColor = "";
+        this.yAxisLocation = []; // left, for each target
     }
 
     public type() {
