@@ -559,7 +559,7 @@ function renderBar(
             return xScale(p.date) - barSetWidth / 2.0 + currBarSet * barWidth;
         })
         .attr("y", function (p: DataPoint) {
-            return yScale(p.value);
+            return yScale(Math.max(p.value, 0));
         })
         .attr("width", function (p: DataPoint, i: number) {
             if (i === 0) {
@@ -584,7 +584,7 @@ function renderBar(
         })
         .attr("height", function (p: DataPoint) {
             if (p.value !== null) {
-                return height - yScale(p.value);
+                return Math.abs(yScale(p.value) - yScale(0));
             }
         })
         .attr("class", "tracker-bar");
