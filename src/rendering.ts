@@ -246,6 +246,7 @@ function renderYAxis(
         yMinAssigned = yMaxAssigned;
         yMaxAssigned = yTmpAssigned;
     }
+
     let yExtent = yMax - yMin;
 
     let yScale = d3.scaleLinear();
@@ -259,6 +260,15 @@ function renderYAxis(
         yUpper = yMax;
     } else {
         yUpper = yMax + yExtent * 0.2;
+    }
+    // if it is bar chart, zero must be contained in the range
+    if (renderInfo.type() === "BarInfo") {
+        if (yUpper < 0.0) {
+            yUpper = 0.;
+        }
+        if (yLower > 0.0) {
+            yLower = 0.0;
+        }
     }
     yScale.domain([yLower, yUpper]).range([height, 0]);
 
@@ -1170,12 +1180,6 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         for (let datasetId of datasetOnLeftYAxis) {
             let dataset = renderInfo.datasets.getDatasetById(datasetId);
 
-            let xOffset = 0;
-            if (dataset.getId() === 0) {
-                xOffset = -3;
-            } else {
-                xOffset = 3;
-            }
             renderBar(
                 dataArea,
                 renderInfo.bar,
@@ -1203,12 +1207,6 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         for (let datasetId of datasetOnRightYAxis) {
             let dataset = renderInfo.datasets.getDatasetById(datasetId);
 
-            let xOffset = 0;
-            if (dataset.getId() === 0) {
-                xOffset = -3;
-            } else {
-                xOffset = 3;
-            }
             renderBar(
                 dataArea,
                 renderInfo.bar,

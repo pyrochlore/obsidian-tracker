@@ -11,6 +11,7 @@ bar:
     yAxisLabel: Weight
     yAxisUnit: kg
 	yMin: 0
+	barColor: darkolivegreen
 ```
 
 ``` tracker
@@ -24,14 +25,15 @@ bar:
     yAxisLabel: Weight
     yAxisUnit: kg
 	yMin: 0
+	barColor: brown
 ```
 
 ``` tracker
 searchType: tag
 searchTarget: sin[0], sin[1], sin[2]
 folder: diary
-startDate: 2021-01-01
-endDate: 2021-01-31
+startDate: 2021-01-10
+endDate: 2021-01-21
 bar:
     title: Sin Wave
     yAxisLabel: Value
@@ -45,7 +47,7 @@ folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-05
 bar:
-    title: Sin Wave
+    title: Sin Square Wave
     yAxisLabel: Value
 	yMin: 0
 	barColor: yellow, red, green, blue, orange, white
