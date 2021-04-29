@@ -50,6 +50,12 @@ export default class Tracker extends Plugin {
         });
 
         this.addCommand({
+            id: "add-bar-chart-tracker",
+            name: "Add Bar Chart Tracker",
+            callback: () => this.addCodeBlock(OutputType.Bar),
+        });
+
+        this.addCommand({
             id: "add-summary-tracker",
             name: "Add Summary Tracker",
             callback: () => this.addCodeBlock(OutputType.Summary),
@@ -649,6 +655,19 @@ startDate:
 endDate:
 line:
     title: "Line Chart"
+    xAxisLabel: Date
+    yAxisLabel: Value
+\`\`\``;
+                break;
+            case OutputType.Bar:
+                codeblockToInsert = `\`\`\` tracker
+searchType: tag
+searchTarget: tagName
+folder: /
+startDate:
+endDate:
+bar:
+    title: "Bar Chart"
     xAxisLabel: Date
     yAxisLabel: Value
 \`\`\``;
