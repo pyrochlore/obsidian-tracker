@@ -16,9 +16,6 @@ let margin = { top: 10, right: 70, bottom: 70, left: 70 };
 let width = 500 - margin.left - margin.right;
 let height = 400 - margin.top - margin.bottom;
 let tooltipSize = { width: 90, height: 45 };
-let titleHeight = 0.0;
-let xAxisLabelHeight = 0.0;
-let yAxisLabelWidth = 0.0;
 
 function getTickInterval(datasets: Datasets) {
     let tickInterval;
@@ -607,6 +604,9 @@ function renderLegend(
     datasets: Datasets,
     renderInfo: LineInfo | BarInfo
 ) {
+    // console.log(renderInfo.legendPosition);
+    // console.log(renderInfo.legendOrientation);
+
     let svgHeight = parseFloat(svg.attr("height"));
     let svgWidth = parseFloat(svg.attr("width"));
     let titleHeight = 0.0;
@@ -636,7 +636,8 @@ function renderLegend(
             indMaxName = ind;
         }
     }
-    let characterWidth = maxNameWidth / names[indMaxName].length;
+    let maxName = names[indMaxName];
+    let characterWidth = maxNameWidth / maxName.length;
     let nameHeight = nameSizes[indMaxName].height;
     let numNames = names.length;
 
@@ -650,15 +651,20 @@ function renderLegend(
     if (renderInfo.legendOrientation === "vertical") {
         legendWidth = xSpacing * 3 + markerWidth + maxNameWidth;
         legendHeight = (numNames + 1) * ySpacing;
-    } else {
+    } else if (renderInfo.legendOrientation === "horizontal") {
         legendWidth =
-            xSpacing * (numNames + 1) +
-            markerWidth +
+            (2 * xSpacing + markerWidth) * numNames +
+            xSpacing +
             d3.sum(nameSizes, function (s) {
                 return s.width;
             });
-        legendHeight = ySpacing * 2 + nameHeight;
+        legendHeight = ySpacing + nameHeight;
     }
+    // console.log(
+    //     `maxName: ${maxName}, characterWidth: ${characterWidth}, maxNameWidth: ${maxNameWidth}`
+    // );
+    // console.log(`xSpacing:${xSpacing}, numNames: ${numNames}, markerWidth: ${markerWidth}`);
+    // console.log(`legendWidth: ${legendWidth}, legendHeight: ${legendHeight}`);
 
     let legendX = 0.0; // relative to svg
     let legendY = 0.0;
@@ -719,6 +725,9 @@ function renderLegend(
         .attr("class", "tracker-legend")
         .attr("width", legendWidth)
         .attr("height", legendHeight);
+    if (renderInfo.legendBgColor) {
+        legendBg.style("fill", renderInfo.legendBgColor);
+    }
 
     let firstMarkerX = xSpacing;
     let firstMarkerY = nameHeight;
@@ -726,28 +735,6 @@ function renderLegend(
     let firstLabelY = firstMarkerY;
 
     if (renderInfo.legendOrientation === "vertical") {
-        // points
-        legend
-            .selectAll("markers")
-            .data(names)
-            .enter()
-            .append("circle")
-            .attr("cx", firstMarkerX)
-            .attr("cy", function (name: string, i: number) {
-                return firstMarkerY + i * ySpacing;
-            })
-            .attr("r", function (name: string, i: number) {
-                if (datasets.getDatasetById(i).getLineInfo().showPoint[i]) {
-                    return datasets.getDatasetById(i).getLineInfo().pointSize[
-                        i
-                    ];
-                }
-                return 0.0;
-            })
-            .style("fill", function (name: string, i: number) {
-                return datasets.getDatasetById(i).getLineInfo().pointColor[i];
-            });
-
         // lines
         legend
             .selectAll("markers")
@@ -765,6 +752,29 @@ function renderLegend(
             .style("stroke", function (name: string, i: number) {
                 return datasets.getDatasetById(i).getLineInfo().lineColor[i];
             });
+
+        // points
+        legend
+            .selectAll("markers")
+            .data(names)
+            .enter()
+            .append("circle")
+            .attr("cx", firstMarkerX + markerWidth / 2.0)
+            .attr("cy", function (name: string, i: number) {
+                return firstMarkerY + i * ySpacing;
+            })
+            .attr("r", function (name: string, i: number) {
+                if (datasets.getDatasetById(i).getLineInfo().showPoint[i]) {
+                    return datasets.getDatasetById(i).getLineInfo().pointSize[
+                        i
+                    ];
+                }
+                return 0.0;
+            })
+            .style("fill", function (name: string, i: number) {
+                return datasets.getDatasetById(i).getLineInfo().pointColor[i];
+            });
+
         // bars
 
         // names
@@ -776,7 +786,7 @@ function renderLegend(
             .attr("x", firstLabelX)
             .attr("y", function (name: string, i: number) {
                 return firstLabelY + i * ySpacing;
-            }) // 100 is where the first dot appears. 25 is the distance between dots
+            })
             .style("fill", function (name: string, i: number) {
                 return datasets.getDatasetById(i).getLineInfo().lineColor[i];
             })
@@ -786,16 +796,55 @@ function renderLegend(
             .style("alignment-baseline", "middle")
             .attr("class", "tracker-legend-label");
     } else if (renderInfo.legendOrientation === "horizontal") {
+        let currRenderPosX = 0.0;
+        let currRenderPosX2 = 0.0;
+        // lines
+        legend
+            .selectAll("markers")
+            .data(names)
+            .enter()
+            .append("line")
+            .attr("x1", function (name: string, i: number) {
+                if (i === 0) {
+                    currRenderPosX = firstMarkerX;
+                } else {
+                    currRenderPosX +=
+                        nameSizes[i].width + xSpacing + markerWidth + xSpacing;
+                }
+                return currRenderPosX;
+            })
+            .attr("x2", function (name: string, i: number) {
+                if (i === 0) {
+                    currRenderPosX2 = firstMarkerX + markerWidth;
+                } else {
+                    currRenderPosX2 +=
+                        nameSizes[i].width + xSpacing + markerWidth + xSpacing;
+                }
+                return currRenderPosX2;
+            })
+            .attr("y1", firstMarkerY)
+            .attr("y2", firstMarkerY)
+            .style("stroke", function (name: string, i: number) {
+                return datasets.getDatasetById(i).getLineInfo().lineColor[i];
+            });
+
         // points
+        currRenderPosX = 0.0;
         legend
             .selectAll("markers")
             .data(names)
             .enter()
             .append("circle")
-            .attr("cx", firstMarkerX)
-            .attr("cy", function (name: string, i: number) {
-                return firstMarkerY + i * ySpacing;
+            .attr("cx", function (name: string, i: number) {
+                if (i === 0) {
+                    currRenderPosX = firstMarkerX + markerWidth / 2.0;
+                } else {
+                    currRenderPosX +=
+                        nameSizes[i].width + xSpacing + markerWidth + xSpacing;
+                }
+                return currRenderPosX;
             })
+            .attr("cy", firstMarkerY)
             .attr("r", function (name: string, i: number) {
                 if (datasets.getDatasetById(i).getLineInfo().showPoint[i]) {
                     return datasets.getDatasetById(i).getLineInfo().pointSize[
@@ -808,35 +857,25 @@ function renderLegend(
                 return datasets.getDatasetById(i).getLineInfo().pointColor[i];
             });
 
-        // lines
-        legend
-            .selectAll("markers")
-            .data(names)
-            .enter()
-            .append("line")
-            .attr("x1", firstMarkerX)
-            .attr("x2", firstMarkerX + markerWidth)
-            .attr("y1", function (name: string, i: number) {
-                return firstMarkerY + i * ySpacing;
-            })
-            .attr("y2", function (name: string, i: number) {
-                return firstMarkerY + i * ySpacing;
-            })
-            .style("stroke", function (name: string, i: number) {
-                return datasets.getDatasetById(i).getLineInfo().lineColor[i];
-            });
         // bars
 
         // names
+        currRenderPosX = 0.0;
         legend
             .selectAll("labels")
             .data(names)
             .enter()
             .append("text")
-            .attr("x", firstLabelX)
-            .attr("y", function (name: string, i: number) {
-                return firstLabelY + i * ySpacing;
-            }) // 100 is where the first dot appears. 25 is the distance between dots
+            .attr("x", function (name: string, i: number) {
+                if (i === 0) {
+                    currRenderPosX = firstLabelX;
+                } else {
+                    currRenderPosX +=
+                        nameSizes[i].width + xSpacing + markerWidth + xSpacing;
+                }
+                return currRenderPosX;
+            })
+            .attr("y", firstLabelY)
             .style("fill", function (name: string, i: number) {
                 return datasets.getDatasetById(i).getLineInfo().lineColor[i];
             })

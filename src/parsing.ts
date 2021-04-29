@@ -3,6 +3,7 @@ import { BarInfo, Query, RenderInfo, SummaryInfo } from "./data";
 import { TFolder, normalizePath } from "obsidian";
 import * as Yaml from "yaml";
 import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
+import { render } from "./rendering";
 
 function strToBool(str: string): boolean | null {
     str = str.trim().toLowerCase();
@@ -1066,12 +1067,30 @@ export function getRenderInfoFromYaml(
         // legendPosition
         if (typeof yaml.line.legendPosition === "string") {
             renderInfo.line.legendPosition = yaml.line.legendPosition;
+        } else {
+            renderInfo.line.legendPosition = "bottom";
         }
 
         // legendOrient
         if (typeof yaml.line.legendOrientation === "string") {
             renderInfo.line.legendOrientation = yaml.line.legendOrientation;
+        } else {
+            if (
+                renderInfo.line.legendPosition === "top" ||
+                renderInfo.line.legendPosition === "bottom"
+            ) {
+                renderInfo.line.legendOrientation = "horizontal";
+            } else if (
+                renderInfo.line.legendPosition === "left" ||
+                renderInfo.line.legendPosition === "right"
+            ) {
+                renderInfo.line.legendOrientation = "vertical";
+            } else {
+                renderInfo.line.legendOrientation = "horizontal";
+            }
         }
+        // console.log(renderInfo.line.legendPosition);
+        // console.log(renderInfo.line.legendOrientation);
 
         // legendBgColor
         if (typeof yaml.line.legendBgColor === "string") {
@@ -1265,11 +1284,27 @@ export function getRenderInfoFromYaml(
         // legendPosition
         if (typeof yaml.bar.legendPosition === "string") {
             renderInfo.bar.legendPosition = yaml.bar.legendPosition;
+        } else {
+            renderInfo.bar.legendPosition = "bottom";
         }
 
         // legendOrient
         if (typeof yaml.bar.legendOrientation === "string") {
             renderInfo.bar.legendOrientation = yaml.bar.legendOrientation;
+        } else {
+            if (
+                renderInfo.bar.legendPosition === "top" ||
+                renderInfo.bar.legendPosition === "bottom"
+            ) {
+                renderInfo.bar.legendOrientation = "horizontal";
+            } else if (
+                renderInfo.bar.legendPosition === "left" ||
+                renderInfo.bar.legendPosition === "right"
+            ) {
+                renderInfo.bar.legendOrientation = "vertical";
+            } else {
+                renderInfo.bar.legendOrientation = "horizontal";
+            }
         }
 
         // legendBgColor

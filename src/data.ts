@@ -447,8 +447,8 @@ export class LineInfo {
         this.allowInspectData = true;
         this.fillGap = []; // false
         this.showLegend = false;
-        this.legendPosition = "bottom"; // top, bottom, left, right
-        this.legendOrientation = "horizontal"; // horizontal, vertical
+        this.legendPosition = ""; // top, bottom, left, right
+        this.legendOrientation = ""; // horizontal, vertical
         this.legendBgColor = "";
     }
 }
@@ -487,8 +487,8 @@ export class BarInfo {
         this.barColor = []; // #69b3a2
         this.allowInspectData = true;
         this.showLegend = false;
-        this.legendPosition = "bottom"; // top, bottom, left, right
-        this.legendOrientation = "horizontal"; // horizontal, vertical
+        this.legendPosition = ""; // top, bottom, left, right
+        this.legendOrientation = ""; // horizontal, vertical
         this.legendBgColor = "";
     }
 }

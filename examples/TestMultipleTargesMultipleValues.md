@@ -22,5 +22,7 @@ line:
     title: Sin Wave
     lineColor: yellow, blue, white, red, black, orange, purple, green, cyan
 	showPoint: false
-	showLegend: false
+	showLegend: true
+	legendPosition: right
+	legendOrientation: vertical
 ```
