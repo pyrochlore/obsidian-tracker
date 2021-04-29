@@ -738,50 +738,69 @@ function renderLegend(
     let firstLabelY = firstMarkerY;
 
     if (renderInfo.legendOrientation === "vertical") {
-        // lines
-        legend
-            .selectAll("markers")
-            .data(names)
-            .enter()
-            .append("line")
-            .attr("x1", firstMarkerX)
-            .attr("x2", firstMarkerX + markerWidth)
-            .attr("y1", function (name: string, i: number) {
-                return firstMarkerY + i * ySpacing;
-            })
-            .attr("y2", function (name: string, i: number) {
-                return firstMarkerY + i * ySpacing;
-            })
-            .style("stroke", function (name: string, i: number) {
-                return datasets.getDatasetById(i).getLineInfo().lineColor[i];
-            });
+        if (renderInfo.type() === "LineInfo") {
+            // lines
+            legend
+                .selectAll("markers")
+                .data(names)
+                .enter()
+                .append("line")
+                .attr("x1", firstMarkerX)
+                .attr("x2", firstMarkerX + markerWidth)
+                .attr("y1", function (name: string, i: number) {
+                    return firstMarkerY + i * ySpacing;
+                })
+                .attr("y2", function (name: string, i: number) {
+                    return firstMarkerY + i * ySpacing;
+                })
+                .style("stroke", function (name: string, i: number) {
+                    return datasets
+                        .getDatasetById(i)
+                        .getLineInfo().lineColor[i];
+                });
 
-        // points
-        legend
-            .selectAll("markers")
-            .data(names)
-            .enter()
-            .append("circle")
-            .attr("cx", firstMarkerX + markerWidth / 2.0)
-            .attr("cy", function (name: string, i: number) {
-                return firstMarkerY + i * ySpacing;
-            })
-            .attr("r", function (name: string, i: number) {
-                if (datasets.getDatasetById(i).getLineInfo().showPoint[i]) {
-                    return datasets.getDatasetById(i).getLineInfo().pointSize[
-                        i
-                    ];
-                }
-                return 0.0;
-            })
-            .style("fill", function (name: string, i: number) {
-                return datasets.getDatasetById(i).getLineInfo().pointColor[i];
-            });
-
-        // bars
+            // points
+            legend
+                .selectAll("markers")
+                .data(names)
+                .enter()
+                .append("circle")
+                .attr("cx", firstMarkerX + markerWidth / 2.0)
+                .attr("cy", function (name: string, i: number) {
+                    return firstMarkerY + i * ySpacing;
+                })
+                .attr("r", function (name: string, i: number) {
+                    if (datasets.getDatasetById(i).getLineInfo().showPoint[i]) {
+                        return datasets.getDatasetById(i).getLineInfo()
+                            .pointSize[i];
+                    }
+                    return 0.0;
+                })
+                .style("fill", function (name: string, i: number) {
+                    return datasets
+                        .getDatasetById(i)
+                        .getLineInfo().pointColor[i];
+                });
+        } else if (renderInfo.type() === "BarInfo") {
+            // bars
+            legend
+                .selectAll("markers")
+                .data(names)
+                .enter()
+                .append("rect")
+                .attr("x", firstMarkerX)
+                .attr("y", function (name: string, i: number) {
+                    return firstMarkerY + i * ySpacing - nameHeight / 2.0;
+                })
+                .attr("width", markerWidth)
+                .attr("height", nameHeight)
+                .style("fill", function (name: string, i: number) {
+                    return datasets.getDatasetById(i).getBarInfo().barColor[i];
+                });
+        }
 
         // names
-        legend
+        let nameLabels = legend
             .selectAll("labels")
             .data(names)
             .enter()
@@ -790,81 +809,126 @@ function renderLegend(
             .attr("y", function (name: string, i: number) {
                 return firstLabelY + i * ySpacing;
             })
-            .style("fill", function (name: string, i: number) {
-                return datasets.getDatasetById(i).getLineInfo().lineColor[i];
-            })
             .text(function (name: string) {
                 return name;
             })
             .style("alignment-baseline", "middle")
             .attr("class", "tracker-legend-label");
+
+        if (renderInfo.type() === "LineInfo") {
+            nameLabels.style("fill", function (name: string, i: number) {
+                return datasets.getDatasetById(i).getLineInfo().lineColor[i];
+            });
+        } else if (renderInfo.type() === "BarInfo") {
+            nameLabels.style("fill", function (name: string, i: number) {
+                return datasets.getDatasetById(i).getBarInfo().barColor[i];
+            });
+        }
     } else if (renderInfo.legendOrientation === "horizontal") {
         let currRenderPosX = 0.0;
         let currRenderPosX2 = 0.0;
-        // lines
-        legend
-            .selectAll("markers")
-            .data(names)
-            .enter()
-            .append("line")
-            .attr("x1", function (name: string, i: number) {
-                if (i === 0) {
-                    currRenderPosX = firstMarkerX;
-                } else {
-                    currRenderPosX +=
-                        nameSizes[i].width + xSpacing + markerWidth + xSpacing;
-                }
-                return currRenderPosX;
-            })
-            .attr("x2", function (name: string, i: number) {
-                if (i === 0) {
-                    currRenderPosX2 = firstMarkerX + markerWidth;
-                } else {
-                    currRenderPosX2 +=
-                        nameSizes[i].width + xSpacing + markerWidth + xSpacing;
-                }
-                return currRenderPosX2;
-            })
-            .attr("y1", firstMarkerY)
-            .attr("y2", firstMarkerY)
-            .style("stroke", function (name: string, i: number) {
-                return datasets.getDatasetById(i).getLineInfo().lineColor[i];
-            });
+        if (renderInfo.type() === "LineInfo") {
+            // lines
+            legend
+                .selectAll("markers")
+                .data(names)
+                .enter()
+                .append("line")
+                .attr("x1", function (name: string, i: number) {
+                    if (i === 0) {
+                        currRenderPosX = firstMarkerX;
+                    } else {
+                        currRenderPosX +=
+                            nameSizes[i].width +
+                            xSpacing +
+                            markerWidth +
+                            xSpacing;
+                    }
+                    return currRenderPosX;
+                })
+                .attr("x2", function (name: string, i: number) {
+                    if (i === 0) {
+                        currRenderPosX2 = firstMarkerX + markerWidth;
+                    } else {
+                        currRenderPosX2 +=
+                            nameSizes[i].width +
+                            xSpacing +
+                            markerWidth +
+                            xSpacing;
+                    }
+                    return currRenderPosX2;
+                })
+                .attr("y1", firstMarkerY)
+                .attr("y2", firstMarkerY)
+                .style("stroke", function (name: string, i: number) {
+                    return datasets
+                        .getDatasetById(i)
+                        .getLineInfo().lineColor[i];
+                });
 
-        // points
-        currRenderPosX = 0.0;
-        legend
-            .selectAll("markers")
-            .data(names)
-            .enter()
-            .append("circle")
-            .attr("cx", function (name: string, i: number) {
-                if (i === 0) {
-                    currRenderPosX = firstMarkerX + markerWidth / 2.0;
-                } else {
-                    currRenderPosX +=
-                        nameSizes[i].width + xSpacing + markerWidth + xSpacing;
-                }
-                return currRenderPosX;
-            })
-            .attr("cy", firstMarkerY)
-            .attr("r", function (name: string, i: number) {
-                if (datasets.getDatasetById(i).getLineInfo().showPoint[i]) {
-                    return datasets.getDatasetById(i).getLineInfo().pointSize[
-                        i
-                    ];
-                }
-                return 0.0;
-            })
-            .style("fill", function (name: string, i: number) {
-                return datasets.getDatasetById(i).getLineInfo().pointColor[i];
-            });
-
-        // bars
+            // points
+            currRenderPosX = 0.0;
+            legend
+                .selectAll("markers")
+                .data(names)
+                .enter()
+                .append("circle")
+                .attr("cx", function (name: string, i: number) {
+                    if (i === 0) {
+                        currRenderPosX = firstMarkerX + markerWidth / 2.0;
+                    } else {
+                        currRenderPosX +=
+                            nameSizes[i].width +
+                            xSpacing +
+                            markerWidth +
+                            xSpacing;
+                    }
+                    return currRenderPosX;
+                })
+                .attr("cy", firstMarkerY)
+                .attr("r", function (name: string, i: number) {
+                    if (datasets.getDatasetById(i).getLineInfo().showPoint[i]) {
+                        return datasets.getDatasetById(i).getLineInfo()
+                            .pointSize[i];
+                    }
+                    return 0.0;
+                })
+                .style("fill", function (name: string, i: number) {
+                    return datasets
+                        .getDatasetById(i)
+                        .getLineInfo().pointColor[i];
+                });
+        } else if (renderInfo.type() == "BarInfo") {
+            // bars
+            currRenderPosX = 0.0;
+            legend
+                .selectAll("markers")
+                .data(names)
+                .enter()
+                .append("rect")
+                .attr("x", function (name: string, i: number) {
+                    if (i === 0) {
+                        currRenderPosX = firstMarkerX;
+                    } else {
+                        currRenderPosX +=
+                            nameSizes[i].width +
+                            xSpacing +
+                            markerWidth +
+                            xSpacing;
+                    }
+                    return currRenderPosX;
+                })
+                .attr("y", firstMarkerY - nameHeight / 2.0)
+                .attr("width", markerWidth)
+                .attr("height", nameHeight)
+                .style("fill", function (name: string, i: number) {
+                    return datasets.getDatasetById(i).getBarInfo().barColor[i];
+                });
+        }
 
         // names
         currRenderPosX = 0.0;
-        legend
+        let nameLabels = legend
             .selectAll("labels")
             .data(names)
             .enter()
@@ -879,14 +943,21 @@ function renderLegend(
                 return currRenderPosX;
             })
             .attr("y", firstLabelY)
-            .style("fill", function (name: string, i: number) {
-                return datasets.getDatasetById(i).getLineInfo().lineColor[i];
-            })
             .text(function (name: string) {
                 return name;
             })
             .style("alignment-baseline", "middle")
             .attr("class", "tracker-legend-label");
+
+        if (renderInfo.type() === "LineInfo") {
+            nameLabels.style("fill", function (name: string, i: number) {
+                return datasets.getDatasetById(i).getLineInfo().lineColor[i];
+            });
+        } else if (renderInfo.type() === "BarInfo") {
+            nameLabels.style("fill", function (name: string, i: number) {
+                return datasets.getDatasetById(i).getBarInfo().barColor[i];
+            });
+        }
     }
 }
 

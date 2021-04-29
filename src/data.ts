@@ -453,6 +453,10 @@ export class LineInfo {
         this.legendBgColor = "";
         this.legendBorderColor = "";
     }
+
+    public type() {
+        return "LineInfo";
+    }
 }
 
 export class BarInfo {
@@ -494,6 +498,10 @@ export class BarInfo {
         this.legendOrientation = ""; // horizontal, vertical
         this.legendBgColor = "";
         this.legendBorderColor = "";
+    }
+
+    public type() {
+        return "BarInfo";
     }
 }
 

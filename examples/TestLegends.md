@@ -1,6 +1,6 @@
-# Test Legend
+# Test Legends
 
-## Positions and Orientations
+## Position and Orientation
 
 - Default legendPosition ==> bottom
 - Default legendOrientation ==> horizontal
@@ -149,4 +149,46 @@ line:
 	showLegend: true
 	legendOrientation: vertical
 	legendBorderColor: gold
+```
+
+## Lines, Points, and Bars
+
+``` tracker
+searchType: tag
+searchTarget: exercise-pushup
+datasetName: weight
+folder: diary
+endDate: 2021-01-31
+line:
+    title: PushUp
+    yAxisLabel: Count
+    lineColor: "#d65d0e"
+	showLegend: true
+```
+
+``` tracker
+searchType: tag
+searchTarget: exercise-pushup
+datasetName: weight
+folder: diary
+endDate: 2021-01-31
+bar:
+    title: PushUp
+    yAxisLabel: Count
+    barColor: "#458588"
+	showLegend: true
+```
+
+``` tracker
+searchType: tag
+searchTarget: exercise-pushup
+datasetName: weight
+folder: diary
+endDate: 2021-01-31
+bar:
+    title: PushUp
+    yAxisLabel: Count
+    barColor: "#458588"
+	showLegend: true
+	legendPosition: right
 ```
