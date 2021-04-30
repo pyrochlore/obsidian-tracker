@@ -1,9 +1,9 @@
 # Test Date Formats
 
 
-## Date Formats
+## Test Default Date Formats
 
-Change the default dateFomat on Tracker settings panel and then check these trackers in the preview mode. Only the one fit dateFomat settings will get rendered.
+Change the default dateFomat on Tracker settings panel and then check the following trackers in the preview mode. Only the one fit dateFomat settings will get rendered.
 
 ### dateFomat: YYYY-MM-DD
 
@@ -65,7 +65,23 @@ line:
     lineColor: yellow
 ```
 
-## Stip prefix and suffix
+### dateFormat: DD.MM.YYYY
+
+``` tracker
+searchType: tag
+searchTarget: weight
+folder: diary
+startDate: 01.01.2021
+endDate: 05.01.2021
+line:
+    title: Weight Log
+    yAxisLabel: Weight
+    yAxisUnit: kg
+    lineColor: yellow
+```
+
+## Test Date Format Prefix and Suffix
+
 ### dateFormat: YYYYMMDD with prefix D-
 
 ``` tracker
