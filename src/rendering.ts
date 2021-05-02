@@ -264,7 +264,7 @@ function renderYAxis(
     // if it is bar chart, zero must be contained in the range
     if (renderInfo.type() === "BarInfo") {
         if (yUpper < 0.0) {
-            yUpper = 0.;
+            yUpper = 0;
         }
         if (yLower > 0.0) {
             yLower = 0.0;
@@ -376,7 +376,7 @@ function renderLine(
     yScale: any
 ) {
     // console.log(dataset);
-    // console.log(lineInfo);
+    console.log(lineInfo);
 
     if (lineInfo.showLine[dataset.getId()]) {
         let lineGen = d3
@@ -397,7 +397,11 @@ function renderLine(
             .style("stroke-width", lineInfo.lineWidth[dataset.getId()]);
 
         if (lineInfo.fillGap[dataset.getId()]) {
-            line.datum(dataset).attr("d", lineGen as any);
+            line.datum(
+                Array.from(dataset).filter(function (p) {
+                    return p.value !== null;
+                })
+            ).attr("d", lineGen as any);
         } else {
             line.datum(dataset).attr("d", lineGen as any);
         }
