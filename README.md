@@ -1,7 +1,7 @@
 # Obsidian Tracker Plugin
 ![GitHub release](https://img.shields.io/github/v/release/pyrochlore/obsidian-tracker)
 
-<img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/docs/images/Screenshot_v1.1.png" width="800">
+<img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/docs/images/Screenshot_v1.3.png" width="800">
 
 This is an [Obsidian](https://obsidian.md/) plugin that helps you do tracking in daily notes and represent the data comprehensively. Here are examples showing what you can track:
 
@@ -39,7 +39,7 @@ Download the latest [release](https://github.com/pyrochlore/obsidian-tracker/rel
 3. Add tracker code blocks manually or using commands. See [Commands](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Commands.md) for more detail.
 4. Switch the document view mode to 'Preview', then the code block will get rendered.
 
-    <img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/docs/images/usage_v1.1.gif" width="400">
+    <img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/docs/images/usage_v1.3.gif" width="400">
 
 For more use cases, please open the [examples](https://github.com/pyrochlore/obsidian-tracker/tree/master/examples) folder in obsidian with this plugin installed and enabled.
 

@@ -15,7 +15,7 @@ line:
     yAxisUnit: mmHg
     lineColor: yellow, red
 	showLegend: true
-	legendPosition: right
+	legendPosition: bottom
 ```
 
 ``` tracker
