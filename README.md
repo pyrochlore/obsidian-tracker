@@ -3,22 +3,24 @@
 
 <img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/docs/images/Screenshot_v1.1.png" width="800">
 
-This is an [Obsidian](https://obsidian.md/) plugin that helps you do tracking in daily notes. You can track:
-### tags
-- the number of occurrences of in-line tags (e.g. #meditation)
-- the number of occurrences of front matter tags (e.g. tags: meditation)
-- the values after tags (e.g. #weight:60.5kg)
-- the values after a nested inline tags (e.g. #finance/bank1/transfer:100000USD and the parent tag #finance/bank1)
+This is an [Obsidian](https://obsidian.md/) plugin that helps you do tracking in daily notes and represent the data comprehensively. Here are examples showing what you can track:
 
-### front matter key-value pairs  
-- the values of a key in the front matter (e.g. mood: 10)
-
-### wiki links 
-- the number of occurrences of wiki links (e.g. [[journal]])
-
-### text
-- the number of occurrences of texts (e.g.  '⭐', 'love', or any text that matches your [regex expression](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TrackUsingRegex.md))
-- the values embedded in texts using regular expression (e.g. walk 1000 steps, weightlifting: 50)
+| From↓ | Track Targets↓  | by Tracker↓ | Get (O)ccurrence/(V)alue |
+|:--------|:-------|:---------|:--:|
+| content | #meditation | searchType: tag<br>searchTarget: meditation | O |
+| frontmatter | ---<br>tags: meditation<br>--- | searchType: tag<br>searchTarget: meditation | O |
+| content | #weight:60.5kg | searchType: tag<br>searchTarget: weight | V |
+| content | #finance/bank1/transfer:100USD | searchType: tag<br>searchTarget: finance/bank1/transfer | V |
+| content | #finance/bank1/transfer:100USD<br>#finance/bank1/income:80USD<br>#finance/bank1/outcome/-120USD | searchType: tag<br>searchTarget: finance/bank1 | V |
+| content | #blood-pressure:180/120 | searchType: tag<br>searchTarget: blood-pressure[0], blood-pressure[1] | V |
+| frontmatter | ---<br>mood: 10<br>--- | searchType: frontmatter<br>searchTarget: mood | V |
+| frontmatter | ---<br>sleep:23/6<br>--- | searchType: frontmatter<br>searchTarget: sleep[0], sleep[1] | V |
+| content | [[journal]] | searchType: wiki<br>searchTarget: journal | O |
+| content | ⭐ | searchType: text<br>searchTarget: ⭐ | O |
+| content | love | searchType: text<br>searchTarget: love | O |
+| content | test@gmail.com<br>test@hotmail.com | searchType: text<br>serchTarget: '.+\\@.+\\..+' | O |
+| content | #weightlifting: 50 | searchType: text<br>searchTarget: 'weightlifting: (?<value>[\\-]?[0-9]+[\\.][0-9]+\|[\\-]?[0-9]+)' | V |
+| content | I walked 10000 steps today. | searchType: text<br>searchTarget: 'walked\\s+(?<value>[0-9]+)\\s+steps' | V |
 
 ## Installation
 ### Install from Obsidian Settings Panel
@@ -39,42 +41,53 @@ Download the latest [release](https://github.com/pyrochlore/obsidian-tracker/rel
 
     <img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/docs/images/usage_v1.1.gif" width="400">
 
-For more use cases, please take a look at [examples](https://github.com/pyrochlore/obsidian-tracker/tree/master/examples).
+For more use cases, please open the [examples](https://github.com/pyrochlore/obsidian-tracker/tree/master/examples) folder in obsidian with this plugin installed and enabled.
 
 ## Concepts
-This plugin was designed to read code blocks in [YAML format](https://en.wikipedia.org/wiki/YAML). The key-value pairs in the code blocks tell the plugin what data to collect and how to render the result.
+This plugin was designed to read code blocks in [YAML format](https://en.wikipedia.org/wiki/YAML). The key-value pairs in the code blocks tell the plugin what data to collect and how to represent the result.
 
 [Here](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/InputParameters.md) are all the parameters (key-value pairs) defined in this plugin. They are used for collecting data, evaluating targets, data preprocessing, and rendering output.
 
 ### Collecting Data
-Providing key '**searchType**' and '**searchTarget**' is the minimum requirement for a successful data collection and rendering. The value of key '**searchType**' can be '**tag**', '**frontmatter**', '**wiki**', or '**text**', and the cooresponding '**searchTarget**' is the name of a tag or a piece of text as your search target.
+Providing key '**searchType**' and '**searchTarget**' is the minimum requirement for a successful data collection. The value of the key '**searchType**' can be '**tag**', '**frontmatter**', '**wiki**', or '**text**' and the cooresponding '**searchTarget**' should be provided according to the specified type.
+
+From version 1.3, you can provide multiple search targets by entering an array of targets separated by a comma. Each of the targets will be identified then the corresponding value will be evaluated and form a dataset indexed by the order in the array (zero-based indexing).
+
+Multiple values under a target (value tuple) separated by a slash, e.g. #blood-pressure:180/120mmHg, are also got supported in version 1.3.0. To identify a specific value as a target, use bracket notation where the value in the bracket is the index by the order of values. In this case, they are blood-pressure[0] and blood-pressure[1]. You can find the example of this [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/BloodPressureTracker.md)
 
 ### Target Evaluation
-Depends on the searchType and the format of your targets, the target evaluation would be different. You can simply track the occurrences of a target or track value attached/embedded in it.
+Depends on the '**searchType**' and the '**searchTarget**' you provided, the evaluation of a target would be different. Simply speaking, you can track the occurrences of a target or the value attached/embedded in it.
 
-For more information about the tag evaluation, please check documents for [Target Evaluation](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md)
+To see the detail about the target evaluation, please check the document [Target Evaluation](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md).
 
 ### Rendering Output
-Currently, obsidian-tracker provides two kinds of rendering output, the default one 'line' for line chart and 'summary' for a text description. 
+Currently, obsidian-tracker provides three kinds of rendering output, the default one 'line' for a line chart, 'bar' for a bar chart and 'summary' for a text block. 
 
-For 'line' output, the plugin will generate a customizable line chart. For 'summary' output, you can use [pre-defined template variables](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TemplateVariables.md) in text template (key '**template**' under key '**summary**').
+For 'line' or 'bar' output, the plugin will generate a customizable chart. For 'summary' output, a text block based on your '**template**' parameter will be generated. You can also use [pre-defined template variables](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TemplateVariables.md) in the template.
 
-Description of keys for rendering line-chart and summary output can be found [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/InputParameters.md)
+Description for the chart and summary related paremeters can be found [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/InputParameters.md#parameters-for-common-chart) and [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/InputParameters.md#parameters-for-summary) respectively.
 
 ### Plugin Settings
 You can set the default folder location and date format in the plugin's settings panel. You can also override them by key '**folder**' and '**dateFormat**' in the code block respectively.
 
-| Setting Item | Default | Description |
-|:--------:|:-------:|:---------:|
-| Default folder location | Root of the vault | The folder your daily notes reside |
-| Default date format | YYYY-MM-DD | The date format of your daily note title |
+| Setting Item | Description | Default | 
+|:--------|:-------|:---------|
+| Default folder location | The folder your daily notes reside | Root of the vault |
+| Default date format | The date format of your daily note title | 'YYYY-MM-DD' | 
 
 For more information about the dateFormat settings, check the [TestDateFormats example](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md) and [moment.js string format](https://momentjs.com/docs/#/parsing/string-format/). 
 
 ## Release Notes
+### v1.3.0
+- Support reading and rendering multiple targets.
+- Support multiple values (a tuple of values) under a target.
+- New output type 'bar', renders bar chart.
+- Add legend for chart.
+- Fix bugs.
+
 ### v1.2.1
 - Fix files with the specified dateFormat are not recognized.
-- Restore plugin's settings panel for dateFormat and folder.
+- Restore the plugin's settings panel for dateFormat and folder.
 
 ### v1.2.0
 - Enable using regular expression in text searching.
@@ -105,25 +118,29 @@ First version released at 2021-03-23.
 - Allow tracking nested tags.
 
 ## Road Map
-- [x] New output type 'summary', analyzes the input data and represents it using a user-defined text template.
-- [x] Add Commands help create Tracker blocks.
-- [ ] New output type 'table', lists the search result in a formatted table.
-- [ ] New output type 'heatmap', works like Github calendar heatmap.
-- [ ] New output type 'bar', renders bar chart.
-- [ ] Support multiple targets and multiple values.
-- [x] Support searching text using regular expression.
-- [x] Support tracking key-value pairs in frontmatter.
-- [ ] Add data post-process function, like 'moving average'.
-- [ ] Add an 'Explode' button to the rendered blocks, it will replace the code block with the rendered result.
-- [ ] Support graphs showing the correlation between sets of data.
-- [ ] Add a helper panel for adding frequently used tracking targets to article.
-- [ ] Add a dateTarget key for tracking notes not named in the date format.
-- [ ] Add a 'targetDataSet' key to graph, allow the graph drawing selected dataset.
-- [ ] Allow tracking datetime value.
+- Data Collecting
+    - [x] Support tracking key-value pairs in frontmatter.
+    - [x] Support searching text using regular expression.
+    - [x] Support multiple targets and multiple values.
+    - [ ] Add a dateTarget key for tracking notes not named in the date format.
+    - [ ] Allow tracking datetime value.
+- Output Type and Graph
+    - [x] New output type 'summary', analyzes the input data and represents it using a user-defined text template.
+    - [x] New output type 'bar', renders bar chart.
+    - [ ] New output type 'table', lists the search result in a formatted table.
+    - [ ] New output type 'heatmap', works like Github calendar heatmap.
+    - [ ] Support graphs showing the correlation between sets of data.
+    - [ ] Add a 'targetDataSet' key to graph, allow the graph drawing selected dataset.
+- Helper
+    - [x] Add Commands help create Tracker blocks.
+    - [ ] Add an 'Explode' button to the rendered blocks, it will replace the code block with the rendered result.
+    - [ ] Add a helper panel for adding frequently used tracking targets to article.
+- Data Processing
+    - [ ] Add data post-process function, e.g. 'moving average'.
 
 And more ...
 
-P.S. Items may not be implemented in the order above.
+P.S. Features may not be implemented in the order above.
 
 ## Support
 - If you like this plugin or want to support further development, you can [Buy Me a Coffee](https://www.buymeacoffee.com/pyrochlore).

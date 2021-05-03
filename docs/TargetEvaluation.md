@@ -1,6 +1,6 @@
 # Target Evaluation
 
-According to the [input parameters](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/InputParameters.md), the provided search target will be counted or evaluated as a value. Obsidian-tracker supports four kinds of searchType: 'tag', 'frontmatter', 'wiki', and 'text', dealing with different types of searching condition.
+According to the [input parameters](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/InputParameters.md) you provided, the search target will be counted or evaluated as a value. Obsidian-tracker supports four kinds of searchType: 'tag', 'frontmatter', 'wiki', and 'text', dealing with different types of searching condition.
 
 ## tag
 
@@ -16,7 +16,7 @@ In your content, a value can be attached to the tag in the format of '*#tagName:
 
 Nested tags with values attached could be useful for tracking children's data separately and also still see the overall merged data using parent tags.
 
-If you don't want value-attached tags in your content, you can use the '**frontmatter**' target.
+If you don't want value-attached tags in your content, you can use the '**frontmatter**' as your searchType.
 
 ## frontmatter
 This search type is used to query the key-value pairs in the front matter. If you don't want these values been seen in your article, the front matter would be the best place to record. For example,
