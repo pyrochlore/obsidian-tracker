@@ -13,12 +13,31 @@ export class DataPoint {
 }
 
 export class Query {
-    type: string;
-    target: string;
+    private type: string;
+    private target: string;
+    private parentTarget: string | null;
+    private id: number;
+    private subId: number;
 
-    constructor(searchType: string, searchTarget: string) {
+    constructor(id: number, searchType: string, searchTarget: string) {
         this.type = searchType;
         this.target = searchTarget;
+        this.id = id;
+        this.subId = -1;
+
+        let strRegex = "\\[(?<value>[0-9]+)\\]";
+        let regex = new RegExp(strRegex, "gm");
+        let match;
+        while ((match = regex.exec(searchTarget))) {
+            if (typeof match.groups.value !== "undefined") {
+                let value = parseFloat(match.groups.value);
+                if (Number.isNumber(value)) {
+                    this.subId = value;
+                    this.parentTarget = searchTarget.replace(regex, "");
+                }
+                break;
+            }
+        }
     }
 
     public equalTo(other: Query): boolean {
@@ -27,6 +46,26 @@ export class Query {
         }
         return false;
     }
+
+    public getType() {
+        return this.type;
+    }
+
+    public getTarget() {
+        return this.target;
+    }
+
+    public getParentTarget() {
+        return this.parentTarget;
+    }
+
+    public getId() {
+        return this.id;
+    }
+
+    public getSubId() {
+        return this.subId;
+    }
 }
 
 export interface QueryValuePair {
@@ -34,22 +73,65 @@ export interface QueryValuePair {
     value: NullableNumber;
 }
 
-export class DataSet implements IterableIterator<DataPoint> {
+export class Dataset implements IterableIterator<DataPoint> {
     // Array of DataPoints
+    private name: string;
     private query: Query;
     private values: NullableNumber[];
-    private parent: DataSets;
+    private parent: Datasets;
+    private id: number;
+    private yMin: NullableNumber;
+    private yMax: NullableNumber;
+    private lineInfo: LineInfo;
+    private barInfo: BarInfo;
 
     private currentIndex = 0; // IterableIterator
 
-    constructor(parent: DataSets, query: Query) {
+    constructor(parent: Datasets, query: Query) {
+        this.name = "untitled";
         this.query = query;
         this.values = [];
         this.parent = parent;
+        this.id = -1;
+        this.yMin = null;
+        this.yMax = null;
+        this.lineInfo = null;
+        this.barInfo = null;
 
         for (let ind = 0; ind < parent.getDates().length; ind++) {
             this.values.push(null);
         }
+    }
+
+    public getName() {
+        return this.name;
+    }
+
+    public setName(name: string) {
+        this.name = name;
+    }
+    public getLineInfo() {
+        return this.lineInfo;
+    }
+
+    public setLineInfo(lineInfo: LineInfo) {
+        this.lineInfo = lineInfo;
+    }
+
+    public getBarInfo() {
+        return this.barInfo;
+    }
+
+    public setBarInfo(barInfo: BarInfo) {
+        this.barInfo = barInfo;
+    }
+
+    public getId() {
+        return this.id;
+    }
+
+    public setId(id: number) {
+        this.id = id;
     }
 
     public setValue(date: Moment, value: NullableNumber) {
@@ -57,13 +139,34 @@ export class DataSet implements IterableIterator<DataPoint> {
         // console.log(ind);
         if (ind >= 0) {
             this.values[ind] = value;
+
+            if (this.yMin === null || value < this.yMin) {
+                this.yMin = value;
+            }
+            if (this.yMax === null || value > this.yMax) {
+                this.yMax = value;
+            }
         }
+    }
+
+    public getYMin() {
+        return this.yMin;
+    }
+
+    public getYMax() {
+        return this.yMax;
     }
 
     public setPenalty(penalty: number) {
         for (let ind = 0; ind < this.values.length; ind++) {
             if (this.values[ind] === null) {
                 this.values[ind] = penalty;
+                if (penalty < this.yMin) {
+                    this.yMin = penalty;
+                }
+                if (penalty > this.yMax) {
+                    this.yMax = penalty;
+                }
             }
         }
     }
@@ -79,6 +182,12 @@ export class DataSet implements IterableIterator<DataPoint> {
                 accumValue += this.values[ind];
             }
             this.values[ind] = accumValue;
+            if (accumValue < this.yMin) {
+                this.yMin = accumValue;
+            }
+            if (accumValue > this.yMax) {
+                this.yMax = accumValue;
+            }
         }
     }
 
@@ -125,16 +234,16 @@ export class DataSet implements IterableIterator<DataPoint> {
     }
 }
 
-export class DataSets implements IterableIterator<DataSet> {
-    // Iterable of DataSet
+export class Datasets implements IterableIterator<Dataset> {
+    // Iterable of Dataset
     private dates: Moment[];
-    private dataSets: DataSet[];
+    private datasets: Dataset[];
 
     private currentIndex = 0; // IterableIterator
 
     constructor(startDate: Moment, endDate: Moment) {
         this.dates = [];
-        this.dataSets = [];
+        this.datasets = [];
         let cData = startDate.creationData();
         const dateFormat = cData.format.toString();
         for (
@@ -152,11 +261,23 @@ export class DataSets implements IterableIterator<DataSet> {
         // console.log(this.dates);
     }
 
-    public createDataSet(query: Query) {
-        let dataSet = new DataSet(this, query);
-        this.dataSets.push(dataSet);
+    public createDataset(query: Query, renderInfo: RenderInfo) {
+        let dataset = new Dataset(this, query);
+        dataset.setId(query.getId());
+        if (renderInfo) {
+            dataset.setName(renderInfo.datasetName[query.getId()]);
 
-        return dataSet;
+            if (renderInfo.line) {
+                dataset.setLineInfo(renderInfo.line);
+            }
+            if (renderInfo.bar) {
+                dataset.setBarInfo(renderInfo.bar);
+            }
+        }
+
+        this.datasets.push(dataset);
+
+        return dataset;
     }
 
     public getIndexOfDate(date: Moment) {
@@ -172,28 +293,40 @@ export class DataSets implements IterableIterator<DataSet> {
         return -1;
     }
 
-    public getDataSetByQuery(query: Query) {
-        for (let dataSet of this.dataSets) {
-            if (dataSet.getQuery().equalTo(query)) {
-                return dataSet;
+    public getDatasetByQuery(query: Query) {
+        for (let dataset of this.datasets) {
+            if (dataset.getQuery().equalTo(query)) {
+                return dataset;
             }
         }
         return null;
     }
 
-    public getDataSetById(id: number) {
-        return this.dataSets[id];
+    public getDatasetById(id: number) {
+        for (let dataset of this.datasets) {
+            if (dataset.getId() === id) {
+                return dataset;
+            }
+        }
     }
 
     public getDates() {
         return this.dates;
     }
 
-    next(): IteratorResult<DataSet> {
-        if (this.currentIndex < this.dataSets.length) {
+    public getNames() {
+        let names = [];
+        for (let dataset of this.datasets) {
+            names.push(dataset.getName());
+        }
+        return names;
+    }
+
+    next(): IteratorResult<Dataset> {
+        if (this.currentIndex < this.datasets.length) {
             return {
                 done: false,
-                value: this.dataSets[this.currentIndex++],
+                value: this.datasets[this.currentIndex++],
             };
         } else {
             this.currentIndex = 0;
@@ -204,93 +337,151 @@ export class DataSets implements IterableIterator<DataSet> {
         }
     }
 
-    [Symbol.iterator](): IterableIterator<DataSet> {
+    [Symbol.iterator](): IterableIterator<Dataset> {
         return this;
     }
 }
 
 export class RenderInfo {
     // Input
-    searchType: string;
-    searchTarget: string;
+    queries: Query[];
     folder: string;
     dateFormat: string;
+    dateFormatPrefix: string;
+    dateFormatSuffix: string;
     startDate: Moment | null;
     endDate: Moment | null;
-    constValue: number;
-    ignoreAttachedValue: boolean;
-    ignoreZeroValue: boolean;
-    accum: boolean;
-    penalty: number;
+    datasetName: string[];
+    constValue: number[];
+    ignoreAttachedValue: boolean[];
+    ignoreZeroValue: boolean[];
+    accum: boolean[];
+    penalty: number[];
 
     output: string;
     line: LineInfo | null;
+    bar: BarInfo | null;
     summary: SummaryInfo | null;
 
-    public dataSets: DataSets | null;
+    public datasets: Datasets | null;
 
-    constructor(searchType: string, searchTarget: string) {
-        this.searchType = searchType;
-        this.searchTarget = searchTarget;
+    constructor(queries: Query[]) {
+        this.queries = queries;
         this.folder = "/";
         this.dateFormat = "YYYY-MM-DD";
+        this.dateFormatPrefix = "";
+        this.dateFormatSuffix = "";
         this.startDate = null;
         this.endDate = null;
-        this.constValue = 1.0;
-        this.ignoreAttachedValue = false;
-        this.ignoreZeroValue = false;
-        this.accum = false; // accum values start from zero over days
-        this.penalty = null; // use this value instead of null value
+        this.datasetName = []; // untitled
+        this.constValue = [1.0];
+        this.ignoreAttachedValue = []; // false
+        this.ignoreZeroValue = []; // false
+        this.accum = []; // false, accum values start from zero over days
+        this.penalty = []; // null, use this value instead of null value
 
         this.output = "";
         this.line = new LineInfo();
         this.summary = null;
+        this.bar = null;
 
-        this.dataSets = null;
+        this.datasets = null;
+    }
+
+    public getQueryById(id: number) {
+        for (let query of this.queries) {
+            if (query.getId() === id) {
+                return query;
+            }
+        }
     }
 }
 
-export class LineInfo {
+export class CommonChartInfo {
     title: string;
     xAxisLabel: string;
-    yAxisLabel: string;
-    labelColor: string;
-    yAxisUnit: string;
-    yAxisLocation: string;
-    yMin: number | null;
-    yMax: number | null;
-    axisColor: string;
-    lineColor: string;
-    lineWidth: number;
-    showLine: boolean;
-    showPoint: boolean;
-    pointColor: string;
-    pointBorderColor: string;
-    pointBorderWidth: number;
-    pointSize: number;
+    xAxisColor: string;
+    xAxisLabelColor: string;
+    yAxisLabel: string[];
+    yAxisColor: string[];
+    yAxisLabelColor: string[];
+    yAxisUnit: string[];
+    yMin: NullableNumber[];
+    yMax: NullableNumber[];
     allowInspectData: boolean;
-    fillGap: boolean;
+    showLegend: boolean;
+    legendPosition: string;
+    legendOrientation: string;
+    legendBgColor: string;
+    legendBorderColor: string;
 
     constructor() {
         this.title = "";
         this.xAxisLabel = "Date";
-        this.yAxisLabel = "Value";
-        this.labelColor = "";
-        this.yAxisUnit = "";
-        this.yAxisLocation = "left";
-        this.yMin = null;
-        this.yMax = null;
-        this.axisColor = "";
-        this.lineColor = "";
-        this.lineWidth = 1.5;
-        this.showLine = true;
-        this.showPoint = true;
-        this.pointColor = "#69b3a2";
-        this.pointBorderColor = "#69b3a2";
-        this.pointBorderWidth = 0.0;
-        this.pointSize = 3.0;
+        this.xAxisColor = "";
+        this.xAxisLabelColor = "";
+        this.yAxisLabel = []; // "Value", 2 elements
+        this.yAxisColor = []; // "", 2 elements
+        this.yAxisLabelColor = []; // "", 2 elements
+        this.yAxisUnit = []; // "", 2 elements
+        this.yMin = []; // null, 2 elements
+        this.yMax = []; // null, 2 elements
         this.allowInspectData = true;
-        this.fillGap = false;
+        this.showLegend = false;
+        this.legendPosition = ""; // top, bottom, left, right
+        this.legendOrientation = ""; // horizontal, vertical
+        this.legendBgColor = "";
+        this.legendBorderColor = "";
+    }
+
+    public type() {
+        return "CommonChartInfo";
+    }
+}
+
+export class LineInfo extends CommonChartInfo {
+    lineColor: string[];
+    lineWidth: number[];
+    showLine: boolean[];
+    showPoint: boolean[];
+    pointColor: string[];
+    pointBorderColor: string[];
+    pointBorderWidth: number[];
+    pointSize: number[];
+    fillGap: boolean[];
+    yAxisLocation: string[];
+
+    constructor() {
+        super();
+        this.lineColor = []; // ""
+        this.lineWidth = []; // 1.5
+        this.showLine = []; // true
+        this.showPoint = []; // true
+        this.pointColor = []; // #69b3a2
+        this.pointBorderColor = [];
+        this.pointBorderWidth = []; // 0.0
+        this.pointSize = []; // 3.0
+        this.fillGap = []; // false
+        this.yAxisLocation = []; // left, for each target
+    }
+
+    public type() {
+        return "LineInfo";
+    }
+}
+
+export class BarInfo extends CommonChartInfo {
+    barColor: string[];
+    yAxisLocation: string[];
+
+    constructor() {
+        super();
+        this.barColor = []; // #69b3a2
+        this.yAxisLocation = []; // left, for each target
+    }
+
+    public type() {
+        return "BarInfo";
     }
 }
 
@@ -301,5 +492,28 @@ export class SummaryInfo {
     constructor() {
         this.template = "";
         this.style = "";
+    }
+}
+
+export interface Size {
+    width: number;
+    height: number;
+}
+
+export class Transform {
+    translateX: number;
+    translateY: number;
+
+    constructor(transform: string) {
+        this.translateX = null;
+        this.translateY = null;
+
+        let groups = transform.match(
+            /translate\(\s*(?<x>[\d\.\/-]+)\s*,\s*(?<y>[\d\.\/-]+)\s*\)/
+        ).groups;
+        if (groups) {
+            this.translateX = parseFloat(groups.x);
+            this.translateY = parseFloat(groups.y);
+        }
     }
 }

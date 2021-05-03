@@ -48,6 +48,28 @@ for (
     // frontmatter mood
     let mood = randomIntFromInterval(1, 10);
     frontmatter += "mood: " + mood + "\n";
+
+    // blood pressure
+    let progress = dayCount;
+    if (progress > 100) {
+        progress = 100;
+    }
+    let systolicStart = 180;
+    let diastolicStart = 120;
+    let systolicEnd = 120;
+    let diastolicEnd = 100;
+    let systolicDeviation = randomIntFromInterval(-5, 5);
+    let diastolicDeviation = randomIntFromInterval(-2, 2);
+    let systolic =
+        ((systolicEnd - systolicStart) * dayCount) / 100 +
+        systolicStart +
+        systolicDeviation;
+    let diastolic =
+        ((diastolicEnd - diastolicStart) * dayCount) / 100 +
+        diastolicStart +
+        diastolicDeviation;
+    frontmatter += "bloodpressure: " + systolic + "/" + diastolic + "\n";
+
     frontmatter += "---\n";
     content += frontmatter;
 
@@ -130,6 +152,41 @@ for (
     if (addWeightLifting > 0) {
         content += "weightlifting: " + countWeightLifting + "\n";
     }
+
+    content += "\n";
+
+    let amplitude = 1.0;
+    let period = 30; // how many days to complete a sin period
+    let numSinValues = 9;
+    let initPhaseShift = -1.0;
+    let shiftPhase = 1.0;
+    let sinValues: Array<string> = [];
+    for (let ind = 0; ind < numSinValues; ind++) {
+        let shift = initPhaseShift + ind * shiftPhase;
+        let sinValue =
+            amplitude *
+            Math.sin(((2.0 * Math.PI) / period) * (dayCount + shift));
+        sinValues.push(sinValue.toFixed(5));
+    }
+
+    let tagSin = "#sin";
+
+    content += tagSin + ":" + sinValues.join("/") + "\n";
+
+    content += "\n";
+
+    let sinSquareValues: Array<string> = [];
+    for (let ind = 0; ind < numSinValues; ind++) {
+        let shift = initPhaseShift + ind * shiftPhase;
+        let sinSquareValue =
+            (amplitude *
+                Math.sin(((2.0 * Math.PI) / period) * (dayCount + shift))) **
+            2;
+        sinSquareValues.push(sinSquareValue.toFixed(5));
+    }
+
+    let tagSinSquare = "#sinsquare";
+    content += tagSinSquare + ":" + sinSquareValues.join("/") + "\n";
 
     content += "\n";
 

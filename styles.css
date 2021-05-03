@@ -4,10 +4,14 @@
     --font-axis-label: #000000;
     --color-tick-label: #000000;
     --color-line: #000000;
-    --color-legend: #000000;
+
+    --color-legend-border: #000000;
 
     --color-dot-fill: #69b3a2;
     --color-dot-stroke: none;
+
+    --color-bar-fill: #69b3a2;
+    --color-bar-border: none;
 
     --color-tooltip-bg: #ffffff;
     --color-tooltip-border: #000000;
@@ -20,10 +24,14 @@
     --color-axis-label: #ffffff;
     --color-tick-label: #ffffff;
     --color-line: #ffffff;
-    --color-legend: #ffffff;
+    
+    --color-legend-border: #ffffff;
 
     --color-dot-fill: #69b3a2;
     --color-dot-stroke: none;
+
+    --color-bar-fill: #69b3a2;
+    --color-bar-border: none;
 
     --color-tooltip-bg: #ffffff;
     --color-tooltip-border: #000000;
@@ -77,4 +85,19 @@
     fill: var(--color-tooltip-label);
     stroke: none;
     font-size: 12px;
+}
+
+.tracker-legend {
+    fill: none;
+    stroke: var(--color-legend-border);
+    stroke-width: 0.5px;
+}
+
+.tracker-legend-label {
+    font-size: 14px;
+    text-anchor: left;
+}
+
+.tracker-bar {
+    fill: var(--color-bar-fill);
 }

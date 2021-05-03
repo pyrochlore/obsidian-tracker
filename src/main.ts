@@ -3,7 +3,7 @@ import { MarkdownPostProcessorContext, MarkdownView, Editor } from "obsidian";
 import { TFile, TFolder, normalizePath } from "obsidian";
 import { render, renderErrorMessage } from "./rendering";
 import { getRenderInfoFromYaml } from "./parsing";
-import { NullableNumber, DataSets, Query, QueryValuePair } from "./data";
+import { NullableNumber, Datasets, Query, QueryValuePair } from "./data";
 import {
     TrackerSettings,
     DEFAULT_SETTINGS,
@@ -21,6 +21,8 @@ declare global {
 
 enum OutputType {
     Line,
+    Bar,
+    Radar,
     Summary,
     Table,
     Heatmap,
@@ -45,6 +47,12 @@ export default class Tracker extends Plugin {
             id: "add-line-chart-tracker",
             name: "Add Line Chart Tracker",
             callback: () => this.addCodeBlock(OutputType.Line),
+        });
+
+        this.addCommand({
+            id: "add-bar-chart-tracker",
+            name: "Add Bar Chart Tracker",
+            callback: () => this.addCodeBlock(OutputType.Bar),
         });
 
         this.addCommand({
@@ -127,6 +135,7 @@ export default class Tracker extends Plugin {
         el: HTMLElement,
         ctx: MarkdownPostProcessorContext
     ) {
+        // console.log("postprocess");
         const canvas = document.createElement("div");
 
         let yamlText = source.trim();
@@ -137,6 +146,7 @@ export default class Tracker extends Plugin {
             el.appendChild(canvas);
             return;
         }
+        // console.log(renderInfo);
 
         // Get files
         let files: TFile[];
@@ -160,28 +170,57 @@ export default class Tracker extends Plugin {
         let maxDate = window.moment("");
         let fileCounter = 0;
 
-        let queries = new Array<Query>();
-        queries.push(new Query(renderInfo.searchType, renderInfo.searchTarget));
-
+        // console.log(renderInfo.queries);
         let dataMap = new Map<string, Array<QueryValuePair>>(); // {strDate: [query: value, ...]}
-
-        for (let query of queries) {
-            for (let file of files) {
+        for (let file of files) {
+            for (let query of renderInfo.queries) {
                 let fileBaseName = file.basename;
+
+                if (
+                    renderInfo.dateFormatPrefix &&
+                    fileBaseName.startsWith(renderInfo.dateFormatPrefix)
+                ) {
+                    fileBaseName = fileBaseName.slice(
+                        renderInfo.dateFormatPrefix.length
+                    );
+                }
+                if (
+                    renderInfo.dateFormatSuffix &&
+                    fileBaseName.endsWith(renderInfo.dateFormatSuffix)
+                ) {
+                    fileBaseName = fileBaseName.slice(
+                        0,
+                        fileBaseName.length - renderInfo.dateFormatSuffix.length
+                    );
+                }
                 // console.log(fileBaseName);
+
                 let fileDate = window.moment(
                     fileBaseName,
                     renderInfo.dateFormat,
                     true
                 );
                 // console.log(fileDate);
+                // TODO: should exclude files out of date range
                 if (!fileDate.isValid()) {
                     // console.log("file " + fileBaseName + " rejected");
                     continue;
                 } else {
                     // console.log("file " + fileBaseName + " accepted");
+                    if (renderInfo.startDate !== null) {
+                        if (fileDate < renderInfo.startDate) {
+                            continue;
+                        }
+                    }
+                    if (renderInfo.endDate !== null) {
+                        if (fileDate > renderInfo.endDate) {
+                            continue;
+                        }
+                    }
                     fileCounter++;
                 }
+                // console.log(query);
+                // console.log(fileBaseName);
 
                 // Get min/max date
                 if (fileCounter == 1) {
@@ -209,7 +248,7 @@ export default class Tracker extends Plugin {
                 let fileCache = this.app.metadataCache.getFileCache(file);
 
                 // console.log("Search frontmatter tags");
-                if (query.type === "tag") {
+                if (query.getType() === "tag") {
                     // Add frontmatter tags, allow simple tag only
                     if (fileCache) {
                         let frontMatter = fileCache.frontmatter;
@@ -227,15 +266,19 @@ export default class Tracker extends Plugin {
                             }
 
                             for (let tag of frontMatterTags) {
-                                if (tag === query.target) {
+                                if (tag === query.getTarget()) {
                                     // simple tag
                                     tagMeasure =
-                                        tagMeasure + renderInfo.constValue;
+                                        tagMeasure +
+                                        renderInfo.constValue[query.getId()];
                                     tagExist = true;
-                                } else if (tag.startsWith(query.target + "/")) {
+                                } else if (
+                                    tag.startsWith(query.getTarget() + "/")
+                                ) {
                                     // nested tag
                                     tagMeasure =
-                                        tagMeasure + renderInfo.constValue;
+                                        tagMeasure +
+                                        renderInfo.constValue[query.getId()];
                                     tagExist = true;
                                 } else {
                                     continue;
@@ -260,17 +303,19 @@ export default class Tracker extends Plugin {
                 } // Search frontmatter tags
 
                 // console.log("Search frontmatter keys");
-                if (query.type === "frontmatter" && query.target !== "tags") {
+                if (
+                    query.getType() === "frontmatter" &&
+                    query.getTarget() !== "tags"
+                ) {
                     if (fileCache) {
                         let frontMatter = fileCache.frontmatter;
-                        if (frontMatter && frontMatter[query.target]) {
-                            // console.log(frontMatter[query.target]);
-                            let value = frontMatter[query.target];
-                            if (Array.isArray(value)) {
-                                // multiple values not support yet
-                            } else {
+                        if (frontMatter) {
+                            if (frontMatter[query.getTarget()]) {
+                                // console.log("single value");
+                                // console.log(frontMatter[query.target]);
+                                let value = frontMatter[query.getTarget()];
                                 value = parseFloat(value);
-                                if (typeof value === "number") {
+                                if (Number.isNumber(value)) {
                                     this.addToDataMap(
                                         dataMap,
                                         fileDate.format(renderInfo.dateFormat),
@@ -278,23 +323,54 @@ export default class Tracker extends Plugin {
                                         value
                                     );
                                 }
+                            } else if (
+                                query.getParentTarget() &&
+                                frontMatter[query.getParentTarget()]
+                            ) {
+                                // console.log("multiple values");
+                                // console.log(frontMatter[query.parentTarget]);
+                                let values =
+                                    frontMatter[query.getParentTarget()];
+                                if (typeof values === "string") {
+                                    let splitted = values.split("/");
+                                    if (
+                                        splitted.length > query.getSubId() &&
+                                        query.getSubId() >= 0
+                                    ) {
+                                        // TODO: it's not efficent to retrieve one value at a time, enhance this
+                                        let value = parseFloat(
+                                            splitted[query.getSubId()].trim()
+                                        );
+                                        if (Number.isNumber(value)) {
+                                            this.addToDataMap(
+                                                dataMap,
+                                                fileDate.format(
+                                                    renderInfo.dateFormat
+                                                ),
+                                                query,
+                                                value
+                                            );
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 } // console.log("Search frontmatter keys");
 
                 // console.log("Search wiki links");
-                if (query.type === "wiki") {
+                if (query.getType() === "wiki") {
                     if (fileCache) {
                         let links = fileCache.links;
 
                         let linkMeasure = 0.0;
                         let linkExist = false;
                         for (let link of links) {
-                            if (link.link === query.target) {
+                            if (link.link === query.getTarget()) {
                                 linkExist = true;
                                 linkMeasure =
-                                    linkMeasure + renderInfo.constValue;
+                                    linkMeasure +
+                                    renderInfo.constValue[query.getId()];
                             }
                         }
 
@@ -312,18 +388,21 @@ export default class Tracker extends Plugin {
                 }
 
                 // console.log("Search inline tags");
-                if (query.type === "tag") {
+                if (query.getType() === "tag") {
                     // Add inline tags
                     let content = await this.app.vault.adapter.read(file.path);
 
                     // console.log(content);
                     // Test this in Regex101
-                    //(^|\s)#tagName(\/[\w]+)*(:(?<value>[\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)(?<unit>\w*)?)?([\.!,\?;~-]*)?(\s|$)
+                    // (^|\s)#tagName(\/[\w-]+)*(:(?<values>[\d\.\/-]*)[a-zA-Z]*)?([\\.!,\\?;~-]*)?(\s|$)
+                    let tagName = query.getTarget();
+                    if (query.getParentTarget()) {
+                        tagName = query.getParentTarget(); // use parent tag name for multiple values
+                    }
                     let strHashtagRegex =
                         "(^|\\s)#" +
-                        query.target +
-                        "(\\/[\\w]+)*" +
-                        "(:(?<value>[\\-]?[0-9]+[\\.][0-9]+|[\\-]?[0-9]+)(?<unit>\\w*)?)?([\\.!,\\?;~-]*)?(\\s|$)";
+                        tagName +
+                        "(\\/[\\w-]+)*(:(?<values>[\\d\\.\\/-]*)[a-zA-Z]*)?([\\.!,\\?;~-]*)?(\\s|$)";
                     // console.log(strHashtagRegex);
                     let hashTagRegex = new RegExp(strHashtagRegex, "gm");
                     let match;
@@ -332,28 +411,48 @@ export default class Tracker extends Plugin {
                     while ((match = hashTagRegex.exec(content))) {
                         // console.log(match);
                         if (
-                            !renderInfo.ignoreAttachedValue &&
-                            match[0].includes(":")
+                            !renderInfo.ignoreAttachedValue[query.getId()] &&
+                            typeof match.groups !== "undefined" &&
+                            typeof match.groups.values !== "undefined"
                         ) {
-                            // match[0] whole match
-                            // console.log("valued-tag");
-                            if (typeof match.groups.value !== "undefined") {
-                                // set as null for missing value if it is valued-tag
-                                let value = parseFloat(match.groups.value);
+                            // console.log("value-attached tag");
+                            let splitted = match.groups.values.split("/");
+                            if (splitted.length === 1) {
+                                // console.log("single-value");
+                                let value = parseFloat(
+                                    match.groups.values.trim()
+                                );
                                 // console.log(value);
                                 if (!Number.isNaN(value)) {
                                     if (
-                                        !renderInfo.ignoreZeroValue ||
+                                        !renderInfo.ignoreZeroValue[
+                                            query.getId()
+                                        ] ||
                                         value !== 0
                                     ) {
                                         tagMeasure += value;
                                         tagExist = true;
                                     }
                                 }
+                            } else if (
+                                splitted.length > query.getSubId() &&
+                                query.getSubId() >= 0
+                            ) {
+                                // TODO: it's not efficent to retrieve one value at a time, enhance this
+                                // console.log("multiple-values");
+                                let value = parseFloat(
+                                    splitted[query.getSubId()].trim()
+                                );
+                                if (Number.isNumber(value)) {
+                                    tagMeasure += value;
+                                    tagExist = true;
+                                }
                             }
                         } else {
                             // console.log("simple-tag");
-                            tagMeasure = tagMeasure + renderInfo.constValue;
+                            tagMeasure =
+                                tagMeasure +
+                                renderInfo.constValue[query.getId()];
                             tagExist = true;
                         }
                     }
@@ -371,10 +470,10 @@ export default class Tracker extends Plugin {
                 } // Search inline tags
 
                 // console.log("Search text");
-                if (query.type === "text") {
+                if (query.getType() === "text") {
                     let content = await this.app.vault.adapter.read(file.path);
                     // console.log(content);
-                    let strTextRegex = query.target;
+                    let strTextRegex = query.getTarget();
 
                     let textRegex = new RegExp(strTextRegex, "gm");
                     let match;
@@ -382,7 +481,7 @@ export default class Tracker extends Plugin {
                     let textExist = false;
                     while ((match = textRegex.exec(content))) {
                         if (
-                            !renderInfo.ignoreAttachedValue &&
+                            !renderInfo.ignoreAttachedValue[query.getId()] &&
                             typeof match.groups !== "undefined"
                         ) {
                             // match[0] whole match
@@ -393,7 +492,9 @@ export default class Tracker extends Plugin {
                                 // console.log(value);
                                 if (!Number.isNaN(value)) {
                                     if (
-                                        !renderInfo.ignoreZeroValue ||
+                                        !renderInfo.ignoreZeroValue[
+                                            query.getId()
+                                        ] ||
                                         value !== 0
                                     ) {
                                         textMeasure += value;
@@ -403,7 +504,9 @@ export default class Tracker extends Plugin {
                             }
                         } else {
                             // console.log("simple-text");
-                            textMeasure = textMeasure + renderInfo.constValue;
+                            textMeasure =
+                                textMeasure +
+                                renderInfo.constValue[query.getId()];
                             textExist = true;
                         }
                     }
@@ -475,9 +578,9 @@ export default class Tracker extends Plugin {
         // console.log(renderInfo.endDate);
 
         // Reshape data for rendering
-        let dataSets = new DataSets(renderInfo.startDate, renderInfo.endDate);
-        for (let query of queries) {
-            let dataSet = dataSets.createDataSet(query);
+        let datasets = new Datasets(renderInfo.startDate, renderInfo.endDate);
+        for (let query of renderInfo.queries) {
+            let dataset = datasets.createDataset(query, renderInfo);
             for (
                 let curDate = renderInfo.startDate.clone();
                 curDate <= renderInfo.endDate;
@@ -510,14 +613,14 @@ export default class Tracker extends Plugin {
                         // console.log(hasValue);
                         // console.log(value);
                         if (hasValue) {
-                            dataSet.setValue(curDate, value);
+                            dataset.setValue(curDate, value);
                         }
                     }
                 }
             }
         }
-        renderInfo.dataSets = dataSets;
-        // console.log(renderInfo.dataSets);
+        renderInfo.datasets = datasets;
+        // console.log(renderInfo.datasets);
 
         let result = render(canvas, renderInfo);
         if (typeof result === "string") {
@@ -552,6 +655,19 @@ startDate:
 endDate:
 line:
     title: "Line Chart"
+    xAxisLabel: Date
+    yAxisLabel: Value
+\`\`\``;
+                break;
+            case OutputType.Bar:
+                codeblockToInsert = `\`\`\` tracker
+searchType: tag
+searchTarget: tagName
+folder: /
+startDate:
+endDate:
+bar:
+    title: "Bar Chart"
     xAxisLabel: Date
     yAxisLabel: Value
 \`\`\``;
