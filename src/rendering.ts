@@ -1,5 +1,4 @@
 import * as d3 from "d3";
-import { NamespaceLocalObject } from "d3";
 import {
     Datasets,
     DataPoint,
@@ -376,7 +375,7 @@ function renderLine(
     yScale: any
 ) {
     // console.log(dataset);
-    console.log(lineInfo);
+    // console.log(lineInfo);
 
     if (lineInfo.showLine[dataset.getId()]) {
         let lineGen = d3

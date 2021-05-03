@@ -1,4 +1,4 @@
-import { App, Notice, PluginSettingTab, Setting } from "obsidian";
+import { App, PluginSettingTab, Setting } from "obsidian";
 import Tracker from "./main";
 
 export interface TrackerSettings {

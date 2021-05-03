@@ -9,7 +9,6 @@ import {
 import { TFolder, normalizePath } from "obsidian";
 import * as Yaml from "yaml";
 import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
-import { render } from "./rendering";
 
 function strToBool(str: string): boolean | null {
     str = str.trim().toLowerCase();
