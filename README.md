@@ -131,14 +131,13 @@ First version released at 2021-03-23.
     - [ ] New output type 'heatmap', works like Github calendar heatmap.
     - [ ] Support graphs showing the correlation between sets of data.
     - [ ] Add a 'targetDataSet' key to graph, allow the graph drawing selected dataset.
+    - [ ] Evaluate template parameters by predefined function and arithmetics.
 - Helper
     - [x] Add Commands help create Tracker blocks.
     - [ ] Add an 'Explode' button to the rendered blocks, it will replace the code block with the rendered result.
     - [ ] Add a helper panel for adding frequently used tracking targets to article.
 - Data Processing
     - [ ] Add data post-process function, e.g. 'moving average'.
-- [ ] Evaluate template by predefined function and arithmetics.
-- [ ] Allow using date defined in frontmatter other than file name.
 
 And more ...
 
