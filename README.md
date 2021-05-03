@@ -19,8 +19,8 @@ This is an [Obsidian](https://obsidian.md/) plugin that helps you do tracking in
 | content | ⭐ | searchType: text<br>searchTarget: ⭐ | O |
 | content | love | searchType: text<br>searchTarget: love | O |
 | content | test@gmail.com<br>test@hotmail.com | searchType: text<br>serchTarget: '.+\\@.+\\..+' | O |
-| content | #weightlifting: 50 | searchType: text<br>searchTarget: 'weightlifting: (?<value>[\\-]?[0-9]+[\\.][0-9]+\|[\\-]?[0-9]+)' | V |
-| content | I walked 10000 steps today. | searchType: text<br>searchTarget: 'walked\\s+(?<value>[0-9]+)\\s+steps' | V |
+| content | #weightlifting: 50 | searchType: text<br>searchTarget: 'weightlifting: (?\<value\>[\\-]?[0-9]+[\\.][0-9]+\|[\\-]?[0-9]+)' | V |
+| content | I walked 10000 steps today. | searchType: text<br>searchTarget: 'walked\\s+(?\<value\>[0-9]+)\\s+steps' | V |
 
 ## Installation
 ### Install from Obsidian Settings Panel
