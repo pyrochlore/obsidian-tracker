@@ -80,9 +80,9 @@ For more information about the dateFormat settings, check the [TestDateFormats e
 ## Release Notes
 ### v1.3.0
 - Support reading and rendering multiple targets.
-- Support multiple values (a tuple of values) under a target.
-- New output type 'bar', renders bar chart.
-- Add legend for chart.
+- Support reading and renndering multiple values (a tuple of values) under a target.
+- New output type 'bar', rendering bar chart.
+- Add a legend for the chart output.
 - Fix bugs.
 
 ### v1.2.1
@@ -98,7 +98,7 @@ For more information about the dateFormat settings, check the [TestDateFormats e
 ### v1.1.0
 - New output type 'summary'.
 - Add commands help create Tracker code blocks.
-- Relax the regex for searching tags, allow tags embedded in sentences.
+- Relax the regex for searching tags, allowing tags embedded in sentences.
 - Fix issues.
 
 ### v1.0.2
