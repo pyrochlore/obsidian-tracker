@@ -10,8 +10,8 @@ bar:
     title: Weight Log
     yAxisLabel: Weight
     yAxisUnit: kg
-	yMin: 0
-	barColor: darkolivegreen
+    yMin: 0
+    barColor: darkolivegreen
 ```
 
 ``` tracker
@@ -24,8 +24,8 @@ bar:
     title: Weight Log
     yAxisLabel: Weight
     yAxisUnit: kg
-	yMin: 0
-	barColor: brown
+    yMin: 0
+    barColor: brown
 ```
 
 ``` tracker
@@ -37,7 +37,7 @@ endDate: 2021-01-21
 bar:
     title: Sin Wave
     yAxisLabel: Value
-	barColor: yellow, red, green
+    barColor: yellow, red, green
 ```
 
 ``` tracker
@@ -49,6 +49,6 @@ endDate: 2021-01-05
 bar:
     title: Sin Square Wave
     yAxisLabel: Value
-	yMin: 0
-	barColor: yellow, red, green, blue, orange, white
+    yMin: 0
+    barColor: yellow, red, green, blue, orange, white
 ```
