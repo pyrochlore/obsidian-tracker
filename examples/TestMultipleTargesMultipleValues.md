@@ -9,7 +9,7 @@ endDate: 2021-01-31
 line:
     title: Sin Wave
     lineColor: yellow
-	showLegend: false
+    showLegend: false
 ```
 
 ``` tracker
@@ -21,8 +21,8 @@ endDate: 2021-01-31
 line:
     title: Sin Wave
     lineColor: yellow, blue, white, red, black, orange, purple, green, cyan
-	showPoint: false
-	showLegend: true
-	legendPosition: right
-	legendOrientation: vertical
+    showPoint: false
+    showLegend: true
+    legendPosition: right
+    legendOrientation: vertical
 ```
