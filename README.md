@@ -11,10 +11,10 @@ This is an [Obsidian](https://obsidian.md/) plugin that helps you do tracking in
 | frontmatter | ---<br>tags: meditation<br>--- | searchType: tag<br>searchTarget: meditation | O |
 | content | #weight:60.5kg | searchType: tag<br>searchTarget: weight | V |
 | content | #finance/bank1/transfer:100USD | searchType: tag<br>searchTarget: finance/bank1/transfer | V |
-| content | #finance/bank1/transfer:100USD<br>#finance/bank1/income:80USD<br>#finance/bank1/outcome/-120USD | searchType: tag<br>searchTarget: finance/bank1 | V |
+| content | #finance/bank1/transfer:100USD<br>#finance/bank1/income:80USD<br>#finance/bank1/outcome:-120USD | searchType: tag<br>searchTarget: finance/bank1 | V |
 | content | #blood-pressure:180/120 | searchType: tag<br>searchTarget: blood-pressure[0], blood-pressure[1] | V |
 | frontmatter | ---<br>mood: 10<br>--- | searchType: frontmatter<br>searchTarget: mood | V |
-| frontmatter | ---<br>sleep:23/6<br>--- | searchType: frontmatter<br>searchTarget: sleep[0], sleep[1] | V |
+| frontmatter | ---<br>sleep: 23/6<br>--- | searchType: frontmatter<br>searchTarget: sleep[0], sleep[1] | V |
 | content | [[journal]] | searchType: wiki<br>searchTarget: journal | O |
 | content | ⭐ | searchType: text<br>searchTarget: ⭐ | O |
 | content | love | searchType: text<br>searchTarget: love | O |
@@ -124,6 +124,7 @@ First version released at 2021-03-23.
     - [x] Support multiple targets and multiple values.
     - [ ] Add a dateTarget key for tracking notes not named in the date format.
     - [ ] Allow tracking datetime value.
+    - [ ] Get data from table
 - Output Type and Graph
     - [x] New output type 'summary', analyzes the input data and represents it using a user-defined text template.
     - [x] New output type 'bar', renders bar chart.
@@ -137,6 +138,7 @@ First version released at 2021-03-23.
     - [ ] Add an 'Explode' button to the rendered blocks, it will replace the code block with the rendered result.
     - [ ] Add a helper panel for adding frequently used tracking targets to article.
 - Data Processing
+    - [ ] Allow arithmetics operation on dataset and generate new datasets
     - [ ] Add data post-process function, e.g. 'moving average'.
 
 And more ...
