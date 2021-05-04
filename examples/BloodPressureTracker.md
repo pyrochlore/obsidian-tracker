@@ -14,8 +14,8 @@ line:
     yAxisLabel: BP
     yAxisUnit: mmHg
     lineColor: yellow, red
-	showLegend: true
-	legendPosition: bottom
+    showLegend: true
+    legendPosition: bottom
 ```
 
 ``` tracker
@@ -41,15 +41,14 @@ line:
     title: Blood Pressures
     yAxisLabel: Systolic, Diastolic
     yAxisUnit: mmHg
-	yMin: 150, 110
-	yMax: 190, 125
-	yAxisLocation: left, right
-	yAxisColor: yellow, red
-	yAxisLabelColor: yellow, red
+    yMin: 150, 110
+    yMax: 190, 125
+    yAxisLocation: left, right
+    yAxisColor: yellow, red
+    yAxisLabelColor: yellow, red
     lineColor: yellow, red
-	barColor: yellow, red
-	showLegend: true
-	legendPosition: right
+    showLegend: true
+    legendPosition: right
 ```
 
 Please also check those search targets in markdown files under folder 'diary'.
