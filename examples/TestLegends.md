@@ -19,9 +19,9 @@ endDate: 2021-01-31
 line:
     title: Sin Wave
     lineColor: yellow, blue, white, red, black, orange, purple, green, cyan
-	showPoint: false
-	showLegend: true
-	legendPosition: right
+    showPoint: false
+    showLegend: true
+    legendPosition: right
 ```
 
 - legendPosition: right
@@ -36,10 +36,10 @@ endDate: 2021-01-31
 line:
     title: Sin Wave
     lineColor: yellow, blue, white, red, black, orange, purple, green, cyan
-	showPoint: false
-	showLegend: true
-	legendPosition: right
-	legendOrientation: horizontal
+    showPoint: false
+    showLegend: true
+    legendPosition: right
+    legendOrientation: horizontal
 ```
 
 ### Left
@@ -56,9 +56,9 @@ endDate: 2021-01-31
 line:
     title: Sin Wave
     lineColor: yellow, blue, white, red, black, orange, purple, green, cyan
-	showPoint: false
-	showLegend: true
-	legendPosition: left
+    showPoint: false
+    showLegend: true
+    legendPosition: left
 ```
 
 - legendPosition: left
@@ -73,10 +73,10 @@ endDate: 2021-01-31
 line:
     title: Sin Wave
     lineColor: yellow, blue, white, red, black, orange, purple, green, cyan
-	showPoint: false
-	showLegend: true
-	legendPosition: left
-	legendOrientation: horizontal
+    showPoint: false
+    showLegend: true
+    legendPosition: left
+    legendOrientation: horizontal
 ```
 
 ### Top
@@ -93,9 +93,9 @@ endDate: 2021-01-31
 line:
     title: Sin Wave
     lineColor: yellow, blue, white, red, black, orange, purple, green, cyan
-	showPoint: false
-	showLegend: true
-	legendPosition: top
+    showPoint: false
+    showLegend: true
+    legendPosition: top
 ```
 
 - legendPosition: top
@@ -109,10 +109,10 @@ endDate: 2021-01-31
 line:
     title: Sin Wave
     lineColor: yellow, blue, white, red, black, orange, purple, green, cyan
-	showPoint: false
-	showLegend: true
-	legendPosition: top
-	legendOrientation: vertical
+    showPoint: false
+    showLegend: true
+    legendPosition: top
+    legendOrientation: vertical
 ```
 
 ### Bottom
@@ -129,8 +129,8 @@ endDate: 2021-01-31
 line:
     title: Sin Wave
     lineColor: yellow, blue, white, red, black, orange, purple, green, cyan
-	showPoint: false
-	showLegend: true
+    showPoint: false
+    showLegend: true
 ```
 
 - Default legendPosition ==> bottom
@@ -145,10 +145,10 @@ endDate: 2021-01-31
 line:
     title: Sin Wave
     lineColor: yellow, blue, white, red, black, orange, purple, green, cyan
-	showPoint: false
-	showLegend: true
-	legendOrientation: vertical
-	legendBorderColor: gold
+    showPoint: false
+    showLegend: true
+    legendOrientation: vertical
+    legendBorderColor: gold
 ```
 
 ## Lines, Points, and Bars
@@ -163,7 +163,7 @@ line:
     title: PushUp
     yAxisLabel: Count
     lineColor: "#d65d0e"
-	showLegend: true
+    showLegend: true
 ```
 
 ``` tracker
@@ -176,7 +176,7 @@ bar:
     title: PushUp
     yAxisLabel: Count
     barColor: "#458588"
-	showLegend: true
+    showLegend: true
 ```
 
 ``` tracker
@@ -189,6 +189,6 @@ bar:
     title: PushUp
     yAxisLabel: Count
     barColor: "#458588"
-	showLegend: true
-	legendPosition: right
+    showLegend: true
+    legendPosition: right
 ```
