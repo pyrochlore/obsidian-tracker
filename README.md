@@ -1,7 +1,7 @@
 # Obsidian Tracker Plugin
 ![GitHub release](https://img.shields.io/github/v/release/pyrochlore/obsidian-tracker)
 
-<img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/docs/images/Screenshot_v1.3.png" width="800">
+<img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/docs/images/screenshot_v1.3.png" width="800">
 
 This is an [Obsidian](https://obsidian.md/) plugin that helps you do tracking in daily notes and represent the data comprehensively. Here are examples showing what you can track:
 
@@ -11,16 +11,16 @@ This is an [Obsidian](https://obsidian.md/) plugin that helps you do tracking in
 | frontmatter | ---<br>tags: meditation<br>--- | searchType: tag<br>searchTarget: meditation | O |
 | content | #weight:60.5kg | searchType: tag<br>searchTarget: weight | V |
 | content | #finance/bank1/transfer:100USD | searchType: tag<br>searchTarget: finance/bank1/transfer | V |
-| content | #finance/bank1/transfer:100USD<br>#finance/bank1/income:80USD<br>#finance/bank1/outcome/-120USD | searchType: tag<br>searchTarget: finance/bank1 | V |
+| content | #finance/bank1/transfer:100USD<br>#finance/bank1/income:80USD<br>#finance/bank1/outcome:-120USD | searchType: tag<br>searchTarget: finance/bank1 | V |
 | content | #blood-pressure:180/120 | searchType: tag<br>searchTarget: blood-pressure[0], blood-pressure[1] | V |
 | frontmatter | ---<br>mood: 10<br>--- | searchType: frontmatter<br>searchTarget: mood | V |
-| frontmatter | ---<br>sleep:23/6<br>--- | searchType: frontmatter<br>searchTarget: sleep[0], sleep[1] | V |
+| frontmatter | ---<br>sleep: 23/6<br>--- | searchType: frontmatter<br>searchTarget: sleep[0], sleep[1] | V |
 | content | [[journal]] | searchType: wiki<br>searchTarget: journal | O |
 | content | ⭐ | searchType: text<br>searchTarget: ⭐ | O |
 | content | love | searchType: text<br>searchTarget: love | O |
 | content | test@gmail.com<br>test@hotmail.com | searchType: text<br>serchTarget: '.+\\@.+\\..+' | O |
-| content | #weightlifting: 50 | searchType: text<br>searchTarget: 'weightlifting: (?<value>[\\-]?[0-9]+[\\.][0-9]+\|[\\-]?[0-9]+)' | V |
-| content | I walked 10000 steps today. | searchType: text<br>searchTarget: 'walked\\s+(?<value>[0-9]+)\\s+steps' | V |
+| content | #weightlifting: 50 | searchType: text<br>searchTarget: 'weightlifting: (?\<value\>[\\-]?[0-9]+[\\.][0-9]+\|[\\-]?[0-9]+)' | V |
+| content | I walked 10000 steps today. | searchType: text<br>searchTarget: 'walked\\s+(?\<value\>[0-9]+)\\s+steps' | V |
 
 ## Installation
 ### Install from Obsidian Settings Panel
@@ -80,9 +80,9 @@ For more information about the dateFormat settings, check the [TestDateFormats e
 ## Release Notes
 ### v1.3.0
 - Support reading and rendering multiple targets.
-- Support multiple values (a tuple of values) under a target.
-- New output type 'bar', renders bar chart.
-- Add legend for chart.
+- Support reading and renndering multiple values (a tuple of values) under a target.
+- New output type 'bar', rendering bar chart.
+- Add a legend for the chart output.
 - Fix bugs.
 
 ### v1.2.1
@@ -98,7 +98,7 @@ For more information about the dateFormat settings, check the [TestDateFormats e
 ### v1.1.0
 - New output type 'summary'.
 - Add commands help create Tracker code blocks.
-- Relax the regex for searching tags, allow tags embedded in sentences.
+- Relax the regex for searching tags, allowing tags embedded in sentences.
 - Fix issues.
 
 ### v1.0.2
@@ -124,6 +124,7 @@ First version released at 2021-03-23.
     - [x] Support multiple targets and multiple values.
     - [ ] Add a dateTarget key for tracking notes not named in the date format.
     - [ ] Allow tracking datetime value.
+    - [ ] Get data from table
 - Output Type and Graph
     - [x] New output type 'summary', analyzes the input data and represents it using a user-defined text template.
     - [x] New output type 'bar', renders bar chart.
@@ -131,11 +132,13 @@ First version released at 2021-03-23.
     - [ ] New output type 'heatmap', works like Github calendar heatmap.
     - [ ] Support graphs showing the correlation between sets of data.
     - [ ] Add a 'targetDataSet' key to graph, allow the graph drawing selected dataset.
+    - [ ] Evaluate template parameters by predefined function and arithmetics.
 - Helper
     - [x] Add Commands help create Tracker blocks.
     - [ ] Add an 'Explode' button to the rendered blocks, it will replace the code block with the rendered result.
     - [ ] Add a helper panel for adding frequently used tracking targets to article.
 - Data Processing
+    - [ ] Allow arithmetics operation on dataset and generate new datasets
     - [ ] Add data post-process function, e.g. 'moving average'.
 
 And more ...
