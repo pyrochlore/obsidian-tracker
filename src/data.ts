@@ -398,6 +398,8 @@ export class RenderInfo {
 }
 
 export class CommonChartInfo {
+    fixedScale: number;
+    fitPanelWidth: boolean;
     title: string;
     xAxisLabel: string;
     xAxisColor: string;
@@ -416,6 +418,8 @@ export class CommonChartInfo {
     legendBorderColor: string;
 
     constructor() {
+        this.fixedScale = 1.0; // 0.2~2
+        this.fitPanelWidth = false;
         this.title = "";
         this.xAxisLabel = "Date";
         this.xAxisColor = "";

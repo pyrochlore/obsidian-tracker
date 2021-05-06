@@ -8,10 +8,11 @@ import {
     BarInfo,
     Size,
     Transform,
+    CommonChartInfo,
 } from "./data";
 
 // Dimension
-let margin = { top: 10, right: 70, bottom: 70, left: 70 };
+let margin = { top: 10, right: 70, bottom: 10, left: 70 };
 let width = 500 - margin.left - margin.right;
 let height = 400 - margin.top - margin.bottom;
 let tooltipSize = { width: 90, height: 45 };
@@ -1013,6 +1014,35 @@ function renderTitle(svg: any, graphArea: any, strTitle: string) {
     return title;
 }
 
+function setChartScale(
+    _canvas: HTMLElement,
+    svg: any,
+    chartInfo: CommonChartInfo
+) {
+    let canvas = d3.select(_canvas);
+    let svgWidth = parseFloat(svg.attr("width"));
+    let svgHeight = parseFloat(svg.attr("height"));
+    svg.attr("width", null)
+        .attr("height", null)
+        .attr("viewBox", `0 0 ${svgWidth} ${svgHeight}`)
+        .attr("preserveAspectRatio", "xMidYMid meet");
+
+    if (chartInfo.fitPanelWidth) {
+        console.log("fitPanelWidth");
+        canvas.style("width", "100%");
+    } else {
+        console.log("not fitPanelWidth");
+        canvas.style(
+            "width",
+            (svgWidth * chartInfo.fixedScale).toString() + "px"
+        );
+        canvas.style(
+            "height",
+            (svgHeight * chartInfo.fixedScale).toString() + "px"
+        );
+    }
+}
+
 function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log("renderLineChart");
     // console.log(renderInfo);
@@ -1121,6 +1151,8 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
             renderInfo.line
         );
     }
+
+    setChartScale(canvas, svg, renderInfo.line);
 }
 
 function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
@@ -1236,6 +1268,8 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
             renderInfo.bar
         );
     }
+
+    setChartScale(canvas, svg, renderInfo.bar);
 }
 
 function checkSummaryTemplateValid(summaryTemplate: string): boolean {

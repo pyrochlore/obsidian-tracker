@@ -481,6 +481,16 @@ function getStringArrayFromInput(
 }
 
 function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
+    // fixedScale
+    if (typeof yaml.fixedScale === "number") {
+        renderInfo.fixedScale = yaml.fixedScale;
+    }
+
+    // fitPanelWidth
+    if (typeof yaml.fitPanelWidth === "boolean") {
+        renderInfo.fitPanelWidth = yaml.fitPanelWidth;
+    }
+
     // title
     if (typeof yaml.title === "string") {
         renderInfo.title = yaml.title;
