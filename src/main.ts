@@ -336,6 +336,7 @@ export default class Tracker extends Plugin {
                                             true
                                         );
                                         if (timeValue.isValid()) {
+                                            query.setUsingTimeValue();
                                             value = timeValue.diff(
                                                 window.moment(
                                                     "00:00",
@@ -392,6 +393,7 @@ export default class Tracker extends Plugin {
                                                 true
                                             );
                                             if (timeValue.isValid()) {
+                                                query.setUsingTimeValue();
                                                 value = timeValue.diff(
                                                     window.moment(
                                                         "00:00",
@@ -491,6 +493,7 @@ export default class Tracker extends Plugin {
                                         true
                                     );
                                     if (timeValue.isValid()) {
+                                        query.setUsingTimeValue();
                                         tagMeasure = timeValue.diff(
                                             window.moment(
                                                 "00:00",
@@ -530,6 +533,7 @@ export default class Tracker extends Plugin {
                                         true
                                     );
                                     if (timeValue.isValid()) {
+                                        query.setUsingTimeValue();
                                         tagMeasure = timeValue.diff(
                                             window.moment(
                                                 "00:00",

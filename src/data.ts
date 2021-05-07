@@ -27,12 +27,14 @@ export class Query {
     private parentTarget: string | null;
     private id: number;
     private subId: number;
+    private valueIsTime: boolean;
 
     constructor(id: number, searchType: string, searchTarget: string) {
         this.type = searchType;
         this.target = searchTarget;
         this.id = id;
         this.subId = -1;
+        this.valueIsTime = false;
 
         let strRegex = "\\[(?<value>[0-9]+)\\]";
         let regex = new RegExp(strRegex, "gm");
@@ -75,6 +77,14 @@ export class Query {
     public getSubId() {
         return this.subId;
     }
+
+    public isUsingTimeValue() {
+        return this.valueIsTime;
+    }
+
+    public setUsingTimeValue() {
+        this.valueIsTime = true;
+    }
 }
 
 export interface QueryValuePair {
@@ -93,6 +103,7 @@ export class Dataset implements IterableIterator<DataPoint> {
     private yMax: NullableNumber;
     private lineInfo: LineInfo;
     private barInfo: BarInfo;
+    private valueIsTime: boolean;
 
     private currentIndex = 0; // IterableIterator
 
@@ -106,6 +117,7 @@ export class Dataset implements IterableIterator<DataPoint> {
         this.yMax = null;
         this.lineInfo = null;
         this.barInfo = null;
+        this.valueIsTime = query.isUsingTimeValue();
 
         for (let ind = 0; ind < parent.getDates().length; ind++) {
             this.values.push(null);
@@ -182,6 +194,10 @@ export class Dataset implements IterableIterator<DataPoint> {
 
     public getQuery(): Query {
         return this.query;
+    }
+
+    public isUsingTimeValue() {
+        return this.valueIsTime;
     }
 
     public accumulateValues() {
