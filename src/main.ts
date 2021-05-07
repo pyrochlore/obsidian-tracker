@@ -25,6 +25,21 @@ declare global {
     }
 }
 
+let timeFormat = [
+    "HH:mm",
+    "HH:m",
+    "H:mm",
+    "H:m",
+    "hh:mm A",
+    "hh:mm a",
+    "hh:m A",
+    "hh:m a",
+    "h:mm A",
+    "h:mm a",
+    "h:m A",
+    "h:m a",
+];
+
 export default class Tracker extends Plugin {
     settings: TrackerSettings;
 
@@ -309,9 +324,33 @@ export default class Tracker extends Plugin {
                         if (frontMatter) {
                             if (frontMatter[query.getTarget()]) {
                                 // console.log("single value");
-                                // console.log(frontMatter[query.target]);
-                                let value = frontMatter[query.getTarget()];
-                                value = parseFloat(value);
+                                // console.log(frontMatter[query.getTarget()]);
+                                let value = null;
+                                let toParse = frontMatter[query.getTarget()];
+                                if (typeof toParse === "string") {
+                                    if (toParse.includes(":")) {
+                                        // time value
+                                        let timeValue = window.moment(
+                                            toParse,
+                                            timeFormat,
+                                            true
+                                        );
+                                        if (timeValue.isValid()) {
+                                            value = timeValue.diff(
+                                                window.moment(
+                                                    "00:00",
+                                                    "HH:mm",
+                                                    true
+                                                ),
+                                                "seconds"
+                                            );
+                                        }
+                                    } else {
+                                        value = parseFloat(toParse);
+                                    }
+                                } else {
+                                    value = parseFloat(toParse);
+                                }
                                 if (Number.isNumber(value)) {
                                     this.addToDataMap(
                                         dataMap,
@@ -325,19 +364,47 @@ export default class Tracker extends Plugin {
                                 frontMatter[query.getParentTarget()]
                             ) {
                                 // console.log("multiple values");
-                                // console.log(frontMatter[query.parentTarget]);
-                                let values =
+                                // console.log(query.getTarget());
+                                // console.log(query.getParentTarget());
+                                // console.log(query.getSubId());
+                                // console.log(
+                                //     frontMatter[query.getParentTarget()]
+                                // );
+                                let toParse =
                                     frontMatter[query.getParentTarget()];
-                                if (typeof values === "string") {
-                                    let splitted = values.split("/");
+
+                                if (typeof toParse === "string") {
+                                    let splitted = toParse.split("/");
                                     if (
                                         splitted.length > query.getSubId() &&
                                         query.getSubId() >= 0
                                     ) {
                                         // TODO: it's not efficent to retrieve one value at a time, enhance this
-                                        let value = parseFloat(
-                                            splitted[query.getSubId()].trim()
-                                        );
+                                        let value = null;
+                                        let splittedPart = splitted[
+                                            query.getSubId()
+                                        ].trim();
+                                        if (toParse.includes(":")) {
+                                            // time value
+                                            let timeValue = window.moment(
+                                                splittedPart,
+                                                timeFormat,
+                                                true
+                                            );
+                                            if (timeValue.isValid()) {
+                                                value = timeValue.diff(
+                                                    window.moment(
+                                                        "00:00",
+                                                        "HH:mm",
+                                                        true
+                                                    ),
+                                                    "seconds"
+                                                );
+                                            }
+                                        } else {
+                                            value = parseFloat(splittedPart);
+                                        }
+
                                         if (Number.isNumber(value)) {
                                             this.addToDataMap(
                                                 dataMap,
@@ -416,19 +483,37 @@ export default class Tracker extends Plugin {
                             let splitted = match.groups.values.split("/");
                             if (splitted.length === 1) {
                                 // console.log("single-value");
-                                let value = parseFloat(
-                                    match.groups.values.trim()
-                                );
-                                // console.log(value);
-                                if (!Number.isNaN(value)) {
-                                    if (
-                                        !renderInfo.ignoreZeroValue[
-                                            query.getId()
-                                        ] ||
-                                        value !== 0
-                                    ) {
-                                        tagMeasure += value;
+                                let toParse = match.groups.values.trim();
+                                if (toParse.includes(":")) {
+                                    let timeValue = window.moment(
+                                        toParse,
+                                        timeFormat,
+                                        true
+                                    );
+                                    if (timeValue.isValid()) {
+                                        tagMeasure = timeValue.diff(
+                                            window.moment(
+                                                "00:00",
+                                                "HH:mm",
+                                                true
+                                            ),
+                                            "seconds"
+                                        );
                                         tagExist = true;
+                                    }
+                                } else {
+                                    let value = parseFloat(toParse);
+                                    // console.log(value);
+                                    if (!Number.isNaN(value)) {
+                                        if (
+                                            !renderInfo.ignoreZeroValue[
+                                                query.getId()
+                                            ] ||
+                                            value !== 0
+                                        ) {
+                                            tagMeasure += value;
+                                            tagExist = true;
+                                        }
                                     }
                                 }
                             } else if (
@@ -437,12 +522,30 @@ export default class Tracker extends Plugin {
                             ) {
                                 // TODO: it's not efficent to retrieve one value at a time, enhance this
                                 // console.log("multiple-values");
-                                let value = parseFloat(
-                                    splitted[query.getSubId()].trim()
-                                );
-                                if (Number.isNumber(value)) {
-                                    tagMeasure += value;
-                                    tagExist = true;
+                                let toParse = splitted[query.getSubId()].trim();
+                                if (toParse.includes(":")) {
+                                    let timeValue = window.moment(
+                                        toParse,
+                                        timeFormat,
+                                        true
+                                    );
+                                    if (timeValue.isValid()) {
+                                        tagMeasure = timeValue.diff(
+                                            window.moment(
+                                                "00:00",
+                                                "HH:mm",
+                                                true
+                                            ),
+                                            "seconds"
+                                        );
+                                        tagExist = true;
+                                    }
+                                } else {
+                                    let value = parseFloat(toParse);
+                                    if (Number.isNumber(value)) {
+                                        tagMeasure += value;
+                                        tagExist = true;
+                                    }
                                 }
                             }
                         } else {
