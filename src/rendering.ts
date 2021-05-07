@@ -12,9 +12,9 @@ import {
 } from "./data";
 
 // Dimension
-let margin = { top: 10, right: 70, bottom: 10, left: 70 };
-let width = 500 - margin.left - margin.right;
-let height = 400 - margin.top - margin.bottom;
+let margin = { top: 10, right: 10, bottom: 10, left: 10 };
+let width = 320 - margin.left - margin.right;
+let height = 320 - margin.top - margin.bottom;
 let tooltipSize = { width: 90, height: 45 };
 
 function getTickInterval(datasets: Datasets) {
@@ -195,6 +195,7 @@ function renderXAxis(
 
 function renderYAxis(
     svg: any,
+    title: any,
     graphArea: any,
     datasets: Datasets,
     renderInfo: LineInfo | BarInfo,
@@ -360,10 +361,37 @@ function renderYAxis(
         yAxisLabel.style("fill", yAxisLabelColor);
     }
 
-    yAxis.attr(
-        "width",
-        yAxisLabelSize.height + maxTickLabelWidth + yTickLength
-    );
+    // Expand svg width
+    let svgWidth = parseFloat(svg.attr("width"));
+    let yAxisWidth = yAxisLabelSize.height + maxTickLabelWidth + yTickLength;
+    svg.attr("width", svgWidth + yAxisWidth);
+    yAxis.attr("width", svgWidth + yAxisWidth);
+
+    // Move graphArea
+    if (location === "left") {
+        let graphAreaTrans = new Transform(graphArea.attr("transform"));
+        graphArea.attr(
+            "transform",
+            "translate(" +
+                (graphAreaTrans.translateX + yAxisWidth) +
+                "," +
+                graphAreaTrans.translateY +
+                ")"
+        );
+    }
+
+    // Move title
+    if (location === "left" && title !== null) {
+        let titleTrans = new Transform(title.attr("transform"));
+        title.attr(
+            "transform",
+            "translate(" +
+                (titleTrans.translateX + yAxisWidth) +
+                "," +
+                titleTrans.translateY +
+                ")"
+        );
+    }
 
     return [yAxis, yScale];
 }
@@ -1053,7 +1081,7 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom);
 
-    //
+    // graphArea
     let graphArea = svg
         .append("g")
         .attr("id", "graphArea")
@@ -1087,6 +1115,7 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
 
     let [leftYAxis, leftYScale] = renderYAxis(
         svg,
+        title,
         graphArea,
         renderInfo.datasets,
         renderInfo.line,
@@ -1113,6 +1142,7 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
 
     let [rightYAxis, rightYScale] = renderYAxis(
         svg,
+        title,
         graphArea,
         renderInfo.datasets,
         renderInfo.line,
@@ -1198,6 +1228,7 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
 
     let [leftYAxis, leftYScale] = renderYAxis(
         svg,
+        title,
         graphArea,
         renderInfo.datasets,
         renderInfo.bar,
@@ -1229,6 +1260,7 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
 
     let [rightYAxis, rightYScale] = renderYAxis(
         svg,
+        title,
         graphArea,
         renderInfo.datasets,
         renderInfo.bar,
