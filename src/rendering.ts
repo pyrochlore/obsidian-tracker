@@ -1028,10 +1028,8 @@ function setChartScale(
         .attr("preserveAspectRatio", "xMidYMid meet");
 
     if (chartInfo.fitPanelWidth) {
-        console.log("fitPanelWidth");
         canvas.style("width", "100%");
     } else {
-        console.log("not fitPanelWidth");
         canvas.style(
             "width",
             (svgWidth * chartInfo.fixedScale).toString() + "px"
