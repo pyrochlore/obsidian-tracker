@@ -358,6 +358,15 @@ export class RenderInfo {
     accum: boolean[];
     penalty: number[];
 
+    svgSize: Size;
+    graphAreaSize: Size;
+    dataAreaSize: Size;
+    margin: Margin;
+    tooltipSize: Size;
+
+    fixedScale: number;
+    fitPanelWidth: boolean;
+
     output: string;
     line: LineInfo | null;
     bar: BarInfo | null;
@@ -380,6 +389,15 @@ export class RenderInfo {
         this.accum = []; // false, accum values start from zero over days
         this.penalty = []; // null, use this value instead of null value
 
+        this.svgSize = new Size(300, 300); // initial svg size, can be changed
+        this.graphAreaSize = new Size(300, 300); // initial graph area height, can be changed
+        this.dataAreaSize = new Size(300, 300);
+        this.margin = new Margin(10, 10, 10, 10); // top, right, bottom, left
+        this.tooltipSize = new Size(90, 45);
+
+        this.fixedScale = 1.0;
+        this.fitPanelWidth = false;
+
         this.output = "";
         this.line = new LineInfo();
         this.summary = null;
@@ -398,8 +416,6 @@ export class RenderInfo {
 }
 
 export class CommonChartInfo {
-    fixedScale: number;
-    fitPanelWidth: boolean;
     title: string;
     xAxisLabel: string;
     xAxisColor: string;
@@ -418,8 +434,6 @@ export class CommonChartInfo {
     legendBorderColor: string;
 
     constructor() {
-        this.fixedScale = 1.0; // 0.2~2
-        this.fitPanelWidth = false;
         this.title = "";
         this.xAxisLabel = "Date";
         this.xAxisColor = "";
@@ -499,25 +513,50 @@ export class SummaryInfo {
     }
 }
 
-export interface Size {
+export class Size {
     width: number;
     height: number;
+
+    constructor(w: number, h: number) {
+        this.width = w;
+        this.height = h;
+    }
+}
+
+export class Margin {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+
+    constructor(top: number, right: number, bottom: number, left: number) {
+        this.top = top;
+        this.right = right;
+        this.bottom = bottom;
+        this.left = left;
+    }
 }
 
 export class Transform {
     translateX: number;
     translateY: number;
 
-    constructor(transform: string) {
-        this.translateX = null;
-        this.translateY = null;
+    constructor(transform: any) {
+        this.translateX = 0;
+        this.translateY = 0;
 
-        let groups = transform.match(
-            /translate\(\s*(?<x>[\d\.\/-]+)\s*,\s*(?<y>[\d\.\/-]+)\s*\)/
-        ).groups;
-        if (groups) {
-            this.translateX = parseFloat(groups.x);
-            this.translateY = parseFloat(groups.y);
+        if (typeof transform === "string") {
+            let groups = transform.match(
+                /translate\(\s*(?<x>[\d\.\/-]+)\s*,\s*(?<y>[\d\.\/-]+)\s*\)/
+            ).groups;
+            if (groups) {
+                this.translateX = parseFloat(groups.x);
+                this.translateY = parseFloat(groups.y);
+            }
         }
     }
 }
+
+export type ChartAreas = {
+    [key: string]: any;
+};

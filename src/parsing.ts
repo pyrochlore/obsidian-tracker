@@ -5,6 +5,7 @@ import {
     Query,
     RenderInfo,
     SummaryInfo,
+    Margin,
 } from "./data";
 import { TFolder, normalizePath } from "obsidian";
 import * as Yaml from "yaml";
@@ -481,16 +482,6 @@ function getStringArrayFromInput(
 }
 
 function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
-    // fixedScale
-    if (typeof yaml.fixedScale === "number") {
-        renderInfo.fixedScale = yaml.fixedScale;
-    }
-
-    // fitPanelWidth
-    if (typeof yaml.fitPanelWidth === "boolean") {
-        renderInfo.fitPanelWidth = yaml.fitPanelWidth;
-    }
-
     // title
     if (typeof yaml.title === "string") {
         renderInfo.title = yaml.title;
@@ -971,6 +962,32 @@ export function getRenderInfoFromYaml(
     }
     renderInfo.penalty = retPenalty;
     // console.log(renderInfo.penalty);
+
+    // fixedScale
+    if (typeof yaml.fixedScale === "number") {
+        renderInfo.fixedScale = yaml.fixedScale;
+    }
+
+    // fitPanelWidth
+    if (typeof yaml.fitPanelWidth === "boolean") {
+        renderInfo.fitPanelWidth = yaml.fitPanelWidth;
+    }
+
+    // margin
+    let retMargin = getNumberArrayFromInput("margin", yaml.margin, 4, 10, true);
+    if (typeof retMargin === "string") {
+        return retMargin; // errorMessage
+    }
+    if (retMargin.length > 4) {
+        return "margin accepts not more than four values for top, right, bottom, and left margins.";
+    }
+    renderInfo.margin = new Margin(
+        retMargin[0],
+        retMargin[1],
+        retMargin[2],
+        retMargin[3]
+    );
+    // console.log(renderInfo.margin);
 
     // line related parameters
     if (typeof yaml.output !== "undefined") {
