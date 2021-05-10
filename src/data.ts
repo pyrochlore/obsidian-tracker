@@ -367,8 +367,6 @@ export class RenderInfo {
     accum: boolean[];
     penalty: number[];
 
-    svgSize: Size;
-    graphAreaSize: Size;
     dataAreaSize: Size;
     margin: Margin;
     tooltipSize: Size;
@@ -398,8 +396,6 @@ export class RenderInfo {
         this.accum = []; // false, accum values start from zero over days
         this.penalty = []; // null, use this value instead of null value
 
-        this.svgSize = new Size(300, 300); // initial svg size, can be changed
-        this.graphAreaSize = new Size(300, 300); // initial graph area height, can be changed
         this.dataAreaSize = new Size(300, 300);
         this.margin = new Margin(10, 10, 10, 10); // top, right, bottom, left
         this.tooltipSize = new Size(90, 45);
