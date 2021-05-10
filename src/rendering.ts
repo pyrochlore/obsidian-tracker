@@ -289,8 +289,7 @@ function renderYAxis(
 
     if (yAxisLocation === "left") {
         chartAreas["leftYScale"] = yScale;
-    }
-    else if (yAxisLocation === "right") {
+    } else if (yAxisLocation === "right") {
         chartAreas["rightYScale"] = yScale;
     }
 
@@ -307,7 +306,9 @@ function renderYAxis(
             ? chartInfo.yAxisLabel[0]
             : chartInfo.yAxisLabel[1];
     let yAxisUnitText =
-        yAxisLocation === "left" ? chartInfo.yAxisUnit[0] : chartInfo.yAxisUnit[1];
+        yAxisLocation === "left"
+            ? chartInfo.yAxisUnit[0]
+            : chartInfo.yAxisUnit[1];
 
     let yAxisGen;
     if (yAxisLocation === "left") {
@@ -328,8 +329,7 @@ function renderYAxis(
     }
     if (yAxisLocation === "left") {
         chartAreas["leftYAxis"] = yAxis;
-    }
-    else if (yAxisLocation === "right") {
+    } else if (yAxisLocation === "right") {
         chartAreas["rightYAxis"] = yAxis;
     }
 
@@ -396,14 +396,16 @@ function renderYAxis(
     renderInfo.svgSize.width = renderInfo.svgSize.width + yAxisWidth;
     chartAreas.svg.attr("width", renderInfo.svgSize.width);
     renderInfo.graphAreaSize.width =
-            renderInfo.graphAreaSize.width + yAxisWidth;
+        renderInfo.graphAreaSize.width + yAxisWidth;
     chartAreas.graphArea.attr("width", renderInfo.graphAreaSize.width);
     yAxis.attr("width", yAxisWidth);
 
     // Move areas
     if (yAxisLocation === "left") {
         // Move dataArea
-        let dataAreaTrans = new Transform(chartAreas.dataArea.attr("transform"));
+        let dataAreaTrans = new Transform(
+            chartAreas.dataArea.attr("transform")
+        );
         chartAreas.dataArea.attr(
             "transform",
             "translate(" +
@@ -443,8 +445,7 @@ function renderLine(
     let yScale: any = null;
     if (yAxisLocation === "left") {
         yScale = chartAreas.leftYScale;
-    }
-    else if (yAxisLocation === "right") {
+    } else if (yAxisLocation === "right") {
         yScale = chartAreas.rightYScale;
     }
 
@@ -497,8 +498,7 @@ function renderPoints(
     let yScale: any = null;
     if (yAxisLocation === "left") {
         yScale = chartAreas.leftYScale;
-    }
-    else if (yAxisLocation === "right") {
+    } else if (yAxisLocation === "right") {
         yScale = chartAreas.rightYScale;
     }
 
@@ -633,8 +633,7 @@ function renderBar(
     let yScale: any = null;
     if (yAxisLocation === "left") {
         yScale = chartAreas.leftYScale;
-    }
-    else if (yAxisLocation === "right") {
+    } else if (yAxisLocation === "right") {
         yScale = chartAreas.rightYScale;
     }
 
@@ -659,7 +658,11 @@ function renderBar(
                     );
                 }
             }
-            return chartAreas.xScale(p.date) - barSetWidth / 2.0 + currBarSet * barWidth;
+            return (
+                chartAreas.xScale(p.date) -
+                barSetWidth / 2.0 +
+                currBarSet * barWidth
+            );
         })
         .attr("y", function (p: DataPoint) {
             return yScale(Math.max(p.value, 0));
@@ -697,10 +700,7 @@ function renderBar(
     }
 }
 
-function renderLegend(
-    chartAreas: ChartAreas,
-    renderInfo: RenderInfo
-) {
+function renderLegend(chartAreas: ChartAreas, renderInfo: RenderInfo) {
     // console.log(renderInfo.legendPosition);
     // console.log(renderInfo.legendOrientation);
     let datasets = renderInfo.datasets;
@@ -711,8 +711,7 @@ function renderLegend(
     let chartInfo = null;
     if (renderInfo.line) {
         chartInfo = renderInfo.line;
-    }
-    else if (renderInfo.bar) {
+    } else if (renderInfo.bar) {
         chartInfo = renderInfo.bar;
     }
 
@@ -788,7 +787,9 @@ function renderLegend(
         // Expand svg
         svg.attr("height", svgHeight + legendHeight);
         // Move graphArea down
-        let graphAreaTrans = new Transform(chartAreas.graphArea.attr("transform"));
+        let graphAreaTrans = new Transform(
+            chartAreas.graphArea.attr("transform")
+        );
         chartAreas.graphArea.attr(
             "transform",
             "translate(" +
@@ -821,7 +822,9 @@ function renderLegend(
         // Expand svg
         svg.attr("width", svgWidth + legendWidth);
         // Move graphArea right
-        let graphAreaTrans = new Transform(chartAreas.graphArea.attr("transform"));
+        let graphAreaTrans = new Transform(
+            chartAreas.graphArea.attr("transform")
+        );
         chartAreas.graphArea.attr(
             "transform",
             "translate(" +
@@ -1253,12 +1256,7 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    renderYAxis(
-        chartAreas,
-        renderInfo,
-        "left",
-        datasetOnLeftYAxis
-    );
+    renderYAxis(chartAreas, renderInfo, "left", datasetOnLeftYAxis);
     // console.log(chartAreas.leftYAxis);
     // console.log(chartAreas.leftYScale);
 
@@ -1272,12 +1270,7 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    renderYAxis(
-        chartAreas,
-        renderInfo,
-        "right",
-        datasetOnRightYAxis
-    );
+    renderYAxis(chartAreas, renderInfo, "right", datasetOnRightYAxis);
 
     if (chartAreas.rightYAxis && chartAreas.rightYScale) {
         for (let datasetId of datasetOnRightYAxis) {
@@ -1290,10 +1283,7 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     }
 
     if (renderInfo.line.showLegend) {
-        renderLegend(
-            chartAreas,
-            renderInfo
-        );
+        renderLegend(chartAreas, renderInfo);
     }
 
     setChartScale(canvas, chartAreas, renderInfo);
@@ -1320,12 +1310,7 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    renderYAxis(
-        chartAreas,
-        renderInfo,
-        "left",
-        datasetOnLeftYAxis
-    );
+    renderYAxis(chartAreas, renderInfo, "left", datasetOnLeftYAxis);
 
     let totalNumOfBarSets =
         datasetOnLeftYAxis.length + datasetOnRightYAxis.length;
@@ -1348,12 +1333,7 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    renderYAxis(
-        chartAreas,
-        renderInfo,
-        "right",
-        datasetOnRightYAxis
-    );
+    renderYAxis(chartAreas, renderInfo, "right", datasetOnRightYAxis);
 
     if (chartAreas.rightYAxis && chartAreas.rightYScale) {
         for (let datasetId of datasetOnRightYAxis) {
@@ -1373,9 +1353,7 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     }
 
     if (renderInfo.bar.showLegend) {
-        renderLegend(
-            chartAreas, renderInfo
-        );
+        renderLegend(chartAreas, renderInfo);
     }
 
     setChartScale(canvas, chartAreas, renderInfo);
