@@ -2,6 +2,15 @@ import { Moment } from "moment";
 
 export type NullableNumber = number | null;
 
+export enum OutputType {
+    Line,
+    Bar,
+    Radar,
+    Summary,
+    Table,
+    Heatmap,
+}
+
 export class DataPoint {
     date: Moment;
     value: NullableNumber;
@@ -367,7 +376,7 @@ export class RenderInfo {
     fixedScale: number;
     fitPanelWidth: boolean;
 
-    output: string;
+    output: OutputType;
     line: LineInfo | null;
     bar: BarInfo | null;
     summary: SummaryInfo | null;
@@ -398,8 +407,8 @@ export class RenderInfo {
         this.fixedScale = 1.0;
         this.fitPanelWidth = false;
 
-        this.output = "";
-        this.line = new LineInfo();
+        this.output = OutputType.Line;
+        this.line = null;
         this.summary = null;
         this.bar = null;
 
@@ -451,10 +460,6 @@ export class CommonChartInfo {
         this.legendBgColor = "";
         this.legendBorderColor = "";
     }
-
-    public type() {
-        return "CommonChartInfo";
-    }
 }
 
 export class LineInfo extends CommonChartInfo {
@@ -482,10 +487,6 @@ export class LineInfo extends CommonChartInfo {
         this.fillGap = []; // false
         this.yAxisLocation = []; // left, for each target
     }
-
-    public type() {
-        return "LineInfo";
-    }
 }
 
 export class BarInfo extends CommonChartInfo {
@@ -496,10 +497,6 @@ export class BarInfo extends CommonChartInfo {
         super();
         this.barColor = []; // #69b3a2
         this.yAxisLocation = []; // left, for each target
-    }
-
-    public type() {
-        return "BarInfo";
     }
 }
 

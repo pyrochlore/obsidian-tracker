@@ -10,6 +10,7 @@ import {
     Transform,
     CommonChartInfo,
     ChartAreas,
+    OutputType,
 } from "./data";
 
 function getTickInterval(datasets: Datasets) {
@@ -102,32 +103,28 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    if (renderInfo.output === "") {
-        if (renderInfo.summary !== null) {
-            return renderSummary(canvas, renderInfo);
-        }
-        if (renderInfo.bar !== null) {
+    switch (renderInfo.output) {
+        case OutputType.Line:
+            return renderLineChart(canvas, renderInfo);
+        case OutputType.Bar:
             return renderBarChart(canvas, renderInfo);
-        }
-        // Default
-        return renderLineChart(canvas, renderInfo);
-    } else if (renderInfo.output === "line") {
-        return renderLineChart(canvas, renderInfo);
-    } else if (renderInfo.output === "bar") {
-        return renderBarChart(canvas, renderInfo);
-    } else if (renderInfo.output === "summary") {
-        return renderSummary(canvas, renderInfo);
+        case OutputType.Summary:
+            return renderSummary(canvas, renderInfo);
+        default:
+            return "Unknown output type";
     }
-
-    return "Unknown output type";
 }
 
 function renderXAxis(chartAreas: ChartAreas, renderInfo: RenderInfo) {
+    // console.log("renderXAxis");
+
     let chartInfo = null;
-    if (renderInfo.line) {
+    if (renderInfo.output === OutputType.Line) {
         chartInfo = renderInfo.line;
-    } else if (renderInfo.bar) {
+    } else if (renderInfo.output === OutputType.Bar) {
         chartInfo = renderInfo.bar;
+    } else {
+        return;
     }
     if (!chartInfo) return;
 
@@ -212,10 +209,12 @@ function renderYAxis(
     // console.log(datasetIds);
 
     let chartInfo = null;
-    if (renderInfo.line) {
+    if (renderInfo.output === OutputType.Line) {
         chartInfo = renderInfo.line;
-    } else if (renderInfo.bar) {
+    } else if (renderInfo.output === OutputType.Bar) {
         chartInfo = renderInfo.bar;
+    } else {
+        return;
     }
     if (!chartInfo) return;
 
@@ -277,7 +276,7 @@ function renderYAxis(
         yUpper = yMax + yExtent * 0.2;
     }
     // if it is bar chart, zero must be contained in the range
-    if (chartInfo.type() === "BarInfo") {
+    if (renderInfo.output === OutputType.Bar) {
         if (yUpper < 0.0) {
             yUpper = 0;
         }
@@ -439,6 +438,8 @@ function renderLine(
     // console.log(dataset);
     // console.log(renderInfo);
 
+    if (renderInfo.output !== OutputType.Line) return;
+
     let lineInfo = renderInfo.line;
     if (!lineInfo) return;
 
@@ -491,6 +492,8 @@ function renderPoints(
 ) {
     // console.log(lineInfo);
     // console.log(dataset);
+
+    if (renderInfo.output !== OutputType.Line) return;
 
     let lineInfo = renderInfo.line;
     if (!lineInfo) return;
@@ -617,6 +620,8 @@ function renderBar(
     // console.log(barInfo);
     // console.log("%d/%d", currBarSet, totalNumOfBarSets);
 
+    if (renderInfo.output !== OutputType.Bar) return;
+
     let barInfo = renderInfo.bar;
     if (!barInfo) return;
 
@@ -703,6 +708,7 @@ function renderBar(
 function renderLegend(chartAreas: ChartAreas, renderInfo: RenderInfo) {
     // console.log(renderInfo.legendPosition);
     // console.log(renderInfo.legendOrientation);
+
     let datasets = renderInfo.datasets;
     let xAxis = chartAreas.xAxis;
     let leftYAxis = chartAreas.leftYAxis;
@@ -873,7 +879,7 @@ function renderLegend(chartAreas: ChartAreas, renderInfo: RenderInfo) {
     let firstLabelY = firstMarkerY;
 
     if (chartInfo.legendOrientation === "vertical") {
-        if (chartInfo.type() === "LineInfo") {
+        if (renderInfo.output === OutputType.Line) {
             // lines
             legend
                 .selectAll("markers")
@@ -916,7 +922,7 @@ function renderLegend(chartAreas: ChartAreas, renderInfo: RenderInfo) {
                         .getDatasetById(i)
                         .getLineInfo().pointColor[i];
                 });
-        } else if (chartInfo.type() === "BarInfo") {
+        } else if (renderInfo.output === OutputType.Bar) {
             // bars
             legend
                 .selectAll("markers")
@@ -950,11 +956,11 @@ function renderLegend(chartAreas: ChartAreas, renderInfo: RenderInfo) {
             .style("alignment-baseline", "middle")
             .attr("class", "tracker-legend-label");
 
-        if (chartInfo.type() === "LineInfo") {
+        if (renderInfo.output === OutputType.Line) {
             nameLabels.style("fill", function (name: string, i: number) {
                 return datasets.getDatasetById(i).getLineInfo().lineColor[i];
             });
-        } else if (chartInfo.type() === "BarInfo") {
+        } else if (renderInfo.output === OutputType.Bar) {
             nameLabels.style("fill", function (name: string, i: number) {
                 return datasets.getDatasetById(i).getBarInfo().barColor[i];
             });
@@ -962,7 +968,7 @@ function renderLegend(chartAreas: ChartAreas, renderInfo: RenderInfo) {
     } else if (chartInfo.legendOrientation === "horizontal") {
         let currRenderPosX = 0.0;
         let currRenderPosX2 = 0.0;
-        if (chartInfo.type() === "LineInfo") {
+        if (renderInfo.output === OutputType.Line) {
             // lines
             legend
                 .selectAll("markers")
@@ -1033,7 +1039,7 @@ function renderLegend(chartAreas: ChartAreas, renderInfo: RenderInfo) {
                         .getDatasetById(i)
                         .getLineInfo().pointColor[i];
                 });
-        } else if (chartInfo.type() == "BarInfo") {
+        } else if (renderInfo.output === OutputType.Bar) {
             // bars
             currRenderPosX = 0.0;
             legend
@@ -1084,11 +1090,11 @@ function renderLegend(chartAreas: ChartAreas, renderInfo: RenderInfo) {
             .style("alignment-baseline", "middle")
             .attr("class", "tracker-legend-label");
 
-        if (chartInfo.type() === "LineInfo") {
+        if (renderInfo.output === OutputType.Line) {
             nameLabels.style("fill", function (name: string, i: number) {
                 return datasets.getDatasetById(i).getLineInfo().lineColor[i];
             });
-        } else if (chartInfo.type() === "BarInfo") {
+        } else if (renderInfo.output === OutputType.Bar) {
             nameLabels.style("fill", function (name: string, i: number) {
                 return datasets.getDatasetById(i).getBarInfo().barColor[i];
             });
@@ -1100,10 +1106,12 @@ function renderTitle(chartAreas: ChartAreas, renderInfo: RenderInfo) {
     // console.log("renderTitle")
 
     let chartInfo = null;
-    if (renderInfo.line) {
+    if (renderInfo.output === OutputType.Line) {
         chartInfo = renderInfo.line;
-    } else if (renderInfo.bar) {
+    } else if (renderInfo.output === OutputType.Bar) {
         chartInfo = renderInfo.bar;
+    } else {
+        return;
     }
     if (!chartInfo) return;
 

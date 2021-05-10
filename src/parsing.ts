@@ -6,6 +6,8 @@ import {
     RenderInfo,
     SummaryInfo,
     Margin,
+    OutputType,
+    LineInfo,
 } from "./data";
 import { TFolder, normalizePath } from "obsidian";
 import * as Yaml from "yaml";
@@ -989,11 +991,34 @@ export function getRenderInfoFromYaml(
     );
     // console.log(renderInfo.margin);
 
-    // line related parameters
-    if (typeof yaml.output !== "undefined") {
-        renderInfo.output = yaml.output;
-    }
+    // Determine outputType
+    let hasLine = false;
     if (typeof yaml.line !== "undefined") {
+        hasLine = true;
+    }
+    let hasBar = false;
+    if (typeof yaml.bar !== "undefined") {
+        hasBar = true;
+    }
+    let hasSummary = false;
+    if (typeof yaml.summary !== "undefined") {
+        hasSummary = true;
+    }
+    let sumOutput = Number(hasLine) + Number(hasBar) + Number(hasSummary);
+    if (sumOutput === 0) {
+        return "No output parameter provided, please place line, bar, or summary.";
+    } else if (sumOutput === 1) {
+        if (hasLine) renderInfo.output = OutputType.Line;
+        if (hasBar) renderInfo.output = OutputType.Bar;
+        if (hasSummary) renderInfo.output = OutputType.Summary;
+    } else if (sumOutput >= 2) {
+        return "Too many output parameters, pick line, bar, or summary.";
+    }
+
+    // line related parameters
+    if (renderInfo.output === OutputType.Line) {
+        renderInfo.line = new LineInfo();
+
         parseCommonChartInfo(yaml.line, renderInfo.line);
 
         // lineColor
@@ -1140,7 +1165,7 @@ export function getRenderInfoFromYaml(
         renderInfo.line.yAxisLocation = retYAxisLocation;
         // console.log(renderInfo.line.yAxisLocation);
     } // line related parameters
-    if (typeof yaml.bar !== "undefined") {
+    if (renderInfo.output === OutputType.Bar) {
         renderInfo.bar = new BarInfo();
 
         parseCommonChartInfo(yaml.bar, renderInfo.bar);
@@ -1176,7 +1201,7 @@ export function getRenderInfoFromYaml(
         // console.log(renderInfo.bar.yAxisLocation);
     } // bar related parameters
     // summary related parameters
-    if (typeof yaml.summary !== "undefined") {
+    if (renderInfo.output === OutputType.Summary) {
         renderInfo.summary = new SummaryInfo();
         // template
         if (typeof yaml.summary.template === "string") {
