@@ -9,7 +9,7 @@ import {
     Size,
     Transform,
     CommonChartInfo,
-    ChartAreas,
+    ChartElements,
     OutputType,
 } from "./data";
 
@@ -115,7 +115,7 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
     }
 }
 
-function renderXAxis(chartAreas: ChartAreas, renderInfo: RenderInfo) {
+function renderXAxis(chartElements: ChartElements, renderInfo: RenderInfo) {
     // console.log("renderXAxis");
 
     let chartInfo = null;
@@ -134,7 +134,7 @@ function renderXAxis(chartAreas: ChartAreas, renderInfo: RenderInfo) {
         .scaleTime()
         .domain(xDomain)
         .range([0, renderInfo.dataAreaSize.width]);
-    chartAreas["xScale"] = xScale;
+    chartElements["xScale"] = xScale;
 
     let tickInterval = getTickInterval(datasets);
     let tickFormat = getTickFormat(datasets);
@@ -143,7 +143,7 @@ function renderXAxis(chartAreas: ChartAreas, renderInfo: RenderInfo) {
         .axisBottom(xScale)
         .ticks(tickInterval)
         .tickFormat(tickFormat);
-    let xAxis = chartAreas.dataArea // axis includes ticks
+    let xAxis = chartElements.dataArea // axis includes ticks
         .append("g")
         .attr("id", "xAxis")
         .attr(
@@ -155,7 +155,7 @@ function renderXAxis(chartAreas: ChartAreas, renderInfo: RenderInfo) {
     if (chartInfo.xAxisColor) {
         xAxis.style("stroke", chartInfo.xAxisColor);
     }
-    chartAreas["xAxis"] = xAxis;
+    chartElements["xAxis"] = xAxis;
 
     let textSize = measureTextSize("99-99-99");
 
@@ -191,14 +191,14 @@ function renderXAxis(chartAreas: ChartAreas, renderInfo: RenderInfo) {
     // Expand areas
     renderInfo.svgSize.height =
         renderInfo.svgSize.height + tickLength + tickLabelHeight;
-    chartAreas.svg.attr("height", renderInfo.svgSize.height);
+    chartElements.svg.attr("height", renderInfo.svgSize.height);
     renderInfo.graphAreaSize.height =
         renderInfo.graphAreaSize.height + tickLength + tickLabelHeight;
-    chartAreas.graphArea.attr("height", renderInfo.graphAreaSize.height);
+    chartElements.graphArea.attr("height", renderInfo.graphAreaSize.height);
 }
 
 function renderYAxis(
-    chartAreas: ChartAreas,
+    chartElements: ChartElements,
     renderInfo: RenderInfo,
     yAxisLocation: string,
     datasetIds: Array<number>
@@ -287,9 +287,9 @@ function renderYAxis(
     yScale.domain([yLower, yUpper]).range([renderInfo.dataAreaSize.height, 0]);
 
     if (yAxisLocation === "left") {
-        chartAreas["leftYScale"] = yScale;
+        chartElements["leftYScale"] = yScale;
     } else if (yAxisLocation === "right") {
-        chartAreas["rightYScale"] = yScale;
+        chartElements["rightYScale"] = yScale;
     }
 
     let yAxisColor =
@@ -315,7 +315,7 @@ function renderYAxis(
     } else {
         yAxisGen = d3.axisRight(yScale);
     }
-    let yAxis = chartAreas.dataArea
+    let yAxis = chartElements.dataArea
         .append("g")
         .attr("id", "yAxis")
         .call(yAxisGen)
@@ -327,9 +327,9 @@ function renderYAxis(
         );
     }
     if (yAxisLocation === "left") {
-        chartAreas["leftYAxis"] = yAxis;
+        chartElements["leftYAxis"] = yAxis;
     } else if (yAxisLocation === "right") {
-        chartAreas["rightYAxis"] = yAxis;
+        chartElements["rightYAxis"] = yAxis;
     }
 
     let yAxisLine = yAxis.selectAll("path");
@@ -393,19 +393,19 @@ function renderYAxis(
     // Expand areas
     let yAxisWidth = yAxisLabelSize.height + maxTickLabelWidth + yTickLength;
     renderInfo.svgSize.width = renderInfo.svgSize.width + yAxisWidth;
-    chartAreas.svg.attr("width", renderInfo.svgSize.width);
+    chartElements.svg.attr("width", renderInfo.svgSize.width);
     renderInfo.graphAreaSize.width =
         renderInfo.graphAreaSize.width + yAxisWidth;
-    chartAreas.graphArea.attr("width", renderInfo.graphAreaSize.width);
+    chartElements.graphArea.attr("width", renderInfo.graphAreaSize.width);
     yAxis.attr("width", yAxisWidth);
 
     // Move areas
     if (yAxisLocation === "left") {
         // Move dataArea
         let dataAreaTrans = new Transform(
-            chartAreas.dataArea.attr("transform")
+            chartElements.dataArea.attr("transform")
         );
-        chartAreas.dataArea.attr(
+        chartElements.dataArea.attr(
             "transform",
             "translate(" +
                 (dataAreaTrans.translateX + yAxisWidth) +
@@ -415,9 +415,11 @@ function renderYAxis(
         );
 
         // Move title
-        if (chartAreas.title) {
-            let titleTrans = new Transform(chartAreas.title.attr("transform"));
-            chartAreas.title.attr(
+        if (chartElements.title) {
+            let titleTrans = new Transform(
+                chartElements.title.attr("transform")
+            );
+            chartElements.title.attr(
                 "transform",
                 "translate(" +
                     (titleTrans.translateX + yAxisWidth) +
@@ -430,7 +432,7 @@ function renderYAxis(
 }
 
 function renderLine(
-    chartAreas: ChartAreas,
+    chartElements: ChartElements,
     renderInfo: RenderInfo,
     dataset: Dataset,
     yAxisLocation: string
@@ -445,9 +447,9 @@ function renderLine(
 
     let yScale: any = null;
     if (yAxisLocation === "left") {
-        yScale = chartAreas.leftYScale;
+        yScale = chartElements.leftYScale;
     } else if (yAxisLocation === "right") {
-        yScale = chartAreas.rightYScale;
+        yScale = chartElements.rightYScale;
     }
 
     if (lineInfo.showLine[dataset.getId()]) {
@@ -457,13 +459,13 @@ function renderLine(
                 return p.value !== null;
             })
             .x(function (p: DataPoint) {
-                return chartAreas.xScale(p.date);
+                return chartElements.xScale(p.date);
             })
             .y(function (p: DataPoint) {
                 return yScale(p.value);
             });
 
-        let line = chartAreas.dataArea
+        let line = chartElements.dataArea
             .append("path")
             .attr("class", "tracker-line")
             .style("stroke-width", lineInfo.lineWidth[dataset.getId()]);
@@ -485,7 +487,7 @@ function renderLine(
 }
 
 function renderPoints(
-    chartAreas: ChartAreas,
+    chartElements: ChartElements,
     renderInfo: RenderInfo,
     dataset: Dataset,
     yAxisLocation: string
@@ -500,13 +502,13 @@ function renderPoints(
 
     let yScale: any = null;
     if (yAxisLocation === "left") {
-        yScale = chartAreas.leftYScale;
+        yScale = chartElements.leftYScale;
     } else if (yAxisLocation === "right") {
-        yScale = chartAreas.rightYScale;
+        yScale = chartElements.rightYScale;
     }
 
     if (lineInfo.showPoint[dataset.getId()]) {
-        let dots = chartAreas.dataArea
+        let dots = chartElements.dataArea
             .selectAll("dot")
             .data(
                 Array.from(dataset).filter(function (p: DataPoint) {
@@ -517,7 +519,7 @@ function renderPoints(
             .append("circle")
             .attr("r", lineInfo.pointSize[dataset.getId()])
             .attr("cx", function (p: DataPoint) {
-                return chartAreas.xScale(p.date);
+                return chartElements.xScale(p.date);
             })
             .attr("cy", function (p: DataPoint) {
                 return yScale(p.value);
@@ -553,7 +555,7 @@ function renderPoints(
         }
 
         if (lineInfo.allowInspectData) {
-            let tooltip = chartAreas.svg.append("g").style("opacity", 0);
+            let tooltip = chartElements.svg.append("g").style("opacity", 0);
             let tooltipBg = tooltip
                 .append("rect")
                 .attr("width", renderInfo.tooltipSize.width)
@@ -609,7 +611,7 @@ function renderPoints(
 }
 
 function renderBar(
-    chartAreas: ChartAreas,
+    chartElements: ChartElements,
     renderInfo: RenderInfo,
     dataset: Dataset,
     yAxisLocation: string,
@@ -637,12 +639,12 @@ function renderBar(
 
     let yScale: any = null;
     if (yAxisLocation === "left") {
-        yScale = chartAreas.leftYScale;
+        yScale = chartElements.leftYScale;
     } else if (yAxisLocation === "right") {
-        yScale = chartAreas.rightYScale;
+        yScale = chartElements.rightYScale;
     }
 
-    let bars = chartAreas.dataArea
+    let bars = chartElements.dataArea
         .selectAll("bar")
         .data(
             Array.from(dataset).filter(function (p: DataPoint) {
@@ -656,7 +658,7 @@ function renderBar(
                 let portionVisible = currBarSet + 1 - totalNumOfBarSets / 2.0;
                 if (portionVisible < 1.0) {
                     return (
-                        chartAreas.xScale(p.date) -
+                        chartElements.xScale(p.date) -
                         barSetWidth / 2.0 +
                         currBarSet * barWidth +
                         portionVisible * barWidth
@@ -664,7 +666,7 @@ function renderBar(
                 }
             }
             return (
-                chartAreas.xScale(p.date) -
+                chartElements.xScale(p.date) -
                 barSetWidth / 2.0 +
                 currBarSet * barWidth
             );
@@ -705,15 +707,15 @@ function renderBar(
     }
 }
 
-function renderLegend(chartAreas: ChartAreas, renderInfo: RenderInfo) {
+function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
     // console.log(renderInfo.legendPosition);
     // console.log(renderInfo.legendOrientation);
 
     let datasets = renderInfo.datasets;
-    let xAxis = chartAreas.xAxis;
-    let leftYAxis = chartAreas.leftYAxis;
-    let rightYAxis = chartAreas.rightYAxis;
-    let title = chartAreas.title;
+    let xAxis = chartElements.xAxis;
+    let leftYAxis = chartElements.leftYAxis;
+    let rightYAxis = chartElements.rightYAxis;
+    let title = chartElements.title;
     let chartInfo = null;
     if (renderInfo.line) {
         chartInfo = renderInfo.line;
@@ -721,7 +723,7 @@ function renderLegend(chartAreas: ChartAreas, renderInfo: RenderInfo) {
         chartInfo = renderInfo.bar;
     }
 
-    let svg = chartAreas.svg;
+    let svg = chartElements.svg;
     let svgHeight = parseFloat(svg.attr("height"));
     let svgWidth = parseFloat(svg.attr("width"));
     let titleHeight = 0.0;
@@ -794,9 +796,9 @@ function renderLegend(chartAreas: ChartAreas, renderInfo: RenderInfo) {
         svg.attr("height", svgHeight + legendHeight);
         // Move graphArea down
         let graphAreaTrans = new Transform(
-            chartAreas.graphArea.attr("transform")
+            chartElements.graphArea.attr("transform")
         );
-        chartAreas.graphArea.attr(
+        chartElements.graphArea.attr(
             "transform",
             "translate(" +
                 graphAreaTrans.translateX +
@@ -829,9 +831,9 @@ function renderLegend(chartAreas: ChartAreas, renderInfo: RenderInfo) {
         svg.attr("width", svgWidth + legendWidth);
         // Move graphArea right
         let graphAreaTrans = new Transform(
-            chartAreas.graphArea.attr("transform")
+            chartElements.graphArea.attr("transform")
         );
-        chartAreas.graphArea.attr(
+        chartElements.graphArea.attr(
             "transform",
             "translate(" +
                 (graphAreaTrans.translateX + legendWidth) +
@@ -855,7 +857,7 @@ function renderLegend(chartAreas: ChartAreas, renderInfo: RenderInfo) {
         return;
     }
 
-    let legend = chartAreas.graphArea
+    let legend = chartElements.graphArea
         .append("g")
         .attr("id", "legend")
         .attr("transform", "translate(" + legendX + "," + legendY + ")");
@@ -1102,7 +1104,7 @@ function renderLegend(chartAreas: ChartAreas, renderInfo: RenderInfo) {
     }
 }
 
-function renderTitle(chartAreas: ChartAreas, renderInfo: RenderInfo) {
+function renderTitle(chartElements: ChartElements, renderInfo: RenderInfo) {
     // console.log("renderTitle")
 
     let chartInfo = null;
@@ -1120,14 +1122,14 @@ function renderTitle(chartAreas: ChartAreas, renderInfo: RenderInfo) {
 
     // Expand areas
     renderInfo.svgSize.height = renderInfo.svgSize.height + titleSize.height;
-    chartAreas.svg.attr("height", renderInfo.svgSize.height);
+    chartElements.svg.attr("height", renderInfo.svgSize.height);
     renderInfo.graphAreaSize.height =
         renderInfo.graphAreaSize.height + titleSize.height;
-    chartAreas.graphArea.attr("height", renderInfo.graphAreaSize.height);
+    chartElements.graphArea.attr("height", renderInfo.graphAreaSize.height);
 
     // Move areas
-    let dataAreaTrans = new Transform(chartAreas.dataArea.attr("transform"));
-    chartAreas.dataArea.attr(
+    let dataAreaTrans = new Transform(chartElements.dataArea.attr("transform"));
+    chartElements.dataArea.attr(
         "transform",
         "translate(" +
             dataAreaTrans.translateX +
@@ -1137,7 +1139,7 @@ function renderTitle(chartAreas: ChartAreas, renderInfo: RenderInfo) {
     );
 
     // Append title
-    let title = chartAreas.graphArea
+    let title = chartElements.graphArea
         .append("text")
         .text(chartInfo.title) // pivot at center
         .attr("id", "title")
@@ -1151,18 +1153,18 @@ function renderTitle(chartAreas: ChartAreas, renderInfo: RenderInfo) {
         )
         .attr("height", titleSize.height) // for later use
         .attr("class", "tracker-title");
-    chartAreas["title"] = title;
+    chartElements["title"] = title;
 
     return title;
 }
 
 function setChartScale(
     _canvas: HTMLElement,
-    chartAreas: ChartAreas,
+    chartElements: ChartElements,
     renderInfo: RenderInfo
 ) {
     let canvas = d3.select(_canvas);
-    let svg = chartAreas.svg;
+    let svg = chartElements.svg;
     let svgWidth = renderInfo.svgSize.width;
     let svgHeight = renderInfo.svgSize.height;
     svg.attr("width", null)
@@ -1187,8 +1189,8 @@ function setChartScale(
 function createGraphAreas(
     canvas: HTMLElement,
     renderInfo: RenderInfo
-): ChartAreas {
-    let areas: ChartAreas = {};
+): ChartElements {
+    let areas: ChartElements = {};
     // whole area for plotting, includes margins
     renderInfo.svgSize.width =
         renderInfo.svgSize.width +
@@ -1244,13 +1246,13 @@ function createGraphAreas(
 function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log("renderLineChart");
     // console.log(renderInfo);
-    let chartAreas = createGraphAreas(canvas, renderInfo);
+    let chartElements = createGraphAreas(canvas, renderInfo);
 
-    renderTitle(chartAreas, renderInfo);
+    renderTitle(chartElements, renderInfo);
 
-    renderXAxis(chartAreas, renderInfo);
-    // console.log(chartAreas.xAxis);
-    // console.log(chartAreas.xScale);
+    renderXAxis(chartElements, renderInfo);
+    // console.log(chartElements.xAxis);
+    // console.log(chartElements.xScale);
 
     let datasetOnLeftYAxis = [];
     let datasetOnRightYAxis = [];
@@ -1264,47 +1266,47 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    renderYAxis(chartAreas, renderInfo, "left", datasetOnLeftYAxis);
-    // console.log(chartAreas.leftYAxis);
-    // console.log(chartAreas.leftYScale);
+    renderYAxis(chartElements, renderInfo, "left", datasetOnLeftYAxis);
+    // console.log(chartElements.leftYAxis);
+    // console.log(chartElements.leftYScale);
 
-    if (chartAreas.leftYAxis && chartAreas.leftYScale) {
+    if (chartElements.leftYAxis && chartElements.leftYScale) {
         for (let datasetId of datasetOnLeftYAxis) {
             let dataset = renderInfo.datasets.getDatasetById(datasetId);
 
-            renderLine(chartAreas, renderInfo, dataset, "left");
+            renderLine(chartElements, renderInfo, dataset, "left");
 
-            renderPoints(chartAreas, renderInfo, dataset, "left");
+            renderPoints(chartElements, renderInfo, dataset, "left");
         }
     }
 
-    renderYAxis(chartAreas, renderInfo, "right", datasetOnRightYAxis);
+    renderYAxis(chartElements, renderInfo, "right", datasetOnRightYAxis);
 
-    if (chartAreas.rightYAxis && chartAreas.rightYScale) {
+    if (chartElements.rightYAxis && chartElements.rightYScale) {
         for (let datasetId of datasetOnRightYAxis) {
             let dataset = renderInfo.datasets.getDatasetById(datasetId);
 
-            renderLine(chartAreas, renderInfo, dataset, "right");
+            renderLine(chartElements, renderInfo, dataset, "right");
 
-            renderPoints(chartAreas, renderInfo, dataset, "right");
+            renderPoints(chartElements, renderInfo, dataset, "right");
         }
     }
 
     if (renderInfo.line.showLegend) {
-        renderLegend(chartAreas, renderInfo);
+        renderLegend(chartElements, renderInfo);
     }
 
-    setChartScale(canvas, chartAreas, renderInfo);
+    setChartScale(canvas, chartElements, renderInfo);
 }
 
 function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log("renderBarChart");
     // console.log(renderInfo);
-    let chartAreas = createGraphAreas(canvas, renderInfo);
+    let chartElements = createGraphAreas(canvas, renderInfo);
 
-    renderTitle(chartAreas, renderInfo);
+    renderTitle(chartElements, renderInfo);
 
-    renderXAxis(chartAreas, renderInfo);
+    renderXAxis(chartElements, renderInfo);
 
     let datasetOnLeftYAxis = [];
     let datasetOnRightYAxis = [];
@@ -1318,18 +1320,18 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    renderYAxis(chartAreas, renderInfo, "left", datasetOnLeftYAxis);
+    renderYAxis(chartElements, renderInfo, "left", datasetOnLeftYAxis);
 
     let totalNumOfBarSets =
         datasetOnLeftYAxis.length + datasetOnRightYAxis.length;
     let currBarSet = 0;
 
-    if (chartAreas.leftYAxis && chartAreas.leftYScale) {
+    if (chartElements.leftYAxis && chartElements.leftYScale) {
         for (let datasetId of datasetOnLeftYAxis) {
             let dataset = renderInfo.datasets.getDatasetById(datasetId);
 
             renderBar(
-                chartAreas,
+                chartElements,
                 renderInfo,
                 dataset,
                 "left",
@@ -1341,14 +1343,14 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    renderYAxis(chartAreas, renderInfo, "right", datasetOnRightYAxis);
+    renderYAxis(chartElements, renderInfo, "right", datasetOnRightYAxis);
 
-    if (chartAreas.rightYAxis && chartAreas.rightYScale) {
+    if (chartElements.rightYAxis && chartElements.rightYScale) {
         for (let datasetId of datasetOnRightYAxis) {
             let dataset = renderInfo.datasets.getDatasetById(datasetId);
 
             renderBar(
-                chartAreas,
+                chartElements,
                 renderInfo,
                 dataset,
                 "right",
@@ -1361,10 +1363,10 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     }
 
     if (renderInfo.bar.showLegend) {
-        renderLegend(chartAreas, renderInfo);
+        renderLegend(chartElements, renderInfo);
     }
 
-    setChartScale(canvas, chartAreas, renderInfo);
+    setChartScale(canvas, chartElements, renderInfo);
 }
 
 function checkSummaryTemplateValid(summaryTemplate: string): boolean {

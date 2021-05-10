@@ -554,6 +554,6 @@ export class Transform {
     }
 }
 
-export type ChartAreas = {
+export type ChartElements = {
     [key: string]: any;
 };
