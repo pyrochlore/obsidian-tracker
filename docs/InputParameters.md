@@ -24,6 +24,9 @@ These key-value pairs are placed under the YAML root.
 | **ignoreZeroValue** | Treat zero value as missing value (true\|false) | 1~NT | false |
 | **accum** | Accumulatively sum the values over time (true\|false) | 1~NT | false |
 | **penalty** | The value to use if the search target is missing on the day | 1~NT | |
+| **fixedScale** | The scaling factor apply to the chart | 1 | 1.0 |
+| **fitPanelWidth** | Auto-fit the width of the chart to the container | 1 | false |
+| **margin** | The four margin (top|right|bottom|left) of the graph | 1~4 | 10 |
 | **line** | A container key for parameters related to line-chart | | |
 | **bar** | A container key for parameters related to bar-chart | | |
 | **summary** | A container key for parameters related to summary output | | |
@@ -33,7 +36,7 @@ These key-value pairs should be placed under the key '**line**' or '**bar**'.
 
 | Key | Description | Number of Values | Default |
 |:--------|:-------|:-----------:|:------|
-| **title** | The title of the chart| 1 | '' |
+| **title** | The title of the chart | 1 | '' |
 | **xAxisLabel** | X axis label | 1 | 'Date' |
 | **xAxisColor** | X axis color | 1 | 'white'('black'<sup>*</sup>) |
 | **xAxisLabelColor** | X axis label color | 1 | 'white'('black'<sup>*</sup>) |
