@@ -42,3 +42,60 @@ line:
     lineColor: "#d65d0e"
 ```
 
+## Chart Positioning
+margin: top right bottom left
+``` tracker
+searchType: tag
+searchTarget: exercise-pushup
+folder: diary
+endDate: 2021-01-31
+fixedScale: 1.0
+fitPanelWidth: false
+margin: 10, 10, 10, 0
+line:
+    title: PushUp
+    yAxisLabel: Count
+    lineColor: "#d65d0e"
+```
+
+``` tracker
+searchType: tag
+searchTarget: exercise-pushup
+folder: diary
+endDate: 2021-01-31
+fixedScale: 1.0
+fitPanelWidth: false
+margin: 10, 10, 10, 50
+line:
+    title: PushUp
+    yAxisLabel: Count
+    lineColor: "#d65d0e"
+```
+
+``` tracker
+searchType: tag
+searchTarget: exercise-pushup
+folder: diary
+endDate: 2021-01-31
+fixedScale: 1.0
+fitPanelWidth: false
+margin: 10, 10, 10, 100
+line:
+    title: PushUp
+    yAxisLabel: Count
+    lineColor: "#d65d0e"
+```
+
+``` tracker
+searchType: tag
+searchTarget: exercise-pushup
+folder: diary
+endDate: 2021-01-31
+fixedScale: 1.0
+fitPanelWidth: false
+margin: 10, 10, 10, 150
+line:
+    title: PushUp
+    yAxisLabel: Count
+    lineColor: "#d65d0e"
+```
