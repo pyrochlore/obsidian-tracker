@@ -84,6 +84,7 @@ For more information about the dateFormat settings, check the [TestDateFormats e
 ### v1.4.0
 - Add a new parameter (fixedScale) for the scaling of the output chart
 - Add a new parameter (fitPanelWidth) to enable/disable the auto-scaling of the output chart
+- Add a new parameter (margin) to help to position the chart
 - Tested in Obsidian mobile app on iPhone and iPad
 - Fixed bugs
 
