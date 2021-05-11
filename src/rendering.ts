@@ -699,6 +699,7 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
     // Get chart elements
     let svg = chartElements.svg;
     let graphArea = chartElements.graphArea;
+    let dataArea = chartElements.dataArea;
     let title = chartElements.title;
     let xAxis = chartElements.xAxis;
     let leftYAxis = chartElements.leftYAxis;
@@ -718,7 +719,6 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
     if (rightYAxis) {
         rightYAxisWidth = parseFloat(rightYAxis.attr("width"));
     }
-
     // Get datasets names and dimensions
     let datasets = renderInfo.datasets;
     let names = datasets.getNames();
@@ -763,40 +763,43 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
     // console.log(`xSpacing:${xSpacing}, numNames: ${numNames}, markerWidth: ${markerWidth}`);
     // console.log(`legendWidth: ${legendWidth}, legendHeight: ${legendHeight}`);
 
+    // Calcualte lengendX and legendY
     let legendX = 0.0; // relative to graphArea
     let legendY = 0.0;
     if (chartInfo.legendPosition === "top") {
         // below title
         legendX =
-            renderInfo.margin.left +
+            leftYAxisWidth +
             renderInfo.dataAreaSize.width / 2.0 -
-            legendWidth / 2.0; // relative to svg
-        legendY = renderInfo.margin.top + titleHeight;
+            legendWidth / 2.0;
+        legendY = titleHeight;
         // Expand svg
-        expandArea(svg, 0, legendHeight);
-        // Move graphArea down
-        moveArea(graphArea, 0, legendHeight);
+        expandArea(svg, 0, legendHeight + ySpacing);
+        // Move dataArea down
+        moveArea(dataArea, 0, legendHeight + ySpacing);
     } else if (chartInfo.legendPosition === "bottom") {
         // bellow x-axis label
-        legendX = renderInfo.dataAreaSize.width / 2.0 - legendWidth / 2.0; // relative to svg
+        legendX =
+            leftYAxisWidth +
+            renderInfo.dataAreaSize.width / 2.0 -
+            legendWidth / 2.0;
         legendY =
             titleHeight +
             renderInfo.dataAreaSize.height +
             xAxisHeight +
             ySpacing;
         // Expand svg
-        expandArea(svg, 0, legendHeight);
+        expandArea(svg, 0, legendHeight + ySpacing);
     } else if (chartInfo.legendPosition === "left") {
-        legendX = renderInfo.margin.left - leftYAxisWidth - xSpacing;
+        legendX = 0;
         legendY =
-            renderInfo.margin.top +
             titleHeight +
             renderInfo.dataAreaSize.height / 2.0 -
             legendHeight / 2.0;
         // Expand svg
-        expandArea(svg, legendWidth, 0);
-        // Move graphArea right
-        moveArea(graphArea, legendWidth, 0);
+        expandArea(svg, legendWidth + xSpacing, 0);
+        // Move dataArea right
+        moveArea(dataArea, legendWidth + xSpacing, 0);
     } else if (chartInfo.legendPosition === "right") {
         legendX =
             renderInfo.dataAreaSize.width +
@@ -808,10 +811,11 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
             renderInfo.dataAreaSize.height / 2.0 -
             legendHeight / 2.0;
         // Expand svg
-        expandArea(svg, legendWidth, 0);
+        expandArea(svg, legendWidth + xSpacing, 0);
     } else {
         return;
     }
+    // console.log(`legendX: ${legendX}, legendY: ${legendY}`);
 
     let legend = chartElements.graphArea
         .append("g")
