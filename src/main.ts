@@ -3,7 +3,13 @@ import { MarkdownPostProcessorContext, MarkdownView, Editor } from "obsidian";
 import { TFile, TFolder, normalizePath } from "obsidian";
 import { render, renderErrorMessage } from "./rendering";
 import { getRenderInfoFromYaml } from "./parsing";
-import { NullableNumber, Datasets, Query, QueryValuePair } from "./data";
+import {
+    NullableNumber,
+    Datasets,
+    Query,
+    QueryValuePair,
+    OutputType,
+} from "./data";
 import {
     TrackerSettings,
     DEFAULT_SETTINGS,
@@ -17,15 +23,6 @@ declare global {
         app: App;
         moment: () => Moment;
     }
-}
-
-enum OutputType {
-    Line,
-    Bar,
-    Radar,
-    Summary,
-    Table,
-    Heatmap,
 }
 
 export default class Tracker extends Plugin {

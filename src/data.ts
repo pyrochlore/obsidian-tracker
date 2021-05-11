@@ -2,6 +2,15 @@ import { Moment } from "moment";
 
 export type NullableNumber = number | null;
 
+export enum OutputType {
+    Line,
+    Bar,
+    Radar,
+    Summary,
+    Table,
+    Heatmap,
+}
+
 export class DataPoint {
     date: Moment;
     value: NullableNumber;
@@ -358,7 +367,14 @@ export class RenderInfo {
     accum: boolean[];
     penalty: number[];
 
-    output: string;
+    dataAreaSize: Size;
+    margin: Margin;
+    tooltipSize: Size;
+
+    fixedScale: number;
+    fitPanelWidth: boolean;
+
+    output: OutputType;
     line: LineInfo | null;
     bar: BarInfo | null;
     summary: SummaryInfo | null;
@@ -380,8 +396,15 @@ export class RenderInfo {
         this.accum = []; // false, accum values start from zero over days
         this.penalty = []; // null, use this value instead of null value
 
-        this.output = "";
-        this.line = new LineInfo();
+        this.dataAreaSize = new Size(300, 300);
+        this.margin = new Margin(10, 10, 10, 10); // top, right, bottom, left
+        this.tooltipSize = new Size(90, 45);
+
+        this.fixedScale = 1.0;
+        this.fitPanelWidth = false;
+
+        this.output = OutputType.Line;
+        this.line = null;
         this.summary = null;
         this.bar = null;
 
@@ -433,10 +456,6 @@ export class CommonChartInfo {
         this.legendBgColor = "";
         this.legendBorderColor = "";
     }
-
-    public type() {
-        return "CommonChartInfo";
-    }
 }
 
 export class LineInfo extends CommonChartInfo {
@@ -464,10 +483,6 @@ export class LineInfo extends CommonChartInfo {
         this.fillGap = []; // false
         this.yAxisLocation = []; // left, for each target
     }
-
-    public type() {
-        return "LineInfo";
-    }
 }
 
 export class BarInfo extends CommonChartInfo {
@@ -478,10 +493,6 @@ export class BarInfo extends CommonChartInfo {
         super();
         this.barColor = []; // #69b3a2
         this.yAxisLocation = []; // left, for each target
-    }
-
-    public type() {
-        return "BarInfo";
     }
 }
 
@@ -495,25 +506,50 @@ export class SummaryInfo {
     }
 }
 
-export interface Size {
+export class Size {
     width: number;
     height: number;
+
+    constructor(w: number, h: number) {
+        this.width = w;
+        this.height = h;
+    }
+}
+
+export class Margin {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+
+    constructor(top: number, right: number, bottom: number, left: number) {
+        this.top = top;
+        this.right = right;
+        this.bottom = bottom;
+        this.left = left;
+    }
 }
 
 export class Transform {
     translateX: number;
     translateY: number;
 
-    constructor(transform: string) {
-        this.translateX = null;
-        this.translateY = null;
+    constructor(transform: any) {
+        this.translateX = 0;
+        this.translateY = 0;
 
-        let groups = transform.match(
-            /translate\(\s*(?<x>[\d\.\/-]+)\s*,\s*(?<y>[\d\.\/-]+)\s*\)/
-        ).groups;
-        if (groups) {
-            this.translateX = parseFloat(groups.x);
-            this.translateY = parseFloat(groups.y);
+        if (typeof transform === "string") {
+            let groups = transform.match(
+                /translate\(\s*(?<x>[\d\.\/-]+)\s*,\s*(?<y>[\d\.\/-]+)\s*\)/
+            ).groups;
+            if (groups) {
+                this.translateX = parseFloat(groups.x);
+                this.translateY = parseFloat(groups.y);
+            }
         }
     }
 }
+
+export type ChartElements = {
+    [key: string]: any;
+};

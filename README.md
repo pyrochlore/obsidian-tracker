@@ -78,58 +78,67 @@ You can set the default folder location and date format in the plugin's settings
 For more information about the dateFormat settings, check the [TestDateFormats example](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md) and [moment.js string format](https://momentjs.com/docs/#/parsing/string-format/). 
 
 ## Release Notes
+### v1.4.0
+- Add a new parameter (fixedScale) for the scaling of the output chart
+- Add a new parameter (fitPanelWidth) to enable/disable the auto-scaling of the output chart
+- Tested in Obsidian mobile app on iPhone and iPad
+- Fixed bugs
+
 ### v1.3.0
-- Support reading and rendering multiple targets.
-- Support reading and renndering multiple values (a tuple of values) under a target.
-- New output type 'bar', rendering bar chart.
-- Add a legend for the chart output.
-- Fix bugs.
+- Support reading and rendering multiple targets
+- Support reading and rendering multiple values (a tuple of values) under a target
+- New output type 'bar', rendering bar chart
+- Add a legend for the chart output
+- Fixed bugs
 
 ### v1.2.1
-- Fix files with the specified dateFormat are not recognized.
-- Restore the plugin's settings panel for dateFormat and folder.
+- Fixed files with the specified dateFormat are not recognized
+- Restored the plugin's settings panel for dateFormat and folder
 
 ### v1.2.0
-- Enable using regular expression in text searching.
-- New search type 'frontmatter', searching for key-value pairs in the front matter.
-- New search type 'wiki', searching for wiki links.
-- Reduce package size.
+- Enable using regular expression in text searching
+- New search type 'frontmatter', searching for key-value pairs in the front matter
+- New search type 'wiki', searching for wiki links
+- Reduced package size
 
 ### v1.1.0
-- New output type 'summary'.
-- Add commands help create Tracker code blocks.
-- Relax the regex for searching tags, allowing tags embedded in sentences.
-- Fix issues.
+- New output type 'summary'
+- Add commands help create Tracker code blocks
+- Relaxed the regex for searching tags, allowing tags embedded in sentences
+- Fixed issues
 
 ### v1.0.2
-- Fix the searching of nested tag in frontmatter.
-- Reduce the package size by using the module from Obsidian.
+- Fixed the searching of nested tag in frontmatter
+- Reduced the package size by using the module from Obsidian
 
 ### v1.0.1
-- Remove dependencies to Node.js modules.
-- Add example markdown files.
+- Remove dependencies to Node.js modules
+- Add example markdown files
 
 ### v1.0.0
-First version released at 2021-03-23.
+First version released at 2021-03-23
 
-- Track simple tags, value-attached tags, and texts using code blocks.
-- Represent the tracked data in a customizable line chart.
-- Allow tracking in-line tags and tags in frontmatter.
-- Allow tracking nested tags.
+- Track simple tags, value-attached tags, and texts using code blocks
+- Represent the tracked data in a customizable line chart
+- Allow tracking in-line tags and tags in frontmatter
+- Allow tracking nested tags
 
 ## Road Map
 - Data Collecting
-    - [x] Support tracking key-value pairs in frontmatter.
-    - [x] Support searching text using regular expression.
+    - [x] Support tracking key-value pairs in frontmatter
+    - [x] Support searching text using regular expression
     - [x] Support multiple targets and multiple values.
-    - [ ] Add a dateTarget key for tracking notes not named in the date format.
-    - [ ] Allow tracking datetime value.
+    - [ ] Add a dateTarget key for tracking notes not named in the date format
+    - [ ] Allow tracking datetime value
     - [ ] Get data from table
+    - [ ] Collect data from other plugins' API (e.g. dataview)
+    - [ ] Allow manual data input, includes template varialbes embeded in
 - Output Type and Graph
     - [x] New output type 'summary', analyzes the input data and represents it using a user-defined text template.
     - [x] New output type 'bar', renders bar chart.
     - [ ] New output type 'table', lists the search result in a formatted table.
     - [ ] New output type 'heatmap', works like Github calendar heatmap.
+    - [x] Add parameters for adjusting the size of the graph.
     - [ ] Support graphs showing the correlation between sets of data.
     - [ ] Add a 'targetDataSet' key to graph, allow the graph drawing selected dataset.
     - [ ] Evaluate template parameters by predefined function and arithmetics.
@@ -139,7 +148,9 @@ First version released at 2021-03-23.
     - [ ] Add a helper panel for adding frequently used tracking targets to article.
 - Data Processing
     - [ ] Allow arithmetics operation on dataset and generate new datasets
-    - [ ] Add data post-process function, e.g. 'moving average'.
+    - [ ] Add data post-process function, e.g. 'moving average'
+- Performance
+    - [ ] Use PixiJS to do rendering
 
 And more ...
 
