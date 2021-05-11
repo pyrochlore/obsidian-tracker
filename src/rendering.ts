@@ -1262,13 +1262,10 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    renderYAxis(chartElements, renderInfo, "left", datasetOnLeftYAxis);
-    // console.log(chartElements.leftYAxis);
-    // console.log(chartElements.leftYScale);
+    let retRenderLeftYAxis = renderYAxis(chartElements, renderInfo, "left", datasetOnLeftYAxis);
     if (typeof retRenderLeftYAxis === "string") {
         return retRenderLeftYAxis;
     }
-    let [leftYAxis, leftYScale] = retRenderLeftYAxis;
 
     if (chartElements.leftYAxis && chartElements.leftYScale) {
         for (let datasetId of datasetOnLeftYAxis) {
@@ -1280,11 +1277,10 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    renderYAxis(chartElements, renderInfo, "right", datasetOnRightYAxis);
+    let retRenderRightYAxis = renderYAxis(chartElements, renderInfo, "right", datasetOnRightYAxis);
     if (typeof retRenderRightYAxis === "string") {
         return retRenderRightYAxis;
     }
-    let [rightYAxis, rightYScale] = retRenderRightYAxis;
 
     if (chartElements.rightYAxis && chartElements.rightYScale) {
         for (let datasetId of datasetOnRightYAxis) {
@@ -1324,11 +1320,10 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    renderYAxis(chartElements, renderInfo, "left", datasetOnLeftYAxis);
+    let retRenderLeftYAxis = renderYAxis(chartElements, renderInfo, "left", datasetOnLeftYAxis);
     if (typeof retRenderLeftYAxis === "string") {
         return retRenderLeftYAxis;
     }
-    let [leftYAxis, leftYScale] = retRenderLeftYAxis;
 
     let totalNumOfBarSets =
         datasetOnLeftYAxis.length + datasetOnRightYAxis.length;
@@ -1351,11 +1346,10 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    renderYAxis(chartElements, renderInfo, "right", datasetOnRightYAxis);
+    let retRenderRightYAxis = renderYAxis(chartElements, renderInfo, "right", datasetOnRightYAxis);
     if (typeof retRenderRightYAxis === "string") {
         return retRenderRightYAxis;
     }
-    let [rightYAxis, rightYScale] = retRenderRightYAxis;
 
     if (chartElements.rightYAxis && chartElements.rightYScale) {
         for (let datasetId of datasetOnRightYAxis) {
