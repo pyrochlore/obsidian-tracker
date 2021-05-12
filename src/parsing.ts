@@ -678,10 +678,16 @@ export function getRenderInfoFromYaml(
         return errorMessage;
     }
     // console.log(yaml);
+    let keysFoundInYAML = getAvailableKeysOfClass(yaml);
+    // console.log(keysFoundInYAML);
 
     let errorMessage = "";
 
     // Search target
+    if (!keysFoundInYAML.includes("searchTarget")) {
+        let errorMessage = "Parameter 'searchTarget' not found in YAML";
+        return errorMessage;
+    }
     let searchTarget: Array<string> = [];
     if (typeof yaml.searchTarget === "object" && yaml.searchTarget !== null) {
         if (Array.isArray(yaml.searchTarget)) {
@@ -725,6 +731,10 @@ export function getRenderInfoFromYaml(
     let numDatasets = searchTarget.length;
 
     // Search type
+    if (!keysFoundInYAML.includes("searchType")) {
+        let errorMessage = "Parameter 'searchType' not found in YAML";
+        return errorMessage;
+    }
     let searchType: Array<string> = [];
     let retSearchType = getStringArrayFromInput(
         "search type",
@@ -755,9 +765,7 @@ export function getRenderInfoFromYaml(
     // Create grarph info
     let renderInfo = new RenderInfo(queries);
     let keysOfRenderInfo = getAvailableKeysOfClass(renderInfo);
-    let keysFoundInYAML = getAvailableKeysOfClass(yaml);
     // console.log(keysOfRenderInfo);
-    // console.log(keysFoundInYAML);
     for (let key of keysFoundInYAML) {
         if (
             key !== "searchType" &&
@@ -846,7 +854,7 @@ export function getRenderInfoFromYaml(
             renderInfo.startDate = startDate;
         } else {
             let errorMessage =
-                "Invalid startDate, the format of startDate may not fit your dateFormat " +
+                "Invalid startDate, the format of startDate may not match your dateFormat " +
                 renderInfo.dateFormat;
             return errorMessage;
         }
@@ -873,7 +881,7 @@ export function getRenderInfoFromYaml(
             renderInfo.endDate = endDate;
         } else {
             let errorMessage =
-                "Invalid endDate, the format of endDate may not fit your dateFormat " +
+                "Invalid endDate, the format of endDate may not match your dateFormat " +
                 renderInfo.dateFormat;
             return errorMessage;
         }
