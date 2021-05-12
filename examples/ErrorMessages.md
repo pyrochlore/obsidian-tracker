@@ -103,14 +103,14 @@ line:
 ```
 
 ## Output
-No output type provided, choose line, bar, or summary
+No output type provided, choose 'line', 'bar', or 'summary'.
 ``` tracker
 searchType: tag
 searchTarget: weight
 ``` 
 
 ## Line Chart
-The Parameter lineColor allows only one input for the single target
+The Parameter 'lineColor' allows only one input for the single target
 ``` tracker
 searchType: tag
 searchTarget: weight
@@ -126,21 +126,3 @@ searchTarget: bloodpressure[0], bloodpressure[1]
 line:
     titles: "Blood Pressure"
 ``` 
-
-## Bar Chart
-``` tracker
-searchType: tag
-searchTarget: weight
-bar:
-	title: Line
-	barColor: red
-``` 
-
-## Summary
-``` tracker
-searchType: tag
-searchTarget: weight
-summary:
-	template: "{{min}}"
-``` 
-
