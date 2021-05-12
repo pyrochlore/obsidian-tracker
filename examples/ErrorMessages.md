@@ -1,25 +1,27 @@
 # Error Messages
 ## YAML
-Error from escaping character
+Error parsing caused by the escaping character
 ``` tracker
 searchType: tag
 searchTarget: "\"
 line:
 ```
 
-Typo for keys
+'searchTypes' wrong, 'searchType' right
 ``` tracker
 searchTypes: tag
 searchTarget: weight
 line:
 ```
 
+'searchTargets' wrong, searchTarget right
 ``` tracker
 searchType: tag
 searchTargets: weight
 line:
 ```
 
+'lines' wrong, 'line' right
 ``` tracker
 searchType: tag
 searchTarget: weight
@@ -34,21 +36,22 @@ line:
 ```
 
 ## Target
-Missing target
+Missing search target
 ``` tracker
 searchType: tag
 searchTarget: 
 line:
 ```
 
-Invalid target, '#' is not allowed
+Invalid search target, '#' is not allowed
 ``` tracker
 searchType: tag
 searchTarget: #weight 
+line:
 ```
 
 ## Folder
-Invalid folder
+Folder not exists
 ``` tracker
 searchType: tag
 searchTarget: weight
@@ -56,7 +59,16 @@ folder: abc
 ```
 
 ## Date
-startDate or endDate not match to the dateFormat
+The format of startDate or endDate does not match dateFormat in the plugin settings. Change the settings or Add a dateFormat parameter into YAML.
+``` tracker
+searchType: tag
+searchTarget: weight
+startDate: 2020-01-01_Fri
+endDate: 2020-01-31_Mon
+line:
+```
+
+No note found in the given date range
 ``` tracker
 searchType: tag
 searchTarget: weight
@@ -74,17 +86,8 @@ endDate: 2021-02-30
 line:
 ```
 
-No notes found in given range
-``` tracker
-searchType: tag
-searchTarget: weight
-startDate: 2020-01-01
-endDate: 2020-01-31
-line:
-```
-
 ## Number of parameters
-Two search targets provided, number of search types should not more than two.
+Two search targets provided, the number of search types shouldn't be more than two.
 ``` tracker
 searchType: frontmatter, frontmatter, frontmatter
 searchTarget: bloodpressure[0], bloodpressure[1]
@@ -122,5 +125,22 @@ searchType: frontmatter, frontmatter
 searchTarget: bloodpressure[0], bloodpressure[1]
 line:
     titles: "Blood Pressure"
+``` 
+
+## Bar Chart
+``` tracker
+searchType: tag
+searchTarget: weight
+bar:
+	title: Line
+	barColor: red
+``` 
+
+## Summary
+``` tracker
+searchType: tag
+searchTarget: weight
+summary:
+	template: "{{min}}"
 ``` 
 
