@@ -647,6 +647,17 @@ function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
     }
 }
 
+function getAvailableKeysOfClass(obj: object): string[] {
+    let keys: string[] = [];
+    if (obj !== null) {
+        const objectKeys = Object.keys(obj) as Array<keyof string>;
+        for (let key of objectKeys) {
+            keys.push(key.toString());
+        }
+    }
+    return keys;
+}
+
 export function getRenderInfoFromYaml(
     yamlText: string,
     plugin: Tracker
@@ -740,6 +751,20 @@ export function getRenderInfoFromYaml(
 
     // Create grarph info
     let renderInfo = new RenderInfo(queries);
+    let keysOfRenderInfo = getAvailableKeysOfClass(renderInfo);
+    let keysFoundInYAML = getAvailableKeysOfClass(yaml);
+    // console.log(keysOfRenderInfo);
+    // console.log(keysFoundInYAML);
+    for (let key of keysFoundInYAML) {
+        if (
+            key !== "searchType" &&
+            key !== "searchTarget" &&
+            !keysOfRenderInfo.includes(key)
+        ) {
+            errorMessage = "'" + key + "' is not an available key";
+            return errorMessage;
+        }
+    }
 
     // Get daily notes settings using obsidian-daily-notes-interface
     let dailyNotesSettings = getDailyNoteSettings();
@@ -1019,6 +1044,17 @@ export function getRenderInfoFromYaml(
     if (renderInfo.output === OutputType.Line && yaml.line !== null) {
         renderInfo.line = new LineInfo();
 
+        let keysOfLineInfo = getAvailableKeysOfClass(renderInfo.line);
+        let keysFoundInYAML = getAvailableKeysOfClass(yaml.line);
+        // console.log(keysOfLineInfo);
+        // console.log(keysFoundInYAML);
+        for (let key of keysFoundInYAML) {
+            if (!keysOfLineInfo.includes(key)) {
+                errorMessage = "'" + key + "' is not an available key";
+                return errorMessage;
+            }
+        }
+
         parseCommonChartInfo(yaml.line, renderInfo.line);
 
         // lineColor
@@ -1168,6 +1204,17 @@ export function getRenderInfoFromYaml(
     if (renderInfo.output === OutputType.Bar && yaml.bar !== null) {
         renderInfo.bar = new BarInfo();
 
+        let keysOfBarInfo = getAvailableKeysOfClass(renderInfo.bar);
+        let keysFoundInYAML = getAvailableKeysOfClass(yaml.bar);
+        // console.log(keysOfBarInfo);
+        // console.log(keysFoundInYAML);
+        for (let key of keysFoundInYAML) {
+            if (!keysOfBarInfo.includes(key)) {
+                errorMessage = "'" + key + "' is not an available key";
+                return errorMessage;
+            }
+        }
+
         parseCommonChartInfo(yaml.bar, renderInfo.bar);
 
         // barColor
@@ -1203,6 +1250,18 @@ export function getRenderInfoFromYaml(
     // summary related parameters
     if (renderInfo.output === OutputType.Summary && yaml.summary !== null) {
         renderInfo.summary = new SummaryInfo();
+
+        let keysOfSummaryInfo = getAvailableKeysOfClass(renderInfo.summary);
+        let keysFoundInYAML = getAvailableKeysOfClass(yaml.summary);
+        // console.log(keysOfSummaryInfo);
+        // console.log(keysFoundInYAML);
+        for (let key of keysFoundInYAML) {
+            if (!keysOfSummaryInfo.includes(key)) {
+                errorMessage = "'" + key + "' is not an available key";
+                return errorMessage;
+            }
+        }
+
         // template
         if (typeof yaml.summary.template === "string") {
             renderInfo.summary.template = yaml.summary.template;

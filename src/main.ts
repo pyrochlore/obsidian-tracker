@@ -627,7 +627,7 @@ export default class Tracker extends Plugin {
             } // end loof of files
         }
         if (fileCounter === 0) {
-            let errorMessage = "No notes found in date range.";
+            let errorMessage = "No notes found in the date range.";
             renderErrorMessage(canvas, errorMessage);
             el.appendChild(canvas);
             return;

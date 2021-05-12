@@ -7,6 +7,25 @@ searchTarget: "\"
 line:
 ```
 
+Typo for keys
+``` tracker
+searchTypes: tag
+searchTarget: weight
+line:
+```
+
+``` tracker
+searchType: tag
+searchTargets: weight
+line:
+```
+
+``` tracker
+searchType: tag
+searchTarget: weight
+lines:
+```
+
 Missing tracker block identifier, no error message though.
 ```
 searchType: tag
@@ -86,4 +105,10 @@ searchTarget: weight
 line:
 ``` 
 
+``` tracker
+searchType: frontmatter, frontmatter
+searchTarget: bloodpressure[0], bloodpressure[1]
+line:
+    titles: "Blood Pressure"
+``` 
 
