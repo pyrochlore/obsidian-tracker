@@ -59,7 +59,7 @@ function getBoolArrayFromInput(
 
     if (typeof input === "undefined") {
         // all defaultValue
-    } else if (typeof input === "object") {
+    } else if (typeof input === "object" && input !== null) {
         if (Array.isArray(input)) {
             if (input.length > numDataset) {
                 errorMessage = "Too many input parameters for " + name;
@@ -200,7 +200,7 @@ function getNumberArrayFromInput(
 
     if (typeof input === "undefined") {
         // all defaultValue
-    } else if (typeof input === "object") {
+    } else if (typeof input === "object" && input !== null) {
         if (Array.isArray(input)) {
             if (input.length > numDataset) {
                 errorMessage = "Too many input parameters for " + name;
@@ -347,7 +347,7 @@ function getStringArrayFromInput(
 
     if (typeof input === "undefined") {
         // all defaultValue
-    } else if (typeof input === "object") {
+    } else if (typeof input === "object" && input !== null) {
         if (Array.isArray(input)) {
             if (input.length > numDataset) {
                 errorMessage = "Too many input parameters for " + name;
@@ -669,7 +669,7 @@ export function getRenderInfoFromYaml(
 
     // Search target
     let searchTarget: Array<string> = [];
-    if (typeof yaml.searchTarget === "object") {
+    if (typeof yaml.searchTarget === "object" && yaml.searchTarget !== null) {
         if (Array.isArray(yaml.searchTarget)) {
             for (let target of yaml.searchTarget) {
                 if (typeof target === "string") {
