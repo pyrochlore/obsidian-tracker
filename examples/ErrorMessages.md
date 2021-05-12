@@ -84,27 +84,39 @@ line:
 ```
 
 ## Number of parameters
-We have only two search targets, no need for three search types.
+Two search targets provided, number of search types should not more than two.
 ``` tracker
 searchType: frontmatter, frontmatter, frontmatter
 searchTarget: bloodpressure[0], bloodpressure[1]
 line:
 ```
 
+yAxisLabel allows only two inputs
+``` tracker
+searchType: frontmatter, frontmatter
+searchTarget: bloodpressure[0], bloodpressure[1]
+line:
+	yAxisLabel: BP1, BP2, BP3
+```
+
 ## Output
-No output specified
+No output type provided, choose line, bar, or summary
 ``` tracker
 searchType: tag
 searchTarget: weight
 ``` 
 
 ## Line Chart
+The Parameter lineColor allows only one input for the single target
 ``` tracker
 searchType: tag
 searchTarget: weight
 line:
+	title: Line
+	lineColor: red, yellow
 ``` 
 
+The parameter name should be 'title', not 'titles'
 ``` tracker
 searchType: frontmatter, frontmatter
 searchTarget: bloodpressure[0], bloodpressure[1]

@@ -57,12 +57,12 @@ function getBoolArrayFromInput(
         array.push(defaultValue);
     }
 
-    if (typeof input === "undefined") {
+    if (typeof input === "undefined" || input === null) {
         // all defaultValue
     } else if (typeof input === "object" && input !== null) {
         if (Array.isArray(input)) {
             if (input.length > numDataset) {
-                errorMessage = "Too many input parameters for " + name;
+                errorMessage = "Too many inputs for parameter '" + name + "'";
                 return errorMessage;
             }
             if (input.length === 0) {
@@ -110,7 +110,7 @@ function getBoolArrayFromInput(
         let splitted = input.split(",");
         if (splitted.length > 1) {
             if (splitted.length > numDataset) {
-                errorMessage = "Too many input parameters for " + name;
+                errorMessage = "Too many inputs for parameter '" + name + "'";
                 return errorMessage;
             }
             for (let ind = 0; ind < array.length; ind++) {
@@ -198,12 +198,12 @@ function getNumberArrayFromInput(
         array.push(defaultValue);
     }
 
-    if (typeof input === "undefined") {
+    if (typeof input === "undefined" || input === null) {
         // all defaultValue
     } else if (typeof input === "object" && input !== null) {
         if (Array.isArray(input)) {
             if (input.length > numDataset) {
-                errorMessage = "Too many input parameters for " + name;
+                errorMessage = "Too many inputs for parameter '" + name + "'";
                 return errorMessage;
             }
             if (input.length === 0) {
@@ -251,7 +251,7 @@ function getNumberArrayFromInput(
         let splitted = input.split(",");
         if (splitted.length > 1) {
             if (splitted.length > numDataset) {
-                errorMessage = "Too many input parameters for " + name;
+                errorMessage = "Too many inputs for parameter '" + name + "'";
                 return errorMessage;
             }
             for (let ind = 0; ind < array.length; ind++) {
@@ -340,17 +340,16 @@ function getStringArrayFromInput(
     let errorMessage = "";
     let numValidValue = 0;
 
-    // console.log(input);
     while (numDataset > array.length) {
         array.push(defaultValue);
     }
 
-    if (typeof input === "undefined") {
+    if (typeof input === "undefined" || input === null) {
         // all defaultValue
     } else if (typeof input === "object" && input !== null) {
         if (Array.isArray(input)) {
             if (input.length > numDataset) {
-                errorMessage = "Too many input parameters for " + name;
+                errorMessage = "Too many inputs for parameter '" + name + "'";
                 return errorMessage;
             }
             if (input.length === 0) {
@@ -405,7 +404,7 @@ function getStringArrayFromInput(
         let splitted = input.split(",");
         if (splitted.length > 1) {
             if (splitted.length > numDataset) {
-                errorMessage = "Too many input parameters for " + name;
+                errorMessage = "Too many inputs for parameter '" + name + "'";
                 return errorMessage;
             }
             for (let ind = 0; ind < array.length; ind++) {
@@ -484,30 +483,82 @@ function getStringArrayFromInput(
 }
 
 function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
-    // title
-    if (typeof yaml.title === "string") {
-        renderInfo.title = yaml.title;
-    }
 
-    // xAxisLabel
-    if (typeof yaml.xAxisLabel === "string") {
-        renderInfo.xAxisLabel = yaml.xAxisLabel;
-    }
+    // single value, use default value if no value from YAML
+    if (yaml) {
+        // title
+        if (typeof yaml.title === "string") {
+            renderInfo.title = yaml.title;
+        }
 
-    // xAxisColor
-    if (typeof yaml.xAxisColor === "string") {
-        renderInfo.xAxisColor = yaml.xAxisColor;
-    }
+        // xAxisLabel
+        if (typeof yaml.xAxisLabel === "string") {
+            renderInfo.xAxisLabel = yaml.xAxisLabel;
+        }
 
-    // xAxisLabelColor
-    if (typeof yaml.xAxisLabelColor === "string") {
-        renderInfo.xAxisLabelColor = yaml.xAxisLabelColor;
+        // xAxisColor
+        if (typeof yaml.xAxisColor === "string") {
+            renderInfo.xAxisColor = yaml.xAxisColor;
+        }
+
+        // xAxisLabelColor
+        if (typeof yaml.xAxisLabelColor === "string") {
+            renderInfo.xAxisLabelColor = yaml.xAxisLabelColor;
+        }
+
+        // allowInspectData
+        if (typeof yaml.allowInspectData === "boolean") {
+            renderInfo.allowInspectData = yaml.allowInspectData;
+        }
+
+        // showLegend
+        if (typeof yaml.showLegend === "boolean") {
+            renderInfo.showLegend = yaml.showLegend;
+        }
+
+        // legendPosition
+        if (typeof yaml.legendPosition === "string") {
+            renderInfo.legendPosition = yaml.legendPosition;
+        } else {
+            renderInfo.legendPosition = "bottom";
+        }
+
+        // legendOrient
+        if (typeof yaml.legendOrientation === "string") {
+            renderInfo.legendOrientation = yaml.legendOrientation;
+        } else {
+            if (
+                renderInfo.legendPosition === "top" ||
+                renderInfo.legendPosition === "bottom"
+            ) {
+                renderInfo.legendOrientation = "horizontal";
+            } else if (
+                renderInfo.legendPosition === "left" ||
+                renderInfo.legendPosition === "right"
+            ) {
+                renderInfo.legendOrientation = "vertical";
+            } else {
+                renderInfo.legendOrientation = "horizontal";
+            }
+        }
+        // console.log(renderInfo.legendPosition);
+        // console.log(renderInfo.legendOrientation);
+
+        // legendBgColor
+        if (typeof yaml.legendBgColor === "string") {
+            renderInfo.legendBgColor = yaml.legendBgColor;
+        }
+
+        // legendBorderColor
+        if (typeof yaml.legendBorderColor === "string") {
+            renderInfo.legendBorderColor = yaml.legendBorderColor;
+        }
     }
 
     // yAxisLabel
     let retYAxisLabel = getStringArrayFromInput(
         "yAxisLabel",
-        yaml.yAxisLabel,
+        yaml?.yAxisLabel,
         2,
         "Value",
         null,
@@ -525,7 +576,7 @@ function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
     // yAxisColor
     let retYAxisColor = getStringArrayFromInput(
         "yAxisColor",
-        yaml.yAxisColor,
+        yaml?.yAxisColor,
         2,
         "",
         null,
@@ -543,7 +594,7 @@ function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
     // yAxisLabelColor
     let retYAxisLabelColor = getStringArrayFromInput(
         "yAxisLabelColor",
-        yaml.yAxisLabelColor,
+        yaml?.yAxisLabelColor,
         2,
         "",
         null,
@@ -561,7 +612,7 @@ function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
     // yAxisUnit
     let retYAxisUnit = getStringArrayFromInput(
         "yAxisUnit",
-        yaml.yAxisUnit,
+        yaml?.yAxisUnit,
         2,
         "",
         null,
@@ -577,7 +628,7 @@ function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
     // console.log(renderInfo.yAxisUnit);
 
     // yMin
-    let retYMin = getNumberArrayFromInput("yMin", yaml.yMin, 2, null, true);
+    let retYMin = getNumberArrayFromInput("yMin", yaml?.yMin, 2, null, true);
     if (typeof retYMin === "string") {
         return retYMin; // errorMessage
     }
@@ -588,7 +639,7 @@ function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
     // console.log(renderInfo.yMin);
 
     // yMax
-    let retYMax = getNumberArrayFromInput("yMax", yaml.yMax, 2, null, true);
+    let retYMax = getNumberArrayFromInput("yMax", yaml?.yMax, 2, null, true);
     if (typeof retYMax === "string") {
         return retYMax; // errorMessage
     }
@@ -597,54 +648,6 @@ function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
     }
     renderInfo.yMax = retYMax;
     // console.log(renderInfo.yMax);
-
-    // allowInspectData
-    if (typeof yaml.allowInspectData === "boolean") {
-        renderInfo.allowInspectData = yaml.allowInspectData;
-    }
-
-    // showLegend
-    if (typeof yaml.showLegend === "boolean") {
-        renderInfo.showLegend = yaml.showLegend;
-    }
-
-    // legendPosition
-    if (typeof yaml.legendPosition === "string") {
-        renderInfo.legendPosition = yaml.legendPosition;
-    } else {
-        renderInfo.legendPosition = "bottom";
-    }
-
-    // legendOrient
-    if (typeof yaml.legendOrientation === "string") {
-        renderInfo.legendOrientation = yaml.legendOrientation;
-    } else {
-        if (
-            renderInfo.legendPosition === "top" ||
-            renderInfo.legendPosition === "bottom"
-        ) {
-            renderInfo.legendOrientation = "horizontal";
-        } else if (
-            renderInfo.legendPosition === "left" ||
-            renderInfo.legendPosition === "right"
-        ) {
-            renderInfo.legendOrientation = "vertical";
-        } else {
-            renderInfo.legendOrientation = "horizontal";
-        }
-    }
-    // console.log(renderInfo.legendPosition);
-    // console.log(renderInfo.legendOrientation);
-
-    // legendBgColor
-    if (typeof yaml.legendBgColor === "string") {
-        renderInfo.legendBgColor = yaml.legendBgColor;
-    }
-
-    // legendBorderColor
-    if (typeof yaml.legendBorderColor === "string") {
-        renderInfo.legendBorderColor = yaml.legendBorderColor;
-    }
 }
 
 function getAvailableKeysOfClass(obj: object): string[] {
@@ -1041,17 +1044,19 @@ export function getRenderInfoFromYaml(
     }
 
     // line related parameters
-    if (renderInfo.output === OutputType.Line && yaml.line !== null) {
+    if (renderInfo.output === OutputType.Line) {
         renderInfo.line = new LineInfo();
 
-        let keysOfLineInfo = getAvailableKeysOfClass(renderInfo.line);
-        let keysFoundInYAML = getAvailableKeysOfClass(yaml.line);
-        // console.log(keysOfLineInfo);
-        // console.log(keysFoundInYAML);
-        for (let key of keysFoundInYAML) {
-            if (!keysOfLineInfo.includes(key)) {
-                errorMessage = "'" + key + "' is not an available key";
-                return errorMessage;
+        if (yaml.line !== null) {
+            let keysOfLineInfo = getAvailableKeysOfClass(renderInfo.line);
+            let keysFoundInYAML = getAvailableKeysOfClass(yaml.line);
+            // console.log(keysOfLineInfo);
+            // console.log(keysFoundInYAML);
+            for (let key of keysFoundInYAML) {
+                if (!keysOfLineInfo.includes(key)) {
+                    errorMessage = "'" + key + "' is not an available key";
+                    return errorMessage;
+                }
             }
         }
 
@@ -1060,7 +1065,7 @@ export function getRenderInfoFromYaml(
         // lineColor
         let retLineColor = getStringArrayFromInput(
             "lineColor",
-            yaml.line.lineColor,
+            yaml?.line?.lineColor,
             numDatasets,
             "",
             null,
@@ -1075,7 +1080,7 @@ export function getRenderInfoFromYaml(
         // lineWidth
         let retLineWidth = getNumberArrayFromInput(
             "lineWidth",
-            yaml.line.lineWidth,
+            yaml?.line?.lineWidth,
             numDatasets,
             1.5,
             true
@@ -1089,7 +1094,7 @@ export function getRenderInfoFromYaml(
         // showLine
         let retShowLine = getBoolArrayFromInput(
             "showLine",
-            yaml.line.showLine,
+            yaml?.line?.showLine,
             numDatasets,
             true,
             true
@@ -1103,7 +1108,7 @@ export function getRenderInfoFromYaml(
         // showPoint
         let retShowPoint = getBoolArrayFromInput(
             "showPoint",
-            yaml.line.showPoint,
+            yaml?.line?.showPoint,
             numDatasets,
             true,
             true
@@ -1117,7 +1122,7 @@ export function getRenderInfoFromYaml(
         // pointColor
         let retPointColor = getStringArrayFromInput(
             "pointColor",
-            yaml.line.pointColor,
+            yaml?.line?.pointColor,
             numDatasets,
             "#69b3a2",
             null,
@@ -1132,7 +1137,7 @@ export function getRenderInfoFromYaml(
         // pointBorderColor
         let retPointBorderColor = getStringArrayFromInput(
             "pointBorderColor",
-            yaml.line.pointBorderColor,
+            yaml?.line?.pointBorderColor,
             numDatasets,
             "#69b3a2",
             null,
@@ -1147,7 +1152,7 @@ export function getRenderInfoFromYaml(
         // pointBorderWidth
         let retPointBorderWidth = getNumberArrayFromInput(
             "pointBorderWidth",
-            yaml.line.pointBorderWidth,
+            yaml?.line?.pointBorderWidth,
             numDatasets,
             0.0,
             true
@@ -1161,7 +1166,7 @@ export function getRenderInfoFromYaml(
         // pointSize
         let retPointSize = getNumberArrayFromInput(
             "pointSize",
-            yaml.line.pointSize,
+            yaml?.line?.pointSize,
             numDatasets,
             3.0,
             true
@@ -1175,7 +1180,7 @@ export function getRenderInfoFromYaml(
         // fillGap
         let retFillGap = getBoolArrayFromInput(
             "fillGap",
-            yaml.line.fillGap,
+            yaml?.line?.fillGap,
             numDatasets,
             false,
             true
@@ -1189,7 +1194,7 @@ export function getRenderInfoFromYaml(
         // yAxisLocation
         let retYAxisLocation = getStringArrayFromInput(
             "yAxisLocation",
-            yaml.line.yAxisLocation,
+            yaml?.line?.yAxisLocation,
             numDatasets,
             "left",
             null,
@@ -1201,17 +1206,19 @@ export function getRenderInfoFromYaml(
         renderInfo.line.yAxisLocation = retYAxisLocation;
         // console.log(renderInfo.line.yAxisLocation);
     } // line related parameters
-    if (renderInfo.output === OutputType.Bar && yaml.bar !== null) {
+    if (renderInfo.output === OutputType.Bar) {
         renderInfo.bar = new BarInfo();
 
-        let keysOfBarInfo = getAvailableKeysOfClass(renderInfo.bar);
-        let keysFoundInYAML = getAvailableKeysOfClass(yaml.bar);
-        // console.log(keysOfBarInfo);
-        // console.log(keysFoundInYAML);
-        for (let key of keysFoundInYAML) {
-            if (!keysOfBarInfo.includes(key)) {
-                errorMessage = "'" + key + "' is not an available key";
-                return errorMessage;
+        if (yaml.bar !== null) {
+            let keysOfBarInfo = getAvailableKeysOfClass(renderInfo.bar);
+            let keysFoundInYAML = getAvailableKeysOfClass(yaml.bar);
+            // console.log(keysOfBarInfo);
+            // console.log(keysFoundInYAML);
+            for (let key of keysFoundInYAML) {
+                if (!keysOfBarInfo.includes(key)) {
+                    errorMessage = "'" + key + "' is not an available key";
+                    return errorMessage;
+                }
             }
         }
 
@@ -1220,7 +1227,7 @@ export function getRenderInfoFromYaml(
         // barColor
         let retBarColor = getStringArrayFromInput(
             "barColor",
-            yaml.bar.barColor,
+            yaml?.bar?.barColor,
             numDatasets,
             "",
             null,
@@ -1235,7 +1242,7 @@ export function getRenderInfoFromYaml(
         // yAxisLocation
         let retYAxisLocation = getStringArrayFromInput(
             "yAxisLocation",
-            yaml.bar.yAxisLocation,
+            yaml?.bar?.yAxisLocation,
             numDatasets,
             "left",
             null,
@@ -1248,26 +1255,30 @@ export function getRenderInfoFromYaml(
         // console.log(renderInfo.bar.yAxisLocation);
     } // bar related parameters
     // summary related parameters
-    if (renderInfo.output === OutputType.Summary && yaml.summary !== null) {
+    if (renderInfo.output === OutputType.Summary) {
         renderInfo.summary = new SummaryInfo();
 
-        let keysOfSummaryInfo = getAvailableKeysOfClass(renderInfo.summary);
-        let keysFoundInYAML = getAvailableKeysOfClass(yaml.summary);
-        // console.log(keysOfSummaryInfo);
-        // console.log(keysFoundInYAML);
-        for (let key of keysFoundInYAML) {
-            if (!keysOfSummaryInfo.includes(key)) {
-                errorMessage = "'" + key + "' is not an available key";
-                return errorMessage;
+        if (yaml.summary !== null) {
+            let keysOfSummaryInfo = getAvailableKeysOfClass(renderInfo.summary);
+            let keysFoundInYAML = getAvailableKeysOfClass(yaml.summary);
+            // console.log(keysOfSummaryInfo);
+            // console.log(keysFoundInYAML);
+            for (let key of keysFoundInYAML) {
+                if (!keysOfSummaryInfo.includes(key)) {
+                    errorMessage = "'" + key + "' is not an available key";
+                    return errorMessage;
+                }
             }
         }
 
-        // template
-        if (typeof yaml.summary.template === "string") {
-            renderInfo.summary.template = yaml.summary.template;
-        }
-        if (typeof yaml.summary.style === "string") {
-            renderInfo.summary.style = yaml.summary.style;
+        if (yaml.summary !== null) {
+            // template
+            if (typeof yaml.summary.template === "string") {
+                renderInfo.summary.template = yaml.summary.template;
+            }
+            if (typeof yaml.summary.style === "string") {
+                renderInfo.summary.style = yaml.summary.style;
+            }
         }
     } // summary related parameters
 
