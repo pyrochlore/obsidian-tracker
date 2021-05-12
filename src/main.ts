@@ -626,6 +626,12 @@ export default class Tracker extends Plugin {
                 } // Search text
             } // end loof of files
         }
+        if (fileCounter === 0) {
+            let errorMessage = "No notes found in date range.";
+            renderErrorMessage(canvas, errorMessage);
+            el.appendChild(canvas);
+            return;
+        }
         // console.log(minDate);
         // console.log(maxDate);
         // console.log(dataMap);
