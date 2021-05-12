@@ -483,6 +483,7 @@ function getStringArrayFromInput(
 }
 
 function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
+    // console.log("parseCommonChartInfo");
 
     // single value, use default value if no value from YAML
     if (yaml) {
@@ -1068,7 +1069,10 @@ export function getRenderInfoFromYaml(
             }
         }
 
-        parseCommonChartInfo(yaml.line, renderInfo.line);
+        let retParseCommonChartInfo = parseCommonChartInfo(yaml.line, renderInfo.line);
+        if (typeof retParseCommonChartInfo === "string") {
+            return retParseCommonChartInfo;
+        }
 
         // lineColor
         let retLineColor = getStringArrayFromInput(
@@ -1230,7 +1234,10 @@ export function getRenderInfoFromYaml(
             }
         }
 
-        parseCommonChartInfo(yaml.bar, renderInfo.bar);
+        let retParseCommonChartInfo = parseCommonChartInfo(yaml.bar, renderInfo.bar);
+        if (typeof retParseCommonChartInfo === "string") {
+            return retParseCommonChartInfo;
+        }
 
         // barColor
         let retBarColor = getStringArrayFromInput(
