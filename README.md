@@ -78,6 +78,9 @@ You can set the default folder location and date format in the plugin's settings
 For more information about the dateFormat settings, check the [TestDateFormats example](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md) and [moment.js string format](https://momentjs.com/docs/#/parsing/string-format/). 
 
 ## Release Notes
+### v1.4.1
+- Enhanced error handling
+
 ### v1.4.0
 - Add a new parameter (fixedScale) for the scaling of the output chart
 - Add a new parameter (fitPanelWidth) to enable/disable the auto-scaling of the output chart
