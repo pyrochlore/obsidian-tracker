@@ -1016,7 +1016,7 @@ export function getRenderInfoFromYaml(
     }
 
     // line related parameters
-    if (renderInfo.output === OutputType.Line) {
+    if (renderInfo.output === OutputType.Line && yaml.line !== null) {
         renderInfo.line = new LineInfo();
 
         parseCommonChartInfo(yaml.line, renderInfo.line);
@@ -1165,7 +1165,7 @@ export function getRenderInfoFromYaml(
         renderInfo.line.yAxisLocation = retYAxisLocation;
         // console.log(renderInfo.line.yAxisLocation);
     } // line related parameters
-    if (renderInfo.output === OutputType.Bar) {
+    if (renderInfo.output === OutputType.Bar && yaml.bar !== null) {
         renderInfo.bar = new BarInfo();
 
         parseCommonChartInfo(yaml.bar, renderInfo.bar);
@@ -1201,7 +1201,7 @@ export function getRenderInfoFromYaml(
         // console.log(renderInfo.bar.yAxisLocation);
     } // bar related parameters
     // summary related parameters
-    if (renderInfo.output === OutputType.Summary) {
+    if (renderInfo.output === OutputType.Summary && yaml.summary !== null) {
         renderInfo.summary = new SummaryInfo();
         // template
         if (typeof yaml.summary.template === "string") {

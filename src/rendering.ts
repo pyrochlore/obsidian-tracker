@@ -1242,6 +1242,8 @@ function moveArea(area: any, shiftX: number, shiftY: number) {
 function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log("renderLineChart");
     // console.log(renderInfo);
+    if (renderInfo.line === null) return;
+
     let chartElements = createAreas(canvas, renderInfo);
 
     renderTitle(chartElements, renderInfo);
@@ -1302,6 +1304,8 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
 function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log("renderBarChart");
     // console.log(renderInfo);
+    if (renderInfo.bar === null) return;
+
     let chartElements = createAreas(canvas, renderInfo);
 
     renderTitle(chartElements, renderInfo);
@@ -1470,11 +1474,7 @@ let fnSet = {
 function renderSummary(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log("renderSummary");
     // console.log(renderInfo);
-
-    // Notice renderInfo.summary may be null
-    if (renderInfo.summary === null) {
-        return "Key 'summary' not foundin YAML";
-    }
+    if (renderInfo.summary === null) return;
 
     let outputSummary = "";
     if (checkSummaryTemplateValid(renderInfo.summary.template)) {
