@@ -166,6 +166,11 @@ for (
 
     content += "\n";
 
+    let dataviewValue = randomIntFromInterval(0, 100);
+    content += "dataviewTarget:: " + dataviewValue + "\n";
+
+    content += "\n";
+
     let amplitude = 1.0;
     let period = 30; // how many days to complete a sin period
     let numSinValues = 9;

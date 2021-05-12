@@ -37,7 +37,7 @@ Track text in format "weightlifting: 10".
 [Regex for searching value-attached texts](https://regex101.com/r/eCWpgS/2)
 ``` tracker
 searchType: text
-searchTarget: 'weightlifting: (?<value>[\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)'
+searchTarget: 'weightlifting:\s+(?<value>[\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)'
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
@@ -46,5 +46,20 @@ line:
     yAxisLabel: Count
     lineColor: yellow
 ```
+
+### Dataview Compatible Tracker
+``` tracker
+searchType: text
+searchTarget: 'dataviewTarget::\s+(?<value>[\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)'
+folder: diary
+startDate: 2021-01-01
+endDate: 2021-01-31
+line:
+    title: Dataview Data
+    yAxisLabel: Count
+    lineColor: red
+	yMin: 0
+```
+
 
 Please also check those search targets in markdown files under folder 'diary'.
