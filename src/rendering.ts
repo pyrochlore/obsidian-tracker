@@ -39,7 +39,7 @@ function getTickInterval(datasets: Datasets) {
     return tickInterval;
 }
 
-function getTickFormat(datasets: Datasets) {
+function getXTickFormat(datasets: Datasets) {
     let tickFormat;
     let days = datasets.getDates().length;
 
@@ -60,6 +60,18 @@ function getTickFormat(datasets: Datasets) {
         tickFormat = d3.timeFormat("%y %b");
     } else {
         tickFormat = d3.timeFormat("%Y");
+    }
+
+    return tickFormat;
+}
+
+function getYTickFormat() {
+    // currently used for time value tick only
+    // return a function convert value to time string
+    function tickFormat(value: number): string {
+        let dayStart = window.moment("00:00", "HH:mm", true);
+        let tickTime = dayStart.add(value, "seconds");
+        return tickTime.format("HH:mm");
     }
 
     return tickFormat;
@@ -137,7 +149,7 @@ function renderXAxis(chartElements: ChartElements, renderInfo: RenderInfo) {
     chartElements["xScale"] = xScale;
 
     let tickInterval = getTickInterval(datasets);
-    let tickFormat = getTickFormat(datasets);
+    let tickFormat = getXTickFormat(datasets);
 
     let xAxisGen = d3
         .axisBottom(xScale)
@@ -224,6 +236,8 @@ function renderYAxis(
 
     let yMinOfDatasets = null;
     let yMaxOfDatasets = null;
+    let tmpValueIsTime = null;
+    let valueIsTime = false;
     for (let datasetId of datasetIds) {
         let dataset = datasets.getDatasetById(datasetId);
 
@@ -232,6 +246,16 @@ function renderYAxis(
         }
         if (yMaxOfDatasets === null || dataset.getYMax() > yMaxOfDatasets) {
             yMaxOfDatasets = dataset.getYMax();
+        }
+
+        // Need all datasets have same settings for time value
+        valueIsTime = dataset.isUsingTimeValue();
+        if (tmpValueIsTime === null) {
+            tmpValueIsTime = valueIsTime;
+        } else {
+            if (valueIsTime !== tmpValueIsTime) {
+                return "Not all values in time format";
+            }
         }
     }
     // console.log(yMinOfDatasets);
@@ -313,6 +337,10 @@ function renderYAxis(
         yAxisGen = d3.axisLeft(yScale);
     } else {
         yAxisGen = d3.axisRight(yScale);
+    }
+    if (valueIsTime) {
+        let tickFormat = getYTickFormat();
+        yAxisGen.tickFormat(tickFormat);
     }
     let yAxis = chartElements.dataArea
         .append("g")
@@ -1214,6 +1242,8 @@ function moveArea(area: any, shiftX: number, shiftY: number) {
 function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log("renderLineChart");
     // console.log(renderInfo);
+    if (renderInfo.line === null) return;
+
     let chartElements = createAreas(canvas, renderInfo);
 
     renderTitle(chartElements, renderInfo);
@@ -1234,9 +1264,15 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    renderYAxis(chartElements, renderInfo, "left", datasetOnLeftYAxis);
-    // console.log(chartElements.leftYAxis);
-    // console.log(chartElements.leftYScale);
+    let retRenderLeftYAxis = renderYAxis(
+        chartElements,
+        renderInfo,
+        "left",
+        datasetOnLeftYAxis
+    );
+    if (typeof retRenderLeftYAxis === "string") {
+        return retRenderLeftYAxis;
+    }
 
     if (chartElements.leftYAxis && chartElements.leftYScale) {
         for (let datasetId of datasetOnLeftYAxis) {
@@ -1248,7 +1284,15 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    renderYAxis(chartElements, renderInfo, "right", datasetOnRightYAxis);
+    let retRenderRightYAxis = renderYAxis(
+        chartElements,
+        renderInfo,
+        "right",
+        datasetOnRightYAxis
+    );
+    if (typeof retRenderRightYAxis === "string") {
+        return retRenderRightYAxis;
+    }
 
     if (chartElements.rightYAxis && chartElements.rightYScale) {
         for (let datasetId of datasetOnRightYAxis) {
@@ -1270,6 +1314,8 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
 function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log("renderBarChart");
     // console.log(renderInfo);
+    if (renderInfo.bar === null) return;
+
     let chartElements = createAreas(canvas, renderInfo);
 
     renderTitle(chartElements, renderInfo);
@@ -1288,7 +1334,15 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    renderYAxis(chartElements, renderInfo, "left", datasetOnLeftYAxis);
+    let retRenderLeftYAxis = renderYAxis(
+        chartElements,
+        renderInfo,
+        "left",
+        datasetOnLeftYAxis
+    );
+    if (typeof retRenderLeftYAxis === "string") {
+        return retRenderLeftYAxis;
+    }
 
     let totalNumOfBarSets =
         datasetOnLeftYAxis.length + datasetOnRightYAxis.length;
@@ -1311,7 +1365,15 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    renderYAxis(chartElements, renderInfo, "right", datasetOnRightYAxis);
+    let retRenderRightYAxis = renderYAxis(
+        chartElements,
+        renderInfo,
+        "right",
+        datasetOnRightYAxis
+    );
+    if (typeof retRenderRightYAxis === "string") {
+        return retRenderRightYAxis;
+    }
 
     if (chartElements.rightYAxis && chartElements.rightYScale) {
         for (let datasetId of datasetOnRightYAxis) {
@@ -1432,11 +1494,7 @@ let fnSet = {
 function renderSummary(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log("renderSummary");
     // console.log(renderInfo);
-
-    // Notice renderInfo.summary may be null
-    if (renderInfo.summary === null) {
-        return "Key 'summary' not foundin YAML";
-    }
+    if (renderInfo.summary === null) return;
 
     let outputSummary = "";
     if (checkSummaryTemplateValid(renderInfo.summary.template)) {

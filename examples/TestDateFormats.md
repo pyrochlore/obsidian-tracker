@@ -50,6 +50,20 @@ line:
     lineColor: yellow
 ```
 
+### dateFormat: YYYY-MM-DD_ddd
+``` tracker
+searchType: tag
+searchTarget: weight
+folder: diary
+startDate: 2021-01-01_Fri
+endDate: 2021-01-05_Tue
+line:
+    title: Weight Log
+    yAxisLabel: Weight
+    yAxisUnit: kg
+    lineColor: yellow
+```
+
 ### dateFormat: DD-MM-YYYY
 
 ``` tracker

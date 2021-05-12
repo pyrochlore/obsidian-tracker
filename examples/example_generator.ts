@@ -70,6 +70,17 @@ for (
         diastolicDeviation;
     frontmatter += "bloodpressure: " + systolic + "/" + diastolic + "\n";
 
+    // clock-in clock-out, 24hr
+    let time_clock_in = randomIntFromInterval(8,10).toString() + ":" + randomIntFromInterval(0,59).toString();
+    let time_clock_out = randomIntFromInterval(16,20).toString() + ":" + randomIntFromInterval(0,59).toString();
+    frontmatter += "clock-in: " + time_clock_in + "\n";
+    frontmatter += "clock-out: " + time_clock_out + "\n";
+
+    // sleep, 12hr + am/pm
+    let time_in_bed = randomIntFromInterval(9,11).toString() + ":" + randomIntFromInterval(0,59).toString() + " pm";
+    let time_out_of_bed = randomIntFromInterval(5,7).toString() + ":" + randomIntFromInterval(0,59).toString() + " am";
+    frontmatter += "sleep: " + time_in_bed + "/" + time_out_of_bed + "\n";
+
     frontmatter += "---\n";
     content += frontmatter;
 
@@ -152,6 +163,11 @@ for (
     if (addWeightLifting > 0) {
         content += "weightlifting: " + countWeightLifting + "\n";
     }
+
+    content += "\n";
+
+    let dataviewValue = randomIntFromInterval(0, 100);
+    content += "dataviewTarget:: " + dataviewValue + "\n";
 
     content += "\n";
 
