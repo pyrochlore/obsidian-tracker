@@ -11,8 +11,6 @@ line:
     yAxisLabel: Weight
     yAxisUnit: kg
     lineColor: yellow
-    fitPanelWidth: false
-    fixedScale: 1.0
 ```
 
 ## Summary

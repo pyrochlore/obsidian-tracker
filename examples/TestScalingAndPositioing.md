@@ -1,4 +1,4 @@
-# Test Scaling and Fitting
+# Test Scaling and Positioning
 ## Scaling the chart
 Scaling factor 0.5
 ``` tracker
