@@ -1264,7 +1264,12 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    let retRenderLeftYAxis = renderYAxis(chartElements, renderInfo, "left", datasetOnLeftYAxis);
+    let retRenderLeftYAxis = renderYAxis(
+        chartElements,
+        renderInfo,
+        "left",
+        datasetOnLeftYAxis
+    );
     if (typeof retRenderLeftYAxis === "string") {
         return retRenderLeftYAxis;
     }
@@ -1279,7 +1284,12 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    let retRenderRightYAxis = renderYAxis(chartElements, renderInfo, "right", datasetOnRightYAxis);
+    let retRenderRightYAxis = renderYAxis(
+        chartElements,
+        renderInfo,
+        "right",
+        datasetOnRightYAxis
+    );
     if (typeof retRenderRightYAxis === "string") {
         return retRenderRightYAxis;
     }
@@ -1324,7 +1334,12 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    let retRenderLeftYAxis = renderYAxis(chartElements, renderInfo, "left", datasetOnLeftYAxis);
+    let retRenderLeftYAxis = renderYAxis(
+        chartElements,
+        renderInfo,
+        "left",
+        datasetOnLeftYAxis
+    );
     if (typeof retRenderLeftYAxis === "string") {
         return retRenderLeftYAxis;
     }
@@ -1350,7 +1365,12 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    let retRenderRightYAxis = renderYAxis(chartElements, renderInfo, "right", datasetOnRightYAxis);
+    let retRenderRightYAxis = renderYAxis(
+        chartElements,
+        renderInfo,
+        "right",
+        datasetOnRightYAxis
+    );
     if (typeof retRenderRightYAxis === "string") {
         return retRenderRightYAxis;
     }

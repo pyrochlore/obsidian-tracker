@@ -1069,7 +1069,10 @@ export function getRenderInfoFromYaml(
             }
         }
 
-        let retParseCommonChartInfo = parseCommonChartInfo(yaml.line, renderInfo.line);
+        let retParseCommonChartInfo = parseCommonChartInfo(
+            yaml.line,
+            renderInfo.line
+        );
         if (typeof retParseCommonChartInfo === "string") {
             return retParseCommonChartInfo;
         }
@@ -1234,7 +1237,10 @@ export function getRenderInfoFromYaml(
             }
         }
 
-        let retParseCommonChartInfo = parseCommonChartInfo(yaml.bar, renderInfo.bar);
+        let retParseCommonChartInfo = parseCommonChartInfo(
+            yaml.bar,
+            renderInfo.bar
+        );
         if (typeof retParseCommonChartInfo === "string") {
             return retParseCommonChartInfo;
         }

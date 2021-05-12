@@ -382,9 +382,8 @@ export default class Tracker extends Plugin {
                                     ) {
                                         // TODO: it's not efficent to retrieve one value at a time, enhance this
                                         let value = null;
-                                        let splittedPart = splitted[
-                                            query.getSubId()
-                                        ].trim();
+                                        let splittedPart =
+                                            splitted[query.getSubId()].trim();
                                         if (toParse.includes(":")) {
                                             // time value
                                             let timeValue = window.moment(
