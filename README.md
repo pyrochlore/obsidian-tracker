@@ -137,6 +137,7 @@ First version released at 2021-03-23
     - [ ] Get data from table
     - [ ] Collect data from other plugins' API (e.g. dataview)
     - [ ] Allow manual data input, includes template varialbes embeded in
+    - [ ] New search type 'codeblock'
 - Output Type and Graph
     - [x] New output type 'summary', analyzes the input data and represents it using a user-defined text template.
     - [x] New output type 'bar', renders bar chart.
