@@ -140,6 +140,7 @@ First version released at 2021-03-23
     - [ ] New output type 'table', lists the search result in a formatted table.
     - [ ] New output type 'heatmap', works like Github calendar heatmap.
     - [x] Add parameters for adjusting the size of the graph.
+    - [ ] Multiple outputs from one code block
     - [ ] Support graphs showing the correlation between sets of data.
     - [ ] Add a 'targetDataSet' key to graph, allow the graph drawing selected dataset.
     - [ ] Evaluate template parameters by predefined function and arithmetics.
