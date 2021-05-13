@@ -7,13 +7,19 @@ let subfolder = "diary";
 let dateFormat = "YYYY-MM-DD";
 let startDate = moment("2021-01-01", dateFormat);
 let endDate = moment("2021-12-31", dateFormat);
+let seed = 1;
+
+function random() {
+    var x = Math.sin(seed++) * 10000;
+    return x - Math.floor(x);
+}
 
 function randomIntFromInterval(min: number, max: number) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
+    return Math.floor(random() * (max - min + 1) + min);
 }
 
 function randomFloatFromInterval(min: number, max: number) {
-    return Math.random() * (max - min + 1) + min;
+    return random() * (max - min + 1) + min;
 }
 
 // Check subfolder exists
