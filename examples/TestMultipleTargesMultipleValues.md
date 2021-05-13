@@ -63,7 +63,7 @@ line:
 Values separated by comma (,)
 ``` tracker
 searchType: frontmatter
-searchTarget: blood-pressure[0], blood-pressure[1]
+searchTarget: bloodpressure1[0], blood-pressure1[1]
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
@@ -73,7 +73,20 @@ line:
     showLegend: true
 ```
 
-Values in nested key
+Values from array
+``` tracker
+searchType: frontmatter
+searchTarget: bloodpressure2[0], blood-pressure2[1]
+folder: diary
+startDate: 2021-01-01
+endDate: 2021-01-31
+line:
+    title: Blood Pressure
+    lineColor: yellow, red
+    showLegend: true
+```
+
+Values in nested parameters
 ``` tracker
 searchType: frontmatter
 searchTarget: blood-pressure[0], blood-pressure[1]
@@ -91,7 +104,7 @@ line:
 
 
 ## Multiple Values in dvField (Dataview inline field)
-Multiple Values in dvField
+Multiple Values in dataview inline field
 ``` tracker
 searchType: dvField
 searchTarget: dataviewTarget1[0], dataviewTarget1[1]
