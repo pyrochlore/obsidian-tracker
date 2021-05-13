@@ -13,14 +13,18 @@ This is an [Obsidian](https://obsidian.md/) plugin that helps you do tracking in
 | content | #finance/bank1/transfer:100USD | searchType: tag<br>searchTarget: finance/bank1/transfer | V |
 | content | #finance/bank1/transfer:100USD<br>#finance/bank1/income:80USD<br>#finance/bank1/outcome:-120USD | searchType: tag<br>searchTarget: finance/bank1 | V |
 | content | #blood-pressure:180/120 | searchType: tag<br>searchTarget: blood-pressure[0], blood-pressure[1] | V |
+| content | dvTarget:: 20.5 | searchType: dvField<br>searchTarget: dvTarget | V |
+| content | dvTarget:: 20.5/30.5 | searchType: dvField<br>searchTarget: dvTarget[0], dvTarget[1] | V |
 | frontmatter | ---<br>mood: 10<br>--- | searchType: frontmatter<br>searchTarget: mood | V |
 | frontmatter | ---<br>sleep: 23/6<br>--- | searchType: frontmatter<br>searchTarget: sleep[0], sleep[1] | V |
+ frontmatter | ---<br>sleep: 23, 6<br>--- | searchType: frontmatter<br>searchTarget: sleep[0], sleep[1] | V |
 | content | [[journal]] | searchType: wiki<br>searchTarget: journal | O |
 | content | ⭐ | searchType: text<br>searchTarget: ⭐ | O |
 | content | love | searchType: text<br>searchTarget: love | O |
 | content | test@gmail.com<br>test@hotmail.com | searchType: text<br>serchTarget: '.+\\@.+\\..+' | O |
 | content | #weightlifting: 50 | searchType: text<br>searchTarget: 'weightlifting: (?\<value\>[\\-]?[0-9]+[\\.][0-9]+\|[\\-]?[0-9]+)' | V |
 | content | I walked 10000 steps today. | searchType: text<br>searchTarget: 'walked\\s+(?\<value\>[0-9]+)\\s+steps' | V |
+| content | some values 1/2/3 | searchType: text<br>searchTarget: '(?\<value\>[0-9]+)/(?\<value1\>[0-9]+)/(?\<value2\>[0-9]+)' | V |
 
 ## Installation
 ### Install from Obsidian Settings Panel
@@ -49,7 +53,7 @@ This plugin was designed to read code blocks in [YAML format](https://en.wikiped
 [Here](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/InputParameters.md) are all the parameters (key-value pairs) defined in this plugin. They are used for collecting data, evaluating targets, data preprocessing, and rendering output.
 
 ### Collecting Data
-Providing key '**searchType**' and '**searchTarget**' is the minimum requirement for a successful data collection. The value of the key '**searchType**' can be '**tag**', '**frontmatter**', '**wiki**', or '**text**' and the cooresponding '**searchTarget**' should be provided according to the specified type.
+Providing key '**searchType**' and '**searchTarget**' is the minimum requirement for a successful data collection. The value of the key '**searchType**' can be '**tag**', '**frontmatter**', '**wiki**', '**dvField**' or '**text**' and the cooresponding '**searchTarget**' should be provided according to the specified type.
 
 From version 1.3, you can provide multiple search targets by entering an array of targets separated by a comma. Each of the targets will be identified then the corresponding value will be evaluated and form a dataset indexed by the order in the array (zero-based indexing).
 
@@ -78,6 +82,14 @@ You can set the default folder location and date format in the plugin's settings
 For more information about the dateFormat settings, check the [TestDateFormats example](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md) and [moment.js string format](https://momentjs.com/docs/#/parsing/string-format/). 
 
 ## Release Notes
+### v1.5.0
+- New output type 'calendar', rendering calendar view
+- New searchType 'dvField', searching the inline field used by Dataview plugin
+- Enhance multiple values retrieving
+    - Allow multiple values in text search by using group name value, value1, value2......
+    - Allow multiple values in frontmatter formatted in array
+    - Allow using Custom separator for multiple values
+
 ### v1.4.1
 - Enhanced error handling
 
