@@ -771,6 +771,21 @@ export function getRenderInfoFromYaml(
     }
     // console.log(searchType);
 
+    // multipleValueSeparator
+    let multipleValueSparator: Array<string> = [];
+    let retMultipleValueSparator = getStringArrayFromInput(
+        "multipleValueSeparator",
+        yaml.multipleValueSeparator,
+        numDatasets,
+        "/",
+        null,
+        true
+    );
+    if (typeof retMultipleValueSparator === "string") {
+        return retMultipleValueSparator; // errorMessage
+    }
+    multipleValueSparator = retMultipleValueSparator;
+
     // Create queries
     let queries: Array<Query> = [];
     for (let ind = 0; ind < searchTarget.length; ind++) {
@@ -779,6 +794,7 @@ export function getRenderInfoFromYaml(
             searchType[ind],
             searchTarget[ind]
         );
+        query.setSeparator(multipleValueSparator[ind]);
         queries.push(query);
     }
     // console.log(queries);
@@ -786,12 +802,16 @@ export function getRenderInfoFromYaml(
     // Create grarph info
     let renderInfo = new RenderInfo(queries);
     let keysOfRenderInfo = getAvailableKeysOfClass(renderInfo);
+    let additionalAllowedKeys = [
+        "searchType",
+        "searchTarget",
+        "multipleValueSeparator",
+    ];
     // console.log(keysOfRenderInfo);
     for (let key of keysFoundInYAML) {
         if (
-            key !== "searchType" &&
-            key !== "searchTarget" &&
-            !keysOfRenderInfo.includes(key)
+            !keysOfRenderInfo.includes(key) &&
+            !additionalAllowedKeys.includes(key)
         ) {
             errorMessage = "'" + key + "' is not an available key";
             return errorMessage;

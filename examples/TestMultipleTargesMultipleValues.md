@@ -17,7 +17,7 @@ line:
 ```
 
 ## Multiple Values in a Tag
-Retrieve single value
+Retrieve single value from multiple values tuple
 ``` tracker
 searchType: tag
 searchTarget: sin[0]
@@ -103,10 +103,11 @@ line:
 	lineColor: green, red
 ```
 
-Use custom separator
+Use custom multiple value separator
 ``` tracker
 searchType: dvField
 searchTarget: dataviewTarget2[0], dataviewTarget2[1]
+multipleValueSeparator: '@'
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31

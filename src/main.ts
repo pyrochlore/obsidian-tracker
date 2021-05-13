@@ -376,7 +376,9 @@ export default class Tracker extends Plugin {
                                     frontMatter[query.getParentTarget()];
 
                                 if (typeof toParse === "string") {
-                                    let splitted = toParse.split("/");
+                                    let splitted = toParse.split(
+                                        query.getSeparator()
+                                    );
                                     if (
                                         splitted.length > query.getSubId() &&
                                         query.getSubId() >= 0
@@ -482,7 +484,9 @@ export default class Tracker extends Plugin {
                             typeof match.groups.values !== "undefined"
                         ) {
                             // console.log("value-attached tag");
-                            let splitted = match.groups.values.split("/");
+                            let splitted = match.groups.values.split(
+                                query.getSeparator()
+                            );
                             if (splitted.length === 1) {
                                 // console.log("single-value");
                                 let toParse = match.groups.values.trim();
@@ -653,7 +657,9 @@ export default class Tracker extends Plugin {
                             typeof match.groups.values !== "undefined"
                         ) {
                             // console.log("value-attached tag");
-                            let splitted = match.groups.values.split("/");
+                            let splitted = match.groups.values.split(
+                                query.getSeparator()
+                            );
                             if (splitted.length === 1) {
                                 // console.log("single-value");
                                 let toParse = match.groups.values.trim();

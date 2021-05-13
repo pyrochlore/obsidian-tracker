@@ -33,6 +33,7 @@ export class Query {
     private type: SearchType | null;
     private target: string;
     private parentTarget: string | null;
+    private separator: string; // multiple value separator
     private id: number;
     private subId: number;
     private valueIsTime: boolean;
@@ -40,6 +41,7 @@ export class Query {
     constructor(id: number, searchType: SearchType, searchTarget: string) {
         this.type = searchType;
         this.target = searchTarget;
+        this.separator = "/";
         this.id = id;
         this.subId = -1;
         this.valueIsTime = false;
@@ -92,6 +94,14 @@ export class Query {
 
     public setUsingTimeValue() {
         this.valueIsTime = true;
+    }
+
+    public setSeparator(sep: string) {
+        this.separator = sep;
+    }
+
+    public getSeparator() {
+        return this.separator;
     }
 }
 
