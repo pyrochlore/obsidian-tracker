@@ -2,6 +2,14 @@ import { Moment } from "moment";
 
 export type NullableNumber = number | null;
 
+export enum SearchType {
+    Tag,
+    Frontmatter,
+    Wiki,
+    Text,
+    dvField,
+}
+
 export enum OutputType {
     Line,
     Bar,
@@ -22,14 +30,14 @@ export class DataPoint {
 }
 
 export class Query {
-    private type: string;
+    private type: SearchType | null;
     private target: string;
     private parentTarget: string | null;
     private id: number;
     private subId: number;
     private valueIsTime: boolean;
 
-    constructor(id: number, searchType: string, searchTarget: string) {
+    constructor(id: number, searchType: SearchType, searchTarget: string) {
         this.type = searchType;
         this.target = searchTarget;
         this.id = id;

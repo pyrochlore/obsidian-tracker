@@ -9,6 +9,7 @@ import {
     Query,
     QueryValuePair,
     OutputType,
+    SearchType,
 } from "./data";
 import {
     TrackerSettings,
@@ -260,7 +261,7 @@ export default class Tracker extends Plugin {
                 let fileCache = this.app.metadataCache.getFileCache(file);
 
                 // console.log("Search frontmatter tags");
-                if (query.getType() === "tag") {
+                if (query.getType() === SearchType.Tag) {
                     // Add frontmatter tags, allow simple tag only
                     if (fileCache) {
                         let frontMatter = fileCache.frontmatter;
@@ -316,7 +317,7 @@ export default class Tracker extends Plugin {
 
                 // console.log("Search frontmatter keys");
                 if (
-                    query.getType() === "frontmatter" &&
+                    query.getType() === SearchType.Frontmatter &&
                     query.getTarget() !== "tags"
                 ) {
                     if (fileCache) {
@@ -424,7 +425,7 @@ export default class Tracker extends Plugin {
                 } // console.log("Search frontmatter keys");
 
                 // console.log("Search wiki links");
-                if (query.getType() === "wiki") {
+                if (query.getType() === SearchType.Wiki) {
                     if (fileCache) {
                         let links = fileCache.links;
 
@@ -453,7 +454,7 @@ export default class Tracker extends Plugin {
                 }
 
                 // console.log("Search inline tags");
-                if (query.getType() === "tag") {
+                if (query.getType() === SearchType.Tag) {
                     // Add inline tags
                     let content = await this.app.vault.adapter.read(file.path);
 
@@ -573,7 +574,7 @@ export default class Tracker extends Plugin {
                 } // Search inline tags
 
                 // console.log("Search text");
-                if (query.getType() === "text") {
+                if (query.getType() === SearchType.Text) {
                     let content = await this.app.vault.adapter.read(file.path);
                     // console.log(content);
                     let strTextRegex = query.getTarget();
@@ -623,6 +624,125 @@ export default class Tracker extends Plugin {
                         );
                     }
                 } // Search text
+
+                // console.log("Search dvField");
+                if (query.getType() === SearchType.dvField) {
+                    // Add inline tags
+                    let content = await this.app.vault.adapter.read(file.path);
+
+                    // console.log(content);
+                    // Test this in Regex101
+                    // (^|\s)\*{0,2}dvTarget\*{0,2}(::\s*(?<values>[\d\.\/\-\w,@;\s]*))(\s|$)
+                    let dvTarget = query.getTarget();
+                    if (query.getParentTarget()) {
+                        dvTarget = query.getParentTarget(); // use parent tag name for multiple values
+                    }
+                    let strHashtagRegex =
+                        "(^|\\s)\\*{0,2}" +
+                        dvTarget +
+                        "\\*{0,2}(::\\s*(?<values>[\\d\\.\\/\\-\\w,@;\\s]*))(\\s|$)";
+                    // console.log(strHashtagRegex);
+                    let hashTagRegex = new RegExp(strHashtagRegex, "gm");
+                    let match;
+                    let tagMeasure = 0.0;
+                    let tagExist = false;
+                    while ((match = hashTagRegex.exec(content))) {
+                        // console.log(match);
+                        if (
+                            typeof match.groups !== "undefined" &&
+                            typeof match.groups.values !== "undefined"
+                        ) {
+                            // console.log("value-attached tag");
+                            let splitted = match.groups.values.split("/");
+                            if (splitted.length === 1) {
+                                // console.log("single-value");
+                                let toParse = match.groups.values.trim();
+                                if (toParse.includes(":")) {
+                                    let timeValue = window.moment(
+                                        toParse,
+                                        timeFormat,
+                                        true
+                                    );
+                                    if (timeValue.isValid()) {
+                                        query.setUsingTimeValue();
+                                        tagMeasure = timeValue.diff(
+                                            window.moment(
+                                                "00:00",
+                                                "HH:mm",
+                                                true
+                                            ),
+                                            "seconds"
+                                        );
+                                        tagExist = true;
+                                    }
+                                } else {
+                                    let value = parseFloat(toParse);
+                                    // console.log(value);
+                                    if (!Number.isNaN(value)) {
+                                        if (
+                                            !renderInfo.ignoreZeroValue[
+                                                query.getId()
+                                            ] ||
+                                            value !== 0
+                                        ) {
+                                            tagMeasure += value;
+                                            tagExist = true;
+                                        }
+                                    }
+                                }
+                            } else if (
+                                splitted.length > query.getSubId() &&
+                                query.getSubId() >= 0
+                            ) {
+                                // TODO: it's not efficent to retrieve one value at a time, enhance this
+                                // console.log("multiple-values");
+                                let toParse = splitted[query.getSubId()].trim();
+                                if (toParse.includes(":")) {
+                                    let timeValue = window.moment(
+                                        toParse,
+                                        timeFormat,
+                                        true
+                                    );
+                                    if (timeValue.isValid()) {
+                                        query.setUsingTimeValue();
+                                        tagMeasure = timeValue.diff(
+                                            window.moment(
+                                                "00:00",
+                                                "HH:mm",
+                                                true
+                                            ),
+                                            "seconds"
+                                        );
+                                        tagExist = true;
+                                    }
+                                } else {
+                                    let value = parseFloat(toParse);
+                                    if (Number.isNumber(value)) {
+                                        tagMeasure += value;
+                                        tagExist = true;
+                                    }
+                                }
+                            }
+                        } else {
+                            // console.log("simple-tag");
+                            tagMeasure =
+                                tagMeasure +
+                                renderInfo.constValue[query.getId()];
+                            tagExist = true;
+                        }
+                    }
+
+                    let value = null;
+                    if (tagExist) {
+                        value = tagMeasure;
+                    }
+                    this.addToDataMap(
+                        dataMap,
+                        fileDate.format(renderInfo.dateFormat),
+                        query,
+                        value
+                    );
+                } // search dvField
             } // end loof of files
         }
         if (fileCounter === 0) {

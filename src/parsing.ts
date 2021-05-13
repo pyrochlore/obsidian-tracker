@@ -1,5 +1,6 @@
 import Tracker from "./main";
 import {
+    SearchType,
     BarInfo,
     CommonChartInfo,
     Query,
@@ -35,7 +36,8 @@ function validateSearchType(searchType: string): boolean {
         searchType === "tag" ||
         searchType === "text" ||
         searchType === "frontmatter" ||
-        searchType === "wiki"
+        searchType === "wiki" ||
+        searchType === "dvField"
     ) {
         return true;
     }
@@ -736,9 +738,9 @@ export function getRenderInfoFromYaml(
         let errorMessage = "Parameter 'searchType' not found in YAML";
         return errorMessage;
     }
-    let searchType: Array<string> = [];
+    let searchType: Array<SearchType> = [];
     let retSearchType = getStringArrayFromInput(
-        "search type",
+        "searchType",
         yaml.searchType,
         numDatasets,
         "",
@@ -748,7 +750,25 @@ export function getRenderInfoFromYaml(
     if (typeof retSearchType === "string") {
         return retSearchType; // errorMessage
     }
-    searchType = retSearchType;
+    for (let strType of retSearchType) {
+        switch (strType) {
+            case "tag":
+                searchType.push(SearchType.Tag);
+                break;
+            case "frontmatter":
+                searchType.push(SearchType.Frontmatter);
+                break;
+            case "wiki":
+                searchType.push(SearchType.Wiki);
+                break;
+            case "text":
+                searchType.push(SearchType.Text);
+                break;
+            case "dvField":
+                searchType.push(SearchType.dvField);
+                break;
+        }
+    }
     // console.log(searchType);
 
     // Create queries
