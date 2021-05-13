@@ -122,6 +122,8 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
             return renderBarChart(canvas, renderInfo);
         case OutputType.Summary:
             return summary.renderSummary(canvas, renderInfo);
+        case OutputType.Calendar:
+            return renderCalendar(canvas, renderInfo);
         default:
             return "Unknown output type";
     }
@@ -1493,6 +1495,12 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     }
 
     setChartScale(canvas, chartElements, renderInfo);
+}
+
+function renderCalendar(canvas: HTMLElement, renderInfo: RenderInfo) {
+    console.log("renderCalendar");
+    // console.log(renderInfo);
+    if (renderInfo.calendar === null) return;
 }
 
 export function renderErrorMessage(canvas: HTMLElement, errorMessage: string) {

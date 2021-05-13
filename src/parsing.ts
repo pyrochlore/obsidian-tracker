@@ -9,6 +9,7 @@ import {
     Margin,
     OutputType,
     LineInfo,
+    CalendarInfo,
 } from "./data";
 import { TFolder, normalizePath } from "obsidian";
 import { parseYaml } from "obsidian";
@@ -1150,15 +1151,24 @@ export function getRenderInfoFromYaml(
     if (typeof yaml.summary !== "undefined") {
         hasSummary = true;
     }
-    let sumOutput = Number(hasLine) + Number(hasBar) + Number(hasSummary);
+    let hasCalendar = false;
+    if (typeof yaml.calendar !== "undefined") {
+        hasCalendar = true;
+    }
+    let sumOutput =
+        Number(hasLine) +
+        Number(hasBar) +
+        Number(hasSummary) +
+        Number(hasCalendar);
     if (sumOutput === 0) {
-        return "No output parameter provided, please place line, bar, or summary.";
+        return "No output parameter provided, please place line, bar, calendar, or summary.";
     } else if (sumOutput === 1) {
         if (hasLine) renderInfo.output = OutputType.Line;
         if (hasBar) renderInfo.output = OutputType.Bar;
         if (hasSummary) renderInfo.output = OutputType.Summary;
+        if (hasCalendar) renderInfo.output = OutputType.Calendar;
     } else if (sumOutput >= 2) {
-        return "Too many output parameters, pick line, bar, or summary.";
+        return "Too many output parameters, pick line, bar, calendar, or summary.";
     }
 
     // line related parameters
@@ -1411,6 +1421,32 @@ export function getRenderInfoFromYaml(
             }
         }
     } // summary related parameters
+    // calendar related parameters
+    if (renderInfo.output === OutputType.Calendar) {
+        renderInfo.calendar = new CalendarInfo();
+
+        if (yaml.calendar !== null) {
+            let keysOfSummaryInfo = getAvailableKeysOfClass(
+                renderInfo.calendar
+            );
+            let keysFoundInYAML = getAvailableKeysOfClass(yaml.calendar);
+            // console.log(keysOfSummaryInfo);
+            // console.log(keysFoundInYAML);
+            for (let key of keysFoundInYAML) {
+                if (!keysOfSummaryInfo.includes(key)) {
+                    errorMessage = "'" + key + "' is not an available key";
+                    return errorMessage;
+                }
+            }
+        }
+
+        if (yaml.calendar !== null) {
+            // heatMap
+            if (typeof yaml.calendar.heatMap === "boolean") {
+                renderInfo.calendar.heatMap = yaml.calendar.heatMap;
+            }
+        }
+    } // calendar related parameters
 
     return renderInfo;
 }
