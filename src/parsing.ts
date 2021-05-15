@@ -9,7 +9,7 @@ import {
     Margin,
     OutputType,
     LineInfo,
-    CalendarInfo,
+    MonthInfo,
 } from "./data";
 import { TFolder, normalizePath } from "obsidian";
 import { parseYaml } from "obsidian";
@@ -1151,24 +1151,24 @@ export function getRenderInfoFromYaml(
     if (typeof yaml.summary !== "undefined") {
         hasSummary = true;
     }
-    let hasCalendar = false;
-    if (typeof yaml.calendar !== "undefined") {
-        hasCalendar = true;
+    let hasMonth = false;
+    if (typeof yaml.month !== "undefined") {
+        hasMonth = true;
     }
     let sumOutput =
         Number(hasLine) +
         Number(hasBar) +
         Number(hasSummary) +
-        Number(hasCalendar);
+        Number(hasMonth);
     if (sumOutput === 0) {
-        return "No output parameter provided, please place line, bar, calendar, or summary.";
+        return "No output parameter provided, please place line, bar, month, or summary.";
     } else if (sumOutput === 1) {
         if (hasLine) renderInfo.output = OutputType.Line;
         if (hasBar) renderInfo.output = OutputType.Bar;
         if (hasSummary) renderInfo.output = OutputType.Summary;
-        if (hasCalendar) renderInfo.output = OutputType.Calendar;
+        if (hasMonth) renderInfo.output = OutputType.Month;
     } else if (sumOutput >= 2) {
-        return "Too many output parameters, pick line, bar, calendar, or summary.";
+        return "Too many output parameters, pick line, bar, month, or summary.";
     }
 
     // line related parameters
@@ -1421,15 +1421,13 @@ export function getRenderInfoFromYaml(
             }
         }
     } // summary related parameters
-    // calendar related parameters
-    if (renderInfo.output === OutputType.Calendar) {
-        renderInfo.calendar = new CalendarInfo();
+    // month related parameters
+    if (renderInfo.output === OutputType.Month) {
+        renderInfo.month = new MonthInfo();
 
-        if (yaml.calendar !== null) {
-            let keysOfSummaryInfo = getAvailableKeysOfClass(
-                renderInfo.calendar
-            );
-            let keysFoundInYAML = getAvailableKeysOfClass(yaml.calendar);
+        if (yaml.month !== null) {
+            let keysOfSummaryInfo = getAvailableKeysOfClass(renderInfo.month);
+            let keysFoundInYAML = getAvailableKeysOfClass(yaml.month);
             // console.log(keysOfSummaryInfo);
             // console.log(keysFoundInYAML);
             for (let key of keysFoundInYAML) {
@@ -1440,13 +1438,14 @@ export function getRenderInfoFromYaml(
             }
         }
 
-        if (yaml.calendar !== null) {
-            // heatMap
-            if (typeof yaml.calendar.heatMap === "boolean") {
-                renderInfo.calendar.heatMap = yaml.calendar.heatMap;
+        if (yaml.month !== null) {
+            if (typeof yaml.month.startWeekOn === "string") {
+                if (yaml.month.startWeekOn === "month") {
+                    renderInfo.month.startWeekOn = yaml.month.startWeekOn;
+                }
             }
         }
-    } // calendar related parameters
+    } // month related parameters
 
     return renderInfo;
 }

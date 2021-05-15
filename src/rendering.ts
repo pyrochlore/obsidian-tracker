@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import { Moment } from "moment";
 import {
     Datasets,
     DataPoint,
@@ -122,8 +123,8 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
             return renderBarChart(canvas, renderInfo);
         case OutputType.Summary:
             return summary.renderSummary(canvas, renderInfo);
-        case OutputType.Calendar:
-            return renderCalendar(canvas, renderInfo);
+        case OutputType.Month:
+            return renderMonth(canvas, renderInfo);
         default:
             return "Unknown output type";
     }
@@ -1497,10 +1498,117 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     setChartScale(canvas, chartElements, renderInfo);
 }
 
-function renderCalendar(canvas: HTMLElement, renderInfo: RenderInfo) {
-    console.log("renderCalendar");
+interface DayInfo {
+    date: string;
+    dayInMonth: number;
+    row: number;
+    col: number;
+}
+
+function renderMonthHeader(
+    chartElements: ChartElements,
+    renderInfo: RenderInfo,
+    dataset: Dataset
+) {}
+
+function renderMonthDays(
+    chartElements: ChartElements,
+    renderInfo: RenderInfo,
+    dataset: Dataset
+) {
+    // console.log("renderMonthDays");
+
+    let maxDayTextSize = measureTextSize("30");
+    let dayCellWidth = maxDayTextSize.width * 1.2;
+    let dayCellSpacing = dayCellWidth * 0.1;
+
+    let lastDate = renderInfo.datasets.getDates().last();
+    let monthOfLastDate = lastDate.month(); // 0~11
+    let daysInMonth = lastDate.daysInMonth(); // 28~31
+
+    let daysInThisMonth: Array<DayInfo> = [];
+    const monthStartDate = lastDate.clone().startOf("month");
+    const monthEndDate = lastDate.endOf("month");
+    for (
+        let curDate = monthStartDate.clone();
+        curDate <= monthEndDate;
+        curDate.add(1, "days")
+    ) {
+        let indCol = curDate.day();
+        let indRow = Math.floor(
+            (monthStartDate.day() - 1 + curDate.date()) / 7.0
+        );
+        daysInThisMonth.push({
+            date: curDate.format(renderInfo.dateFormat),
+            dayInMonth: curDate.date(),
+            row: indRow,
+            col: indCol,
+        });
+    }
+
+    // scale
+    let scale = d3
+        .scaleLinear()
+        .domain([0, 8])
+        .range([0, renderInfo.dataAreaSize.width]);
+
+    // streak lines
+
+    // days in this month
+    let dots = chartElements.dataArea
+        .selectAll("dot")
+        .data(daysInThisMonth)
+        .enter()
+        .append("circle")
+        .attr("r", dayCellWidth / 2.0)
+        .attr("cx", function (d: DayInfo) {
+            return scale(d.col);
+        })
+        .attr("cy", function (d: DayInfo) {
+            return scale(d.row);
+        })
+        .attr("class", "tracker-dot");
+
+    // labels
+    let dayLabals = chartElements.dataArea
+        .selectAll("dayLabel")
+        .data(daysInThisMonth)
+        .enter()
+        .append("text")
+        .text(function (d: DayInfo) {
+            return d.dayInMonth.toString();
+        })
+        .attr("transform", function (d: DayInfo) {
+            let strTranslate =
+                "translate(" +
+                scale(d.col) +
+                "," +
+                (scale(d.row) + maxDayTextSize.height / 4) +
+                ")";
+
+            return strTranslate;
+        })
+        .attr("class", "tracker-axis-label");
+}
+
+function renderMonth(canvas: HTMLElement, renderInfo: RenderInfo) {
+    // console.log("renderMonth");
     // console.log(renderInfo);
-    if (renderInfo.calendar === null) return;
+    if (renderInfo.month === null) return;
+
+    let chartElements = createAreas(canvas, renderInfo);
+
+    renderMonthHeader(
+        chartElements,
+        renderInfo,
+        renderInfo.datasets.getDatasetById(0)
+    );
+
+    renderMonthDays(
+        chartElements,
+        renderInfo,
+        renderInfo.datasets.getDatasetById(0)
+    );
 }
 
 export function renderErrorMessage(canvas: HTMLElement, errorMessage: string) {

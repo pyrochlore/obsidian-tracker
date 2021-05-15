@@ -4,6 +4,6 @@
 searchType: tag
 searchTarget: meditation
 folder: diary
-calendar:
-    heatMap: false
+month:
+    startWeekOn: 
 ```

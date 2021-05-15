@@ -15,7 +15,7 @@ export enum OutputType {
     Radar,
     Summary,
     Table,
-    Calendar,
+    Month,
 }
 
 export enum ValueType {
@@ -481,7 +481,7 @@ export class RenderInfo {
     line: LineInfo | null;
     bar: BarInfo | null;
     summary: SummaryInfo | null;
-    calendar: CalendarInfo | null;
+    month: MonthInfo | null;
 
     public datasets: Datasets | null;
 
@@ -514,7 +514,7 @@ export class RenderInfo {
         this.line = null;
         this.summary = null;
         this.bar = null;
-        this.calendar = null;
+        this.month = null;
 
         this.datasets = null;
     }
@@ -614,11 +614,11 @@ export class SummaryInfo {
     }
 }
 
-export class CalendarInfo {
-    heatMap: boolean;
+export class MonthInfo {
+    startWeekOn: string;
 
     constructor() {
-        this.heatMap = false;
+        this.startWeekOn = "Sun";
     }
 }
 
