@@ -187,6 +187,8 @@ export default class Tracker extends Plugin {
         let dataMap = new Map<string, Array<QueryValuePair>>(); // {strDate: [query: value, ...]}
         for (let file of files) {
             for (let query of renderInfo.queries) {
+                if (query.getType() === SearchType.Table) continue;
+                
                 let fileBaseName = file.basename;
 
                 if (
@@ -751,6 +753,35 @@ export default class Tracker extends Plugin {
                 } // search dvField
             } // end loof of files
         }
+
+        // for searchType target to a specific file
+        for (let query of renderInfo.queries) {
+            // console.log("Search table");
+            if (query.getType() === SearchType.Table) {
+                let tableTarget = query.getTarget();
+                if (query.getParentTarget()) {
+                    tableTarget = query.getParentTarget(); // use parent tag name for multiple values
+                }
+                tableTarget = tableTarget + ".md";
+                let file = this.app.vault.getAbstractFileByPath(normalizePath(tableTarget));
+                if (file && file instanceof TFile) {
+                    fileCounter++;
+                    let content = await this.app.vault.adapter.read(file.path);
+                    // console.log(content);
+
+                    // Test this in Regex101
+                    // ((\r?\n){2}|^)([^\r\n]*\|[^\r\n]*(\r?\n)?)+(?=(\r?\n){2}|$)
+                    let strMDTableRegex = "((\\r?\\n){2}|^)([^\\r\\n]*\\|[^\\r\\n]*(\\r?\\n)?)+(?=(\\r?\\n){2}|$)";
+                    // console.log(strMDTableRegex);
+                    let mdTableRegex = new RegExp(strMDTableRegex, "gm");
+                    let match;
+                    while ((match = mdTableRegex.exec(content))) {
+                        console.log(match);
+                    }
+                }
+            } // Search table
+        }
+
         if (fileCounter === 0) {
             let errorMessage = "No notes found in the date range.";
             renderErrorMessage(canvas, errorMessage);

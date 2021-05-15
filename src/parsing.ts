@@ -37,7 +37,8 @@ function validateSearchType(searchType: string): boolean {
         searchType === "text" ||
         searchType === "frontmatter" ||
         searchType === "wiki" ||
-        searchType === "dvField"
+        searchType === "dvField" ||
+        searchType === "table"
     ) {
         return true;
     }
@@ -767,6 +768,9 @@ export function getRenderInfoFromYaml(
             case "dvField":
                 searchType.push(SearchType.dvField);
                 break;
+            case "table":
+                searchType.push(SearchType.Table);
+                break;
         }
     }
     // console.log(searchType);
@@ -971,6 +975,11 @@ export function getRenderInfoFromYaml(
         return errorMessage;
     }
     // console.log(renderInfo.datasetName);
+
+    // xDataset
+    if (typeof yaml.xDataset === "number") {
+        renderInfo.xDataset = yaml.xDataset;
+    }
 
     // constValue
     let retConstValue = getNumberArrayFromInput(

@@ -8,6 +8,7 @@ export enum SearchType {
     Wiki,
     Text,
     dvField,
+    Table
 }
 
 export enum OutputType {
@@ -36,7 +37,9 @@ export class Query {
     private separator: string; // multiple value separator
     private id: number;
     private subId: number;
+    private subId1: number;
     private valueIsTime: boolean;
+    private isXValues: boolean;
 
     constructor(id: number, searchType: SearchType, searchTarget: string) {
         this.type = searchType;
@@ -44,19 +47,44 @@ export class Query {
         this.separator = "/";
         this.id = id;
         this.subId = -1;
+        this.subId1 = -1; 
         this.valueIsTime = false;
+        this.isXValues = false;
 
-        let strRegex = "\\[(?<value>[0-9]+)\\]";
-        let regex = new RegExp(strRegex, "gm");
-        let match;
-        while ((match = regex.exec(searchTarget))) {
-            if (typeof match.groups.value !== "undefined") {
-                let value = parseFloat(match.groups.value);
-                if (Number.isNumber(value)) {
-                    this.subId = value;
-                    this.parentTarget = searchTarget.replace(regex, "");
+        if (searchType === SearchType.Table) {// searchTarget --> {{filePath}}[{{table}}][{{column}}]
+            let strRegex = "\\[(?<value>[0-9]+)\\]\\[(?<value1>[0-9]+)\\]";
+            let regex = new RegExp(strRegex, "gm");
+            let match;
+            while ((match = regex.exec(searchTarget))) {
+                if (typeof match.groups.value !== "undefined") {
+                    let value = parseFloat(match.groups.value);
+                    if (Number.isNumber(value)) {
+                        if (typeof match.groups.value1 !== "undefined") {
+                            let value1 = parseFloat(match.groups.value1);
+                            if (Number.isNumber(value1)) {
+                                this.subId = value;
+                                this.subId1 = value1;
+                                this.parentTarget = searchTarget.replace(regex, "");
+                            }
+                            break;
+                        }
+                    }
                 }
-                break;
+            }
+        }
+        else {
+            let strRegex = "\\[(?<value>[0-9]+)\\]";
+            let regex = new RegExp(strRegex, "gm");
+            let match;
+            while ((match = regex.exec(searchTarget))) {
+                if (typeof match.groups.value !== "undefined") {
+                    let value = parseFloat(match.groups.value);
+                    if (Number.isNumber(value)) {
+                        this.subId = value;
+                        this.parentTarget = searchTarget.replace(regex, "");
+                    }
+                    break;
+                }
             }
         }
     }
@@ -388,6 +416,7 @@ export class Datasets implements IterableIterator<Dataset> {
 export class RenderInfo {
     // Input
     queries: Query[];
+    xDataset: number;
     folder: string;
     dateFormat: string;
     dateFormatPrefix: string;
@@ -417,6 +446,7 @@ export class RenderInfo {
 
     constructor(queries: Query[]) {
         this.queries = queries;
+        this.xDataset = null;// use file name
         this.folder = "/";
         this.dateFormat = "YYYY-MM-DD";
         this.dateFormatPrefix = "";
