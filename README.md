@@ -7,20 +7,20 @@ This is an [Obsidian](https://obsidian.md/) plugin that helps you do tracking in
 
 | From↓ | Track Targets↓  | by Tracker↓ | Get (O)ccurrence/(V)alue |
 |:--------|:-------|:---------|:--:|
-| content | #meditation | searchType: tag<br>searchTarget: meditation | O |
-| frontmatter | ---<br>tags: meditation<br>--- | searchType: tag<br>searchTarget: meditation | O |
-| content | #weight:60.5kg | searchType: tag<br>searchTarget: weight | V |
-| content | #finance/bank1/transfer:100USD | searchType: tag<br>searchTarget: finance/bank1/transfer | V |
-| content | #finance/bank1/transfer:100USD<br>#finance/bank1/income:80USD<br>#finance/bank1/outcome:-120USD | searchType: tag<br>searchTarget: finance/bank1 | V |
-| content | #blood-pressure:180/120 | searchType: tag<br>searchTarget: blood-pressure[0], blood-pressure[1] | V |
-| frontmatter | ---<br>mood: 10<br>--- | searchType: frontmatter<br>searchTarget: mood | V |
-| frontmatter | ---<br>sleep: 23/6<br>--- | searchType: frontmatter<br>searchTarget: sleep[0], sleep[1] | V |
-| content | [[journal]] | searchType: wiki<br>searchTarget: journal | O |
-| content | ⭐ | searchType: text<br>searchTarget: ⭐ | O |
-| content | love | searchType: text<br>searchTarget: love | O |
-| content | test@gmail.com<br>test@hotmail.com | searchType: text<br>serchTarget: '.+\\@.+\\..+' | O |
-| content | #weightlifting: 50 | searchType: text<br>searchTarget: 'weightlifting: (?\<value\>[\\-]?[0-9]+[\\.][0-9]+\|[\\-]?[0-9]+)' | V |
-| content | I walked 10000 steps today. | searchType: text<br>searchTarget: 'walked\\s+(?\<value\>[0-9]+)\\s+steps' | V |
+| content | #meditation | searchType: tag<br/>searchTarget: meditation | O |
+| frontmatter | ---<br/>tags: meditation<br/>--- | searchType: tag<br/>searchTarget: meditation | O |
+| content | #weight:60.5kg | searchType: tag<br/>searchTarget: weight | V |
+| content | #finance/bank1/transfer:100USD | searchType: tag<br/>searchTarget: finance/bank1/transfer | V |
+| content | #finance/bank1/transfer:100USD<br/>#finance/bank1/income:80USD<br/>#finance/bank1/outcome:-120USD | searchType: tag<br/>searchTarget: finance/bank1 | V |
+| content | #blood-pressure:180/120 | searchType: tag<br/>searchTarget: blood-pressure[0], blood-pressure[1] | V |
+| frontmatter | ---<br/>mood: 10<br/>--- | searchType: frontmatter<br/>searchTarget: mood | V |
+| frontmatter | ---<br/>sleep: 23/6<br/>--- | searchType: frontmatter<br/>searchTarget: sleep[0], sleep[1] | V |
+| content | [[journal]] | searchType: wiki<br/>searchTarget: journal | O |
+| content | ⭐ | searchType: text<br/>searchTarget: ⭐ | O |
+| content | love | searchType: text<br/>searchTarget: love | O |
+| content | test@gmail.com<br/>test@hotmail.com | searchType: text<br/>serchTarget: '.+\\@.+\\..+' | O |
+| content | #weightlifting: 50 | searchType: text<br/>searchTarget: 'weightlifting: (?\<value\>[\\-]?[0-9]+[\\.][0-9]+\|[\\-]?[0-9]+)' | V |
+| content | I walked 10000 steps today. | searchType: text<br/>searchTarget: 'walked\\s+(?\<value\>[0-9]+)\\s+steps' | V |
 
 ## Installation
 ### Install from Obsidian Settings Panel

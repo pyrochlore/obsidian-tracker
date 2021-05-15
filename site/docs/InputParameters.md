@@ -11,7 +11,7 @@ These key-value pairs are placed under the YAML root.
 | Key | Description | Number of Values | Default |
 |:--------|:-------|:-----------:|:------|
 | **searchType** | The type of searchTarget (tag\|frontmatter\|wiki\|text) | 1~NT | Must provided |
-| **searchTarget** | The target to search<br>[[detail](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md)] | NT (Number of Targets) | Must provided |
+| **searchTarget** | The target to search<br/>[[detail](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md)] | NT (Number of Targets) | Must provided |
 | **folder** | The folder path of your daily notes | 1 | Root of this vault |
 | **dateFormat** | The date format of your file names | 1  | 'YYYY-MM-DD' |
 | **dateFormatPrefix** | A prefix before your dateFormat | 1 | '' |
@@ -49,7 +49,7 @@ These key-value pairs should be placed under the key '**line**' or '**bar**'.
 | **allowInspectData** | Show data value when mouse hovered (true\|false) | 1 | true |
 | **showLegend** | Show legend (true\|false) | 1 | false |
 | **legendPosition** | Legend position (top\|bottom\|left\|right) | 1 | bottom |
-| **legendOrientation** | Legend Orientation (vertical\|horizontal) | 1 | horizontal for bottom and top<br>vertical for left and right |
+| **legendOrientation** | Legend Orientation (vertical\|horizontal) | 1 | horizontal for bottom and top<br/>vertical for left and right |
 | **legendBgColor** | Legend Background Color | 1 | none |
 | **legendBorderColor** | Legend Border Color | 1 | white |
 
