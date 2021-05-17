@@ -39,7 +39,7 @@ export class Query {
     private arg: number;
     private arg1: number;
     private valueIsTime: boolean;
-    private isXValues: boolean;
+    usedAsXDataset: boolean;
 
     constructor(id: number, searchType: SearchType, searchTarget: string) {
         this.type = searchType;
@@ -49,7 +49,7 @@ export class Query {
         this.arg = -1;
         this.arg1 = -1; 
         this.valueIsTime = false;
-        this.isXValues = false;
+        this.usedAsXDataset = false;
 
         if (searchType === SearchType.Table) {// searchTarget --> {{filePath}}[{{table}}][{{column}}]
             let strRegex = "\\[(?<value>[0-9]+)\\]\\[(?<value1>[0-9]+)\\]";
@@ -621,3 +621,17 @@ export class Transform {
 export type ChartElements = {
     [key: string]: any;
 };
+
+export class TableData {
+    filePath: string;
+    tableIndex: number;
+    xDataset: Query | null;
+    yDatasets: Array<Query>
+
+    constructor(filePath: string, tableIndex: number) {
+        this.filePath = filePath;
+        this.tableIndex = tableIndex;
+        this.xDataset = null;
+        this.yDatasets = [];// array of query
+    }
+}

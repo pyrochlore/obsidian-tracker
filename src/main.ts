@@ -10,6 +10,7 @@ import {
     QueryValuePair,
     OutputType,
     SearchType,
+    TableData
 } from "./data";
 import {
     TrackerSettings,
@@ -18,6 +19,7 @@ import {
 } from "./settings";
 import * as helper from "./helper";
 import { Moment } from "moment";
+import { __values } from "tslib";
 // import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
 
 declare global {
@@ -755,83 +757,157 @@ export default class Tracker extends Plugin {
             } // end loof of files
         }
 
-        // for searchType target to a specific file
-        for (let query of renderInfo.queries) {
-            // console.log("Search table");
-            if (query.getType() === SearchType.Table) {
-                let tableTarget = query.getTarget();
-                if (query.getParentTarget()) {
-                    tableTarget = query.getParentTarget(); // use parent tag name for multiple values
+        // For searchType target to a specific file
+        let tableQueries = renderInfo.queries.filter(q => q.getType() === SearchType.Table);
+        // Separate queries by tables and xDatasets/yDatasets
+        let tables: Array<TableData> = [];
+        for (let query of tableQueries) {
+            let filePath = query.getParentTarget();
+            let tableIndex = query.getArg();
+            let isX = query.usedAsXDataset;
+
+            let table = tables.find(t => t.filePath === filePath && t.tableIndex === tableIndex);
+            if (table) {
+                if (isX) {
+                    table.xDataset = query;
                 }
-                tableTarget = tableTarget + ".md";
-                let file = this.app.vault.getAbstractFileByPath(normalizePath(tableTarget));
-                if (file && file instanceof TFile) {
-                    fileCounter++;
-                    let content = await this.app.vault.adapter.read(file.path);
-                    // console.log(content);
+                else {
+                    table.yDatasets.push(query);
+                }
+            }
+            else {
+                let tableData = new TableData(filePath, tableIndex);
+                if (isX) {
+                    tableData.xDataset = query;
+                }
+                else {
+                    tableData.yDatasets.push(query);
+                }
+                tables.push(tableData);
+            }
+        }
+        // console.log(tables);
 
-                    // Test this in Regex101
-                     // This is a not-so-strict table selector
-                    // ((\r?\n){2}|^)([^\r\n]*\|[^\r\n]*(\r?\n)?)+(?=(\r?\n){2}|$)
-                    let strMDTableRegex = "((\\r?\\n){2}|^)([^\\r\\n]*\\|[^\\r\\n]*(\\r?\\n)?)+(?=(\\r?\\n){2}|$)";
-                    // console.log(strMDTableRegex);
-                    let mdTableRegex = new RegExp(strMDTableRegex, "gm");
-                    let match;
-                    let indTable = 0;
-                    while ((match = mdTableRegex.exec(content))) {
-                        if (indTable !== query.getArg()) continue;
-                        let textTable = match[0];
-                        let lines = textTable.split(/\r?\n/);
-                        let numColumns = 0;
-                        let numDataRows = 0;
+        for (let tableData of tables) {
+            //extract xDataset from query
+            let xDatasetQuery = tableData.xDataset;
+            let yDatasetQueries = tableData.yDatasets;
+            let filePath = xDatasetQuery.getParentTarget();
+            let tableIndex = xDatasetQuery.getArg();
 
-                        // Make sure it is a valid table first
-                        if (lines.length >= 2) { // Must have header and separator line
-                            let headerLine = lines.shift().trim();
-                            headerLine = helper.trimByChar(headerLine, '|');
-                            let headerSplitted = headerLine.split('|');
-                            numColumns = headerSplitted.length;
-                            
-                            let sepLine = lines.shift().trim();
-                            sepLine = helper.trimByChar(sepLine, '|');
-                            let spepLineSplitted = sepLine.split('|');
-                            for (let col of spepLineSplitted) {
-                                if (!col.includes("-")) {
-                                    break;// Not a valid sep
-                                }
-                            }
+            // Get table text
+            let textTable = "";
+            filePath = filePath + ".md";
+            let file = this.app.vault.getAbstractFileByPath(normalizePath(filePath));
+            if (file && file instanceof TFile) {
+                fileCounter++;
+                let content = await this.app.vault.adapter.read(file.path);
+                // console.log(content);
 
-                            numDataRows = lines.length;
-                            indTable++;
-                        }
-
-                        if (numDataRows == 0) continue;
-                        let columnOfInterest = query.getArg1();
-                        if (columnOfInterest >= numColumns) continue;
-
-                        let values = [];
-                        for (let line of lines) {
-                            let dataRow = helper.trimByChar(line.trim(), '|');
-                            let dataRowSplitted = dataRow.split('|');
-                            if (columnOfInterest < dataRowSplitted.length) {
-                                let data = dataRowSplitted[columnOfInterest].trim();
-                                values.push(data);
-                                // let value = parseFloat(data);
-                                // if (Number.isNumber(value)) {
-                                //     values.push(value);
-                                // }
-                                // else {
-                                //     values.push(null);
-                                // }
-                            }
-                            else {
-                                values.push(null);
-                            }
-                        }
-                        console.log(values);
+                // Test this in Regex101
+                // This is a not-so-strict table selector
+                // ((\r?\n){2}|^)([^\r\n]*\|[^\r\n]*(\r?\n)?)+(?=(\r?\n){2}|$)
+                let strMDTableRegex = "((\\r?\\n){2}|^)([^\\r\\n]*\\|[^\\r\\n]*(\\r?\\n)?)+(?=(\\r?\\n){2}|$)";
+                // console.log(strMDTableRegex);
+                let mdTableRegex = new RegExp(strMDTableRegex, "gm");
+                let match;
+                let indTable = 0;
+                
+                while ((match = mdTableRegex.exec(content))) {
+                    if (indTable === tableIndex) {
+                        textTable = match[0];
                     }
                 }
-            } // Search table
+            }
+            else {
+                // file not exists
+                continue;
+            }
+            // console.log(textTable);
+
+            let tableLines = textTable.split(/\r?\n/);
+            let numColumns = 0;
+            let numDataRows = 0;
+
+            // Make sure it is a valid table first
+            if (tableLines.length >= 2) { // Must have header and separator line
+                let headerLine = tableLines.shift().trim();
+                headerLine = helper.trimByChar(headerLine, '|');
+                let headerSplitted = headerLine.split('|');
+                numColumns = headerSplitted.length;
+                
+                let sepLine = tableLines.shift().trim();
+                sepLine = helper.trimByChar(sepLine, '|');
+                let spepLineSplitted = sepLine.split('|');
+                for (let col of spepLineSplitted) {
+                    if (!col.includes("-")) {
+                        break;// Not a valid sep
+                    }
+                }
+
+                numDataRows = tableLines.length;
+            }
+
+            if (numDataRows == 0) continue;
+
+            // get x data
+            let columnXDataset = xDatasetQuery.getArg1();
+            if (columnXDataset >= numColumns) continue;
+            let xValues = [];
+
+            for (let tableLine of tableLines) {
+                let dataRow = helper.trimByChar(tableLine.trim(), '|');
+                let dataRowSplitted = dataRow.split('|');
+                if (columnXDataset < dataRowSplitted.length) {
+                    let data = dataRowSplitted[columnXDataset].trim();
+                    
+                    let date = window.moment(
+                        data,
+                        renderInfo.dateFormat,
+                        true
+                    );
+                    
+                    if (!minDate.isValid() && !maxDate.isValid()) {
+                        minDate = date.clone();
+                        maxDate = date.clone();
+                    } else {
+                        if (date < minDate) {
+                            minDate = date.clone();
+                        }
+                        if (date > maxDate) {
+                            maxDate = date.clone();
+                        }
+                    }
+
+                    xValues.push(date);
+                }
+            }
+            // console.log(xValues);
+
+            // get y data
+            for (let yDatasetQuery of yDatasetQueries) {
+                let columnOfInterest = yDatasetQuery.getArg1();
+                if (columnOfInterest >= numColumns) continue;
+
+                let indLine = 0;
+                for (let tableLine of tableLines) {
+                    let dataRow = helper.trimByChar(tableLine.trim(), '|');
+                    let dataRowSplitted = dataRow.split('|');
+                    if (columnOfInterest < dataRowSplitted.length) {
+                        let data = dataRowSplitted[columnOfInterest].trim();
+                        let value = parseFloat(data);
+                        if (Number.isNumber(value)) {
+                            this.addToDataMap(
+                                dataMap,
+                                xValues[indLine].format(renderInfo.dateFormat),
+                                yDatasetQuery,
+                                value
+                            );
+                        }
+                    }
+                    indLine++;
+                }
+            }
         }
 
         if (fileCounter === 0) {

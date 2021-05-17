@@ -790,6 +790,12 @@ export function getRenderInfoFromYaml(
     }
     multipleValueSparator = retMultipleValueSparator;
 
+    // xDataset
+    let xDataset = null;
+    if (typeof yaml.xDataset === "number") {
+        xDataset = yaml.xDataset;
+    }
+    
     // Create queries
     let queries: Array<Query> = [];
     for (let ind = 0; ind < searchTarget.length; ind++) {
@@ -799,6 +805,7 @@ export function getRenderInfoFromYaml(
             searchTarget[ind]
         );
         query.setSeparator(multipleValueSparator[ind]);
+        if (ind === xDataset) query.usedAsXDataset = true;        
         queries.push(query);
     }
     // console.log(queries);
