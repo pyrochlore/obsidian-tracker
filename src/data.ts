@@ -36,8 +36,8 @@ export class Query {
     private parentTarget: string | null;
     private separator: string; // multiple value separator
     private id: number;
-    private subId: number;
-    private subId1: number;
+    private arg: number;
+    private arg1: number;
     private valueIsTime: boolean;
     private isXValues: boolean;
 
@@ -46,8 +46,8 @@ export class Query {
         this.target = searchTarget;
         this.separator = "/";
         this.id = id;
-        this.subId = -1;
-        this.subId1 = -1; 
+        this.arg = -1;
+        this.arg1 = -1; 
         this.valueIsTime = false;
         this.isXValues = false;
 
@@ -62,8 +62,8 @@ export class Query {
                         if (typeof match.groups.value1 !== "undefined") {
                             let value1 = parseFloat(match.groups.value1);
                             if (Number.isNumber(value1)) {
-                                this.subId = value;
-                                this.subId1 = value1;
+                                this.arg = value;
+                                this.arg1 = value1;
                                 this.parentTarget = searchTarget.replace(regex, "");
                             }
                             break;
@@ -80,7 +80,7 @@ export class Query {
                 if (typeof match.groups.value !== "undefined") {
                     let value = parseFloat(match.groups.value);
                     if (Number.isNumber(value)) {
-                        this.subId = value;
+                        this.arg = value;
                         this.parentTarget = searchTarget.replace(regex, "");
                     }
                     break;
@@ -112,8 +112,12 @@ export class Query {
         return this.id;
     }
 
-    public getSubId() {
-        return this.subId;
+    public getArg() {
+        return this.arg;
+    }
+
+    public getArg1() {
+        return this.arg1;
     }
 
     public isUsingTimeValue() {

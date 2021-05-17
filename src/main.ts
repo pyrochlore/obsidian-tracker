@@ -16,6 +16,7 @@ import {
     DEFAULT_SETTINGS,
     TrackerSettingTab,
 } from "./settings";
+import * as helper from "./helper";
 import { Moment } from "moment";
 // import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
 
@@ -382,13 +383,13 @@ export default class Tracker extends Plugin {
                                         query.getSeparator()
                                     );
                                     if (
-                                        splitted.length > query.getSubId() &&
-                                        query.getSubId() >= 0
+                                        splitted.length > query.getArg() &&
+                                        query.getArg() >= 0
                                     ) {
                                         // TODO: it's not efficent to retrieve one value at a time, enhance this
                                         let value = null;
                                         let splittedPart =
-                                            splitted[query.getSubId()].trim();
+                                            splitted[query.getArg()].trim();
                                         if (toParse.includes(":")) {
                                             // time value
                                             let timeValue = window.moment(
@@ -526,12 +527,12 @@ export default class Tracker extends Plugin {
                                     }
                                 }
                             } else if (
-                                splitted.length > query.getSubId() &&
-                                query.getSubId() >= 0
+                                splitted.length > query.getArg() &&
+                                query.getArg() >= 0
                             ) {
                                 // TODO: it's not efficent to retrieve one value at a time, enhance this
                                 // console.log("multiple-values");
-                                let toParse = splitted[query.getSubId()].trim();
+                                let toParse = splitted[query.getArg()].trim();
                                 if (toParse.includes(":")) {
                                     let timeValue = window.moment(
                                         toParse,
@@ -699,12 +700,12 @@ export default class Tracker extends Plugin {
                                     }
                                 }
                             } else if (
-                                splitted.length > query.getSubId() &&
-                                query.getSubId() >= 0
+                                splitted.length > query.getArg() &&
+                                query.getArg() >= 0
                             ) {
                                 // TODO: it's not efficent to retrieve one value at a time, enhance this
                                 // console.log("multiple-values");
-                                let toParse = splitted[query.getSubId()].trim();
+                                let toParse = splitted[query.getArg()].trim();
                                 if (toParse.includes(":")) {
                                     let timeValue = window.moment(
                                         toParse,
@@ -770,13 +771,64 @@ export default class Tracker extends Plugin {
                     // console.log(content);
 
                     // Test this in Regex101
+                     // This is a not-so-strict table selector
                     // ((\r?\n){2}|^)([^\r\n]*\|[^\r\n]*(\r?\n)?)+(?=(\r?\n){2}|$)
                     let strMDTableRegex = "((\\r?\\n){2}|^)([^\\r\\n]*\\|[^\\r\\n]*(\\r?\\n)?)+(?=(\\r?\\n){2}|$)";
                     // console.log(strMDTableRegex);
                     let mdTableRegex = new RegExp(strMDTableRegex, "gm");
                     let match;
+                    let indTable = 0;
                     while ((match = mdTableRegex.exec(content))) {
-                        console.log(match);
+                        if (indTable !== query.getArg()) continue;
+                        let textTable = match[0];
+                        let lines = textTable.split(/\r?\n/);
+                        let numColumns = 0;
+                        let numDataRows = 0;
+
+                        // Make sure it is a valid table first
+                        if (lines.length >= 2) { // Must have header and separator line
+                            let headerLine = lines.shift().trim();
+                            headerLine = helper.trimByChar(headerLine, '|');
+                            let headerSplitted = headerLine.split('|');
+                            numColumns = headerSplitted.length;
+                            
+                            let sepLine = lines.shift().trim();
+                            sepLine = helper.trimByChar(sepLine, '|');
+                            let spepLineSplitted = sepLine.split('|');
+                            for (let col of spepLineSplitted) {
+                                if (!col.includes("-")) {
+                                    break;// Not a valid sep
+                                }
+                            }
+
+                            numDataRows = lines.length;
+                            indTable++;
+                        }
+
+                        if (numDataRows == 0) continue;
+                        let columnOfInterest = query.getArg1();
+                        if (columnOfInterest >= numColumns) continue;
+
+                        let values = [];
+                        for (let line of lines) {
+                            let dataRow = helper.trimByChar(line.trim(), '|');
+                            let dataRowSplitted = dataRow.split('|');
+                            if (columnOfInterest < dataRowSplitted.length) {
+                                let data = dataRowSplitted[columnOfInterest].trim();
+                                values.push(data);
+                                // let value = parseFloat(data);
+                                // if (Number.isNumber(value)) {
+                                //     values.push(value);
+                                // }
+                                // else {
+                                //     values.push(null);
+                                // }
+                            }
+                            else {
+                                values.push(null);
+                            }
+                        }
+                        console.log(values);
                     }
                 }
             } // Search table
