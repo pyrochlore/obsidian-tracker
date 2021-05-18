@@ -45,6 +45,22 @@ function validateSearchType(searchType: string): boolean {
     return false;
 }
 
+function validateYAxisLocation(location: string): boolean {
+    if (
+        location === "left" ||
+        location === "right" ||
+        location === "none"
+    ) {
+        return true;
+    }
+    return false;
+    return false;
+}
+
+function validateColor(color: string): boolean {
+    return true;
+}
+
 function getBoolArrayFromInput(
     name: string,
     input: any,
@@ -583,7 +599,7 @@ function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
         yaml?.yAxisColor,
         2,
         "",
-        null,
+        validateColor,
         true
     );
     if (typeof retYAxisColor === "string") {
@@ -601,7 +617,7 @@ function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
         yaml?.yAxisLabelColor,
         2,
         "",
-        null,
+        validateColor,
         true
     );
     if (typeof retYAxisLabelColor === "string") {
@@ -1139,7 +1155,7 @@ export function getRenderInfoFromYaml(
             yaml?.line?.lineColor,
             numDatasets,
             "",
-            null,
+            validateColor,
             true
         );
         if (typeof retLineColor === "string") {
@@ -1196,7 +1212,7 @@ export function getRenderInfoFromYaml(
             yaml?.line?.pointColor,
             numDatasets,
             "#69b3a2",
-            null,
+            validateColor,
             true
         );
         if (typeof retPointColor === "string") {
@@ -1211,7 +1227,7 @@ export function getRenderInfoFromYaml(
             yaml?.line?.pointBorderColor,
             numDatasets,
             "#69b3a2",
-            null,
+            validateColor,
             true
         );
         if (typeof retPointBorderColor === "string") {
@@ -1268,7 +1284,7 @@ export function getRenderInfoFromYaml(
             yaml?.line?.yAxisLocation,
             numDatasets,
             "left",
-            null,
+            validateYAxisLocation,
             true
         );
         if (typeof retYAxisLocation === "string") {
@@ -1307,7 +1323,7 @@ export function getRenderInfoFromYaml(
             yaml?.bar?.barColor,
             numDatasets,
             "",
-            null,
+            validateColor,
             true
         );
         if (typeof retBarColor === "string") {
@@ -1322,7 +1338,7 @@ export function getRenderInfoFromYaml(
             yaml?.bar?.yAxisLocation,
             numDatasets,
             "left",
-            null,
+            validateYAxisLocation,
             true
         );
         if (typeof retYAxisLocation === "string") {
