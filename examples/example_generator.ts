@@ -196,6 +196,8 @@ for (
         "dataviewTarget1:: " + dataviewValue + "/" + dataviewValue1 + "\n";
     content +=
         "dataviewTarget2:: " + dataviewValue1 + " @ " + dataviewValue2 + "\n";
+    content +=
+        "dataviewTarget3:: " + dataviewValue1 + ", " + dataviewValue2 + "\n";
 
     content += "\n";
 
