@@ -379,9 +379,11 @@ export default class Tracker extends Plugin {
                                 // );
                                 let toParse =
                                     frontMatter[query.getParentTarget()];
-
-                                if (typeof toParse === "string") {
-                                    let splitted = null;
+                                let splitted = null;
+                                if (Array.isArray(toParse)) {
+                                    splitted = toParse.map(p => { return p.toString();});
+                                }
+                                else if (typeof toParse === "string") {
                                     if (toParse.includes(",")) {
                                         splitted = toParse.split(",");
                                     }
@@ -390,47 +392,47 @@ export default class Tracker extends Plugin {
                                             query.getSeparator()
                                         );
                                     }
-                                    if (
-                                        splitted &&
-                                        splitted.length > query.getArg() &&
-                                        query.getArg() >= 0
-                                    ) {
-                                        // TODO: it's not efficent to retrieve one value at a time, enhance this
-                                        let value = null;
-                                        let splittedPart =
-                                            splitted[query.getArg()].trim();
-                                        if (toParse.includes(":")) {
-                                            // time value
-                                            let timeValue = window.moment(
-                                                splittedPart,
-                                                timeFormat,
-                                                true
-                                            );
-                                            if (timeValue.isValid()) {
-                                                query.setUsingTimeValue();
-                                                value = timeValue.diff(
-                                                    window.moment(
-                                                        "00:00",
-                                                        "HH:mm",
-                                                        true
-                                                    ),
-                                                    "seconds"
-                                                );
-                                            }
-                                        } else {
-                                            value = parseFloat(splittedPart);
-                                        }
-
-                                        if (Number.isNumber(value)) {
-                                            this.addToDataMap(
-                                                dataMap,
-                                                fileDate.format(
-                                                    renderInfo.dateFormat
+                                }
+                                if (
+                                    splitted &&
+                                    splitted.length > query.getArg() &&
+                                    query.getArg() >= 0
+                                ) {
+                                    // TODO: it's not efficent to retrieve one value at a time, enhance this
+                                    let value = null;
+                                    let splittedPart =
+                                        splitted[query.getArg()].trim();
+                                    if (toParse.includes(":")) {
+                                        // time value
+                                        let timeValue = window.moment(
+                                            splittedPart,
+                                            timeFormat,
+                                            true
+                                        );
+                                        if (timeValue.isValid()) {
+                                            query.setUsingTimeValue();
+                                            value = timeValue.diff(
+                                                window.moment(
+                                                    "00:00",
+                                                    "HH:mm",
+                                                    true
                                                 ),
-                                                query,
-                                                value
+                                                "seconds"
                                             );
                                         }
+                                    } else {
+                                        value = parseFloat(splittedPart);
+                                    }
+
+                                    if (Number.isNumber(value)) {
+                                        this.addToDataMap(
+                                            dataMap,
+                                            fileDate.format(
+                                                renderInfo.dateFormat
+                                            ),
+                                            query,
+                                            value
+                                        );
                                     }
                                 }
                             }

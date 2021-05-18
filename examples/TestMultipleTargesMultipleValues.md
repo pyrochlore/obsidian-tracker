@@ -77,7 +77,7 @@ line:
 Values from array
 ``` tracker
 searchType: frontmatter
-searchTarget: bloodpressure2[0], blood-pressure2[1]
+searchTarget: bloodpressure2[0], bloodpressure2[1]
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
