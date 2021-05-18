@@ -10,7 +10,7 @@ import {
     QueryValuePair,
     OutputType,
     SearchType,
-    TableData
+    TableData,
 } from "./data";
 import {
     TrackerSettings,
@@ -191,7 +191,7 @@ export default class Tracker extends Plugin {
         for (let file of files) {
             for (let query of renderInfo.queries) {
                 if (query.getType() === SearchType.Table) continue;
-                
+
                 let fileBaseName = file.basename;
 
                 if (
@@ -381,13 +381,13 @@ export default class Tracker extends Plugin {
                                     frontMatter[query.getParentTarget()];
                                 let splitted = null;
                                 if (Array.isArray(toParse)) {
-                                    splitted = toParse.map(p => { return p.toString();});
-                                }
-                                else if (typeof toParse === "string") {
+                                    splitted = toParse.map((p) => {
+                                        return p.toString();
+                                    });
+                                } else if (typeof toParse === "string") {
                                     if (toParse.includes(",")) {
                                         splitted = toParse.split(",");
-                                    }
-                                    else {
+                                    } else {
                                         splitted = toParse.split(
                                             query.getSeparator()
                                         );
@@ -674,11 +674,8 @@ export default class Tracker extends Plugin {
                             let splitted = null;
                             if (values.includes(",")) {
                                 splitted = values.split(",");
-                            }
-                            else {
-                                splitted = values.split(
-                                    query.getSeparator()
-                                );
+                            } else {
+                                splitted = values.split(query.getSeparator());
                             }
                             if (!splitted) continue;
                             if (splitted.length === 1) {
@@ -774,7 +771,9 @@ export default class Tracker extends Plugin {
         }
 
         // For searchType target to a specific file
-        let tableQueries = renderInfo.queries.filter(q => q.getType() === SearchType.Table);
+        let tableQueries = renderInfo.queries.filter(
+            (q) => q.getType() === SearchType.Table
+        );
         // Separate queries by tables and xDatasets/yDatasets
         let tables: Array<TableData> = [];
         for (let query of tableQueries) {
@@ -782,21 +781,20 @@ export default class Tracker extends Plugin {
             let tableIndex = query.getArg();
             let isX = query.usedAsXDataset;
 
-            let table = tables.find(t => t.filePath === filePath && t.tableIndex === tableIndex);
+            let table = tables.find(
+                (t) => t.filePath === filePath && t.tableIndex === tableIndex
+            );
             if (table) {
                 if (isX) {
                     table.xDataset = query;
-                }
-                else {
+                } else {
                     table.yDatasets.push(query);
                 }
-            }
-            else {
+            } else {
                 let tableData = new TableData(filePath, tableIndex);
                 if (isX) {
                     tableData.xDataset = query;
-                }
-                else {
+                } else {
                     tableData.yDatasets.push(query);
                 }
                 tables.push(tableData);
@@ -814,7 +812,9 @@ export default class Tracker extends Plugin {
             // Get table text
             let textTable = "";
             filePath = filePath + ".md";
-            let file = this.app.vault.getAbstractFileByPath(normalizePath(filePath));
+            let file = this.app.vault.getAbstractFileByPath(
+                normalizePath(filePath)
+            );
             if (file && file instanceof TFile) {
                 fileCounter++;
                 let content = await this.app.vault.adapter.read(file.path);
@@ -823,19 +823,19 @@ export default class Tracker extends Plugin {
                 // Test this in Regex101
                 // This is a not-so-strict table selector
                 // ((\r?\n){2}|^)([^\r\n]*\|[^\r\n]*(\r?\n)?)+(?=(\r?\n){2}|$)
-                let strMDTableRegex = "((\\r?\\n){2}|^)([^\\r\\n]*\\|[^\\r\\n]*(\\r?\\n)?)+(?=(\\r?\\n){2}|$)";
+                let strMDTableRegex =
+                    "((\\r?\\n){2}|^)([^\\r\\n]*\\|[^\\r\\n]*(\\r?\\n)?)+(?=(\\r?\\n){2}|$)";
                 // console.log(strMDTableRegex);
                 let mdTableRegex = new RegExp(strMDTableRegex, "gm");
                 let match;
                 let indTable = 0;
-                
+
                 while ((match = mdTableRegex.exec(content))) {
                     if (indTable === tableIndex) {
                         textTable = match[0];
                     }
                 }
-            }
-            else {
+            } else {
                 // file not exists
                 continue;
             }
@@ -846,18 +846,19 @@ export default class Tracker extends Plugin {
             let numDataRows = 0;
 
             // Make sure it is a valid table first
-            if (tableLines.length >= 2) { // Must have header and separator line
+            if (tableLines.length >= 2) {
+                // Must have header and separator line
                 let headerLine = tableLines.shift().trim();
-                headerLine = helper.trimByChar(headerLine, '|');
-                let headerSplitted = headerLine.split('|');
+                headerLine = helper.trimByChar(headerLine, "|");
+                let headerSplitted = headerLine.split("|");
                 numColumns = headerSplitted.length;
-                
+
                 let sepLine = tableLines.shift().trim();
-                sepLine = helper.trimByChar(sepLine, '|');
-                let spepLineSplitted = sepLine.split('|');
+                sepLine = helper.trimByChar(sepLine, "|");
+                let spepLineSplitted = sepLine.split("|");
                 for (let col of spepLineSplitted) {
                     if (!col.includes("-")) {
-                        break;// Not a valid sep
+                        break; // Not a valid sep
                     }
                 }
 
@@ -872,17 +873,13 @@ export default class Tracker extends Plugin {
             let xValues = [];
 
             for (let tableLine of tableLines) {
-                let dataRow = helper.trimByChar(tableLine.trim(), '|');
-                let dataRowSplitted = dataRow.split('|');
+                let dataRow = helper.trimByChar(tableLine.trim(), "|");
+                let dataRowSplitted = dataRow.split("|");
                 if (columnXDataset < dataRowSplitted.length) {
                     let data = dataRowSplitted[columnXDataset].trim();
-                    
-                    let date = window.moment(
-                        data,
-                        renderInfo.dateFormat,
-                        true
-                    );
-                    
+
+                    let date = window.moment(data, renderInfo.dateFormat, true);
+
                     if (!minDate.isValid() && !maxDate.isValid()) {
                         minDate = date.clone();
                         maxDate = date.clone();
@@ -907,8 +904,8 @@ export default class Tracker extends Plugin {
 
                 let indLine = 0;
                 for (let tableLine of tableLines) {
-                    let dataRow = helper.trimByChar(tableLine.trim(), '|');
-                    let dataRowSplitted = dataRow.split('|');
+                    let dataRow = helper.trimByChar(tableLine.trim(), "|");
+                    let dataRowSplitted = dataRow.split("|");
                     if (columnOfInterest < dataRowSplitted.length) {
                         let data = dataRowSplitted[columnOfInterest].trim();
                         let value = parseFloat(data);

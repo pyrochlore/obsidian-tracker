@@ -76,7 +76,8 @@ for (
         diastolicDeviation;
     frontmatter += "bloodpressure: " + systolic + "/" + diastolic + "\n";
     frontmatter += "bloodpressure1: " + systolic + ", " + diastolic + "\n";
-    frontmatter += "bloodpressure2: [" + systolic + ", " + diastolic + "]" + "\n";
+    frontmatter +=
+        "bloodpressure2: [" + systolic + ", " + diastolic + "]" + "\n";
 
     // clock-in clock-out, 24hr
     let time_clock_in =

@@ -8,7 +8,7 @@ export enum SearchType {
     Wiki,
     Text,
     dvField,
-    Table
+    Table,
 }
 
 export enum OutputType {
@@ -47,11 +47,12 @@ export class Query {
         this.separator = "/";
         this.id = id;
         this.arg = -1;
-        this.arg1 = -1; 
+        this.arg1 = -1;
         this.valueIsTime = false;
         this.usedAsXDataset = false;
 
-        if (searchType === SearchType.Table) {// searchTarget --> {{filePath}}[{{table}}][{{column}}]
+        if (searchType === SearchType.Table) {
+            // searchTarget --> {{filePath}}[{{table}}][{{column}}]
             let strRegex = "\\[(?<value>[0-9]+)\\]\\[(?<value1>[0-9]+)\\]";
             let regex = new RegExp(strRegex, "gm");
             let match;
@@ -64,15 +65,17 @@ export class Query {
                             if (Number.isNumber(value1)) {
                                 this.arg = value;
                                 this.arg1 = value1;
-                                this.parentTarget = searchTarget.replace(regex, "");
+                                this.parentTarget = searchTarget.replace(
+                                    regex,
+                                    ""
+                                );
                             }
                             break;
                         }
                     }
                 }
             }
-        }
-        else {
+        } else {
             let strRegex = "\\[(?<value>[0-9]+)\\]";
             let regex = new RegExp(strRegex, "gm");
             let match;
@@ -450,7 +453,7 @@ export class RenderInfo {
 
     constructor(queries: Query[]) {
         this.queries = queries;
-        this.xDataset = null;// use file name
+        this.xDataset = null; // use file name
         this.folder = "/";
         this.dateFormat = "YYYY-MM-DD";
         this.dateFormatPrefix = "";
@@ -626,12 +629,12 @@ export class TableData {
     filePath: string;
     tableIndex: number;
     xDataset: Query | null;
-    yDatasets: Array<Query>
+    yDatasets: Array<Query>;
 
     constructor(filePath: string, tableIndex: number) {
         this.filePath = filePath;
         this.tableIndex = tableIndex;
         this.xDataset = null;
-        this.yDatasets = [];// array of query
+        this.yDatasets = []; // array of query
     }
 }

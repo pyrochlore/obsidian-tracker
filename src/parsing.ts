@@ -46,11 +46,7 @@ function validateSearchType(searchType: string): boolean {
 }
 
 function validateYAxisLocation(location: string): boolean {
-    if (
-        location === "left" ||
-        location === "right" ||
-        location === "none"
-    ) {
+    if (location === "left" || location === "right" || location === "none") {
         return true;
     }
     return false;
@@ -811,7 +807,7 @@ export function getRenderInfoFromYaml(
     if (typeof yaml.xDataset === "number") {
         xDataset = yaml.xDataset;
     }
-    
+
     // Create queries
     let queries: Array<Query> = [];
     for (let ind = 0; ind < searchTarget.length; ind++) {
@@ -821,7 +817,7 @@ export function getRenderInfoFromYaml(
             searchTarget[ind]
         );
         query.setSeparator(multipleValueSparator[ind]);
-        if (ind === xDataset) query.usedAsXDataset = true;        
+        if (ind === xDataset) query.usedAsXDataset = true;
         queries.push(query);
     }
     // console.log(queries);
