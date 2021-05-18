@@ -498,9 +498,17 @@ export default class Tracker extends Plugin {
                             typeof match.groups.values !== "undefined"
                         ) {
                             // console.log("value-attached tag");
-                            let splitted = match.groups.values.split(
-                                query.getSeparator()
-                            );
+                            let values = match.groups.values;
+                            let splitted = null;
+                            if (values.includes(",")) {
+                                splitted = values.split(",");
+                            }
+                            else {
+                                splitted = match.groups.values.split(
+                                    query.getSeparator()
+                                );
+                            }
+                            if (!splitted) continue;
                             if (splitted.length === 1) {
                                 // console.log("single-value");
                                 let toParse = match.groups.values.trim();
