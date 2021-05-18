@@ -1,6 +1,7 @@
 # Test Multiple Targets and Multiple Values
 
-## Multiple Targets
+## Data from Different Value-attached Tags
+Put value-attached tag data of weight and exercise-push together
 ``` tracker
 searchType: tag
 searchTarget: weight, exercise-pushup
@@ -16,8 +17,8 @@ line:
 	showLegend: true
 ```
 
-## Multiple Values in a Tag
-Retrieve single value from multiple values tuple
+## Multiple Values from a Single Multiple-values-attached Tag
+Retrieve a single value from a multiple-values-attached tag
 ``` tracker
 searchType: tag
 searchTarget: sin[0]
@@ -30,7 +31,7 @@ line:
     showLegend: false
 ```
 
-Retrieve multiple values
+Retrieve values from a multiple-values-attached tag
 ``` tracker
 searchType: tag
 searchTarget: sin[0], sin[1], sin[2], sin[3], sin[4], sin[5], sin[6], sin[7], sin[8]
@@ -46,8 +47,8 @@ line:
     legendOrientation: vertical
 ```
 
-## Multiple Values in Frontmatter
-Values separated by slash (/)
+## Multiple Values from Frontmatter
+Multiple values separated by slash (/)
 ``` tracker
 searchType: frontmatter
 searchTarget: bloodpressure[0], bloodpressure[1]
@@ -60,10 +61,10 @@ line:
     showLegend: true
 ```
 
-Values separated by comma (,)
+Multiple values separated by comma (,)
 ``` tracker
 searchType: frontmatter
-searchTarget: bloodpressure1[0], blood-pressure1[1]
+searchTarget: bloodpressure1[0], bloodpressure1[1]
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
@@ -127,4 +128,15 @@ endDate: 2021-01-31
 line:
     title: dvField
 	lineColor: green, red
+```
+
+## Multiple Values in Table
+
+``` tracker
+searchType: table
+searchTarget: data/Tables[0][0], data/Tables[0][1], data/Tables[0][2]
+xDataset: 0
+line:
+	yAxisLocation: none, left, right
+	lineColor: none, yellow, red
 ```

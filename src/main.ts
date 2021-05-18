@@ -381,10 +381,17 @@ export default class Tracker extends Plugin {
                                     frontMatter[query.getParentTarget()];
 
                                 if (typeof toParse === "string") {
-                                    let splitted = toParse.split(
-                                        query.getSeparator()
-                                    );
+                                    let splitted = null;
+                                    if (toParse.includes(",")) {
+                                        splitted = toParse.split(",");
+                                    }
+                                    else {
+                                        splitted = toParse.split(
+                                            query.getSeparator()
+                                        );
+                                    }
                                     if (
+                                        splitted &&
                                         splitted.length > query.getArg() &&
                                         query.getArg() >= 0
                                     ) {
