@@ -597,12 +597,13 @@ export default class Tracker extends Plugin {
                     let content = await this.app.vault.adapter.read(file.path);
                     // console.log(content);
                     let strTextRegex = query.getTarget();
-
+                    // console.log(strTextRegex);
                     let textRegex = new RegExp(strTextRegex, "gm");
                     let match;
                     let textMeasure = 0.0;
                     let textExist = false;
                     while ((match = textRegex.exec(content))) {
+                        // console.log(match);
                         if (
                             !renderInfo.ignoreAttachedValue[query.getId()] &&
                             typeof match.groups !== "undefined"
