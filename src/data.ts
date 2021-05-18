@@ -36,8 +36,10 @@ export class Query {
     private parentTarget: string | null;
     private separator: string; // multiple value separator
     private id: number;
-    private arg: number;
-    private arg1: number;
+    private accessor: number;
+    private accessor1: number;
+    private accessor2: number;
+
     private valueIsTime: boolean;
     usedAsXDataset: boolean;
 
@@ -46,25 +48,40 @@ export class Query {
         this.target = searchTarget;
         this.separator = "/";
         this.id = id;
-        this.arg = -1;
-        this.arg1 = -1;
+        this.accessor = -1;
+        this.accessor1 = -1;
+        this.accessor2 = -1;
         this.valueIsTime = false;
         this.usedAsXDataset = false;
 
         if (searchType === SearchType.Table) {
             // searchTarget --> {{filePath}}[{{table}}][{{column}}]
-            let strRegex = "\\[(?<value>[0-9]+)\\]\\[(?<value1>[0-9]+)\\]";
+            let strRegex =
+                "\\[(?<accessor>[0-9]+)\\]\\[(?<accessor1>[0-9]+)\\](\\[(?<accessor2>[0-9]+)\\])?";
             let regex = new RegExp(strRegex, "gm");
             let match;
             while ((match = regex.exec(searchTarget))) {
-                if (typeof match.groups.value !== "undefined") {
-                    let value = parseFloat(match.groups.value);
-                    if (Number.isNumber(value)) {
-                        if (typeof match.groups.value1 !== "undefined") {
-                            let value1 = parseFloat(match.groups.value1);
-                            if (Number.isNumber(value1)) {
-                                this.arg = value;
-                                this.arg1 = value1;
+                if (typeof match.groups.accessor !== "undefined") {
+                    let accessor = parseFloat(match.groups.accessor);
+                    if (Number.isNumber(accessor)) {
+                        if (typeof match.groups.accessor1 !== "undefined") {
+                            let accessor1 = parseFloat(match.groups.accessor1);
+                            if (Number.isNumber(accessor1)) {
+                                let accessor2;
+                                if (
+                                    typeof match.groups.accessor2 !==
+                                    "undefined"
+                                ) {
+                                    accessor2 = parseFloat(
+                                        match.groups.accessor2
+                                    );
+                                }
+
+                                this.accessor = accessor;
+                                this.accessor1 = accessor1;
+                                if (Number.isNumber(accessor2)) {
+                                    this.accessor2 = accessor2;
+                                }
                                 this.parentTarget = searchTarget.replace(
                                     regex,
                                     ""
@@ -76,14 +93,14 @@ export class Query {
                 }
             }
         } else {
-            let strRegex = "\\[(?<value>[0-9]+)\\]";
+            let strRegex = "\\[(?<accessor>[0-9]+)\\]";
             let regex = new RegExp(strRegex, "gm");
             let match;
             while ((match = regex.exec(searchTarget))) {
-                if (typeof match.groups.value !== "undefined") {
-                    let value = parseFloat(match.groups.value);
-                    if (Number.isNumber(value)) {
-                        this.arg = value;
+                if (typeof match.groups.accessor !== "undefined") {
+                    let accessor = parseFloat(match.groups.accessor);
+                    if (Number.isNumber(accessor)) {
+                        this.accessor = accessor;
                         this.parentTarget = searchTarget.replace(regex, "");
                     }
                     break;
@@ -115,12 +132,17 @@ export class Query {
         return this.id;
     }
 
-    public getArg() {
-        return this.arg;
-    }
+    public getAccessor(index = 0) {
+        switch (index) {
+            case 0:
+                return this.accessor;
+            case 1:
+                return this.accessor1;
+            case 2:
+                return this.accessor2;
+        }
 
-    public getArg1() {
-        return this.arg1;
+        return null;
     }
 
     public isUsingTimeValue() {

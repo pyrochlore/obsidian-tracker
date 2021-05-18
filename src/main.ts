@@ -395,13 +395,13 @@ export default class Tracker extends Plugin {
                                 }
                                 if (
                                     splitted &&
-                                    splitted.length > query.getArg() &&
-                                    query.getArg() >= 0
+                                    splitted.length > query.getAccessor() &&
+                                    query.getAccessor() >= 0
                                 ) {
                                     // TODO: it's not efficent to retrieve one value at a time, enhance this
                                     let value = null;
                                     let splittedPart =
-                                        splitted[query.getArg()].trim();
+                                        splitted[query.getAccessor()].trim();
                                     if (toParse.includes(":")) {
                                         // time value
                                         let timeValue = window.moment(
@@ -538,12 +538,13 @@ export default class Tracker extends Plugin {
                                     }
                                 }
                             } else if (
-                                splitted.length > query.getArg() &&
-                                query.getArg() >= 0
+                                splitted.length > query.getAccessor() &&
+                                query.getAccessor() >= 0
                             ) {
                                 // TODO: it's not efficent to retrieve one value at a time, enhance this
                                 // console.log("multiple-values");
-                                let toParse = splitted[query.getArg()].trim();
+                                let toParse =
+                                    splitted[query.getAccessor()].trim();
                                 if (toParse.includes(":")) {
                                     let timeValue = window.moment(
                                         toParse,
@@ -715,12 +716,13 @@ export default class Tracker extends Plugin {
                                     }
                                 }
                             } else if (
-                                splitted.length > query.getArg() &&
-                                query.getArg() >= 0
+                                splitted.length > query.getAccessor() &&
+                                query.getAccessor() >= 0
                             ) {
                                 // TODO: it's not efficent to retrieve one value at a time, enhance this
                                 // console.log("multiple-values");
-                                let toParse = splitted[query.getArg()].trim();
+                                let toParse =
+                                    splitted[query.getAccessor()].trim();
                                 if (toParse.includes(":")) {
                                     let timeValue = window.moment(
                                         toParse,
@@ -778,7 +780,7 @@ export default class Tracker extends Plugin {
         let tables: Array<TableData> = [];
         for (let query of tableQueries) {
             let filePath = query.getParentTarget();
-            let tableIndex = query.getArg();
+            let tableIndex = query.getAccessor();
             let isX = query.usedAsXDataset;
 
             let table = tables.find(
@@ -807,7 +809,7 @@ export default class Tracker extends Plugin {
             let xDatasetQuery = tableData.xDataset;
             let yDatasetQueries = tableData.yDatasets;
             let filePath = xDatasetQuery.getParentTarget();
-            let tableIndex = xDatasetQuery.getArg();
+            let tableIndex = xDatasetQuery.getAccessor();
 
             // Get table text
             let textTable = "";
@@ -831,9 +833,12 @@ export default class Tracker extends Plugin {
                 let indTable = 0;
 
                 while ((match = mdTableRegex.exec(content))) {
+                    // console.log(match);
                     if (indTable === tableIndex) {
                         textTable = match[0];
+                        break;
                     }
+                    indTable++;
                 }
             } else {
                 // file not exists
@@ -842,8 +847,10 @@ export default class Tracker extends Plugin {
             // console.log(textTable);
 
             let tableLines = textTable.split(/\r?\n/);
+            tableLines = tableLines.filter(line => { return line !== ""; });
             let numColumns = 0;
             let numDataRows = 0;
+            // console.log(tableLines);
 
             // Make sure it is a valid table first
             if (tableLines.length >= 2) {
@@ -868,7 +875,7 @@ export default class Tracker extends Plugin {
             if (numDataRows == 0) continue;
 
             // get x data
-            let columnXDataset = xDatasetQuery.getArg1();
+            let columnXDataset = xDatasetQuery.getAccessor(1);
             if (columnXDataset >= numColumns) continue;
             let xValues = [];
 
@@ -899,7 +906,8 @@ export default class Tracker extends Plugin {
 
             // get y data
             for (let yDatasetQuery of yDatasetQueries) {
-                let columnOfInterest = yDatasetQuery.getArg1();
+                let columnOfInterest = yDatasetQuery.getAccessor(1);
+                // console.log(`columnOfInterest: ${columnOfInterest}, numColumns: ${numColumns}`);
                 if (columnOfInterest >= numColumns) continue;
 
                 let indLine = 0;
@@ -908,18 +916,48 @@ export default class Tracker extends Plugin {
                     let dataRowSplitted = dataRow.split("|");
                     if (columnOfInterest < dataRowSplitted.length) {
                         let data = dataRowSplitted[columnOfInterest].trim();
-                        let value = parseFloat(data);
-                        if (Number.isNumber(value)) {
-                            this.addToDataMap(
-                                dataMap,
-                                xValues[indLine].format(renderInfo.dateFormat),
-                                yDatasetQuery,
-                                value
-                            );
+                        let splitted = null;
+                        if (data.includes(",")) {
+                            splitted = data.split(",");
+                        } else {
+                            splitted = data.split(yDatasetQuery.getSeparator());
+                        }
+                        if (!splitted) continue;
+                        if (splitted.length === 1) {
+                            let value = parseFloat(splitted[0]);
+                            if (Number.isNumber(value)) {
+                                this.addToDataMap(
+                                    dataMap,
+                                    xValues[indLine].format(
+                                        renderInfo.dateFormat
+                                    ),
+                                    yDatasetQuery,
+                                    value
+                                );
+                            }
+                        } else if (
+                            splitted.length > yDatasetQuery.getAccessor(2) &&
+                            yDatasetQuery.getAccessor(2) >= 0
+                        ) {
+                            let value = null;
+                            let splittedPart =
+                                splitted[yDatasetQuery.getAccessor(2)].trim();
+                            value = parseFloat(splittedPart);
+                            if (Number.isNumber(value)) {
+                                this.addToDataMap(
+                                    dataMap,
+                                    xValues[indLine].format(
+                                        renderInfo.dateFormat
+                                    ),
+                                    yDatasetQuery,
+                                    value
+                                );
+                            }
                         }
                     }
+
                     indLine++;
-                }
+                } // Loop over tableLines
             }
         }
 
