@@ -996,9 +996,24 @@ export function getRenderInfoFromYaml(
     // console.log(renderInfo.datasetName);
 
     // xDataset
-    if (typeof yaml.xDataset === "number") {
-        renderInfo.xDataset = yaml.xDataset;
+    let retXDataset = getNumberArrayFromInput(
+        "xDataset",
+        yaml.xDataset,
+        numDatasets,
+        -1,
+        true
+    );
+    if (typeof retXDataset === "string") {
+        return retXDataset; // errorMessage
     }
+    retXDataset = retXDataset.map((d: number) => { 
+        if (d < 0 || d >= numDatasets) {
+            return -1
+        }
+        return d;
+    });
+    renderInfo.xDataset = retXDataset;
+    // console.log(renderInfo.xDataset);
 
     // constValue
     let retConstValue = getNumberArrayFromInput(

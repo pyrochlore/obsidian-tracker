@@ -11,7 +11,11 @@ import {
     OutputType,
     SearchType,
     TableData,
+    RenderInfo,
+    XValueMap,
+    DataMap
 } from "./data";
+import { collectDataFromFrontmatterTag } from "./collecting";
 import {
     TrackerSettings,
     DEFAULT_SETTINGS,
@@ -130,7 +134,7 @@ export default class Tracker extends Plugin {
     }
 
     addToDataMap(
-        dataMap: Map<string, Array<QueryValuePair>>,
+        dataMap: DataMap,
         date: string,
         query: Query,
         value: NullableNumber
@@ -186,10 +190,10 @@ export default class Tracker extends Plugin {
         let fileCounter = 0;
 
         
-        let dataMap = new Map<string, Array<QueryValuePair>>(); // {strDate: [query: value, ...]}
-        // Collect data from files in date range
+        let dataMap: DataMap = new Map(); // {strDate: [query: value, ...]}
+        // Collect data from files, each file has one data point for each query
         for (let file of files) {
-            
+            // console.log(file.basename);
             // Get fileCache and content
             let fileCache = null;
             let needFileCache = renderInfo.queries.some((q) => {
@@ -215,70 +219,78 @@ export default class Tracker extends Plugin {
                 content = await this.app.vault.adapter.read(file.path);
             }
 
+            // Get xValue and add it into xValueMap for later use
+            let xValueMap: XValueMap = new Map();// queryId: xValue
+            let skipThisFile = false;
+            for (let xDatasetId of renderInfo.xDataset) {
+                if (xValueMap.has(xDatasetId)) continue;
+                if (xDatasetId === -1) {
+                    // Default using date in filename as xValue
+                    let fileDate = helper.getDateFromFilename(file, renderInfo);
+                    // console.log(fileDate);
+                    if (!fileDate.isValid()) {
+                        // console.log("file " + file.basename + " rejected");
+                        skipThisFile = true;
+                        continue;
+                    } else {
+                        // console.log("file " + file.basename + " accepted");
+                        if (renderInfo.startDate !== null) {
+                            if (fileDate < renderInfo.startDate) {
+                                skipThisFile = true;
+                                continue;
+                            }
+                        }
+                        if (renderInfo.endDate !== null) {
+                            if (fileDate > renderInfo.endDate) {
+                                skipThisFile = true;
+                                continue;
+                            }
+                        }
+                    }
+
+                    xValueMap.set(-1, fileDate.format(renderInfo.dateFormat));
+
+                    fileCounter++;
+
+                    // Get min/max date
+                    if (fileCounter == 1) {
+                        minDate = fileDate.clone();
+                        maxDate = fileDate.clone();
+                    } else {
+                        if (fileDate < minDate) {
+                            minDate = fileDate.clone();
+                        }
+                        if (fileDate > maxDate) {
+                            maxDate = fileDate.clone();
+                        }
+                    }
+                }
+                else {
+                    let xDatasetQuery = renderInfo.queries[xDatasetId];
+                    console.log(xDatasetQuery);
+                    switch (xDatasetQuery.getType()) {
+                        case SearchType.Frontmatter:
+                            break;
+                        case SearchType.Tag:
+                            break;
+                        case SearchType.Text:
+                            break;
+                        case SearchType.dvField:
+                            break;
+                    }
+                }
+            }
+            if (skipThisFile) continue;
+            // console.log(xValueMap);
+
             // Loop over queries
             for (let query of renderInfo.queries) {
                 if (query.getType() === SearchType.Table) continue;
+                if (query.usedAsXDataset) continue;
 
-                let fileBaseName = file.basename;
-
-                if (
-                    renderInfo.dateFormatPrefix &&
-                    fileBaseName.startsWith(renderInfo.dateFormatPrefix)
-                ) {
-                    fileBaseName = fileBaseName.slice(
-                        renderInfo.dateFormatPrefix.length
-                    );
-                }
-                if (
-                    renderInfo.dateFormatSuffix &&
-                    fileBaseName.endsWith(renderInfo.dateFormatSuffix)
-                ) {
-                    fileBaseName = fileBaseName.slice(
-                        0,
-                        fileBaseName.length - renderInfo.dateFormatSuffix.length
-                    );
-                }
-                // console.log(fileBaseName);
-
-                let fileDate = window.moment(
-                    fileBaseName,
-                    renderInfo.dateFormat,
-                    true
-                );
-                // console.log(fileDate);
-                // TODO: should exclude files out of date range
-                if (!fileDate.isValid()) {
-                    // console.log("file " + fileBaseName + " rejected");
-                    continue;
-                } else {
-                    // console.log("file " + fileBaseName + " accepted");
-                    if (renderInfo.startDate !== null) {
-                        if (fileDate < renderInfo.startDate) {
-                            continue;
-                        }
-                    }
-                    if (renderInfo.endDate !== null) {
-                        if (fileDate > renderInfo.endDate) {
-                            continue;
-                        }
-                    }
-                    fileCounter++;
-                }
-                // console.log(query);
-                // console.log(fileBaseName);
-
-                // Get min/max date
-                if (fileCounter == 1) {
-                    minDate = fileDate.clone();
-                    maxDate = fileDate.clone();
-                } else {
-                    if (fileDate < minDate) {
-                        minDate = fileDate.clone();
-                    }
-                    if (fileDate > maxDate) {
-                        maxDate = fileDate.clone();
-                    }
-                }
+                // Get xValue from file if xDataset assigned
+                // if (renderInfo.xDataset !== null) 
+                // let xDatasetId = renderInfo.xDataset;
 
                 // rules for assigning tag value
                 // simple tag
@@ -293,54 +305,7 @@ export default class Tracker extends Plugin {
                 // console.log("Search frontmatter tags");
                 if (fileCache && query.getType() === SearchType.Tag) {
                     // Add frontmatter tags, allow simple tag only
-                    let frontMatter = fileCache.frontmatter;
-                    let frontMatterTags: string[] = [];
-                    if (frontMatter && frontMatter.tags) {
-                        // console.log(frontMatter.tags);
-                        let tagMeasure = 0.0;
-                        let tagExist = false;
-                        if (Array.isArray(frontMatter.tags)) {
-                            frontMatterTags = frontMatterTags.concat(
-                                frontMatter.tags
-                            );
-                        } else {
-                            frontMatterTags.push(frontMatter.tags);
-                        }
-
-                        for (let tag of frontMatterTags) {
-                            if (tag === query.getTarget()) {
-                                // simple tag
-                                tagMeasure =
-                                    tagMeasure +
-                                    renderInfo.constValue[query.getId()];
-                                tagExist = true;
-                            } else if (
-                                tag.startsWith(query.getTarget() + "/")
-                            ) {
-                                // nested tag
-                                tagMeasure =
-                                    tagMeasure +
-                                    renderInfo.constValue[query.getId()];
-                                tagExist = true;
-                            } else {
-                                continue;
-                            }
-
-                            // valued-tag in frontmatter is not supported
-                            // because the "tag:value" in frontmatter will be consider as a new tag for different values
-
-                            let value = null;
-                            if (tagExist) {
-                                value = tagMeasure;
-                            }
-                            this.addToDataMap(
-                                dataMap,
-                                fileDate.format(renderInfo.dateFormat),
-                                query,
-                                value
-                            );
-                        }
-                    }
+                    collectDataFromFrontmatterTag(fileCache, query, renderInfo, dataMap, xValueMap);
                 } // Search frontmatter tags
 
                 // console.log("Search frontmatter keys");
@@ -384,7 +349,7 @@ export default class Tracker extends Plugin {
                             if (Number.isNumber(value)) {
                                 this.addToDataMap(
                                     dataMap,
-                                    fileDate.format(renderInfo.dateFormat),
+                                    xValueMap.get(-1),
                                     query,
                                     value
                                 );
@@ -446,9 +411,7 @@ export default class Tracker extends Plugin {
                                 if (Number.isNumber(value)) {
                                     this.addToDataMap(
                                         dataMap,
-                                        fileDate.format(
-                                            renderInfo.dateFormat
-                                        ),
+                                        xValueMap.get(-1),
                                         query,
                                         value
                                     );
@@ -479,7 +442,7 @@ export default class Tracker extends Plugin {
                     }
                     this.addToDataMap(
                         dataMap,
-                        fileDate.format(renderInfo.dateFormat),
+                        xValueMap.get(-1),
                         query,
                         linkValue
                     );
@@ -601,7 +564,7 @@ export default class Tracker extends Plugin {
                     }
                     this.addToDataMap(
                         dataMap,
-                        fileDate.format(renderInfo.dateFormat),
+                        xValueMap.get(-1),
                         query,
                         value
                     );
@@ -651,7 +614,7 @@ export default class Tracker extends Plugin {
                     if (textExist) {
                         this.addToDataMap(
                             dataMap,
-                            fileDate.format(renderInfo.dateFormat),
+                            xValueMap.get(-1),
                             query,
                             textMeasure
                         );
@@ -769,7 +732,7 @@ export default class Tracker extends Plugin {
                     }
                     this.addToDataMap(
                         dataMap,
-                        fileDate.format(renderInfo.dateFormat),
+                        xValueMap.get(-1),
                         query,
                         value
                     );
@@ -777,7 +740,7 @@ export default class Tracker extends Plugin {
             } // end loof of files
         }
 
-        // Collect data from files assigned in searchTargets
+        // Collect data from a file, one file contains full dataset
         let tableQueries = renderInfo.queries.filter(
             (q) => q.getType() === SearchType.Table
         );
@@ -964,7 +927,7 @@ export default class Tracker extends Plugin {
         }
 
         if (fileCounter === 0) {
-            let errorMessage = "No notes found in the date range.";
+            let errorMessage = "No notes found under the given search condition";
             renderErrorMessage(canvas, errorMessage);
             el.appendChild(canvas);
             return;

@@ -1,4 +1,5 @@
-
+import { RenderInfo } from "./data";
+import { TFile, TFolder, normalizePath } from "obsidian";
 
 export function trimByChar(str: string, char: string) {
     const arr = Array.from(str);
@@ -9,51 +10,28 @@ export function trimByChar(str: string, char: string) {
         : str.substring(first, str.length - last);
 }
 
-// export function parseValues(toParse: string) {
-//     if (typeof toParse === "string") {
-//         let splitted = toParse.split(
-//             query.getSeparator()
-//         );
-//         if (
-//             splitted.length > query.getArg() &&
-//             query.getArg() >= 0
-//         ) {
-//             // TODO: it's not efficent to retrieve one value at a time, enhance this
-//             let value = null;
-//             let splittedPart =
-//                 splitted[query.getArg()].trim();
-//             if (toParse.includes(":")) {
-//                 // time value
-//                 let timeValue = window.moment(
-//                     splittedPart,
-//                     timeFormat,
-//                     true
-//                 );
-//                 if (timeValue.isValid()) {
-//                     query.setUsingTimeValue();
-//                     value = timeValue.diff(
-//                         window.moment(
-//                             "00:00",
-//                             "HH:mm",
-//                             true
-//                         ),
-//                         "seconds"
-//                     );
-//                 }
-//             } else {
-//                 value = parseFloat(splittedPart);
-//             }
+export function getDateFromFilename(file: TFile, renderInfo: RenderInfo) {
+    let fileBaseName = file.basename;
 
-//             if (Number.isNumber(value)) {
-//                 this.addToDataMap(
-//                     dataMap,
-//                     fileDate.format(
-//                         renderInfo.dateFormat
-//                     ),
-//                     query,
-//                     value
-//                 );
-//             }
-//         }
-//     }
-// }
+    if (
+        renderInfo.dateFormatPrefix &&
+        fileBaseName.startsWith(renderInfo.dateFormatPrefix)
+    ) {
+        fileBaseName = fileBaseName.slice(renderInfo.dateFormatPrefix.length);
+    }
+    if (
+        renderInfo.dateFormatSuffix &&
+        fileBaseName.endsWith(renderInfo.dateFormatSuffix)
+    ) {
+        fileBaseName = fileBaseName.slice(
+            0,
+            fileBaseName.length - renderInfo.dateFormatSuffix.length
+        );
+    }
+    // console.log(fileBaseName);
+
+    let fileDate = window.moment(fileBaseName, renderInfo.dateFormat, true);
+    // console.log(fileDate);
+
+    return fileDate;
+}

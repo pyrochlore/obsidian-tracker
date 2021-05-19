@@ -445,7 +445,7 @@ export class Datasets implements IterableIterator<Dataset> {
 export class RenderInfo {
     // Input
     queries: Query[];
-    xDataset: number;
+    xDataset: number[];
     folder: string;
     dateFormat: string;
     dateFormatPrefix: string;
@@ -475,7 +475,7 @@ export class RenderInfo {
 
     constructor(queries: Query[]) {
         this.queries = queries;
-        this.xDataset = null; // use file name
+        this.xDataset = []; // use file name
         this.folder = "/";
         this.dateFormat = "YYYY-MM-DD";
         this.dateFormatPrefix = "";
@@ -660,3 +660,6 @@ export class TableData {
         this.yDatasets = []; // array of query
     }
 }
+
+export type XValueMap = Map<number, string>;
+export type DataMap = Map<string, Array<QueryValuePair>>;
