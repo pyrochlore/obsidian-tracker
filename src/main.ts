@@ -185,9 +185,37 @@ export default class Tracker extends Plugin {
         let maxDate = window.moment("");
         let fileCounter = 0;
 
-        // console.log(renderInfo.queries);
+        
         let dataMap = new Map<string, Array<QueryValuePair>>(); // {strDate: [query: value, ...]}
+        // Collect data from files in date range
         for (let file of files) {
+            
+            // Get fileCache and content
+            let fileCache = null;
+            let needFileCache = renderInfo.queries.some((q) => {
+                let type = q.getType();
+                if (type === SearchType.Frontmatter || type === SearchType.Tag || type === SearchType.Wiki) {
+                    return true;
+                }
+                return false;
+            });
+            if (needFileCache) {
+                fileCache = this.app.metadataCache.getFileCache(file);
+            }
+
+            let content = null;
+            let needContent = renderInfo.queries.some((q) => {
+                let type = q.getType();
+                if (type === SearchType.Tag || type === SearchType.Text || type === SearchType.dvField) {
+                    return true;
+                }
+                return false;
+            });
+            if (needContent) {
+                content = await this.app.vault.adapter.read(file.path);
+            }
+
+            // Loop over queries
             for (let query of renderInfo.queries) {
                 if (query.getType() === SearchType.Table) continue;
 
@@ -262,52 +290,98 @@ export default class Tracker extends Plugin {
                 //     without value --> null
                 //   tag not exists --> null
 
-                let fileCache = this.app.metadataCache.getFileCache(file);
-
                 // console.log("Search frontmatter tags");
-                if (query.getType() === SearchType.Tag) {
+                if (fileCache && query.getType() === SearchType.Tag) {
                     // Add frontmatter tags, allow simple tag only
-                    if (fileCache) {
-                        let frontMatter = fileCache.frontmatter;
-                        let frontMatterTags: string[] = [];
-                        if (frontMatter && frontMatter.tags) {
-                            // console.log(frontMatter.tags);
-                            let tagMeasure = 0.0;
-                            let tagExist = false;
-                            if (Array.isArray(frontMatter.tags)) {
-                                frontMatterTags = frontMatterTags.concat(
-                                    frontMatter.tags
-                                );
+                    let frontMatter = fileCache.frontmatter;
+                    let frontMatterTags: string[] = [];
+                    if (frontMatter && frontMatter.tags) {
+                        // console.log(frontMatter.tags);
+                        let tagMeasure = 0.0;
+                        let tagExist = false;
+                        if (Array.isArray(frontMatter.tags)) {
+                            frontMatterTags = frontMatterTags.concat(
+                                frontMatter.tags
+                            );
+                        } else {
+                            frontMatterTags.push(frontMatter.tags);
+                        }
+
+                        for (let tag of frontMatterTags) {
+                            if (tag === query.getTarget()) {
+                                // simple tag
+                                tagMeasure =
+                                    tagMeasure +
+                                    renderInfo.constValue[query.getId()];
+                                tagExist = true;
+                            } else if (
+                                tag.startsWith(query.getTarget() + "/")
+                            ) {
+                                // nested tag
+                                tagMeasure =
+                                    tagMeasure +
+                                    renderInfo.constValue[query.getId()];
+                                tagExist = true;
                             } else {
-                                frontMatterTags.push(frontMatter.tags);
+                                continue;
                             }
 
-                            for (let tag of frontMatterTags) {
-                                if (tag === query.getTarget()) {
-                                    // simple tag
-                                    tagMeasure =
-                                        tagMeasure +
-                                        renderInfo.constValue[query.getId()];
-                                    tagExist = true;
-                                } else if (
-                                    tag.startsWith(query.getTarget() + "/")
-                                ) {
-                                    // nested tag
-                                    tagMeasure =
-                                        tagMeasure +
-                                        renderInfo.constValue[query.getId()];
-                                    tagExist = true;
+                            // valued-tag in frontmatter is not supported
+                            // because the "tag:value" in frontmatter will be consider as a new tag for different values
+
+                            let value = null;
+                            if (tagExist) {
+                                value = tagMeasure;
+                            }
+                            this.addToDataMap(
+                                dataMap,
+                                fileDate.format(renderInfo.dateFormat),
+                                query,
+                                value
+                            );
+                        }
+                    }
+                } // Search frontmatter tags
+
+                // console.log("Search frontmatter keys");
+                if (
+                    fileCache &&
+                    query.getType() === SearchType.Frontmatter &&
+                    query.getTarget() !== "tags"
+                ) {
+                    let frontMatter = fileCache.frontmatter;
+                    if (frontMatter) {
+                        if (frontMatter[query.getTarget()]) {
+                            // console.log("single value");
+                            // console.log(frontMatter[query.getTarget()]);
+                            let value = null;
+                            let toParse = frontMatter[query.getTarget()];
+                            if (typeof toParse === "string") {
+                                if (toParse.includes(":")) {
+                                    // time value
+                                    let timeValue = window.moment(
+                                        toParse,
+                                        timeFormat,
+                                        true
+                                    );
+                                    if (timeValue.isValid()) {
+                                        query.setUsingTimeValue();
+                                        value = timeValue.diff(
+                                            window.moment(
+                                                "00:00",
+                                                "HH:mm",
+                                                true
+                                            ),
+                                            "seconds"
+                                        );
+                                    }
                                 } else {
-                                    continue;
+                                    value = parseFloat(toParse);
                                 }
-
-                                // valued-tag in frontmatter is not supported
-                                // because the "tag:value" in frontmatter will be consider as a new tag for different values
-
-                                let value = null;
-                                if (tagExist) {
-                                    value = tagMeasure;
-                                }
+                            } else {
+                                value = parseFloat(toParse);
+                            }
+                            if (Number.isNumber(value)) {
                                 this.addToDataMap(
                                     dataMap,
                                     fileDate.format(renderInfo.dateFormat),
@@ -315,124 +389,73 @@ export default class Tracker extends Plugin {
                                     value
                                 );
                             }
-                        }
-                    }
-                } // Search frontmatter tags
-
-                // console.log("Search frontmatter keys");
-                if (
-                    query.getType() === SearchType.Frontmatter &&
-                    query.getTarget() !== "tags"
-                ) {
-                    if (fileCache) {
-                        let frontMatter = fileCache.frontmatter;
-                        if (frontMatter) {
-                            if (frontMatter[query.getTarget()]) {
-                                // console.log("single value");
-                                // console.log(frontMatter[query.getTarget()]);
+                        } else if (
+                            query.getParentTarget() &&
+                            frontMatter[query.getParentTarget()]
+                        ) {
+                            // console.log("multiple values");
+                            // console.log(query.getTarget());
+                            // console.log(query.getParentTarget());
+                            // console.log(query.getSubId());
+                            // console.log(
+                            //     frontMatter[query.getParentTarget()]
+                            // );
+                            let toParse =
+                                frontMatter[query.getParentTarget()];
+                            let splitted = null;
+                            if (Array.isArray(toParse)) {
+                                splitted = toParse.map((p) => {
+                                    return p.toString();
+                                });
+                            } else if (typeof toParse === "string") {
+                                if (toParse.includes(",")) {
+                                    splitted = toParse.split(",");
+                                } else {
+                                    splitted = toParse.split(
+                                        query.getSeparator()
+                                    );
+                                }
+                            }
+                            if (
+                                splitted &&
+                                splitted.length > query.getAccessor() &&
+                                query.getAccessor() >= 0
+                            ) {
+                                // TODO: it's not efficent to retrieve one value at a time, enhance this
                                 let value = null;
-                                let toParse = frontMatter[query.getTarget()];
-                                if (typeof toParse === "string") {
-                                    if (toParse.includes(":")) {
-                                        // time value
-                                        let timeValue = window.moment(
-                                            toParse,
-                                            timeFormat,
-                                            true
+                                let splittedPart =
+                                    splitted[query.getAccessor()].trim();
+                                if (toParse.includes(":")) {
+                                    // time value
+                                    let timeValue = window.moment(
+                                        splittedPart,
+                                        timeFormat,
+                                        true
+                                    );
+                                    if (timeValue.isValid()) {
+                                        query.setUsingTimeValue();
+                                        value = timeValue.diff(
+                                            window.moment(
+                                                "00:00",
+                                                "HH:mm",
+                                                true
+                                            ),
+                                            "seconds"
                                         );
-                                        if (timeValue.isValid()) {
-                                            query.setUsingTimeValue();
-                                            value = timeValue.diff(
-                                                window.moment(
-                                                    "00:00",
-                                                    "HH:mm",
-                                                    true
-                                                ),
-                                                "seconds"
-                                            );
-                                        }
-                                    } else {
-                                        value = parseFloat(toParse);
                                     }
                                 } else {
-                                    value = parseFloat(toParse);
+                                    value = parseFloat(splittedPart);
                                 }
+
                                 if (Number.isNumber(value)) {
                                     this.addToDataMap(
                                         dataMap,
-                                        fileDate.format(renderInfo.dateFormat),
+                                        fileDate.format(
+                                            renderInfo.dateFormat
+                                        ),
                                         query,
                                         value
                                     );
-                                }
-                            } else if (
-                                query.getParentTarget() &&
-                                frontMatter[query.getParentTarget()]
-                            ) {
-                                // console.log("multiple values");
-                                // console.log(query.getTarget());
-                                // console.log(query.getParentTarget());
-                                // console.log(query.getSubId());
-                                // console.log(
-                                //     frontMatter[query.getParentTarget()]
-                                // );
-                                let toParse =
-                                    frontMatter[query.getParentTarget()];
-                                let splitted = null;
-                                if (Array.isArray(toParse)) {
-                                    splitted = toParse.map((p) => {
-                                        return p.toString();
-                                    });
-                                } else if (typeof toParse === "string") {
-                                    if (toParse.includes(",")) {
-                                        splitted = toParse.split(",");
-                                    } else {
-                                        splitted = toParse.split(
-                                            query.getSeparator()
-                                        );
-                                    }
-                                }
-                                if (
-                                    splitted &&
-                                    splitted.length > query.getAccessor() &&
-                                    query.getAccessor() >= 0
-                                ) {
-                                    // TODO: it's not efficent to retrieve one value at a time, enhance this
-                                    let value = null;
-                                    let splittedPart =
-                                        splitted[query.getAccessor()].trim();
-                                    if (toParse.includes(":")) {
-                                        // time value
-                                        let timeValue = window.moment(
-                                            splittedPart,
-                                            timeFormat,
-                                            true
-                                        );
-                                        if (timeValue.isValid()) {
-                                            query.setUsingTimeValue();
-                                            value = timeValue.diff(
-                                                window.moment(
-                                                    "00:00",
-                                                    "HH:mm",
-                                                    true
-                                                ),
-                                                "seconds"
-                                            );
-                                        }
-                                    } else {
-                                        value = parseFloat(splittedPart);
-                                    }
-
-                                    if (Number.isNumber(value)) {
-                                        this.addToDataMap(
-                                            dataMap,
-                                            fileDate.format(
-                                                renderInfo.dateFormat
-                                            ),
-                                            query,
-                                            value
-                                        );
-                                    }
                                 }
                             }
                         }
@@ -440,39 +463,34 @@ export default class Tracker extends Plugin {
                 } // console.log("Search frontmatter keys");
 
                 // console.log("Search wiki links");
-                if (query.getType() === SearchType.Wiki) {
-                    if (fileCache) {
-                        let links = fileCache.links;
+                if (fileCache && query.getType() === SearchType.Wiki) {
+                    let links = fileCache.links;
 
-                        let linkMeasure = 0.0;
-                        let linkExist = false;
-                        for (let link of links) {
-                            if (link.link === query.getTarget()) {
-                                linkExist = true;
-                                linkMeasure =
-                                    linkMeasure +
-                                    renderInfo.constValue[query.getId()];
-                            }
+                    let linkMeasure = 0.0;
+                    let linkExist = false;
+                    for (let link of links) {
+                        if (link.link === query.getTarget()) {
+                            linkExist = true;
+                            linkMeasure =
+                                linkMeasure +
+                                renderInfo.constValue[query.getId()];
                         }
-
-                        let linkValue = null;
-                        if (linkExist) {
-                            linkValue = linkMeasure;
-                        }
-                        this.addToDataMap(
-                            dataMap,
-                            fileDate.format(renderInfo.dateFormat),
-                            query,
-                            linkValue
-                        );
                     }
+
+                    let linkValue = null;
+                    if (linkExist) {
+                        linkValue = linkMeasure;
+                    }
+                    this.addToDataMap(
+                        dataMap,
+                        fileDate.format(renderInfo.dateFormat),
+                        query,
+                        linkValue
+                    );
                 }
 
                 // console.log("Search inline tags");
-                if (query.getType() === SearchType.Tag) {
-                    // Add inline tags
-                    let content = await this.app.vault.adapter.read(file.path);
-
+                if (content && query.getType() === SearchType.Tag) {
                     // console.log(content);
                     // Test this in Regex101
                     // (^|\s)#tagName(\/[\w-]+)*(:(?<values>[\d\.\/-]*)[a-zA-Z]*)?([\\.!,\\?;~-]*)?(\s|$)
@@ -501,8 +519,7 @@ export default class Tracker extends Plugin {
                             let splitted = null;
                             if (values.includes(",")) {
                                 splitted = values.split(",");
-                            }
-                            else {
+                            } else {
                                 splitted = match.groups.values.split(
                                     query.getSeparator()
                                 );
@@ -600,9 +617,7 @@ export default class Tracker extends Plugin {
                 } // Search inline tags
 
                 // console.log("Search text");
-                if (query.getType() === SearchType.Text) {
-                    let content = await this.app.vault.adapter.read(file.path);
-                    // console.log(content);
+                if (content && query.getType() === SearchType.Text) {
                     let strTextRegex = query.getTarget();
                     // console.log(strTextRegex);
                     let textRegex = new RegExp(strTextRegex, "gm");
@@ -653,11 +668,7 @@ export default class Tracker extends Plugin {
                 } // Search text
 
                 // console.log("Search dvField");
-                if (query.getType() === SearchType.dvField) {
-                    // Add inline tags
-                    let content = await this.app.vault.adapter.read(file.path);
-
-                    // console.log(content);
+                if (content && query.getType() === SearchType.dvField) {
                     // Test this in Regex101
                     // (^|\s)\*{0,2}dvTarget\*{0,2}(::\s*(?<values>[\d\.\/\-\w,@;\s]*))(\s|$)
                     let dvTarget = query.getTarget();
@@ -780,7 +791,7 @@ export default class Tracker extends Plugin {
             } // end loof of files
         }
 
-        // For searchType target to a specific file
+        // Collect data from files assigned in searchTargets
         let tableQueries = renderInfo.queries.filter(
             (q) => q.getType() === SearchType.Table
         );
@@ -855,7 +866,9 @@ export default class Tracker extends Plugin {
             // console.log(textTable);
 
             let tableLines = textTable.split(/\r?\n/);
-            tableLines = tableLines.filter(line => { return line !== ""; });
+            tableLines = tableLines.filter((line) => {
+                return line !== "";
+            });
             let numColumns = 0;
             let numDataRows = 0;
             // console.log(tableLines);
