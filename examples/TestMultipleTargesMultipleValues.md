@@ -68,6 +68,7 @@ searchTarget: bloodpressure1[0], bloodpressure1[1]
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
+multipleValueSeparator: ","
 line:
     title: Blood Pressure
     lineColor: yellow, red
@@ -101,7 +102,19 @@ line:
 ```
 
 ## Multiple Values in Text
-
+Use searchType 'dvField' with separators in the target instead
+``` tracker
+searchType: text
+searchTarget: 'dataviewTarget2::\s+(?<value>[\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)\s+@\s+([\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+), dataviewTarget2::\s+([\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)\s+@\s+(?<value>[\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)'
+folder: diary
+startDate: 2021-01-01
+endDate: 2021-01-31
+line:
+    title: Dataview Data
+    yAxisLabel: Count
+    lineColor: red, yellow
+	yMin: 0
+```
 
 
 ## Multiple Values in dvField (Dataview inline field)
@@ -153,5 +166,4 @@ multipleValueSeparator: "@"
 line:
 	yAxisLocation: none, left, right
 	lineColor: none, yellow, red
-	showLegend: true
 ```

@@ -408,13 +408,9 @@ export default class Tracker extends Plugin {
                                     return p.toString();
                                 });
                             } else if (typeof toParse === "string") {
-                                if (toParse.includes(",")) {
-                                    splitted = toParse.split(",");
-                                } else {
-                                    splitted = toParse.split(
-                                        query.getSeparator()
-                                    );
-                                }
+                                splitted = toParse.split(
+                                    query.getSeparator()
+                                );
                             }
                             if (
                                 splitted &&
@@ -516,18 +512,13 @@ export default class Tracker extends Plugin {
                         ) {
                             // console.log("value-attached tag");
                             let values = match.groups.values;
-                            let splitted = null;
-                            if (values.includes(",")) {
-                                splitted = values.split(",");
-                            } else {
-                                splitted = match.groups.values.split(
+                            let splitted = values.split(
                                     query.getSeparator()
                                 );
-                            }
                             if (!splitted) continue;
                             if (splitted.length === 1) {
                                 // console.log("single-value");
-                                let toParse = match.groups.values.trim();
+                                let toParse = splitted[0].trim();
                                 if (toParse.includes(":")) {
                                     let timeValue = window.moment(
                                         toParse,
@@ -691,12 +682,7 @@ export default class Tracker extends Plugin {
                             typeof match.groups.values !== "undefined"
                         ) {
                             let values = match.groups.values.trim();
-                            let splitted = null;
-                            if (values.includes(",")) {
-                                splitted = values.split(",");
-                            } else {
-                                splitted = values.split(query.getSeparator());
-                            }
+                            let splitted = values.split(query.getSeparator());
                             if (!splitted) continue;
                             if (splitted.length === 1) {
                                 // console.log("single-value");
@@ -937,12 +923,7 @@ export default class Tracker extends Plugin {
                     let dataRowSplitted = dataRow.split("|");
                     if (columnOfInterest < dataRowSplitted.length) {
                         let data = dataRowSplitted[columnOfInterest].trim();
-                        let splitted = null;
-                        if (data.includes(",")) {
-                            splitted = data.split(",");
-                        } else {
-                            splitted = data.split(yDatasetQuery.getSeparator());
-                        }
+                        let splitted = data.split(yDatasetQuery.getSeparator());
                         if (!splitted) continue;
                         if (splitted.length === 1) {
                             let value = parseFloat(splitted[0]);
