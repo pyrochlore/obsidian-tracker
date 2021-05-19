@@ -30,7 +30,6 @@
   },
   "dependencies": {
     "d3": "^6.5.0",
-    "obsidian-daily-notes-interface": "^0.9.1",
-    "yaml": "^1.10.0"
+    "obsidian-daily-notes-interface": "^0.9.1"
   }
 }

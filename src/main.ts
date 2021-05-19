@@ -19,7 +19,6 @@ import {
 } from "./settings";
 import * as helper from "./helper";
 import { Moment } from "moment";
-import { __values } from "tslib";
 // import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
 
 declare global {

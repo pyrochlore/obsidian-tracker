@@ -11,7 +11,7 @@ import {
     LineInfo,
 } from "./data";
 import { TFolder, normalizePath } from "obsidian";
-import * as Yaml from "yaml";
+import {parseYaml} from "obsidian";
 import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
 
 function strToBool(str: string): boolean | null {
@@ -683,7 +683,7 @@ export function getRenderInfoFromYaml(
 ): RenderInfo | string {
     let yaml;
     try {
-        yaml = Yaml.parse(yamlText);
+        yaml = parseYaml(yamlText);
     } catch (err) {
         let errorMessage = "Error parsing YAML";
         console.log(err);
