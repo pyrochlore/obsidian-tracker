@@ -11,7 +11,7 @@ import {
     LineInfo,
 } from "./data";
 import { TFolder, normalizePath } from "obsidian";
-import {parseYaml} from "obsidian";
+import { parseYaml } from "obsidian";
 import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
 
 function strToBool(str: string): boolean | null {
@@ -1006,9 +1006,9 @@ export function getRenderInfoFromYaml(
     if (typeof retXDataset === "string") {
         return retXDataset; // errorMessage
     }
-    retXDataset = retXDataset.map((d: number) => { 
+    retXDataset = retXDataset.map((d: number) => {
         if (d < 0 || d >= numDatasets) {
-            return -1
+            return -1;
         }
         return d;
     });

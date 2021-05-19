@@ -13,7 +13,7 @@ import {
     TableData,
     RenderInfo,
     XValueMap,
-    DataMap
+    DataMap,
 } from "./data";
 import { collectDataFromFrontmatterTag } from "./collecting";
 import {
@@ -189,7 +189,6 @@ export default class Tracker extends Plugin {
         let maxDate = window.moment("");
         let fileCounter = 0;
 
-        
         let dataMap: DataMap = new Map(); // {strDate: [query: value, ...]}
         // Collect data from files, each file has one data point for each query
         for (let file of files) {
@@ -198,7 +197,11 @@ export default class Tracker extends Plugin {
             let fileCache = null;
             let needFileCache = renderInfo.queries.some((q) => {
                 let type = q.getType();
-                if (type === SearchType.Frontmatter || type === SearchType.Tag || type === SearchType.Wiki) {
+                if (
+                    type === SearchType.Frontmatter ||
+                    type === SearchType.Tag ||
+                    type === SearchType.Wiki
+                ) {
                     return true;
                 }
                 return false;
@@ -210,7 +213,11 @@ export default class Tracker extends Plugin {
             let content = null;
             let needContent = renderInfo.queries.some((q) => {
                 let type = q.getType();
-                if (type === SearchType.Tag || type === SearchType.Text || type === SearchType.dvField) {
+                if (
+                    type === SearchType.Tag ||
+                    type === SearchType.Text ||
+                    type === SearchType.dvField
+                ) {
                     return true;
                 }
                 return false;
@@ -220,7 +227,7 @@ export default class Tracker extends Plugin {
             }
 
             // Get xValue and add it into xValueMap for later use
-            let xValueMap: XValueMap = new Map();// queryId: xValue
+            let xValueMap: XValueMap = new Map(); // queryId: xValue
             let skipThisFile = false;
             for (let xDatasetId of renderInfo.xDataset) {
                 if (xValueMap.has(xDatasetId)) continue;
@@ -264,8 +271,7 @@ export default class Tracker extends Plugin {
                             maxDate = fileDate.clone();
                         }
                     }
-                }
-                else {
+                } else {
                     let xDatasetQuery = renderInfo.queries[xDatasetId];
                     console.log(xDatasetQuery);
                     switch (xDatasetQuery.getType()) {
@@ -289,7 +295,7 @@ export default class Tracker extends Plugin {
                 if (query.usedAsXDataset) continue;
 
                 // Get xValue from file if xDataset assigned
-                // if (renderInfo.xDataset !== null) 
+                // if (renderInfo.xDataset !== null)
                 // let xDatasetId = renderInfo.xDataset;
 
                 // rules for assigning tag value
@@ -305,7 +311,13 @@ export default class Tracker extends Plugin {
                 // console.log("Search frontmatter tags");
                 if (fileCache && query.getType() === SearchType.Tag) {
                     // Add frontmatter tags, allow simple tag only
-                    collectDataFromFrontmatterTag(fileCache, query, renderInfo, dataMap, xValueMap);
+                    collectDataFromFrontmatterTag(
+                        fileCache,
+                        query,
+                        renderInfo,
+                        dataMap,
+                        xValueMap
+                    );
                 } // Search frontmatter tags
 
                 // console.log("Search frontmatter keys");
@@ -365,17 +377,14 @@ export default class Tracker extends Plugin {
                             // console.log(
                             //     frontMatter[query.getParentTarget()]
                             // );
-                            let toParse =
-                                frontMatter[query.getParentTarget()];
+                            let toParse = frontMatter[query.getParentTarget()];
                             let splitted = null;
                             if (Array.isArray(toParse)) {
                                 splitted = toParse.map((p) => {
                                     return p.toString();
                                 });
                             } else if (typeof toParse === "string") {
-                                splitted = toParse.split(
-                                    query.getSeparator()
-                                );
+                                splitted = toParse.split(query.getSeparator());
                             }
                             if (
                                 splitted &&
@@ -475,9 +484,7 @@ export default class Tracker extends Plugin {
                         ) {
                             // console.log("value-attached tag");
                             let values = match.groups.values;
-                            let splitted = values.split(
-                                    query.getSeparator()
-                                );
+                            let splitted = values.split(query.getSeparator());
                             if (!splitted) continue;
                             if (splitted.length === 1) {
                                 // console.log("single-value");
@@ -562,12 +569,7 @@ export default class Tracker extends Plugin {
                     if (tagExist) {
                         value = tagMeasure;
                     }
-                    this.addToDataMap(
-                        dataMap,
-                        xValueMap.get(-1),
-                        query,
-                        value
-                    );
+                    this.addToDataMap(dataMap, xValueMap.get(-1), query, value);
                 } // Search inline tags
 
                 // console.log("Search text");
@@ -730,12 +732,7 @@ export default class Tracker extends Plugin {
                     if (tagExist) {
                         value = tagMeasure;
                     }
-                    this.addToDataMap(
-                        dataMap,
-                        xValueMap.get(-1),
-                        query,
-                        value
-                    );
+                    this.addToDataMap(dataMap, xValueMap.get(-1), query, value);
                 } // search dvField
             } // end loof of files
         }
@@ -927,7 +924,8 @@ export default class Tracker extends Plugin {
         }
 
         if (fileCounter === 0) {
-            let errorMessage = "No notes found under the given search condition";
+            let errorMessage =
+                "No notes found under the given search condition";
             renderErrorMessage(canvas, errorMessage);
             el.appendChild(canvas);
             return;
