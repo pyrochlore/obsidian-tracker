@@ -89,6 +89,7 @@ line:
 ```
 
 Values in nested parameters
+Not works yet.
 ``` tracker
 searchType: frontmatter
 searchTarget: blood-pressure[0], blood-pressure[1]
