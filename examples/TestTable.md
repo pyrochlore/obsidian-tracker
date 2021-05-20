@@ -15,7 +15,7 @@ Use first column as X dataset. Second column posses multiple values in each cell
 searchType: table
 searchTarget: data/Tables[1][0], data/Tables[1][1][0], data/Tables[1][1][1]
 xDataset: 0
-multipleValueSeparator: "@"
+separator: "@"
 line:
 	yAxisLocation: none, left, right
 	lineColor: none, yellow, red

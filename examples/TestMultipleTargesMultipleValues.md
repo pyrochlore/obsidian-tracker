@@ -68,7 +68,7 @@ searchTarget: bloodpressure1[0], bloodpressure1[1]
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
-multipleValueSeparator: ","
+separator: ","
 line:
     title: Blood Pressure
     lineColor: yellow, red
@@ -146,7 +146,7 @@ Use custom multiple value separator
 ``` tracker
 searchType: dvField
 searchTarget: dataviewTarget2[0], dataviewTarget2[1]
-multipleValueSeparator: '@'
+separator: '@'
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
@@ -162,7 +162,7 @@ Use first column as X dataset. Second column posses multiple values in each cell
 searchType: table
 searchTarget: data/Tables[1][0], data/Tables[1][1][0], data/Tables[1][1][1]
 xDataset: 0
-multipleValueSeparator: "@"
+separator: "@"
 line:
 	yAxisLocation: none, left, right
 	lineColor: none, yellow, red

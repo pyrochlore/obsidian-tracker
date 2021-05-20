@@ -795,11 +795,11 @@ export function getRenderInfoFromYaml(
     }
     // console.log(searchType);
 
-    // multipleValueSeparator
+    // separator
     let multipleValueSparator: Array<string> = [];
     let retMultipleValueSparator = getStringArrayFromInput(
-        "multipleValueSeparator",
-        yaml.multipleValueSeparator,
+        "separator",
+        yaml.separator,
         numDatasets,
         "/",
         null,
@@ -836,7 +836,7 @@ export function getRenderInfoFromYaml(
     let additionalAllowedKeys = [
         "searchType",
         "searchTarget",
-        "multipleValueSeparator",
+        "separator",
     ];
     // console.log(keysOfRenderInfo);
     for (let key of keysFoundInYAML) {
