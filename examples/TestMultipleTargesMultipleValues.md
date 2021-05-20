@@ -12,9 +12,9 @@ datasetName: Weight, Pushup
 line:
     title: Multiple Targets
     lineColor: yellow, red
-	yAxisLocation: left, right
-	yAxisLabel: Weight, Count
-	showLegend: true
+    yAxisLocation: left, right
+    yAxisLabel: Weight, Count
+    showLegend: true
 ```
 
 ## Multiple Values from a Single Multiple-values-attached Tag
@@ -114,11 +114,22 @@ line:
     title: Dataview Data
     yAxisLabel: Count
     lineColor: red, yellow
-	yMin: 0
+    yMin: 0
 ```
 
 
 ## Multiple Values in dvField (Dataview inline field)
+Extract the first value in dataview inline field
+``` tracker
+searchType: dvField
+searchTarget: dataviewTarget1[0]
+folder: diary
+startDate: 2021-01-01
+endDate: 2021-01-31
+line:
+    title: dvField
+```
+
 Multiple Values in dataview inline field
 ``` tracker
 searchType: dvField
@@ -128,7 +139,7 @@ startDate: 2021-01-01
 endDate: 2021-01-31
 line:
     title: dvField
-	lineColor: green, red
+    lineColor: green, red
 ```
 
 Multiple values seprated by ','
@@ -140,7 +151,7 @@ startDate: 2021-01-01
 endDate: 2021-01-31
 line:
     title: dvField
-	lineColor: green, red
+    lineColor: green, red
 ```
 
 Use custom multiple value separator
@@ -153,7 +164,7 @@ startDate: 2021-01-01
 endDate: 2021-01-31
 line:
     title: dvField
-	lineColor: green, red
+    lineColor: green, red
 ```
 
 ## Multiple Values in Table
@@ -165,6 +176,6 @@ searchTarget: data/Tables[1][0], data/Tables[1][1][0], data/Tables[1][1][1]
 xDataset: 0
 separator: "@"
 line:
-	yAxisLocation: none, left, right
-	lineColor: none, yellow, red
+    yAxisLocation: none, left, right
+    lineColor: none, yellow, red
 ```

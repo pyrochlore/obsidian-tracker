@@ -59,7 +59,7 @@ line:
     title: Dataview Data
     yAxisLabel: Count
     lineColor: red
-	yMin: 0
+    yMin: 0
 ```
 
 Use searchType 'dvField' with separators in the target instead
@@ -73,7 +73,7 @@ line:
     title: Dataview Data
     yAxisLabel: Count
     lineColor: red, yellow
-	yMin: 0
+    yMin: 0
 ```
 
 
