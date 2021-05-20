@@ -473,7 +473,8 @@ export default class Tracker extends Plugin {
             let columnXDataset = xDatasetQuery.getAccessor(1);
             if (columnXDataset >= numColumns) continue;
             let xValues = [];
-
+            
+            let indLine = 0;
             for (let tableLine of tableLines) {
                 let dataRow = helper.trimByChar(tableLine.trim(), "|");
                 let dataRowSplitted = dataRow.split("|");
@@ -494,10 +495,27 @@ export default class Tracker extends Plugin {
                         }
                     }
 
-                    xValues.push(date);
+                    if (date.isValid()) {
+                        xValues.push(date);
+                    }
+                    else {
+                        xValues.push(null);
+                    }
+                    
                 }
+                else {
+                    xValues.push(null);
+                }
+                indLine++;
             }
             // console.log(xValues);
+
+            if (xValues.every(v => v === null)) {
+                let errorMessage = "No valid X value found";
+                renderErrorMessage(canvas, errorMessage);
+                el.appendChild(canvas);
+                return;
+            }
 
             // get y data
             for (let yDatasetQuery of yDatasetQueries) {
@@ -516,14 +534,16 @@ export default class Tracker extends Plugin {
                         if (splitted.length === 1) {
                             let value = parseFloat(splitted[0]);
                             if (Number.isNumber(value)) {
-                                this.addToDataMap(
-                                    dataMap,
-                                    xValues[indLine].format(
-                                        renderInfo.dateFormat
-                                    ),
-                                    yDatasetQuery,
-                                    value
-                                );
+                                if (indLine < xValues.length && xValues[indLine]) {
+                                    this.addToDataMap(
+                                        dataMap,
+                                        xValues[indLine].format(
+                                            renderInfo.dateFormat
+                                        ),
+                                        yDatasetQuery,
+                                        value
+                                    );
+                                }
                             }
                         } else if (
                             splitted.length > yDatasetQuery.getAccessor(2) &&
@@ -534,14 +554,16 @@ export default class Tracker extends Plugin {
                                 splitted[yDatasetQuery.getAccessor(2)].trim();
                             value = parseFloat(splittedPart);
                             if (Number.isNumber(value)) {
-                                this.addToDataMap(
-                                    dataMap,
-                                    xValues[indLine].format(
-                                        renderInfo.dateFormat
-                                    ),
-                                    yDatasetQuery,
-                                    value
-                                );
+                                if (indLine < xValues.length && xValues[indLine]) {
+                                    this.addToDataMap(
+                                        dataMap,
+                                        xValues[indLine].format(
+                                            renderInfo.dateFormat
+                                        ),
+                                        yDatasetQuery,
+                                        value
+                                    );
+                                }
                             }
                         }
                     }

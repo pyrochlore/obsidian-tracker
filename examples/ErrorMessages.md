@@ -1,6 +1,6 @@
 # Error Messages
 ## YAML
-Error parsing caused by the escaping character
+Error parsing caused by the escaping character --> YAMLParsError: Missing closing "quote"
 ``` tracker
 searchType: tag
 searchTarget: "\"
@@ -126,3 +126,13 @@ searchTarget: bloodpressure[0], bloodpressure[1]
 line:
     titles: "Blood Pressure"
 ``` 
+
+## Table
+All dates are invalid, leads to an error message
+``` tracker
+searchType: table
+searchTarget: data/Tables[4][0], data/Tables[4][1]
+xDataset: 0
+line:
+	lineColor: none, yellow
+```

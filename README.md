@@ -96,6 +96,10 @@ You can set the default folder location and date format in the plugin's settings
 For more information about the dateFormat settings, check the [TestDateFormats example](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md) and [moment.js string format](https://momentjs.com/docs/#/parsing/string-format/). 
 
 ## Release Notes
+### v1.5.1
+- Fixed labels not shown in light theme
+- Enhanced error handling for searchType 'table'
+
 ### v1.5.0
 - New searchType 'table', searching records from a given table
 - New searchType 'dvField', searching the inline fields used with Dataview plugin
