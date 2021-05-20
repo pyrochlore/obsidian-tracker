@@ -144,13 +144,14 @@ export default class Tracker extends Plugin {
         const canvas = document.createElement("div");
 
         let yamlText = source.trim();
-        let renderInfo = getRenderInfoFromYaml(yamlText, this);
-        if (typeof renderInfo === "string") {
-            let errorMessage = renderInfo;
+        let retRenderInfo = getRenderInfoFromYaml(yamlText, this);
+        if (typeof retRenderInfo === "string") {
+            let errorMessage = retRenderInfo;
             renderErrorMessage(canvas, errorMessage);
             el.appendChild(canvas);
             return;
         }
+        let renderInfo = retRenderInfo as RenderInfo;
         // console.log(renderInfo);
 
         // Get files
@@ -177,7 +178,7 @@ export default class Tracker extends Plugin {
 
         let dataMap: DataMap = new Map(); // {strDate: [query: value, ...]}
         // Collect data from files, each file has one data point for each query
-        for (let file of files) {
+        const loopFilePromises = files.map(async (file) => {
             // console.log(file.basename);
             // Get fileCache and content
             let fileCache = null;
@@ -216,63 +217,68 @@ export default class Tracker extends Plugin {
             let xValueMap: XValueMap = new Map(); // queryId: xValue
             let skipThisFile = false;
             for (let xDatasetId of renderInfo.xDataset) {
-                if (xValueMap.has(xDatasetId)) continue;
-                if (xDatasetId === -1) {
-                    // Default using date in filename as xValue
-                    let fileDate = helper.getDateFromFilename(file, renderInfo);
-                    // console.log(fileDate);
-                    if (!fileDate.isValid()) {
-                        // console.log("file " + file.basename + " rejected");
-                        skipThisFile = true;
-                        continue;
-                    } else {
-                        // console.log("file " + file.basename + " accepted");
-                        if (renderInfo.startDate !== null) {
-                            if (fileDate < renderInfo.startDate) {
-                                skipThisFile = true;
-                                continue;
+                if (!xValueMap.has(xDatasetId)) {
+                    if (xDatasetId === -1) {
+                        // Default using date in filename as xValue
+                        let fileDate = helper.getDateFromFilename(
+                            file,
+                            renderInfo
+                        );
+                        // console.log(fileDate);
+                        if (!fileDate.isValid()) {
+                            // console.log("file " + file.basename + " rejected");
+                            skipThisFile = true;
+                        } else {
+                            // console.log("file " + file.basename + " accepted");
+                            if (renderInfo.startDate !== null) {
+                                if (fileDate < renderInfo.startDate) {
+                                    skipThisFile = true;
+                                }
+                            }
+                            if (renderInfo.endDate !== null) {
+                                if (fileDate > renderInfo.endDate) {
+                                    skipThisFile = true;
+                                }
                             }
                         }
-                        if (renderInfo.endDate !== null) {
-                            if (fileDate > renderInfo.endDate) {
-                                skipThisFile = true;
-                                continue;
+
+                        if (!skipThisFile) {
+                            xValueMap.set(
+                                -1,
+                                fileDate.format(renderInfo.dateFormat)
+                            );
+                            fileCounter++;
+
+                            // Get min/max date
+                            if (fileCounter == 1) {
+                                minDate = fileDate.clone();
+                                maxDate = fileDate.clone();
+                            } else {
+                                if (fileDate < minDate) {
+                                    minDate = fileDate.clone();
+                                }
+                                if (fileDate > maxDate) {
+                                    maxDate = fileDate.clone();
+                                }
                             }
                         }
-                    }
-
-                    xValueMap.set(-1, fileDate.format(renderInfo.dateFormat));
-
-                    fileCounter++;
-
-                    // Get min/max date
-                    if (fileCounter == 1) {
-                        minDate = fileDate.clone();
-                        maxDate = fileDate.clone();
                     } else {
-                        if (fileDate < minDate) {
-                            minDate = fileDate.clone();
+                        let xDatasetQuery = renderInfo.queries[xDatasetId];
+                        // console.log(xDatasetQuery);
+                        switch (xDatasetQuery.getType()) {
+                            case SearchType.Frontmatter:
+                                break;
+                            case SearchType.Tag:
+                                break;
+                            case SearchType.Text:
+                                break;
+                            case SearchType.dvField:
+                                break;
                         }
-                        if (fileDate > maxDate) {
-                            maxDate = fileDate.clone();
-                        }
-                    }
-                } else {
-                    let xDatasetQuery = renderInfo.queries[xDatasetId];
-                    // console.log(xDatasetQuery);
-                    switch (xDatasetQuery.getType()) {
-                        case SearchType.Frontmatter:
-                            break;
-                        case SearchType.Tag:
-                            break;
-                        case SearchType.Text:
-                            break;
-                        case SearchType.dvField:
-                            break;
                     }
                 }
             }
-            if (skipThisFile) continue;
+            if (skipThisFile) return;
             // console.log(xValueMap);
 
             // Loop over queries
@@ -283,16 +289,6 @@ export default class Tracker extends Plugin {
                 // Get xValue from file if xDataset assigned
                 // if (renderInfo.xDataset !== null)
                 // let xDatasetId = renderInfo.xDataset;
-
-                // rules for assigning tag value
-                // simple tag
-                //   tag exists --> constant value
-                //   tag not exists --> null
-                // valued-attached tag
-                //   tag exists
-                //     with value --> that value
-                //     without value --> null
-                //   tag not exists --> null
 
                 // console.log("Search frontmatter tags");
                 if (fileCache && query.getType() === SearchType.Tag) {
@@ -365,7 +361,8 @@ export default class Tracker extends Plugin {
                     );
                 } // search dvField
             } // end loof of files
-        }
+        });
+        await Promise.all(loopFilePromises);
 
         // Collect data from a file, one file contains full dataset
         let tableQueries = renderInfo.queries.filter(
