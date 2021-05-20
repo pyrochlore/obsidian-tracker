@@ -50,7 +50,6 @@ function validateYAxisLocation(location: string): boolean {
         return true;
     }
     return false;
-    return false;
 }
 
 function validateColor(color: string): boolean {
@@ -784,6 +783,15 @@ export function getRenderInfoFromYaml(
                 searchType.push(SearchType.Table);
                 break;
         }
+    }
+    // Currently, we don't allow type 'table' used with other types
+    if (
+        searchType.includes(SearchType.Table) &&
+        searchType.filter((t) => t !== SearchType.Table).length > 0
+    ) {
+        let errorMessage =
+            "searchType 'table' doestn't work with other types for now";
+        return errorMessage;
     }
     // console.log(searchType);
 
