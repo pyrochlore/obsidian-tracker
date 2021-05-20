@@ -436,7 +436,7 @@ function renderYAxis(
     } else {
         yAxisLabel.attr(
             "y",
-            +yTickLength + maxTickLabelWidth + yAxisLabelSize.height / 2.0
+            +yTickLength + maxTickLabelWidth + yAxisLabelSize.height
         );
     }
     if (yAxisLabelColor) {
