@@ -109,8 +109,8 @@ For more information about the dateFormat settings, check the [TestDateFormats e
     - Allow using multiple values in searchType 'dvField'
     - Allow using multiple values in searchType 'table'
     - Allow using custom separator for multiple values extraction
-- Improved performance
-- Reduced package size
+- Improve performance
+- Reduce package size
 
 ### v1.4.1
 - Enhanced error handling
