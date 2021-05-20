@@ -12,9 +12,9 @@ datasetName: Weight, Pushup
 line:
     title: Multiple Targets
     lineColor: yellow, red
-	yAxisLocation: left, right
-	yAxisLabel: Weight, Count
-	showLegend: true
+    yAxisLocation: left, right
+    yAxisLabel: Weight, Count
+    showLegend: true
 ```
 
 ## Multiple Values from a Single Multiple-values-attached Tag
@@ -114,7 +114,7 @@ line:
     title: Dataview Data
     yAxisLabel: Count
     lineColor: red, yellow
-	yMin: 0
+    yMin: 0
 ```
 
 
