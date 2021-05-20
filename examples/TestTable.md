@@ -20,4 +20,5 @@ line:
 	yAxisLocation: none, left, right
 	lineColor: none, yellow, red
 	showLegend: true
+	legendPosition: right
 ```

@@ -410,6 +410,19 @@ export class Datasets implements IterableIterator<Dataset> {
         }
     }
 
+    public getXDatasetIds() {
+        let ids: Array<number> = [];
+        for (let dataset of this.datasets) {
+            if (dataset.getQuery().usedAsXDataset) {
+                let id = dataset.getQuery().getId();
+                if (!ids.includes(id) && id !== -1) {
+                    ids.push(id);
+                }
+            }
+        }
+        return ids;
+    }
+
     public getDates() {
         return this.dates;
     }

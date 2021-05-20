@@ -618,6 +618,8 @@ export default class Tracker extends Plugin {
         // Reshape data for rendering
         let datasets = new Datasets(renderInfo.startDate, renderInfo.endDate);
         for (let query of renderInfo.queries) {
+            // We still create a dataset for xDataset,
+            // to keep the sequence and order of targets
             let dataset = datasets.createDataset(query, renderInfo);
             for (
                 let curDate = renderInfo.startDate.clone();

@@ -966,35 +966,6 @@ export function getRenderInfoFromYaml(
     // console.log(renderInfo.startDate);
     // console.log(renderInfo.endDate);
 
-    // Dataset name
-    let retDatasetName = getStringArrayFromInput(
-        "datasetName",
-        yaml.datasetName,
-        numDatasets,
-        "untitled",
-        null,
-        true
-    );
-    if (typeof retDatasetName === "string") {
-        return retDatasetName; // errorMessage
-    }
-    // rename untitled
-    let indUntitled = 0;
-    for (let ind = 0; ind < retDatasetName.length; ind++) {
-        if (retDatasetName[ind] === "untitled") {
-            retDatasetName[ind] = "untitled" + indUntitled.toString();
-            indUntitled++;
-        }
-    }
-    // Check duplicated names
-    if (new Set(retDatasetName).size === retDatasetName.length) {
-        renderInfo.datasetName = retDatasetName;
-    } else {
-        let errorMessage = "Not enough dataset names or duplicated names";
-        return errorMessage;
-    }
-    // console.log(renderInfo.datasetName);
-
     // xDataset
     let retXDataset = getNumberArrayFromInput(
         "xDataset",
@@ -1014,6 +985,36 @@ export function getRenderInfoFromYaml(
     });
     renderInfo.xDataset = retXDataset;
     // console.log(renderInfo.xDataset);
+
+    // Dataset name (need xDataset to set default name)
+    let retDatasetName = getStringArrayFromInput(
+        "datasetName",
+        yaml.datasetName,
+        numDatasets,
+        "untitled",
+        null,
+        true
+    );
+    if (typeof retDatasetName === "string") {
+        return retDatasetName; // errorMessage
+    }
+    // rename untitled
+    let indUntitled = 0;
+    for (let ind = 0; ind < retDatasetName.length; ind++) {
+        if (renderInfo.xDataset.includes(ind)) continue;
+        if (retDatasetName[ind] === "untitled") {
+            retDatasetName[ind] = "untitled" + indUntitled.toString();
+            indUntitled++;
+        }
+    }
+    // Check duplicated names
+    if (new Set(retDatasetName).size === retDatasetName.length) {
+        renderInfo.datasetName = retDatasetName;
+    } else {
+        let errorMessage = "Not enough dataset names or duplicated names";
+        return errorMessage;
+    }
+    // console.log(renderInfo.datasetName);
 
     // constValue
     let retConstValue = getNumberArrayFromInput(
