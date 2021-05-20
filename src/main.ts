@@ -1,4 +1,4 @@
-import { App, Plugin } from "obsidian";
+import { App, CachedMetadata, Plugin } from "obsidian";
 import { MarkdownPostProcessorContext, MarkdownView, Editor } from "obsidian";
 import { TFile, TFolder, normalizePath } from "obsidian";
 import { render, renderErrorMessage } from "./rendering";
@@ -181,7 +181,7 @@ export default class Tracker extends Plugin {
         const loopFilePromises = files.map(async (file) => {
             // console.log(file.basename);
             // Get fileCache and content
-            let fileCache = null;
+            let fileCache: CachedMetadata = null;
             let needFileCache = renderInfo.queries.some((q) => {
                 let type = q.getType();
                 if (
@@ -197,7 +197,7 @@ export default class Tracker extends Plugin {
                 fileCache = this.app.metadataCache.getFileCache(file);
             }
 
-            let content = null;
+            let content: string = null;
             let needContent = renderInfo.queries.some((q) => {
                 let type = q.getType();
                 if (
@@ -282,10 +282,10 @@ export default class Tracker extends Plugin {
             // console.log(xValueMap);
 
             // Loop over queries
-            for (let query of renderInfo.queries) {
-                if (query.getType() === SearchType.Table) continue;
-                if (query.usedAsXDataset) continue;
-
+            let yDatasetQueries = renderInfo.queries.filter((q) => {
+                return q.getType() !== SearchType.Table && !q.usedAsXDataset;
+            });
+            const loopQueryPromises = yDatasetQueries.map(async (query) => {
                 // Get xValue from file if xDataset assigned
                 // if (renderInfo.xDataset !== null)
                 // let xDatasetId = renderInfo.xDataset;
@@ -360,7 +360,8 @@ export default class Tracker extends Plugin {
                         xValueMap
                     );
                 } // search dvField
-            } // end loof of files
+            });
+            await Promise.all(loopQueryPromises);
         });
         await Promise.all(loopFilePromises);
 
