@@ -22,3 +22,22 @@ line:
 	showLegend: true
 	legendPosition: right
 ```
+
+## Tables with Defects
+``` tracker
+searchType: table
+searchTarget: data/Tables[2][0], data/Tables[2][1]
+xDataset: 0
+line:
+	lineColor: none, yellow
+```
+
+Wrong date format in Table
+``` tracker
+searchType: table
+searchTarget: data/Tables[3][0], data/Tables[3][1]
+xDataset: 0
+line:
+	lineColor: none, yellow
+```
+

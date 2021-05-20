@@ -29,3 +29,28 @@
 | 2021-05-08 | 6.25 @ 5.55 | 
 | 2021-05-09 | 6.25 @ 5.45 | 
 | 2021-05-10 | 6.35 @ 5.75 | 
+
+## Tables with Defects
+More columns than need, graph still rendered
+
+ Date | Weight (kg) | 
+| - | - | - 
+| 2021-05-01 | 60.0 | 20.1 |
+ 2021-05-02 | 62.1 | 20.5 
+ | 2021-05-03 | 62.2 | 20.3 |
+ 
+The row with wrong date format will be skipped
+ 
+  Date | Weight (kg) | 
+| - | - | - 
+| not a date | 60.0 | 20.1 |
+ 2021-05-02 | 62.1 | 20.5 
+  | 2021-05-03 | 62.2 | 20.3 |
+  
+All dates are invalid, leads to an error message
+ 
+  Date | Weight (kg) | 
+| - | - | - 
+| not a date | 60.0 | 20.1 |
+ not a date | 62.1 | 20.5 
+  | not a date | 62.2 | 20.3 |
