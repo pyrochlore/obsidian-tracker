@@ -107,6 +107,7 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
     // Data preprocessing
 
     for (let dataset of renderInfo.datasets) {
+        if (dataset.getQuery().usedAsXDataset) continue;
         if (renderInfo.penalty[dataset.getId()] !== null) {
             dataset.setPenalty(renderInfo.penalty[dataset.getId()]);
         }
@@ -234,12 +235,15 @@ function renderYAxis(
         return;
     }
 
+    if (yAxisLocation !== "left" && yAxisLocation !== "right") return;
+
     let yMinOfDatasets = null;
     let yMaxOfDatasets = null;
     let tmpValueIsTime = null;
     let valueIsTime = false;
     for (let datasetId of datasetIds) {
         let dataset = datasets.getDatasetById(datasetId);
+        if (dataset.getQuery().usedAsXDataset) continue;
 
         if (yMinOfDatasets === null || dataset.getYMin() < yMinOfDatasets) {
             yMinOfDatasets = dataset.getYMin();
@@ -261,14 +265,25 @@ function renderYAxis(
     // console.log(yMinOfDatasets);
     // console.log(yMaxOfDatasets);
 
-    let yMin = yAxisLocation === "left" ? chartInfo.yMin[0] : chartInfo.yMin[1];
+    let yMin = null;
+    if (yAxisLocation === "left") {
+        yMin = chartInfo.yMin[0];
+    } else if (yAxisLocation === "right") {
+        yMin = chartInfo.yMin[1];
+    }
     let yMinAssigned = false;
     if (typeof yMin !== "number") {
         yMin = yMinOfDatasets;
     } else {
         yMinAssigned = true;
     }
-    let yMax = yAxisLocation === "left" ? chartInfo.yMax[0] : chartInfo.yMax[1];
+
+    let yMax = null;
+    if (yAxisLocation === "left") {
+        yMax = chartInfo.yMax[0];
+    } else if (yAxisLocation === "right") {
+        yMax = chartInfo.yMax[1];
+    }
     let yMaxAssigned = false;
     if (typeof yMax !== "number") {
         yMax = yMaxOfDatasets;
@@ -315,30 +330,41 @@ function renderYAxis(
         chartElements["rightYScale"] = yScale;
     }
 
-    let yAxisColor =
-        yAxisLocation === "left"
-            ? chartInfo.yAxisColor[0]
-            : chartInfo.yAxisColor[1];
-    let yAxisLabelColor =
-        yAxisLocation === "left"
-            ? chartInfo.yAxisLabelColor[0]
-            : chartInfo.yAxisLabelColor[1];
-    let yAxisLabelText =
-        yAxisLocation === "left"
-            ? chartInfo.yAxisLabel[0]
-            : chartInfo.yAxisLabel[1];
-    let yAxisUnitText =
-        yAxisLocation === "left"
-            ? chartInfo.yAxisUnit[0]
-            : chartInfo.yAxisUnit[1];
+    let yAxisColor = "";
+    if (yAxisLocation === "left") {
+        yAxisColor = chartInfo.yAxisColor[0];
+    } else if (yAxisLocation === "right") {
+        yAxisColor = chartInfo.yAxisColor[1];
+    }
+
+    let yAxisLabelColor = "";
+    if (yAxisLocation === "left") {
+        yAxisLabelColor = chartInfo.yAxisLabelColor[0];
+    } else if (yAxisLocation === "right") {
+        yAxisLabelColor = chartInfo.yAxisLabelColor[1];
+    }
+
+    let yAxisLabelText = "";
+    if (yAxisLocation === "left") {
+        yAxisLabelText = chartInfo.yAxisLabel[0];
+    } else if (yAxisLocation === "right") {
+        yAxisLabelText = chartInfo.yAxisLabel[1];
+    }
+
+    let yAxisUnitText = "";
+    if (yAxisLocation === "left") {
+        yAxisUnitText = chartInfo.yAxisUnit[0];
+    } else if (yAxisLocation === "right") {
+        yAxisUnitText = chartInfo.yAxisUnit[1];
+    }
 
     let yAxisGen;
     if (yAxisLocation === "left") {
         yAxisGen = d3.axisLeft(yScale);
-    } else {
+    } else if (yAxisLocation === "right") {
         yAxisGen = d3.axisRight(yScale);
     }
-    if (valueIsTime) {
+    if (yAxisGen && valueIsTime) {
         let tickFormat = getYTickFormat();
         yAxisGen.tickFormat(tickFormat);
     }
@@ -747,15 +773,20 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
     if (rightYAxis) {
         rightYAxisWidth = parseFloat(rightYAxis.attr("width"));
     }
-    // Get datasets names and dimensions
+    // Get datasets
     let datasets = renderInfo.datasets;
-    let names = datasets.getNames();
+    let xDatasetIds = datasets.getXDatasetIds();
+    // console.log(xDatasetIds);
+
+    // Get names and their dimension
+    let names = datasets.getNames(); // xDataset name included
     let nameSizes = names.map(function (n) {
         return measureTextSize(n, "tracker-legend-label");
     });
     let indMaxName = 0;
     let maxNameWidth = 0.0;
     for (let ind = 0; ind < names.length; ind++) {
+        if (xDatasetIds.includes(ind)) continue;
         if (nameSizes[ind].width > maxNameWidth) {
             maxNameWidth = nameSizes[ind].width;
             indMaxName = ind;
@@ -764,7 +795,7 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
     let maxName = names[indMaxName];
     let characterWidth = maxNameWidth / maxName.length;
     let nameHeight = nameSizes[indMaxName].height;
-    let numNames = names.length;
+    let numNames = names.length - xDatasetIds.length;
 
     let xSpacing = 2 * characterWidth;
     let ySpacing = nameHeight;
@@ -780,7 +811,8 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
         legendWidth =
             (2 * xSpacing + markerWidth) * numNames +
             xSpacing +
-            d3.sum(nameSizes, function (s) {
+            d3.sum(nameSizes, function (s, i) {
+                if (xDatasetIds.includes(i)) return 0;
                 return s.width;
             });
         legendHeight = ySpacing + nameHeight;
@@ -879,12 +911,21 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
                 .attr("x1", firstMarkerX)
                 .attr("x2", firstMarkerX + markerWidth)
                 .attr("y1", function (name: string, i: number) {
+                    let numElemsExcluded = xDatasetIds.filter((id) => {
+                        return id < i;
+                    }).length;
+                    i = i - numElemsExcluded;
                     return firstMarkerY + i * ySpacing;
                 })
                 .attr("y2", function (name: string, i: number) {
+                    let numElemsExcluded = xDatasetIds.filter((id) => {
+                        return id < i;
+                    }).length;
+                    i = i - numElemsExcluded;
                     return firstMarkerY + i * ySpacing;
                 })
                 .style("stroke", function (name: string, i: number) {
+                    if (xDatasetIds.includes(i)) return;
                     return datasets
                         .getDatasetById(i)
                         .getLineInfo().lineColor[i];
@@ -898,9 +939,14 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
                 .append("circle")
                 .attr("cx", firstMarkerX + markerWidth / 2.0)
                 .attr("cy", function (name: string, i: number) {
+                    let numElemsExcluded = xDatasetIds.filter((id) => {
+                        return id < i;
+                    }).length;
+                    i = i - numElemsExcluded;
                     return firstMarkerY + i * ySpacing;
                 })
                 .attr("r", function (name: string, i: number) {
+                    if (xDatasetIds.includes(i)) return;
                     if (datasets.getDatasetById(i).getLineInfo().showPoint[i]) {
                         return datasets.getDatasetById(i).getLineInfo()
                             .pointSize[i];
@@ -908,6 +954,7 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
                     return 0.0;
                 })
                 .style("fill", function (name: string, i: number) {
+                    if (xDatasetIds.includes(i)) return;
                     return datasets
                         .getDatasetById(i)
                         .getLineInfo().pointColor[i];
@@ -921,11 +968,16 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
                 .append("rect")
                 .attr("x", firstMarkerX)
                 .attr("y", function (name: string, i: number) {
+                    let numElemsExcluded = xDatasetIds.filter((id) => {
+                        return id < i;
+                    }).length;
+                    i = i - numElemsExcluded;
                     return firstMarkerY + i * ySpacing - nameHeight / 2.0;
                 })
                 .attr("width", markerWidth)
                 .attr("height", nameHeight)
                 .style("fill", function (name: string, i: number) {
+                    if (xDatasetIds.includes(i)) return;
                     return datasets.getDatasetById(i).getBarInfo().barColor[i];
                 });
         }
@@ -938,9 +990,14 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
             .append("text")
             .attr("x", firstLabelX)
             .attr("y", function (name: string, i: number) {
+                let numElemsExcluded = xDatasetIds.filter((id) => {
+                    return id < i;
+                }).length;
+                i = i - numElemsExcluded;
                 return firstLabelY + i * ySpacing;
             })
-            .text(function (name: string) {
+            .text(function (name: string, i: number) {
+                if (xDatasetIds.includes(i)) return "";
                 return name;
             })
             .style("alignment-baseline", "middle")
@@ -948,10 +1005,12 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
 
         if (renderInfo.output === OutputType.Line) {
             nameLabels.style("fill", function (name: string, i: number) {
+                if (xDatasetIds.includes(i)) return;
                 return datasets.getDatasetById(i).getLineInfo().lineColor[i];
             });
         } else if (renderInfo.output === OutputType.Bar) {
             nameLabels.style("fill", function (name: string, i: number) {
+                if (xDatasetIds.includes(i)) return;
                 return datasets.getDatasetById(i).getBarInfo().barColor[i];
             });
         }
@@ -966,6 +1025,10 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
                 .enter()
                 .append("line")
                 .attr("x1", function (name: string, i: number) {
+                    let numElemsExcluded = xDatasetIds.filter((id) => {
+                        return id < i;
+                    }).length;
+                    i = i - numElemsExcluded;
                     if (i === 0) {
                         currRenderPosX = firstMarkerX;
                     } else {
@@ -978,6 +1041,10 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
                     return currRenderPosX;
                 })
                 .attr("x2", function (name: string, i: number) {
+                    let numElemsExcluded = xDatasetIds.filter((id) => {
+                        return id < i;
+                    }).length;
+                    i = i - numElemsExcluded;
                     if (i === 0) {
                         currRenderPosX2 = firstMarkerX + markerWidth;
                     } else {
@@ -992,6 +1059,7 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
                 .attr("y1", firstMarkerY)
                 .attr("y2", firstMarkerY)
                 .style("stroke", function (name: string, i: number) {
+                    if (xDatasetIds.includes(i)) return;
                     return datasets
                         .getDatasetById(i)
                         .getLineInfo().lineColor[i];
@@ -1005,6 +1073,10 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
                 .enter()
                 .append("circle")
                 .attr("cx", function (name: string, i: number) {
+                    let numElemsExcluded = xDatasetIds.filter((id) => {
+                        return id < i;
+                    }).length;
+                    i = i - numElemsExcluded;
                     if (i === 0) {
                         currRenderPosX = firstMarkerX + markerWidth / 2.0;
                     } else {
@@ -1018,6 +1090,7 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
                 })
                 .attr("cy", firstMarkerY)
                 .attr("r", function (name: string, i: number) {
+                    if (xDatasetIds.includes(i)) return;
                     if (datasets.getDatasetById(i).getLineInfo().showPoint[i]) {
                         return datasets.getDatasetById(i).getLineInfo()
                             .pointSize[i];
@@ -1025,6 +1098,7 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
                     return 0.0;
                 })
                 .style("fill", function (name: string, i: number) {
+                    if (xDatasetIds.includes(i)) return;
                     return datasets
                         .getDatasetById(i)
                         .getLineInfo().pointColor[i];
@@ -1034,10 +1108,18 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
             currRenderPosX = 0.0;
             legend
                 .selectAll("markers")
-                .data(names)
+                .data(
+                    names.filter((n, i) => {
+                        return !xDatasetIds.includes(i);
+                    })
+                )
                 .enter()
                 .append("rect")
                 .attr("x", function (name: string, i: number) {
+                    let numElemsExcluded = xDatasetIds.filter((id) => {
+                        return id < i;
+                    }).length;
+                    i = i - numElemsExcluded;
                     if (i === 0) {
                         currRenderPosX = firstMarkerX;
                     } else {
@@ -1053,6 +1135,7 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
                 .attr("width", markerWidth)
                 .attr("height", nameHeight)
                 .style("fill", function (name: string, i: number) {
+                    if (xDatasetIds.includes(i)) return;
                     return datasets.getDatasetById(i).getBarInfo().barColor[i];
                 });
         }
@@ -1065,6 +1148,10 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
             .enter()
             .append("text")
             .attr("x", function (name: string, i: number) {
+                let numElemsExcluded = xDatasetIds.filter((id) => {
+                    return id < i;
+                }).length;
+                i = i - numElemsExcluded;
                 if (i === 0) {
                     currRenderPosX = firstLabelX;
                 } else {
@@ -1074,7 +1161,8 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
                 return currRenderPosX;
             })
             .attr("y", firstLabelY)
-            .text(function (name: string) {
+            .text(function (name: string, i: number) {
+                if (xDatasetIds.includes(i)) return "";
                 return name;
             })
             .style("alignment-baseline", "middle")
@@ -1082,10 +1170,12 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
 
         if (renderInfo.output === OutputType.Line) {
             nameLabels.style("fill", function (name: string, i: number) {
+                if (xDatasetIds.includes(i)) return;
                 return datasets.getDatasetById(i).getLineInfo().lineColor[i];
             });
         } else if (renderInfo.output === OutputType.Bar) {
             nameLabels.style("fill", function (name: string, i: number) {
+                if (xDatasetIds.includes(i)) return;
                 return datasets.getDatasetById(i).getBarInfo().barColor[i];
             });
         }
@@ -1254,12 +1344,13 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
 
     let datasetOnLeftYAxis = [];
     let datasetOnRightYAxis = [];
+    let xDatasetIds = renderInfo.datasets.getXDatasetIds();
     for (let ind = 0; ind < renderInfo.line.yAxisLocation.length; ind++) {
+        if (xDatasetIds.includes(ind)) continue;
         let yAxisLocation = renderInfo.line.yAxisLocation[ind];
         if (yAxisLocation.toLowerCase() === "left") {
             datasetOnLeftYAxis.push(ind);
-        } else {
-            // right
+        } else if (yAxisLocation.toLocaleLowerCase() === "right") {
             datasetOnRightYAxis.push(ind);
         }
     }
@@ -1277,6 +1368,7 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     if (chartElements.leftYAxis && chartElements.leftYScale) {
         for (let datasetId of datasetOnLeftYAxis) {
             let dataset = renderInfo.datasets.getDatasetById(datasetId);
+            if (dataset.getQuery().usedAsXDataset) continue;
 
             renderLine(chartElements, renderInfo, dataset, "left");
 
@@ -1297,6 +1389,7 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     if (chartElements.rightYAxis && chartElements.rightYScale) {
         for (let datasetId of datasetOnRightYAxis) {
             let dataset = renderInfo.datasets.getDatasetById(datasetId);
+            if (dataset.getQuery().usedAsXDataset) continue;
 
             renderLine(chartElements, renderInfo, dataset, "right");
 
@@ -1324,11 +1417,13 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
 
     let datasetOnLeftYAxis = [];
     let datasetOnRightYAxis = [];
+    let xDatasetIds = renderInfo.datasets.getXDatasetIds();
     for (let ind = 0; ind < renderInfo.bar.yAxisLocation.length; ind++) {
+        if (xDatasetIds.includes(ind)) continue;
         let yAxisLocation = renderInfo.bar.yAxisLocation[ind];
         if (yAxisLocation.toLowerCase() === "left") {
             datasetOnLeftYAxis.push(ind);
-        } else {
+        } else if (yAxisLocation.toLocaleLowerCase() === "right") {
             // right
             datasetOnRightYAxis.push(ind);
         }
@@ -1351,6 +1446,7 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     if (chartElements.leftYAxis && chartElements.leftYScale) {
         for (let datasetId of datasetOnLeftYAxis) {
             let dataset = renderInfo.datasets.getDatasetById(datasetId);
+            if (dataset.getQuery().usedAsXDataset) continue;
 
             renderBar(
                 chartElements,
@@ -1378,6 +1474,7 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     if (chartElements.rightYAxis && chartElements.rightYScale) {
         for (let datasetId of datasetOnRightYAxis) {
             let dataset = renderInfo.datasets.getDatasetById(datasetId);
+            if (dataset.getQuery().usedAsXDataset) continue;
 
             renderBar(
                 chartElements,

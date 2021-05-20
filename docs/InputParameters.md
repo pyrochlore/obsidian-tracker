@@ -19,6 +19,8 @@ These key-value pairs are placed under the YAML root.
 | **startDate** | The start date of collected dataset | 1 | Min date found |
 | **endDate** | The end date of collected dataset | 1 | Max date found |
 | **datasetName** | The name of the dataset collected from the search target | 1~NT | untitled |
+| **separator** | The character to separate multiple values in the search target | 1~NT | '/' |
+| **xDataset** | The id of the searchTarget to be used for searching x values for this target | 1~NT | -1 (use filename as xValue) |
 | **constValue** | The constant value of a target if no value attached | 1~NT | 1.0 |
 | **ignoreAttachedValue** | Use a constant value even if the target has a value attached on (true\|false) | 1~NT | false |
 | **ignoreZeroValue** | Treat zero value as missing value (true\|false) | 1~NT | false |

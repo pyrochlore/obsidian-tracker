@@ -1,5 +1,6 @@
 import Tracker from "./main";
 import {
+    SearchType,
     BarInfo,
     CommonChartInfo,
     Query,
@@ -10,7 +11,7 @@ import {
     LineInfo,
 } from "./data";
 import { TFolder, normalizePath } from "obsidian";
-import * as Yaml from "yaml";
+import { parseYaml } from "obsidian";
 import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
 
 function strToBool(str: string): boolean | null {
@@ -35,11 +36,24 @@ function validateSearchType(searchType: string): boolean {
         searchType === "tag" ||
         searchType === "text" ||
         searchType === "frontmatter" ||
-        searchType === "wiki"
+        searchType === "wiki" ||
+        searchType === "dvField" ||
+        searchType === "table"
     ) {
         return true;
     }
     return false;
+}
+
+function validateYAxisLocation(location: string): boolean {
+    if (location === "left" || location === "right" || location === "none") {
+        return true;
+    }
+    return false;
+}
+
+function validateColor(color: string): boolean {
+    return true;
 }
 
 function getBoolArrayFromInput(
@@ -580,7 +594,7 @@ function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
         yaml?.yAxisColor,
         2,
         "",
-        null,
+        validateColor,
         true
     );
     if (typeof retYAxisColor === "string") {
@@ -598,7 +612,7 @@ function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
         yaml?.yAxisLabelColor,
         2,
         "",
-        null,
+        validateColor,
         true
     );
     if (typeof retYAxisLabelColor === "string") {
@@ -668,7 +682,7 @@ export function getRenderInfoFromYaml(
 ): RenderInfo | string {
     let yaml;
     try {
-        yaml = Yaml.parse(yamlText);
+        yaml = parseYaml(yamlText);
     } catch (err) {
         let errorMessage = "Error parsing YAML";
         console.log(err);
@@ -736,9 +750,9 @@ export function getRenderInfoFromYaml(
         let errorMessage = "Parameter 'searchType' not found in YAML";
         return errorMessage;
     }
-    let searchType: Array<string> = [];
+    let searchType: Array<SearchType> = [];
     let retSearchType = getStringArrayFromInput(
-        "search type",
+        "searchType",
         yaml.searchType,
         numDatasets,
         "",
@@ -748,8 +762,59 @@ export function getRenderInfoFromYaml(
     if (typeof retSearchType === "string") {
         return retSearchType; // errorMessage
     }
-    searchType = retSearchType;
+    for (let strType of retSearchType) {
+        switch (strType) {
+            case "tag":
+                searchType.push(SearchType.Tag);
+                break;
+            case "frontmatter":
+                searchType.push(SearchType.Frontmatter);
+                break;
+            case "wiki":
+                searchType.push(SearchType.Wiki);
+                break;
+            case "text":
+                searchType.push(SearchType.Text);
+                break;
+            case "dvField":
+                searchType.push(SearchType.dvField);
+                break;
+            case "table":
+                searchType.push(SearchType.Table);
+                break;
+        }
+    }
+    // Currently, we don't allow type 'table' used with other types
+    if (
+        searchType.includes(SearchType.Table) &&
+        searchType.filter((t) => t !== SearchType.Table).length > 0
+    ) {
+        let errorMessage =
+            "searchType 'table' doestn't work with other types for now";
+        return errorMessage;
+    }
     // console.log(searchType);
+
+    // separator
+    let multipleValueSparator: Array<string> = [];
+    let retMultipleValueSparator = getStringArrayFromInput(
+        "separator",
+        yaml.separator,
+        numDatasets,
+        "/",
+        null,
+        true
+    );
+    if (typeof retMultipleValueSparator === "string") {
+        return retMultipleValueSparator; // errorMessage
+    }
+    multipleValueSparator = retMultipleValueSparator;
+
+    // xDataset
+    let xDataset = null;
+    if (typeof yaml.xDataset === "number") {
+        xDataset = yaml.xDataset;
+    }
 
     // Create queries
     let queries: Array<Query> = [];
@@ -759,6 +824,8 @@ export function getRenderInfoFromYaml(
             searchType[ind],
             searchTarget[ind]
         );
+        query.setSeparator(multipleValueSparator[ind]);
+        if (ind === xDataset) query.usedAsXDataset = true;
         queries.push(query);
     }
     // console.log(queries);
@@ -766,12 +833,16 @@ export function getRenderInfoFromYaml(
     // Create grarph info
     let renderInfo = new RenderInfo(queries);
     let keysOfRenderInfo = getAvailableKeysOfClass(renderInfo);
+    let additionalAllowedKeys = [
+        "searchType",
+        "searchTarget",
+        "separator",
+    ];
     // console.log(keysOfRenderInfo);
     for (let key of keysFoundInYAML) {
         if (
-            key !== "searchType" &&
-            key !== "searchTarget" &&
-            !keysOfRenderInfo.includes(key)
+            !keysOfRenderInfo.includes(key) &&
+            !additionalAllowedKeys.includes(key)
         ) {
             errorMessage = "'" + key + "' is not an available key";
             return errorMessage;
@@ -903,7 +974,27 @@ export function getRenderInfoFromYaml(
     // console.log(renderInfo.startDate);
     // console.log(renderInfo.endDate);
 
-    // Dataset name
+    // xDataset
+    let retXDataset = getNumberArrayFromInput(
+        "xDataset",
+        yaml.xDataset,
+        numDatasets,
+        -1,
+        true
+    );
+    if (typeof retXDataset === "string") {
+        return retXDataset; // errorMessage
+    }
+    retXDataset = retXDataset.map((d: number) => {
+        if (d < 0 || d >= numDatasets) {
+            return -1;
+        }
+        return d;
+    });
+    renderInfo.xDataset = retXDataset;
+    // console.log(renderInfo.xDataset);
+
+    // Dataset name (need xDataset to set default name)
     let retDatasetName = getStringArrayFromInput(
         "datasetName",
         yaml.datasetName,
@@ -918,6 +1009,7 @@ export function getRenderInfoFromYaml(
     // rename untitled
     let indUntitled = 0;
     for (let ind = 0; ind < retDatasetName.length; ind++) {
+        if (renderInfo.xDataset.includes(ind)) continue;
         if (retDatasetName[ind] === "untitled") {
             retDatasetName[ind] = "untitled" + indUntitled.toString();
             indUntitled++;
@@ -1083,7 +1175,7 @@ export function getRenderInfoFromYaml(
             yaml?.line?.lineColor,
             numDatasets,
             "",
-            null,
+            validateColor,
             true
         );
         if (typeof retLineColor === "string") {
@@ -1140,7 +1232,7 @@ export function getRenderInfoFromYaml(
             yaml?.line?.pointColor,
             numDatasets,
             "#69b3a2",
-            null,
+            validateColor,
             true
         );
         if (typeof retPointColor === "string") {
@@ -1155,7 +1247,7 @@ export function getRenderInfoFromYaml(
             yaml?.line?.pointBorderColor,
             numDatasets,
             "#69b3a2",
-            null,
+            validateColor,
             true
         );
         if (typeof retPointBorderColor === "string") {
@@ -1212,7 +1304,7 @@ export function getRenderInfoFromYaml(
             yaml?.line?.yAxisLocation,
             numDatasets,
             "left",
-            null,
+            validateYAxisLocation,
             true
         );
         if (typeof retYAxisLocation === "string") {
@@ -1251,7 +1343,7 @@ export function getRenderInfoFromYaml(
             yaml?.bar?.barColor,
             numDatasets,
             "",
-            null,
+            validateColor,
             true
         );
         if (typeof retBarColor === "string") {
@@ -1266,7 +1358,7 @@ export function getRenderInfoFromYaml(
             yaml?.bar?.yAxisLocation,
             numDatasets,
             "left",
-            null,
+            validateYAxisLocation,
             true
         );
         if (typeof retYAxisLocation === "string") {

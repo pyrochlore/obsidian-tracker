@@ -2,6 +2,15 @@ import { Moment } from "moment";
 
 export type NullableNumber = number | null;
 
+export enum SearchType {
+    Tag,
+    Frontmatter,
+    Wiki,
+    Text,
+    dvField,
+    Table,
+}
+
 export enum OutputType {
     Line,
     Bar,
@@ -22,31 +31,80 @@ export class DataPoint {
 }
 
 export class Query {
-    private type: string;
+    private type: SearchType | null;
     private target: string;
     private parentTarget: string | null;
+    private separator: string; // multiple value separator
     private id: number;
-    private subId: number;
-    private valueIsTime: boolean;
+    private accessor: number;
+    private accessor1: number;
+    private accessor2: number;
 
-    constructor(id: number, searchType: string, searchTarget: string) {
+    private valueIsTime: boolean;
+    usedAsXDataset: boolean;
+
+    constructor(id: number, searchType: SearchType, searchTarget: string) {
         this.type = searchType;
         this.target = searchTarget;
+        this.separator = "/";
         this.id = id;
-        this.subId = -1;
+        this.accessor = -1;
+        this.accessor1 = -1;
+        this.accessor2 = -1;
         this.valueIsTime = false;
+        this.usedAsXDataset = false;
 
-        let strRegex = "\\[(?<value>[0-9]+)\\]";
-        let regex = new RegExp(strRegex, "gm");
-        let match;
-        while ((match = regex.exec(searchTarget))) {
-            if (typeof match.groups.value !== "undefined") {
-                let value = parseFloat(match.groups.value);
-                if (Number.isNumber(value)) {
-                    this.subId = value;
-                    this.parentTarget = searchTarget.replace(regex, "");
+        if (searchType === SearchType.Table) {
+            // searchTarget --> {{filePath}}[{{table}}][{{column}}]
+            let strRegex =
+                "\\[(?<accessor>[0-9]+)\\]\\[(?<accessor1>[0-9]+)\\](\\[(?<accessor2>[0-9]+)\\])?";
+            let regex = new RegExp(strRegex, "gm");
+            let match;
+            while ((match = regex.exec(searchTarget))) {
+                if (typeof match.groups.accessor !== "undefined") {
+                    let accessor = parseFloat(match.groups.accessor);
+                    if (Number.isNumber(accessor)) {
+                        if (typeof match.groups.accessor1 !== "undefined") {
+                            let accessor1 = parseFloat(match.groups.accessor1);
+                            if (Number.isNumber(accessor1)) {
+                                let accessor2;
+                                if (
+                                    typeof match.groups.accessor2 !==
+                                    "undefined"
+                                ) {
+                                    accessor2 = parseFloat(
+                                        match.groups.accessor2
+                                    );
+                                }
+
+                                this.accessor = accessor;
+                                this.accessor1 = accessor1;
+                                if (Number.isNumber(accessor2)) {
+                                    this.accessor2 = accessor2;
+                                }
+                                this.parentTarget = searchTarget.replace(
+                                    regex,
+                                    ""
+                                );
+                            }
+                            break;
+                        }
+                    }
                 }
-                break;
+            }
+        } else {
+            let strRegex = "\\[(?<accessor>[0-9]+)\\]";
+            let regex = new RegExp(strRegex, "gm");
+            let match;
+            while ((match = regex.exec(searchTarget))) {
+                if (typeof match.groups.accessor !== "undefined") {
+                    let accessor = parseFloat(match.groups.accessor);
+                    if (Number.isNumber(accessor)) {
+                        this.accessor = accessor;
+                        this.parentTarget = searchTarget.replace(regex, "");
+                    }
+                    break;
+                }
             }
         }
     }
@@ -74,8 +132,17 @@ export class Query {
         return this.id;
     }
 
-    public getSubId() {
-        return this.subId;
+    public getAccessor(index = 0) {
+        switch (index) {
+            case 0:
+                return this.accessor;
+            case 1:
+                return this.accessor1;
+            case 2:
+                return this.accessor2;
+        }
+
+        return null;
     }
 
     public isUsingTimeValue() {
@@ -84,6 +151,14 @@ export class Query {
 
     public setUsingTimeValue() {
         this.valueIsTime = true;
+    }
+
+    public setSeparator(sep: string) {
+        this.separator = sep;
+    }
+
+    public getSeparator() {
+        return this.separator;
     }
 }
 
@@ -335,6 +410,19 @@ export class Datasets implements IterableIterator<Dataset> {
         }
     }
 
+    public getXDatasetIds() {
+        let ids: Array<number> = [];
+        for (let dataset of this.datasets) {
+            if (dataset.getQuery().usedAsXDataset) {
+                let id = dataset.getQuery().getId();
+                if (!ids.includes(id) && id !== -1) {
+                    ids.push(id);
+                }
+            }
+        }
+        return ids;
+    }
+
     public getDates() {
         return this.dates;
     }
@@ -370,6 +458,7 @@ export class Datasets implements IterableIterator<Dataset> {
 export class RenderInfo {
     // Input
     queries: Query[];
+    xDataset: number[];
     folder: string;
     dateFormat: string;
     dateFormatPrefix: string;
@@ -399,6 +488,7 @@ export class RenderInfo {
 
     constructor(queries: Query[]) {
         this.queries = queries;
+        this.xDataset = []; // use file name
         this.folder = "/";
         this.dateFormat = "YYYY-MM-DD";
         this.dateFormatPrefix = "";
@@ -569,3 +659,20 @@ export class Transform {
 export type ChartElements = {
     [key: string]: any;
 };
+
+export class TableData {
+    filePath: string;
+    tableIndex: number;
+    xDataset: Query | null;
+    yDatasets: Array<Query>;
+
+    constructor(filePath: string, tableIndex: number) {
+        this.filePath = filePath;
+        this.tableIndex = tableIndex;
+        this.xDataset = null;
+        this.yDatasets = []; // array of query
+    }
+}
+
+export type XValueMap = Map<number, string>;
+export type DataMap = Map<string, Array<QueryValuePair>>;

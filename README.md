@@ -13,14 +13,22 @@ This is an [Obsidian](https://obsidian.md/) plugin that helps you do tracking in
 | content | #finance/bank1/transfer:100USD | searchType: tag<br>searchTarget: finance/bank1/transfer | V |
 | content | #finance/bank1/transfer:100USD<br>#finance/bank1/income:80USD<br>#finance/bank1/outcome:-120USD | searchType: tag<br>searchTarget: finance/bank1 | V |
 | content | #blood-pressure:180/120 | searchType: tag<br>searchTarget: blood-pressure[0], blood-pressure[1] | V |
+| content | dvTarget:: 20.5 | searchType: dvField<br>searchTarget: dvTarget | V |
+| content | dvTarget:: 20.5/30.5 | searchType: dvField<br>searchTarget: dvTarget[0], dvTarget[1] | V |
+| content | dvTarget:: 20.5, 30.5 | searchType: dvField<br>searchTarget: dvTarget[0], dvTarget[1]<br>separator: ',' | V |
 | frontmatter | ---<br>mood: 10<br>--- | searchType: frontmatter<br>searchTarget: mood | V |
-| frontmatter | ---<br>sleep: 23/6<br>--- | searchType: frontmatter<br>searchTarget: sleep[0], sleep[1] | V |
+| frontmatter | ---<br>bp: 184.4/118.8<br>--- | searchType: frontmatter<br>searchTarget: bp[0], bp[1] | V |
+| frontmatter | ---<br>bp: 184.4, 118.8<br>--- | searchType: frontmatter<br>searchTarget: bp[0], bp[1]<br>separator: ',' | V |
+| frontmatter | ---<br>bp: [184.4, 118.8]<br>--- | searchType: frontmatter<br>searchTarget: bp[0], bp[1] | V |
 | content | [[journal]] | searchType: wiki<br>searchTarget: journal | O |
 | content | ⭐ | searchType: text<br>searchTarget: ⭐ | O |
 | content | love | searchType: text<br>searchTarget: love | O |
 | content | test@gmail.com<br>test@hotmail.com | searchType: text<br>serchTarget: '.+\\@.+\\..+' | O |
 | content | #weightlifting: 50 | searchType: text<br>searchTarget: 'weightlifting: (?\<value\>[\\-]?[0-9]+[\\.][0-9]+\|[\\-]?[0-9]+)' | V |
 | content | I walked 10000 steps today. | searchType: text<br>searchTarget: 'walked\\s+(?\<value\>[0-9]+)\\s+steps' | V |
+| content | myvalues 1/2/3 | searchType: text<br>searchTarget: 'myvalues\\s+(?\<value\>[0-9]+)/([0-9]+)/([0-9]+), myvalues\\s+([0-9]+)/(?\<value\>[0-9]+)/([0-9]+), myvalues\\s+([0-9]+)/([0-9]+)/(?\<value\>[0-9]+)' | V |
+| content | { a table filled with dates and values }<br>[example table](https://github.com/pyrochlore/obsidian-tracker/blod/master/examples/data/Tables.md) | searchType: table<br>searchTarget: filePath[0][0], filePath[0][1] | V |
+| content | { a table filled with dates and values }<br>[example table](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/data/Tables.md) | searchType: table<br>searchTarget: filePath[1][0], filePath[1][1][0], filePath[1][1][1] | V |
 
 ## Installation
 ### Install from Obsidian Settings Panel
@@ -49,11 +57,21 @@ This plugin was designed to read code blocks in [YAML format](https://en.wikiped
 [Here](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/InputParameters.md) are all the parameters (key-value pairs) defined in this plugin. They are used for collecting data, evaluating targets, data preprocessing, and rendering output.
 
 ### Collecting Data
-Providing key '**searchType**' and '**searchTarget**' is the minimum requirement for a successful data collection. The value of the key '**searchType**' can be '**tag**', '**frontmatter**', '**wiki**', or '**text**' and the cooresponding '**searchTarget**' should be provided according to the specified type.
+Providing parameters '**searchType**' and '**searchTarget**' is the minimum requirement for a successful data collection. The value of the key '**searchType**' can be '**tag**', '**frontmatter**', '**wiki**', '**dvField**', '**table**', or '**text**' and the cooresponding '**searchTarget**' should be provided according to the specified type.
 
+#### Multiple Targets
 From version 1.3, you can provide multiple search targets by entering an array of targets separated by a comma. Each of the targets will be identified then the corresponding value will be evaluated and form a dataset indexed by the order in the array (zero-based indexing).
 
-Multiple values under a target (value tuple) separated by a slash, e.g. #blood-pressure:180/120mmHg, are also got supported in version 1.3.0. To identify a specific value as a target, use bracket notation where the value in the bracket is the index by the order of values. In this case, they are blood-pressure[0] and blood-pressure[1]. You can find the example of this [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/BloodPressureTracker.md)
+```
+searchTarget: target0, target1, target2, ...... 
+searchType: type0, type1, type2, .....
+line:
+    lineColor: red, blue, yello
+```
+Above is an example of multiple target searching. Multiple targets are provided and separated by a comma. If they have a different searchType, provide the same number of types in the same order. In this case, the second search target 'target1' with index 1 has type 'type1'. Other parameters that accept multiple values (e.g. lineColor) can also be provided and will be applied to the corresponding dataset.
+
+#### Multiple Values
+Multiple values under a target (value tuple) separated by a slash, e.g. #bloodpressure:180/120mmHg, are also got supported in version 1.3.0. To identify a specific value as a target, use an accessor with bracket notation where the value in the bracket is the index by the order of values. In this case, they are bloodpressure[0] and bloodpressure[1]. You can find the example of this [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/BloodPressureTracker.md). You can also use a custom separator by using the parameter '**separator**'.
 
 ### Target Evaluation
 Depends on the '**searchType**' and the '**searchTarget**' you provided, the evaluation of a target would be different. Simply speaking, you can track the occurrences of a target or the value attached/embedded in it.
@@ -61,7 +79,7 @@ Depends on the '**searchType**' and the '**searchTarget**' you provided, the eva
 To see the detail about the target evaluation, please check the document [Target Evaluation](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md).
 
 ### Rendering Output
-Currently, obsidian-tracker provides three kinds of rendering output, the default one 'line' for a line chart, 'bar' for a bar chart and 'summary' for a text block. 
+Currently, obsidian-tracker provides three kinds of rendering output, the default one 'line' for a line chart, 'bar' for a bar chart, and 'summary' for a text block. 
 
 For 'line' or 'bar' output, the plugin will generate a customizable chart. For 'summary' output, a text block based on your '**template**' parameter will be generated. You can also use [pre-defined template variables](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TemplateVariables.md) in the template.
 
@@ -78,6 +96,18 @@ You can set the default folder location and date format in the plugin's settings
 For more information about the dateFormat settings, check the [TestDateFormats example](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md) and [moment.js string format](https://momentjs.com/docs/#/parsing/string-format/). 
 
 ## Release Notes
+### v1.5.0
+- New searchType 'table', searching records from a given table
+- New searchType 'dvField', searching the inline fields used with Dataview plugin
+- Enhance multiple values extraction
+    - Allow using multiple values in searchType 'text'
+    - Allow using array values in searchType 'frontmatter'
+    - Allow using multiple values in searchType 'dvField'
+    - Allow using multiple values in searchType 'table'
+    - Allow using custom separator for multiple values extraction
+- Improved performance
+- Reduced package size
+
 ### v1.4.1
 - Enhanced error handling
 
@@ -132,16 +162,16 @@ First version released at 2021-03-23
     - [x] Support tracking key-value pairs in frontmatter
     - [x] Support searching text using regular expression
     - [x] Support multiple targets and multiple values.
-    - [ ] Add a dateTarget key for tracking notes not named in the date format
-    - [ ] Allow tracking datetime value
-    - [ ] Get data from table
-    - [ ] Collect data from other plugins' API (e.g. dataview)
+    - [x] Add a parameter xDataset to identify targets to be used as x values
+    - [ ] Allow tracking date and time values
+    - [x] Get data from a table
+    - [x] Collect data from dataview plugin's inline fields
     - [ ] Allow manual data input, includes template varialbes embeded in
     - [ ] New search type 'codeblock'
 - Output Type and Graph
     - [x] New output type 'summary', analyzes the input data and represents it using a user-defined text template.
     - [x] New output type 'bar', renders bar chart.
-    - [ ] New output type 'table', lists the search result in a formatted table.
+    - [x] New output type 'table', lists the search result in a formatted table.
     - [ ] New output type 'heatmap', works like Github calendar heatmap.
     - [x] Add parameters for adjusting the size of the graph.
     - [ ] Multiple outputs from one code block

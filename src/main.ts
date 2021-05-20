@@ -1,4 +1,4 @@
-import { App, Plugin } from "obsidian";
+import { App, CachedMetadata, Plugin } from "obsidian";
 import { MarkdownPostProcessorContext, MarkdownView, Editor } from "obsidian";
 import { TFile, TFolder, normalizePath } from "obsidian";
 import { render, renderErrorMessage } from "./rendering";
@@ -9,12 +9,19 @@ import {
     Query,
     QueryValuePair,
     OutputType,
+    SearchType,
+    TableData,
+    RenderInfo,
+    XValueMap,
+    DataMap,
 } from "./data";
+import * as collecting from "./collecting";
 import {
     TrackerSettings,
     DEFAULT_SETTINGS,
     TrackerSettingTab,
 } from "./settings";
+import * as helper from "./helper";
 import { Moment } from "moment";
 // import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
 
@@ -24,21 +31,6 @@ declare global {
         moment: () => Moment;
     }
 }
-
-let timeFormat = [
-    "HH:mm",
-    "HH:m",
-    "H:mm",
-    "H:m",
-    "hh:mm A",
-    "hh:mm a",
-    "hh:m A",
-    "hh:m a",
-    "h:mm A",
-    "h:mm a",
-    "h:m A",
-    "h:m a",
-];
 
 export default class Tracker extends Plugin {
     settings: TrackerSettings;
@@ -126,8 +118,9 @@ export default class Tracker extends Plugin {
         return files;
     }
 
+    // To be moved to collecting.ts
     addToDataMap(
-        dataMap: Map<string, Array<QueryValuePair>>,
+        dataMap: DataMap,
         date: string,
         query: Query,
         value: NullableNumber
@@ -151,13 +144,14 @@ export default class Tracker extends Plugin {
         const canvas = document.createElement("div");
 
         let yamlText = source.trim();
-        let renderInfo = getRenderInfoFromYaml(yamlText, this);
-        if (typeof renderInfo === "string") {
-            let errorMessage = renderInfo;
+        let retRenderInfo = getRenderInfoFromYaml(yamlText, this);
+        if (typeof retRenderInfo === "string") {
+            let errorMessage = retRenderInfo;
             renderErrorMessage(canvas, errorMessage);
             el.appendChild(canvas);
             return;
         }
+        let renderInfo = retRenderInfo as RenderInfo;
         // console.log(renderInfo);
 
         // Get files
@@ -182,451 +176,384 @@ export default class Tracker extends Plugin {
         let maxDate = window.moment("");
         let fileCounter = 0;
 
-        // console.log(renderInfo.queries);
-        let dataMap = new Map<string, Array<QueryValuePair>>(); // {strDate: [query: value, ...]}
-        for (let file of files) {
-            for (let query of renderInfo.queries) {
-                let fileBaseName = file.basename;
-
+        let dataMap: DataMap = new Map(); // {strDate: [query: value, ...]}
+        // Collect data from files, each file has one data point for each query
+        const loopFilePromises = files.map(async (file) => {
+            // console.log(file.basename);
+            // Get fileCache and content
+            let fileCache: CachedMetadata = null;
+            let needFileCache = renderInfo.queries.some((q) => {
+                let type = q.getType();
                 if (
-                    renderInfo.dateFormatPrefix &&
-                    fileBaseName.startsWith(renderInfo.dateFormatPrefix)
+                    type === SearchType.Frontmatter ||
+                    type === SearchType.Tag ||
+                    type === SearchType.Wiki
                 ) {
-                    fileBaseName = fileBaseName.slice(
-                        renderInfo.dateFormatPrefix.length
-                    );
+                    return true;
                 }
-                if (
-                    renderInfo.dateFormatSuffix &&
-                    fileBaseName.endsWith(renderInfo.dateFormatSuffix)
-                ) {
-                    fileBaseName = fileBaseName.slice(
-                        0,
-                        fileBaseName.length - renderInfo.dateFormatSuffix.length
-                    );
-                }
-                // console.log(fileBaseName);
+                return false;
+            });
+            if (needFileCache) {
+                fileCache = this.app.metadataCache.getFileCache(file);
+            }
 
-                let fileDate = window.moment(
-                    fileBaseName,
-                    renderInfo.dateFormat,
-                    true
-                );
-                // console.log(fileDate);
-                // TODO: should exclude files out of date range
-                if (!fileDate.isValid()) {
-                    // console.log("file " + fileBaseName + " rejected");
-                    continue;
-                } else {
-                    // console.log("file " + fileBaseName + " accepted");
-                    if (renderInfo.startDate !== null) {
-                        if (fileDate < renderInfo.startDate) {
-                            continue;
+            let content: string = null;
+            let needContent = renderInfo.queries.some((q) => {
+                let type = q.getType();
+                if (
+                    type === SearchType.Tag ||
+                    type === SearchType.Text ||
+                    type === SearchType.dvField
+                ) {
+                    return true;
+                }
+                return false;
+            });
+            if (needContent) {
+                content = await this.app.vault.adapter.read(file.path);
+            }
+
+            // Get xValue and add it into xValueMap for later use
+            let xValueMap: XValueMap = new Map(); // queryId: xValue
+            let skipThisFile = false;
+            for (let xDatasetId of renderInfo.xDataset) {
+                if (!xValueMap.has(xDatasetId)) {
+                    if (xDatasetId === -1) {
+                        // Default using date in filename as xValue
+                        let fileDate = helper.getDateFromFilename(
+                            file,
+                            renderInfo
+                        );
+                        // console.log(fileDate);
+                        if (!fileDate.isValid()) {
+                            // console.log("file " + file.basename + " rejected");
+                            skipThisFile = true;
+                        } else {
+                            // console.log("file " + file.basename + " accepted");
+                            if (renderInfo.startDate !== null) {
+                                if (fileDate < renderInfo.startDate) {
+                                    skipThisFile = true;
+                                }
+                            }
+                            if (renderInfo.endDate !== null) {
+                                if (fileDate > renderInfo.endDate) {
+                                    skipThisFile = true;
+                                }
+                            }
+                        }
+
+                        if (!skipThisFile) {
+                            xValueMap.set(
+                                -1,
+                                fileDate.format(renderInfo.dateFormat)
+                            );
+                            fileCounter++;
+
+                            // Get min/max date
+                            if (fileCounter == 1) {
+                                minDate = fileDate.clone();
+                                maxDate = fileDate.clone();
+                            } else {
+                                if (fileDate < minDate) {
+                                    minDate = fileDate.clone();
+                                }
+                                if (fileDate > maxDate) {
+                                    maxDate = fileDate.clone();
+                                }
+                            }
+                        }
+                    } else {
+                        let xDatasetQuery = renderInfo.queries[xDatasetId];
+                        // console.log(xDatasetQuery);
+                        switch (xDatasetQuery.getType()) {
+                            case SearchType.Frontmatter:
+                                break;
+                            case SearchType.Tag:
+                                break;
+                            case SearchType.Text:
+                                break;
+                            case SearchType.dvField:
+                                break;
                         }
                     }
-                    if (renderInfo.endDate !== null) {
-                        if (fileDate > renderInfo.endDate) {
-                            continue;
-                        }
-                    }
-                    fileCounter++;
                 }
-                // console.log(query);
-                // console.log(fileBaseName);
+            }
+            if (skipThisFile) return;
+            // console.log(xValueMap);
 
-                // Get min/max date
-                if (fileCounter == 1) {
-                    minDate = fileDate.clone();
-                    maxDate = fileDate.clone();
-                } else {
-                    if (fileDate < minDate) {
-                        minDate = fileDate.clone();
-                    }
-                    if (fileDate > maxDate) {
-                        maxDate = fileDate.clone();
-                    }
-                }
-
-                // rules for assigning tag value
-                // simple tag
-                //   tag exists --> constant value
-                //   tag not exists --> null
-                // valued-attached tag
-                //   tag exists
-                //     with value --> that value
-                //     without value --> null
-                //   tag not exists --> null
-
-                let fileCache = this.app.metadataCache.getFileCache(file);
+            // Loop over queries
+            let yDatasetQueries = renderInfo.queries.filter((q) => {
+                return q.getType() !== SearchType.Table && !q.usedAsXDataset;
+            });
+            const loopQueryPromises = yDatasetQueries.map(async (query) => {
+                // Get xValue from file if xDataset assigned
+                // if (renderInfo.xDataset !== null)
+                // let xDatasetId = renderInfo.xDataset;
 
                 // console.log("Search frontmatter tags");
-                if (query.getType() === "tag") {
+                if (fileCache && query.getType() === SearchType.Tag) {
                     // Add frontmatter tags, allow simple tag only
-                    if (fileCache) {
-                        let frontMatter = fileCache.frontmatter;
-                        let frontMatterTags: string[] = [];
-                        if (frontMatter && frontMatter.tags) {
-                            // console.log(frontMatter.tags);
-                            let tagMeasure = 0.0;
-                            let tagExist = false;
-                            if (Array.isArray(frontMatter.tags)) {
-                                frontMatterTags = frontMatterTags.concat(
-                                    frontMatter.tags
-                                );
-                            } else {
-                                frontMatterTags.push(frontMatter.tags);
-                            }
+                    collecting.collectDataFromFrontmatterTag(
+                        fileCache,
+                        query,
+                        renderInfo,
+                        dataMap,
+                        xValueMap
+                    );
+                } // Search frontmatter tags
 
-                            for (let tag of frontMatterTags) {
-                                if (tag === query.getTarget()) {
-                                    // simple tag
-                                    tagMeasure =
-                                        tagMeasure +
-                                        renderInfo.constValue[query.getId()];
-                                    tagExist = true;
-                                } else if (
-                                    tag.startsWith(query.getTarget() + "/")
-                                ) {
-                                    // nested tag
-                                    tagMeasure =
-                                        tagMeasure +
-                                        renderInfo.constValue[query.getId()];
-                                    tagExist = true;
-                                } else {
-                                    continue;
-                                }
+                // console.log("Search frontmatter keys");
+                if (
+                    fileCache &&
+                    query.getType() === SearchType.Frontmatter &&
+                    query.getTarget() !== "tags"
+                ) {
+                    collecting.collectDataFromFrontmatterKey(
+                        fileCache,
+                        query,
+                        renderInfo,
+                        dataMap,
+                        xValueMap
+                    );
+                } // console.log("Search frontmatter keys");
 
-                                // valued-tag in frontmatter is not supported
-                                // because the "tag:value" in frontmatter will be consider as a new tag for different values
+                // console.log("Search wiki links");
+                if (fileCache && query.getType() === SearchType.Wiki) {
+                    collecting.collectDataFromWiki(
+                        fileCache,
+                        query,
+                        renderInfo,
+                        dataMap,
+                        xValueMap
+                    );
+                }
 
-                                let value = null;
-                                if (tagExist) {
-                                    value = tagMeasure;
-                                }
+                // console.log("Search inline tags");
+                if (content && query.getType() === SearchType.Tag) {
+                    collecting.collectDataFromInlineTag(
+                        content,
+                        query,
+                        renderInfo,
+                        dataMap,
+                        xValueMap
+                    );
+                } // Search inline tags
+
+                // console.log("Search text");
+                if (content && query.getType() === SearchType.Text) {
+                    collecting.collectDataFromText(
+                        content,
+                        query,
+                        renderInfo,
+                        dataMap,
+                        xValueMap
+                    );
+                } // Search text
+
+                // console.log("Search dvField");
+                if (content && query.getType() === SearchType.dvField) {
+                    collecting.collectDataFromDvField(
+                        content,
+                        query,
+                        renderInfo,
+                        dataMap,
+                        xValueMap
+                    );
+                } // search dvField
+            });
+            await Promise.all(loopQueryPromises);
+        });
+        await Promise.all(loopFilePromises);
+
+        // Collect data from a file, one file contains full dataset
+        let tableQueries = renderInfo.queries.filter(
+            (q) => q.getType() === SearchType.Table
+        );
+        // Separate queries by tables and xDatasets/yDatasets
+        let tables: Array<TableData> = [];
+        for (let query of tableQueries) {
+            let filePath = query.getParentTarget();
+            let tableIndex = query.getAccessor();
+            let isX = query.usedAsXDataset;
+
+            let table = tables.find(
+                (t) => t.filePath === filePath && t.tableIndex === tableIndex
+            );
+            if (table) {
+                if (isX) {
+                    table.xDataset = query;
+                } else {
+                    table.yDatasets.push(query);
+                }
+            } else {
+                let tableData = new TableData(filePath, tableIndex);
+                if (isX) {
+                    tableData.xDataset = query;
+                } else {
+                    tableData.yDatasets.push(query);
+                }
+                tables.push(tableData);
+            }
+        }
+        // console.log(tables);
+
+        for (let tableData of tables) {
+            //extract xDataset from query
+            let xDatasetQuery = tableData.xDataset;
+            let yDatasetQueries = tableData.yDatasets;
+            let filePath = xDatasetQuery.getParentTarget();
+            let tableIndex = xDatasetQuery.getAccessor();
+
+            // Get table text
+            let textTable = "";
+            filePath = filePath + ".md";
+            let file = this.app.vault.getAbstractFileByPath(
+                normalizePath(filePath)
+            );
+            if (file && file instanceof TFile) {
+                fileCounter++;
+                let content = await this.app.vault.adapter.read(file.path);
+                // console.log(content);
+
+                // Test this in Regex101
+                // This is a not-so-strict table selector
+                // ((\r?\n){2}|^)([^\r\n]*\|[^\r\n]*(\r?\n)?)+(?=(\r?\n){2}|$)
+                let strMDTableRegex =
+                    "((\\r?\\n){2}|^)([^\\r\\n]*\\|[^\\r\\n]*(\\r?\\n)?)+(?=(\\r?\\n){2}|$)";
+                // console.log(strMDTableRegex);
+                let mdTableRegex = new RegExp(strMDTableRegex, "gm");
+                let match;
+                let indTable = 0;
+
+                while ((match = mdTableRegex.exec(content))) {
+                    // console.log(match);
+                    if (indTable === tableIndex) {
+                        textTable = match[0];
+                        break;
+                    }
+                    indTable++;
+                }
+            } else {
+                // file not exists
+                continue;
+            }
+            // console.log(textTable);
+
+            let tableLines = textTable.split(/\r?\n/);
+            tableLines = tableLines.filter((line) => {
+                return line !== "";
+            });
+            let numColumns = 0;
+            let numDataRows = 0;
+            // console.log(tableLines);
+
+            // Make sure it is a valid table first
+            if (tableLines.length >= 2) {
+                // Must have header and separator line
+                let headerLine = tableLines.shift().trim();
+                headerLine = helper.trimByChar(headerLine, "|");
+                let headerSplitted = headerLine.split("|");
+                numColumns = headerSplitted.length;
+
+                let sepLine = tableLines.shift().trim();
+                sepLine = helper.trimByChar(sepLine, "|");
+                let spepLineSplitted = sepLine.split("|");
+                for (let col of spepLineSplitted) {
+                    if (!col.includes("-")) {
+                        break; // Not a valid sep
+                    }
+                }
+
+                numDataRows = tableLines.length;
+            }
+
+            if (numDataRows == 0) continue;
+
+            // get x data
+            let columnXDataset = xDatasetQuery.getAccessor(1);
+            if (columnXDataset >= numColumns) continue;
+            let xValues = [];
+
+            for (let tableLine of tableLines) {
+                let dataRow = helper.trimByChar(tableLine.trim(), "|");
+                let dataRowSplitted = dataRow.split("|");
+                if (columnXDataset < dataRowSplitted.length) {
+                    let data = dataRowSplitted[columnXDataset].trim();
+
+                    let date = window.moment(data, renderInfo.dateFormat, true);
+
+                    if (!minDate.isValid() && !maxDate.isValid()) {
+                        minDate = date.clone();
+                        maxDate = date.clone();
+                    } else {
+                        if (date < minDate) {
+                            minDate = date.clone();
+                        }
+                        if (date > maxDate) {
+                            maxDate = date.clone();
+                        }
+                    }
+
+                    xValues.push(date);
+                }
+            }
+            // console.log(xValues);
+
+            // get y data
+            for (let yDatasetQuery of yDatasetQueries) {
+                let columnOfInterest = yDatasetQuery.getAccessor(1);
+                // console.log(`columnOfInterest: ${columnOfInterest}, numColumns: ${numColumns}`);
+                if (columnOfInterest >= numColumns) continue;
+
+                let indLine = 0;
+                for (let tableLine of tableLines) {
+                    let dataRow = helper.trimByChar(tableLine.trim(), "|");
+                    let dataRowSplitted = dataRow.split("|");
+                    if (columnOfInterest < dataRowSplitted.length) {
+                        let data = dataRowSplitted[columnOfInterest].trim();
+                        let splitted = data.split(yDatasetQuery.getSeparator());
+                        if (!splitted) continue;
+                        if (splitted.length === 1) {
+                            let value = parseFloat(splitted[0]);
+                            if (Number.isNumber(value)) {
                                 this.addToDataMap(
                                     dataMap,
-                                    fileDate.format(renderInfo.dateFormat),
-                                    query,
+                                    xValues[indLine].format(
+                                        renderInfo.dateFormat
+                                    ),
+                                    yDatasetQuery,
+                                    value
+                                );
+                            }
+                        } else if (
+                            splitted.length > yDatasetQuery.getAccessor(2) &&
+                            yDatasetQuery.getAccessor(2) >= 0
+                        ) {
+                            let value = null;
+                            let splittedPart =
+                                splitted[yDatasetQuery.getAccessor(2)].trim();
+                            value = parseFloat(splittedPart);
+                            if (Number.isNumber(value)) {
+                                this.addToDataMap(
+                                    dataMap,
+                                    xValues[indLine].format(
+                                        renderInfo.dateFormat
+                                    ),
+                                    yDatasetQuery,
                                     value
                                 );
                             }
                         }
                     }
-                } // Search frontmatter tags
 
-                // console.log("Search frontmatter keys");
-                if (
-                    query.getType() === "frontmatter" &&
-                    query.getTarget() !== "tags"
-                ) {
-                    if (fileCache) {
-                        let frontMatter = fileCache.frontmatter;
-                        if (frontMatter) {
-                            if (frontMatter[query.getTarget()]) {
-                                // console.log("single value");
-                                // console.log(frontMatter[query.getTarget()]);
-                                let value = null;
-                                let toParse = frontMatter[query.getTarget()];
-                                if (typeof toParse === "string") {
-                                    if (toParse.includes(":")) {
-                                        // time value
-                                        let timeValue = window.moment(
-                                            toParse,
-                                            timeFormat,
-                                            true
-                                        );
-                                        if (timeValue.isValid()) {
-                                            query.setUsingTimeValue();
-                                            value = timeValue.diff(
-                                                window.moment(
-                                                    "00:00",
-                                                    "HH:mm",
-                                                    true
-                                                ),
-                                                "seconds"
-                                            );
-                                        }
-                                    } else {
-                                        value = parseFloat(toParse);
-                                    }
-                                } else {
-                                    value = parseFloat(toParse);
-                                }
-                                if (Number.isNumber(value)) {
-                                    this.addToDataMap(
-                                        dataMap,
-                                        fileDate.format(renderInfo.dateFormat),
-                                        query,
-                                        value
-                                    );
-                                }
-                            } else if (
-                                query.getParentTarget() &&
-                                frontMatter[query.getParentTarget()]
-                            ) {
-                                // console.log("multiple values");
-                                // console.log(query.getTarget());
-                                // console.log(query.getParentTarget());
-                                // console.log(query.getSubId());
-                                // console.log(
-                                //     frontMatter[query.getParentTarget()]
-                                // );
-                                let toParse =
-                                    frontMatter[query.getParentTarget()];
-
-                                if (typeof toParse === "string") {
-                                    let splitted = toParse.split("/");
-                                    if (
-                                        splitted.length > query.getSubId() &&
-                                        query.getSubId() >= 0
-                                    ) {
-                                        // TODO: it's not efficent to retrieve one value at a time, enhance this
-                                        let value = null;
-                                        let splittedPart =
-                                            splitted[query.getSubId()].trim();
-                                        if (toParse.includes(":")) {
-                                            // time value
-                                            let timeValue = window.moment(
-                                                splittedPart,
-                                                timeFormat,
-                                                true
-                                            );
-                                            if (timeValue.isValid()) {
-                                                query.setUsingTimeValue();
-                                                value = timeValue.diff(
-                                                    window.moment(
-                                                        "00:00",
-                                                        "HH:mm",
-                                                        true
-                                                    ),
-                                                    "seconds"
-                                                );
-                                            }
-                                        } else {
-                                            value = parseFloat(splittedPart);
-                                        }
-
-                                        if (Number.isNumber(value)) {
-                                            this.addToDataMap(
-                                                dataMap,
-                                                fileDate.format(
-                                                    renderInfo.dateFormat
-                                                ),
-                                                query,
-                                                value
-                                            );
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } // console.log("Search frontmatter keys");
-
-                // console.log("Search wiki links");
-                if (query.getType() === "wiki") {
-                    if (fileCache) {
-                        let links = fileCache.links;
-
-                        let linkMeasure = 0.0;
-                        let linkExist = false;
-                        for (let link of links) {
-                            if (link.link === query.getTarget()) {
-                                linkExist = true;
-                                linkMeasure =
-                                    linkMeasure +
-                                    renderInfo.constValue[query.getId()];
-                            }
-                        }
-
-                        let linkValue = null;
-                        if (linkExist) {
-                            linkValue = linkMeasure;
-                        }
-                        this.addToDataMap(
-                            dataMap,
-                            fileDate.format(renderInfo.dateFormat),
-                            query,
-                            linkValue
-                        );
-                    }
-                }
-
-                // console.log("Search inline tags");
-                if (query.getType() === "tag") {
-                    // Add inline tags
-                    let content = await this.app.vault.adapter.read(file.path);
-
-                    // console.log(content);
-                    // Test this in Regex101
-                    // (^|\s)#tagName(\/[\w-]+)*(:(?<values>[\d\.\/-]*)[a-zA-Z]*)?([\\.!,\\?;~-]*)?(\s|$)
-                    let tagName = query.getTarget();
-                    if (query.getParentTarget()) {
-                        tagName = query.getParentTarget(); // use parent tag name for multiple values
-                    }
-                    let strHashtagRegex =
-                        "(^|\\s)#" +
-                        tagName +
-                        "(\\/[\\w-]+)*(:(?<values>[\\d\\.\\/-]*)[a-zA-Z]*)?([\\.!,\\?;~-]*)?(\\s|$)";
-                    // console.log(strHashtagRegex);
-                    let hashTagRegex = new RegExp(strHashtagRegex, "gm");
-                    let match;
-                    let tagMeasure = 0.0;
-                    let tagExist = false;
-                    while ((match = hashTagRegex.exec(content))) {
-                        // console.log(match);
-                        if (
-                            !renderInfo.ignoreAttachedValue[query.getId()] &&
-                            typeof match.groups !== "undefined" &&
-                            typeof match.groups.values !== "undefined"
-                        ) {
-                            // console.log("value-attached tag");
-                            let splitted = match.groups.values.split("/");
-                            if (splitted.length === 1) {
-                                // console.log("single-value");
-                                let toParse = match.groups.values.trim();
-                                if (toParse.includes(":")) {
-                                    let timeValue = window.moment(
-                                        toParse,
-                                        timeFormat,
-                                        true
-                                    );
-                                    if (timeValue.isValid()) {
-                                        query.setUsingTimeValue();
-                                        tagMeasure = timeValue.diff(
-                                            window.moment(
-                                                "00:00",
-                                                "HH:mm",
-                                                true
-                                            ),
-                                            "seconds"
-                                        );
-                                        tagExist = true;
-                                    }
-                                } else {
-                                    let value = parseFloat(toParse);
-                                    // console.log(value);
-                                    if (!Number.isNaN(value)) {
-                                        if (
-                                            !renderInfo.ignoreZeroValue[
-                                                query.getId()
-                                            ] ||
-                                            value !== 0
-                                        ) {
-                                            tagMeasure += value;
-                                            tagExist = true;
-                                        }
-                                    }
-                                }
-                            } else if (
-                                splitted.length > query.getSubId() &&
-                                query.getSubId() >= 0
-                            ) {
-                                // TODO: it's not efficent to retrieve one value at a time, enhance this
-                                // console.log("multiple-values");
-                                let toParse = splitted[query.getSubId()].trim();
-                                if (toParse.includes(":")) {
-                                    let timeValue = window.moment(
-                                        toParse,
-                                        timeFormat,
-                                        true
-                                    );
-                                    if (timeValue.isValid()) {
-                                        query.setUsingTimeValue();
-                                        tagMeasure = timeValue.diff(
-                                            window.moment(
-                                                "00:00",
-                                                "HH:mm",
-                                                true
-                                            ),
-                                            "seconds"
-                                        );
-                                        tagExist = true;
-                                    }
-                                } else {
-                                    let value = parseFloat(toParse);
-                                    if (Number.isNumber(value)) {
-                                        tagMeasure += value;
-                                        tagExist = true;
-                                    }
-                                }
-                            }
-                        } else {
-                            // console.log("simple-tag");
-                            tagMeasure =
-                                tagMeasure +
-                                renderInfo.constValue[query.getId()];
-                            tagExist = true;
-                        }
-                    }
-
-                    let value = null;
-                    if (tagExist) {
-                        value = tagMeasure;
-                    }
-                    this.addToDataMap(
-                        dataMap,
-                        fileDate.format(renderInfo.dateFormat),
-                        query,
-                        value
-                    );
-                } // Search inline tags
-
-                // console.log("Search text");
-                if (query.getType() === "text") {
-                    let content = await this.app.vault.adapter.read(file.path);
-                    // console.log(content);
-                    let strTextRegex = query.getTarget();
-
-                    let textRegex = new RegExp(strTextRegex, "gm");
-                    let match;
-                    let textMeasure = 0.0;
-                    let textExist = false;
-                    while ((match = textRegex.exec(content))) {
-                        if (
-                            !renderInfo.ignoreAttachedValue[query.getId()] &&
-                            typeof match.groups !== "undefined"
-                        ) {
-                            // match[0] whole match
-                            // console.log("valued-text");
-                            if (typeof match.groups.value !== "undefined") {
-                                // set as null for missing value if it is valued-tag
-                                let value = parseFloat(match.groups.value);
-                                // console.log(value);
-                                if (!Number.isNaN(value)) {
-                                    if (
-                                        !renderInfo.ignoreZeroValue[
-                                            query.getId()
-                                        ] ||
-                                        value !== 0
-                                    ) {
-                                        textMeasure += value;
-                                        textExist = true;
-                                    }
-                                }
-                            }
-                        } else {
-                            // console.log("simple-text");
-                            textMeasure =
-                                textMeasure +
-                                renderInfo.constValue[query.getId()];
-                            textExist = true;
-                        }
-                    }
-
-                    if (textExist) {
-                        this.addToDataMap(
-                            dataMap,
-                            fileDate.format(renderInfo.dateFormat),
-                            query,
-                            textMeasure
-                        );
-                    }
-                } // Search text
-            } // end loof of files
+                    indLine++;
+                } // Loop over tableLines
+            }
         }
+
         if (fileCounter === 0) {
-            let errorMessage = "No notes found in the date range.";
+            let errorMessage =
+                "No notes found under the given search condition";
             renderErrorMessage(canvas, errorMessage);
             el.appendChild(canvas);
             return;
@@ -689,6 +616,8 @@ export default class Tracker extends Plugin {
         // Reshape data for rendering
         let datasets = new Datasets(renderInfo.startDate, renderInfo.endDate);
         for (let query of renderInfo.queries) {
+            // We still create a dataset for xDataset,
+            // to keep the sequence and order of targets
             let dataset = datasets.createDataset(query, renderInfo);
             for (
                 let curDate = renderInfo.startDate.clone();
