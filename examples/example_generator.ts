@@ -193,6 +193,8 @@ for (
     let dataviewValue1 = randomIntFromInterval(0, 50);
     let dataviewValue2 = randomIntFromInterval(50, 100);
     content += "dataviewTarget:: " + dataviewValue + "\n";
+    content += "- Make Progress:: " + dataviewValue1 + "\n";
+    content += "- Make-Progress:: " + dataviewValue2 + "\n";
     content +=
         "dataviewTarget1:: " + dataviewValue + "/" + dataviewValue1 + "\n";
     content +=
