@@ -808,7 +808,13 @@ export function getRenderInfoFromYaml(
     if (typeof retMultipleValueSparator === "string") {
         return retMultipleValueSparator; // errorMessage
     }
-    multipleValueSparator = retMultipleValueSparator;
+    multipleValueSparator = retMultipleValueSparator.map( sep => {
+        if (sep === "comma") {
+            return ",";
+        }
+        return sep;
+    });
+    // console.log(multipleValueSparator);
 
     // xDataset
     let retXDataset = getNumberArrayFromInput(

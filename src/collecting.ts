@@ -355,12 +355,12 @@ export function collectDataFromDvField(
     dataMap: DataMap,
     xValueMap: XValueMap
 ) {
-    // Test this in Regex101
-    // (^|\s)\*{0,2}dvTarget\*{0,2}(::\s*(?<values>[\d\.\/\-\w,@;\s]*))(\s|$)
     let dvTarget = query.getTarget();
     if (query.getParentTarget()) {
         dvTarget = query.getParentTarget(); // use parent tag name for multiple values
     }
+    // Test this in Regex101
+    // (^|\s)\*{0,2}dvTarget\*{0,2}(::\s*(?<values>[\d\.\/\-\w,@;\s]*))(\s|$)
     let strHashtagRegex =
         "(^|\\s)\\*{0,2}" +
         dvTarget +
@@ -377,7 +377,10 @@ export function collectDataFromDvField(
             typeof match.groups.values !== "undefined"
         ) {
             let values = match.groups.values.trim();
+            // console.log(values);
+            // console.log(query.getSeparator());
             let splitted = values.split(query.getSeparator());
+            // console.log(splitted);
             if (!splitted) continue;
             if (splitted.length === 1) {
                 // console.log("single-value");

@@ -68,7 +68,7 @@ searchTarget: bloodpressure1[0], bloodpressure1[1]
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
-separator: ","
+separator: comma
 line:
     title: Blood Pressure
     lineColor: yellow, red
@@ -142,13 +142,14 @@ line:
     lineColor: green, red
 ```
 
-Multiple values seprated by ','
+Multiple values seprated by 'comma'
 ``` tracker
 searchType: dvField
 searchTarget: dataviewTarget3[0], dataviewTarget3[1]
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
+separator: comma
 line:
     title: dvField
     lineColor: green, red
