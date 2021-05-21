@@ -811,10 +811,23 @@ export function getRenderInfoFromYaml(
     multipleValueSparator = retMultipleValueSparator;
 
     // xDataset
-    let xDataset = null;
-    if (typeof yaml.xDataset === "number") {
-        xDataset = yaml.xDataset;
+    let retXDataset = getNumberArrayFromInput(
+        "xDataset",
+        yaml.xDataset,
+        numDatasets,
+        -1,
+        true
+    );
+    if (typeof retXDataset === "string") {
+        return retXDataset; // errorMessage
     }
+    let xDataset = retXDataset.map((d: number) => {
+        if (d < 0 || d >= numDatasets) {
+            return -1;
+        }
+        return d;
+    });
+    // assign this to renderInfo later
 
     // Create queries
     let queries: Array<Query> = [];
@@ -825,7 +838,7 @@ export function getRenderInfoFromYaml(
             searchTarget[ind]
         );
         query.setSeparator(multipleValueSparator[ind]);
-        if (ind === xDataset) query.usedAsXDataset = true;
+        if (xDataset.includes(ind)) query.usedAsXDataset = true;
         queries.push(query);
     }
     // console.log(queries);
@@ -975,23 +988,7 @@ export function getRenderInfoFromYaml(
     // console.log(renderInfo.endDate);
 
     // xDataset
-    let retXDataset = getNumberArrayFromInput(
-        "xDataset",
-        yaml.xDataset,
-        numDatasets,
-        -1,
-        true
-    );
-    if (typeof retXDataset === "string") {
-        return retXDataset; // errorMessage
-    }
-    retXDataset = retXDataset.map((d: number) => {
-        if (d < 0 || d >= numDatasets) {
-            return -1;
-        }
-        return d;
-    });
-    renderInfo.xDataset = retXDataset;
+    renderInfo.xDataset = xDataset;
     // console.log(renderInfo.xDataset);
 
     // Dataset name (need xDataset to set default name)
