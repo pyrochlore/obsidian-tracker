@@ -1,5 +1,5 @@
 # Test Table
-Use first column as X dataset and others as Y values
+Use first column as X dataset , and second and third columns as Y values
 ``` tracker
 searchType: table
 searchTarget: data/Tables[0][0], data/Tables[0][1], data/Tables[0][2]
@@ -8,6 +8,18 @@ line:
     yAxisLocation: none, left, right
     lineColor: none, yellow, red
     showLegend: true
+```
+
+Use first column as X dataset , and third and forth columns as Y values
+``` tracker
+searchType: table
+searchTarget: data/Tables[0][0], data/Tables[0][2], data/Tables[0][3]
+xDataset: 0
+line:
+    yAxisLocation: none, left, right
+    lineColor: none, yellow, red
+    showLegend: true
+    legendPosition: right
 ```
 
 Use first column as X dataset. Second column posses multiple values in each cell.
