@@ -1538,7 +1538,7 @@ let fnSet = {
         }
         return maxStreak;
     },
-    maxBreak: function (renderInfo: RenderInfo, datasetId: number) {
+    maxBreaks: function (renderInfo: RenderInfo, datasetId: number) {
         let streak = 0;
         let maxBreak = 0;
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
@@ -1568,6 +1568,20 @@ let fnSet = {
             }
         }
         return streak;
+    },
+    lastBreaks: function (renderInfo: RenderInfo, datasetId: number) {
+        let breakDays = 0;
+        let dataset = renderInfo.datasets.getDatasetById(datasetId);
+        let values = dataset.getValues();
+        for (let ind = values.length - 1; ind >= 0; ind--) {
+            let value = values[ind];
+            if (value === null) {
+                breakDays++;
+            } else {
+                break;
+            }
+        }
+        return breakDays;
     },
     average: function (renderInfo: RenderInfo, datasetId: number) {
         let dataset = renderInfo.datasets.getDatasetById(datasetId);

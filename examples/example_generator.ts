@@ -144,6 +144,15 @@ for (
 
     content += "\n";
 
+    // clean up
+    let tagCleanUp = "#clean-up";
+    let doCleanUp = randomIntFromInterval(0, 30);
+    if (doCleanUp === 1) {
+        content += tagCleanUp + "\n";
+    }
+
+    content += "\n";
+
     // finance
     let tagFinanceBank1 = "#finance/bank1";
     let tagFinanceBank2 = "#finance/bank2";
