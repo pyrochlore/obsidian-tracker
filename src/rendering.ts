@@ -593,6 +593,7 @@ function renderPoints(
                     return p.value.toFixed(2);
                 }
             })
+            .attr("valueType", ValueType[dataset.valueType])
             .attr("class", "tracker-dot");
         if (lineInfo.pointColor[dataset.getId()]) {
             dots.style("fill", lineInfo.pointColor[dataset.getId()]);
@@ -637,13 +638,21 @@ function renderPoints(
                 // Date
                 tooltipLabelDate.text("date:" + d3.select(this).attr("date"));
                 // Value
+                let valueType = d3.select(this).attr("valueType");
                 let strValue = d3.select(this).attr("value");
-                let dayStart = window.moment("00:00", "HH:mm", true);
-                let tickTime = dayStart.add(parseFloat(strValue), "seconds");
-                let dateValue = tickTime.format("HH:mm");
-                tooltipLabelValue.text(
-                    "value:" + dateValue
-                );
+                if (valueType === "Time") {
+                    let dayStart = window.moment("00:00", "HH:mm", true);
+                    let tickTime = dayStart.add(parseFloat(strValue), "seconds");
+                    let dateValue = tickTime.format("HH:mm");
+                    tooltipLabelValue.text(
+                        "value:" + dateValue
+                    );
+                }
+                else {
+                    tooltipLabelValue.text(
+                        "value:" + strValue
+                    );
+                }
 
                 const [x, y] = d3.pointer(event);
                 if (x < renderInfo.dataAreaSize.width / 2) {
