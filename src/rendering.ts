@@ -71,14 +71,14 @@ function getYTickValues(yLower: number, yUpper: number) {
     // currently used for time value tick only, value in seconds
     const absExtent = Math.abs(yUpper - yLower);
     let tickValues = [];
-    if (absExtent > 5 * 60 * 60) {// extent over than 5 hours
+    if (absExtent > 5 * 60 * 60) {
+        // extent over than 5 hours
         // tick on the hour
         yLower = Math.floor(yLower / 3600) * 3600;
         yUpper = Math.ceil(yUpper / 3600) * 3600;
 
         tickValues = d3.range(yLower, yUpper, 3600);
-    }
-    else {
+    } else {
         // tick on the half hour
         yLower = Math.floor(yLower / 1800) * 1800;
         yUpper = Math.ceil(yUpper / 1800) * 1800;
@@ -98,19 +98,15 @@ function getYTickFormat(yLower: number, yUpper: number) {
         let tickTime = dayStart.add(value, "seconds");
         let format = tickTime.format("HH:mm");
         if (absExtent > 12 * 60 * 60) {
-
             let devHour = (value - yLower) / 3600;
             let interleave = devHour % 2;
             if (value <= yLower) {
                 format = "";
-            }
-            else if (value >= yUpper) {
+            } else if (value >= yUpper) {
                 format = "";
-            }
-            else if ( interleave  > 1.0) {
+            } else if (interleave > 1.0) {
                 format = tickTime.format("HH:mm");
-            }
-            else {
+            } else {
                 format = "";
             }
         }
@@ -126,12 +122,17 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log(renderInfo.datasets);
 
     // Data preprocessing
-
     for (let dataset of renderInfo.datasets) {
         if (dataset.getQuery().usedAsXDataset) continue;
+        // valueShift
+        if (renderInfo.valueShift[dataset.getId()] !== null) {
+            dataset.shift(renderInfo.valueShift[dataset.getId()]);
+        }
+        // penalty
         if (renderInfo.penalty[dataset.getId()] !== null) {
             dataset.setPenalty(renderInfo.penalty[dataset.getId()]);
         }
+        // accum
         if (renderInfo.accum[dataset.getId()]) {
             dataset.accumulateValues();
         }
@@ -390,9 +391,7 @@ function renderYAxis(
     if (yAxisGen && valueIsTime) {
         let tickFormat = getYTickFormat(yLower, yUpper);
         let tickValues = getYTickValues(yLower, yUpper);
-        yAxisGen
-            .tickValues(tickValues)
-            .tickFormat(tickFormat);
+        yAxisGen.tickValues(tickValues).tickFormat(tickFormat);
     }
 
     let yAxis = chartElements.dataArea
@@ -642,16 +641,14 @@ function renderPoints(
                 let strValue = d3.select(this).attr("value");
                 if (valueType === "Time") {
                     let dayStart = window.moment("00:00", "HH:mm", true);
-                    let tickTime = dayStart.add(parseFloat(strValue), "seconds");
+                    let tickTime = dayStart.add(
+                        parseFloat(strValue),
+                        "seconds"
+                    );
                     let dateValue = tickTime.format("HH:mm");
-                    tooltipLabelValue.text(
-                        "value:" + dateValue
-                    );
-                }
-                else {
-                    tooltipLabelValue.text(
-                        "value:" + strValue
-                    );
+                    tooltipLabelValue.text("value:" + dateValue);
+                } else {
+                    tooltipLabelValue.text("value:" + strValue);
                 }
 
                 const [x, y] = d3.pointer(event);

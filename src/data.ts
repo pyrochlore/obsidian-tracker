@@ -253,6 +253,16 @@ export class Dataset implements IterableIterator<DataPoint> {
         return this.yMax;
     }
 
+    public shift(shiftAmount: number) {
+        for (let ind = 0; ind < this.values.length; ind++) {
+            if (this.values[ind] !== null) {
+                this.values[ind] = this.values[ind] + shiftAmount;
+            }
+        }
+        this.yMin = this.yMin + shiftAmount;
+        this.yMax = this.yMax + shiftAmount;
+    }
+
     public setPenalty(penalty: number) {
         for (let ind = 0; ind < this.values.length; ind++) {
             if (this.values[ind] === null) {
@@ -467,7 +477,7 @@ export class RenderInfo {
     ignoreZeroValue: boolean[];
     accum: boolean[];
     penalty: number[];
-    shift: number[];
+    valueShift: number[];
     valueType: string[]; // number/float, int, string, boolean, date, time, datetime
 
     dataAreaSize: Size;
@@ -500,7 +510,7 @@ export class RenderInfo {
         this.ignoreZeroValue = []; // false
         this.accum = []; // false, accum values start from zero over days
         this.penalty = []; // null, use this value instead of null value
-        this.shift = [];
+        this.valueShift = [];
         this.valueType = [];
 
         this.dataAreaSize = new Size(300, 300);
