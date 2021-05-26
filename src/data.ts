@@ -24,7 +24,7 @@ export enum ValueType {
     Date,
     Time,
     DateTime,
-    String
+    String,
 }
 
 export class DataPoint {
@@ -177,7 +177,7 @@ export class Dataset implements IterableIterator<DataPoint> {
     private yMax: number;
     private lineInfo: LineInfo;
     private barInfo: BarInfo;
-    
+
     valueType: ValueType;
 
     private currentIndex = 0; // IterableIterator
@@ -468,7 +468,7 @@ export class RenderInfo {
     accum: boolean[];
     penalty: number[];
     shift: number[];
-    valueType: string[];// number/float, int, string, boolean, date, time, datetime
+    valueType: string[]; // number/float, int, string, boolean, date, time, datetime
 
     dataAreaSize: Size;
     margin: Margin;

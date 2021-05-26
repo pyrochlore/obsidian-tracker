@@ -7,7 +7,7 @@ import {
     QueryValuePair,
     TableData,
     SearchType,
-    ValueType
+    ValueType,
 } from "./data";
 import * as helper from "./helper";
 

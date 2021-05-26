@@ -809,7 +809,7 @@ export function getRenderInfoFromYaml(
     if (typeof retMultipleValueSparator === "string") {
         return retMultipleValueSparator; // errorMessage
     }
-    multipleValueSparator = retMultipleValueSparator.map( sep => {
+    multipleValueSparator = retMultipleValueSparator.map((sep) => {
         if (sep === "comma") {
             return ",";
         }
@@ -853,11 +853,7 @@ export function getRenderInfoFromYaml(
     // Create grarph info
     let renderInfo = new RenderInfo(queries);
     let keysOfRenderInfo = getAvailableKeysOfClass(renderInfo);
-    let additionalAllowedKeys = [
-        "searchType",
-        "searchTarget",
-        "separator",
-    ];
+    let additionalAllowedKeys = ["searchType", "searchTarget", "separator"];
     // console.log(keysOfRenderInfo);
     for (let key of keysFoundInYAML) {
         if (

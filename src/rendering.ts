@@ -11,9 +11,9 @@ import {
     OutputType,
     ValueType,
 } from "./data";
-import * as summary from './summary';
-import * as month from './month';
-import * as helper from './helper'
+import * as summary from "./summary";
+import * as month from "./month";
+import * as helper from "./helper";
 
 function getTickInterval(datasets: Datasets) {
     let tickInterval;
