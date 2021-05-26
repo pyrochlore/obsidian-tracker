@@ -9,7 +9,7 @@ line:
     title: "Working Hours"
     yAxisLabel: "Time"
     lineColor: yellow, red
-    showPoint: false
+    showPoint: true
 ```
 
 ``` tracker
@@ -21,5 +21,5 @@ line:
     title: "Sleep"
     yAxisLabel: "Time"
     lineColor: yellow, red
-    showPoint: false
+    showPoint: true
 ```

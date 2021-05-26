@@ -15,7 +15,7 @@ import * as summary from "./summary";
 import * as month from "./month";
 import * as helper from "./helper";
 
-function getTickInterval(datasets: Datasets) {
+function getXTickInterval(datasets: Datasets) {
     let tickInterval;
     let days = datasets.getDates().length;
 
@@ -67,13 +67,55 @@ function getXTickFormat(datasets: Datasets) {
     return tickFormat;
 }
 
-function getYTickFormat() {
+function getYTickValues(yLower: number, yUpper: number) {
+    // currently used for time value tick only, value in seconds
+    const absExtent = Math.abs(yUpper - yLower);
+    let tickValues = [];
+    if (absExtent > 5 * 60 * 60) {// extent over than 5 hours
+        // tick on the hour
+        yLower = Math.floor(yLower / 3600) * 3600;
+        yUpper = Math.ceil(yUpper / 3600) * 3600;
+
+        tickValues = d3.range(yLower, yUpper, 3600);
+    }
+    else {
+        // tick on the half hour
+        yLower = Math.floor(yLower / 1800) * 1800;
+        yUpper = Math.ceil(yUpper / 1800) * 1800;
+
+        tickValues = d3.range(yLower, yUpper, 1800);
+    }
+
+    return tickValues;
+}
+
+function getYTickFormat(yLower: number, yUpper: number) {
     // currently used for time value tick only
     // return a function convert value to time string
     function tickFormat(value: number): string {
+        const absExtent = Math.abs(yUpper - yLower);
         let dayStart = window.moment("00:00", "HH:mm", true);
         let tickTime = dayStart.add(value, "seconds");
-        return tickTime.format("HH:mm");
+        let format = tickTime.format("HH:mm");
+        if (absExtent > 12 * 60 * 60) {
+
+            let devHour = (value - yLower) / 3600;
+            let interleave = devHour % 2;
+            if (value <= yLower) {
+                format = "";
+            }
+            else if (value >= yUpper) {
+                format = "";
+            }
+            else if ( interleave  > 1.0) {
+                format = tickTime.format("HH:mm");
+            }
+            else {
+                format = "";
+            }
+        }
+
+        return format;
     }
 
     return tickFormat;
@@ -130,7 +172,7 @@ function renderXAxis(chartElements: ChartElements, renderInfo: RenderInfo) {
         .range([0, renderInfo.dataAreaSize.width]);
     chartElements["xScale"] = xScale;
 
-    let tickInterval = getTickInterval(datasets);
+    let tickInterval = getXTickInterval(datasets);
     let tickFormat = getXTickFormat(datasets);
 
     let xAxisGen = d3
@@ -346,9 +388,13 @@ function renderYAxis(
         yAxisGen = d3.axisRight(yScale);
     }
     if (yAxisGen && valueIsTime) {
-        let tickFormat = getYTickFormat();
-        yAxisGen.tickFormat(tickFormat);
+        let tickFormat = getYTickFormat(yLower, yUpper);
+        let tickValues = getYTickValues(yLower, yUpper);
+        yAxisGen
+            .tickValues(tickValues)
+            .tickFormat(tickFormat);
     }
+
     let yAxis = chartElements.dataArea
         .append("g")
         .attr("id", "yAxis")
@@ -588,9 +634,15 @@ function renderPoints(
                 .attr("y", (renderInfo.tooltipSize.height / 5) * 4);
 
             dots.on("mouseenter", function (event: any) {
+                // Date
                 tooltipLabelDate.text("date:" + d3.select(this).attr("date"));
+                // Value
+                let strValue = d3.select(this).attr("value");
+                let dayStart = window.moment("00:00", "HH:mm", true);
+                let tickTime = dayStart.add(parseFloat(strValue), "seconds");
+                let dateValue = tickTime.format("HH:mm");
                 tooltipLabelValue.text(
-                    "value:" + d3.select(this).attr("value")
+                    "value:" + dateValue
                 );
 
                 const [x, y] = d3.pointer(event);
