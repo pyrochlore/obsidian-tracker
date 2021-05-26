@@ -1,6 +1,8 @@
-import { RenderInfo } from "./data";
+import { RenderInfo, Size } from "./data";
 import { TFile, TFolder, normalizePath } from "obsidian";
+import * as d3 from "d3";
 
+// String helpers
 export function trimByChar(str: string, char: string) {
     const arr = Array.from(str);
     const first = arr.findIndex((c) => c !== char);
@@ -34,4 +36,27 @@ export function getDateFromFilename(file: TFile, renderInfo: RenderInfo) {
     // console.log(fileDate);
 
     return fileDate;
+}
+
+// Chart helpers
+export function measureTextSize(
+    text: string,
+    styleClass: string = "",
+    rotate: string = ""
+): Size {
+    var container = d3.select("body").append("svg");
+    let textBlock = container
+        .append("text")
+        .text(text)
+        .attr("x", -99999)
+        .attr("y", -99999);
+    if (styleClass) {
+        textBlock.attr("class", styleClass);
+    }
+    if (rotate) {
+        textBlock.attr("transform", "rotate(" + rotate + ")");
+    }
+    var size = container.node().getBBox();
+    container.remove();
+    return { width: size.width, height: size.height };
 }

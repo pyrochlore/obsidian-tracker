@@ -12,6 +12,8 @@ import {
     ValueType,
 } from "./data";
 import * as summary from './summary';
+import * as month from './month';
+import * as helper from './helper'
 
 function getTickInterval(datasets: Datasets) {
     let tickInterval;
@@ -77,29 +79,6 @@ function getYTickFormat() {
     return tickFormat;
 }
 
-// Is there a better way to measure text size??
-function measureTextSize(
-    text: string,
-    styleClass: string = "",
-    rotate: string = ""
-): Size {
-    var container = d3.select("body").append("svg");
-    let textBlock = container
-        .append("text")
-        .text(text)
-        .attr("x", -99999)
-        .attr("y", -99999);
-    if (styleClass) {
-        textBlock.attr("class", styleClass);
-    }
-    if (rotate) {
-        textBlock.attr("transform", "rotate(" + rotate + ")");
-    }
-    var size = container.node().getBBox();
-    container.remove();
-    return { width: size.width, height: size.height };
-}
-
 export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log("render");
     // console.log(renderInfo.datasets);
@@ -124,7 +103,7 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
         case OutputType.Summary:
             return summary.renderSummary(canvas, renderInfo);
         case OutputType.Month:
-            return renderMonth(canvas, renderInfo);
+            return month.renderMonth(canvas, renderInfo);
         default:
             return "Unknown output type";
     }
@@ -172,7 +151,7 @@ function renderXAxis(chartElements: ChartElements, renderInfo: RenderInfo) {
     }
     chartElements["xAxis"] = xAxis;
 
-    let textSize = measureTextSize("99-99-99");
+    let textSize = helper.measureTextSize("99-99-99");
 
     let xAxisTickLabels = xAxis
         .selectAll("text")
@@ -406,11 +385,11 @@ function renderYAxis(
 
     // Get max tick label width
     let yTickFormat = d3.tickFormat(yLower, yUpper, 10);
-    let yLowerLabelSize = measureTextSize(
+    let yLowerLabelSize = helper.measureTextSize(
         yTickFormat(yLower),
         "tracker-axis-label"
     );
-    let yUpperLabelSize = measureTextSize(
+    let yUpperLabelSize = helper.measureTextSize(
         yTickFormat(yUpper),
         "tracker-axis-label"
     );
@@ -423,7 +402,7 @@ function renderYAxis(
         yAxisLabelText += " (" + yAxisUnitText + ")";
     }
     let yTickLength = 6;
-    let yAxisLabelSize = measureTextSize(yAxisLabelText);
+    let yAxisLabelSize = helper.measureTextSize(yAxisLabelText);
     let yAxisLabel = yAxis
         .append("text")
         .text(yAxisLabelText)
@@ -783,7 +762,7 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
     // Get names and their dimension
     let names = datasets.getNames(); // xDataset name included
     let nameSizes = names.map(function (n) {
-        return measureTextSize(n, "tracker-legend-label");
+        return helper.measureTextSize(n, "tracker-legend-label");
     });
     let indMaxName = 0;
     let maxNameWidth = 0.0;
@@ -1199,7 +1178,7 @@ function renderTitle(chartElements: ChartElements, renderInfo: RenderInfo) {
     if (!chartInfo) return;
 
     if (!chartInfo.title) return;
-    let titleSize = measureTextSize(chartInfo.title, "tracker-title");
+    let titleSize = helper.measureTextSize(chartInfo.title, "tracker-title");
 
     // Append title
     let title = chartElements.graphArea
@@ -1496,119 +1475,6 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     }
 
     setChartScale(canvas, chartElements, renderInfo);
-}
-
-interface DayInfo {
-    date: string;
-    dayInMonth: number;
-    row: number;
-    col: number;
-}
-
-function renderMonthHeader(
-    chartElements: ChartElements,
-    renderInfo: RenderInfo,
-    dataset: Dataset
-) {}
-
-function renderMonthDays(
-    chartElements: ChartElements,
-    renderInfo: RenderInfo,
-    dataset: Dataset
-) {
-    // console.log("renderMonthDays");
-
-    let maxDayTextSize = measureTextSize("30");
-    let dayCellWidth = maxDayTextSize.width * 1.2;
-    let dayCellSpacing = dayCellWidth * 0.1;
-
-    let lastDate = renderInfo.datasets.getDates().last();
-    let monthOfLastDate = lastDate.month(); // 0~11
-    let daysInMonth = lastDate.daysInMonth(); // 28~31
-
-    let daysInThisMonth: Array<DayInfo> = [];
-    const monthStartDate = lastDate.clone().startOf("month");
-    const monthEndDate = lastDate.endOf("month");
-    for (
-        let curDate = monthStartDate.clone();
-        curDate <= monthEndDate;
-        curDate.add(1, "days")
-    ) {
-        let indCol = curDate.day();
-        let indRow = Math.floor(
-            (monthStartDate.day() - 1 + curDate.date()) / 7.0
-        );
-        daysInThisMonth.push({
-            date: curDate.format(renderInfo.dateFormat),
-            dayInMonth: curDate.date(),
-            row: indRow,
-            col: indCol,
-        });
-    }
-
-    // scale
-    let scale = d3
-        .scaleLinear()
-        .domain([0, 8])
-        .range([0, renderInfo.dataAreaSize.width]);
-
-    // streak lines
-
-    // days in this month
-    let dots = chartElements.dataArea
-        .selectAll("dot")
-        .data(daysInThisMonth)
-        .enter()
-        .append("circle")
-        .attr("r", dayCellWidth / 2.0)
-        .attr("cx", function (d: DayInfo) {
-            return scale(d.col);
-        })
-        .attr("cy", function (d: DayInfo) {
-            return scale(d.row);
-        })
-        .attr("class", "tracker-dot");
-
-    // labels
-    let dayLabals = chartElements.dataArea
-        .selectAll("dayLabel")
-        .data(daysInThisMonth)
-        .enter()
-        .append("text")
-        .text(function (d: DayInfo) {
-            return d.dayInMonth.toString();
-        })
-        .attr("transform", function (d: DayInfo) {
-            let strTranslate =
-                "translate(" +
-                scale(d.col) +
-                "," +
-                (scale(d.row) + maxDayTextSize.height / 4) +
-                ")";
-
-            return strTranslate;
-        })
-        .attr("class", "tracker-axis-label");
-}
-
-function renderMonth(canvas: HTMLElement, renderInfo: RenderInfo) {
-    // console.log("renderMonth");
-    // console.log(renderInfo);
-    if (renderInfo.month === null) return;
-
-    let chartElements = createAreas(canvas, renderInfo);
-
-    renderMonthHeader(
-        chartElements,
-        renderInfo,
-        renderInfo.datasets.getDatasetById(0)
-    );
-
-    renderMonthDays(
-        chartElements,
-        renderInfo,
-        renderInfo.datasets.getDatasetById(0)
-    );
 }
 
 export function renderErrorMessage(canvas: HTMLElement, errorMessage: string) {
