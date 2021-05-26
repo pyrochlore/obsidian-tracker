@@ -4,7 +4,6 @@ import * as d3 from "d3";
 
 // http://jsfiddle.net/alnitak/hEsys/
 export function deepValue(obj: any, str: string) {
-    str = str.replace(/\[(\w+)\]/g, ".$1");
     str = str.replace(/^\./, "");
     var a = str.split(".");
     for (var i = 0, n = a.length; i < n; ++i) {
