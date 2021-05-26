@@ -2,6 +2,22 @@ import { RenderInfo, Size } from "./data";
 import { TFile, TFolder, normalizePath } from "obsidian";
 import * as d3 from "d3";
 
+// http://jsfiddle.net/alnitak/hEsys/
+export function deepValue(obj: any, str: string) {
+    str = str.replace(/\[(\w+)\]/g, ".$1");
+    str = str.replace(/^\./, "");
+    var a = str.split(".");
+    for (var i = 0, n = a.length; i < n; ++i) {
+        var k = a[i];
+        if (k in obj) {
+            obj = obj[k];
+        } else {
+            return;
+        }
+    }
+    return obj;
+}
+
 // String helpers
 export function trimByChar(str: string, char: string) {
     const arr = Array.from(str);

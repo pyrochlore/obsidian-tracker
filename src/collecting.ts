@@ -97,13 +97,13 @@ export function collectDataFromFrontmatterKey(
     dataMap: DataMap,
     xValueMap: XValueMap
 ) {
+    // console.log("collectDataFromFrontmatterKey");
+
     let frontMatter = fileCache.frontmatter;
     if (frontMatter) {
-        if (frontMatter[query.getTarget()]) {
-            // console.log("single value");
-            // console.log(frontMatter[query.getTarget()]);
+        if (helper.deepValue(frontMatter, query.getTarget())) {
             let value = null;
-            let toParse = frontMatter[query.getTarget()];
+            let toParse = helper.deepValue(frontMatter, query.getTarget());
             if (typeof toParse === "string") {
                 if (toParse.includes(":")) {
                     // time value
@@ -126,7 +126,7 @@ export function collectDataFromFrontmatterKey(
             }
         } else if (
             query.getParentTarget() &&
-            frontMatter[query.getParentTarget()]
+            helper.deepValue(frontMatter, query.getParentTarget())
         ) {
             // console.log("multiple values");
             // console.log(query.getTarget());
@@ -135,7 +135,10 @@ export function collectDataFromFrontmatterKey(
             // console.log(
             //     frontMatter[query.getParentTarget()]
             // );
-            let toParse = frontMatter[query.getParentTarget()];
+            let toParse = helper.deepValue(
+                frontMatter,
+                query.getParentTarget()
+            );
             let splitted = null;
             if (Array.isArray(toParse)) {
                 splitted = toParse.map((p) => {

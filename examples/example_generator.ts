@@ -104,6 +104,16 @@ for (
         " am";
     frontmatter += "sleep: " + time_in_bed + "/" + time_out_of_bed + "\n";
 
+    // deep value
+    let deepValue = randomFloatFromInterval(0.0, 100.0);
+    frontmatter += "deepValue: " + "\n";
+    let indent = "    ";
+    for (let ind = 0; ind < 5; ind++) {
+        frontmatter += indent + "very: " + "\n";
+        indent = indent + "    ";
+    }
+    frontmatter += indent + "deep: " + deepValue.toFixed(1) + "\n";
+
     frontmatter += "---\n";
     content += frontmatter;
 
