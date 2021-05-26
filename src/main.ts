@@ -4,7 +4,6 @@ import { TFile, TFolder, normalizePath } from "obsidian";
 import { render, renderErrorMessage } from "./rendering";
 import { getRenderInfoFromYaml } from "./parsing";
 import {
-    NullableNumber,
     Datasets,
     Query,
     QueryValuePair,
@@ -123,7 +122,7 @@ export default class Tracker extends Plugin {
         dataMap: DataMap,
         date: string,
         query: Query,
-        value: NullableNumber
+        value: number
     ) {
         if (!dataMap.has(date)) {
             let queryValuePairs = new Array<QueryValuePair>();

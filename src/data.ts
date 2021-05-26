@@ -1,7 +1,5 @@
 import { Moment } from "moment";
 
-export type NullableNumber = number | null;
-
 export enum SearchType {
     Tag,
     Frontmatter,
@@ -20,11 +18,20 @@ export enum OutputType {
     Heatmap,
 }
 
+export enum ValueType {
+    Number,
+    Int,
+    Date,
+    Time,
+    DateTime,
+    String
+}
+
 export class DataPoint {
     date: Moment;
-    value: NullableNumber;
+    value: number;
 
-    constructor(date: Moment, value: NullableNumber) {
+    constructor(date: Moment, value: number) {
         this.date = date;
         this.value = value;
     }
@@ -40,7 +47,7 @@ export class Query {
     private accessor1: number;
     private accessor2: number;
 
-    private valueIsTime: boolean;
+    valueType: ValueType;
     usedAsXDataset: boolean;
 
     constructor(id: number, searchType: SearchType, searchTarget: string) {
@@ -51,7 +58,7 @@ export class Query {
         this.accessor = -1;
         this.accessor1 = -1;
         this.accessor2 = -1;
-        this.valueIsTime = false;
+        this.valueType = ValueType.Number;
         this.usedAsXDataset = false;
 
         if (searchType === SearchType.Table) {
@@ -145,14 +152,6 @@ export class Query {
         return null;
     }
 
-    public isUsingTimeValue() {
-        return this.valueIsTime;
-    }
-
-    public setUsingTimeValue() {
-        this.valueIsTime = true;
-    }
-
     public setSeparator(sep: string) {
         this.separator = sep;
     }
@@ -164,21 +163,22 @@ export class Query {
 
 export interface QueryValuePair {
     query: Query;
-    value: NullableNumber;
+    value: number;
 }
 
 export class Dataset implements IterableIterator<DataPoint> {
     // Array of DataPoints
     private name: string;
     private query: Query;
-    private values: NullableNumber[];
+    private values: number[];
     private parent: Datasets;
     private id: number;
-    private yMin: NullableNumber;
-    private yMax: NullableNumber;
+    private yMin: number;
+    private yMax: number;
     private lineInfo: LineInfo;
     private barInfo: BarInfo;
-    private valueIsTime: boolean;
+    
+    valueType: ValueType;
 
     private currentIndex = 0; // IterableIterator
 
@@ -192,7 +192,7 @@ export class Dataset implements IterableIterator<DataPoint> {
         this.yMax = null;
         this.lineInfo = null;
         this.barInfo = null;
-        this.valueIsTime = query.isUsingTimeValue();
+        this.valueType = query.valueType;
 
         for (let ind = 0; ind < parent.getDates().length; ind++) {
             this.values.push(null);
@@ -230,7 +230,7 @@ export class Dataset implements IterableIterator<DataPoint> {
         this.id = id;
     }
 
-    public setValue(date: Moment, value: NullableNumber) {
+    public setValue(date: Moment, value: number) {
         let ind = this.parent.getIndexOfDate(date);
         // console.log(ind);
         if (ind >= 0) {
@@ -269,10 +269,6 @@ export class Dataset implements IterableIterator<DataPoint> {
 
     public getQuery(): Query {
         return this.query;
-    }
-
-    public isUsingTimeValue() {
-        return this.valueIsTime;
     }
 
     public accumulateValues() {
@@ -471,6 +467,8 @@ export class RenderInfo {
     ignoreZeroValue: boolean[];
     accum: boolean[];
     penalty: number[];
+    shift: number[];
+    valueType: string[];// number/float, int, string, boolean, date, time, datetime
 
     dataAreaSize: Size;
     margin: Margin;
@@ -501,6 +499,8 @@ export class RenderInfo {
         this.ignoreZeroValue = []; // false
         this.accum = []; // false, accum values start from zero over days
         this.penalty = []; // null, use this value instead of null value
+        this.shift = [];
+        this.valueType = [];
 
         this.dataAreaSize = new Size(300, 300);
         this.margin = new Margin(10, 10, 10, 10); // top, right, bottom, left
@@ -535,8 +535,8 @@ export class CommonChartInfo {
     yAxisColor: string[];
     yAxisLabelColor: string[];
     yAxisUnit: string[];
-    yMin: NullableNumber[];
-    yMax: NullableNumber[];
+    yMin: number[];
+    yMax: number[];
     allowInspectData: boolean;
     showLegend: boolean;
     legendPosition: string;

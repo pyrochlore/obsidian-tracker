@@ -7,6 +7,7 @@ import {
     QueryValuePair,
     TableData,
     SearchType,
+    ValueType
 } from "./data";
 import * as helper from "./helper";
 
@@ -108,7 +109,7 @@ export function collectDataFromFrontmatterKey(
                     // time value
                     let timeValue = window.moment(toParse, timeFormat, true);
                     if (timeValue.isValid()) {
-                        query.setUsingTimeValue();
+                        query.valueType = ValueType.Time;
                         value = timeValue.diff(
                             window.moment("00:00", "HH:mm", true),
                             "seconds"
@@ -159,7 +160,7 @@ export function collectDataFromFrontmatterKey(
                         true
                     );
                     if (timeValue.isValid()) {
-                        query.setUsingTimeValue();
+                        query.valueType = ValueType.Time;
                         value = timeValue.diff(
                             window.moment("00:00", "HH:mm", true),
                             "seconds"
@@ -242,7 +243,7 @@ export function collectDataFromInlineTag(
                 if (toParse.includes(":")) {
                     let timeValue = window.moment(toParse, timeFormat, true);
                     if (timeValue.isValid()) {
-                        query.setUsingTimeValue();
+                        query.valueType = ValueType.Time;
                         tagMeasure = timeValue.diff(
                             window.moment("00:00", "HH:mm", true),
                             "seconds"
@@ -272,7 +273,7 @@ export function collectDataFromInlineTag(
                 if (toParse.includes(":")) {
                     let timeValue = window.moment(toParse, timeFormat, true);
                     if (timeValue.isValid()) {
-                        query.setUsingTimeValue();
+                        query.valueType = ValueType.Time;
                         tagMeasure = timeValue.diff(
                             window.moment("00:00", "HH:mm", true),
                             "seconds"
@@ -388,7 +389,7 @@ export function collectDataFromDvField(
                 if (toParse.includes(":")) {
                     let timeValue = window.moment(toParse, timeFormat, true);
                     if (timeValue.isValid()) {
-                        query.setUsingTimeValue();
+                        query.valueType = ValueType.Time;
                         tagMeasure = timeValue.diff(
                             window.moment("00:00", "HH:mm", true),
                             "seconds"
@@ -418,7 +419,7 @@ export function collectDataFromDvField(
                 if (toParse.includes(":")) {
                     let timeValue = window.moment(toParse, timeFormat, true);
                     if (timeValue.isValid()) {
-                        query.setUsingTimeValue();
+                        query.valueType = ValueType.Time;
                         tagMeasure = timeValue.diff(
                             window.moment("00:00", "HH:mm", true),
                             "seconds"

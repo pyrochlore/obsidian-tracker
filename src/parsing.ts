@@ -1097,6 +1097,20 @@ export function getRenderInfoFromYaml(
     renderInfo.penalty = retPenalty;
     // console.log(renderInfo.penalty);
 
+    // shift
+    let retShift = getNumberArrayFromInput(
+        "shift",
+        yaml.shift,
+        numDatasets,
+        null,
+        true
+    );
+    if (typeof retShift === "string") {
+        return retShift;
+    }
+    renderInfo.shift = retShift;
+    // console.log(renderInfo.shift);
+
     // fixedScale
     if (typeof yaml.fixedScale === "number") {
         renderInfo.fixedScale = yaml.fixedScale;

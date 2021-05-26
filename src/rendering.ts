@@ -8,6 +8,7 @@ import {
     Transform,
     ChartElements,
     OutputType,
+    ValueType,
 } from "./data";
 import * as summary from './summary';
 
@@ -251,7 +252,7 @@ function renderYAxis(
         }
 
         // Need all datasets have same settings for time value
-        valueIsTime = dataset.isUsingTimeValue();
+        valueIsTime = dataset.valueType === ValueType.Time;
         if (tmpValueIsTime === null) {
             tmpValueIsTime = valueIsTime;
         } else {
