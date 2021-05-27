@@ -17,6 +17,7 @@ searchType: frontmatter
 searchTarget: sleep[0], sleep[1]
 endDate: 2021-01-15
 folder: diary
+valueShift: -24:00, 00:00
 line:
     title: "Sleep"
     yAxisLabel: "Time"

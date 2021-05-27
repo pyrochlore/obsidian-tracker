@@ -74,14 +74,22 @@ export function parseFloatFromAny(toParse: any) {
     let value = null;
     let valueType = ValueType.Number;
     if (typeof toParse === "string") {
+        // time value
         if (toParse.includes(":")) {
-            // time value
+            let negativeValue = false;
+            if (toParse.startsWith("-")) {
+                negativeValue = true;
+                toParse = toParse.substring(1);
+            }
             let timeValue = window.moment(toParse, timeFormat, true);
             if (timeValue.isValid()) {
                 value = timeValue.diff(
                     window.moment("00:00", "HH:mm", true),
                     "seconds"
                 );
+                if (negativeValue) {
+                    value = -1 * value;
+                }
                 valueType = ValueType.Time;
             }
         } else {

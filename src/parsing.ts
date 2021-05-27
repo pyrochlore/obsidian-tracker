@@ -14,6 +14,7 @@ import {
 import { TFolder, normalizePath } from "obsidian";
 import { parseYaml } from "obsidian";
 import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
+import * as helper from "./helper";
 
 function strToBool(str: string): boolean | null {
     str = str.trim().toLowerCase();
@@ -274,7 +275,7 @@ function getNumberArrayFromInput(
                     let curr = splitted[ind].trim();
                     let prev = null;
                     if (ind > 0) {
-                        prev = parseFloat(splitted[ind - 1].trim());
+                        prev = helper.parseFloatFromAny(splitted[ind - 1].trim()).value;
                     }
                     if (curr === "") {
                         if (prev !== null && Number.isNumber(prev)) {
@@ -283,7 +284,7 @@ function getNumberArrayFromInput(
                             array[ind] = defaultValue;
                         }
                     } else {
-                        let currNum = parseFloat(curr);
+                        let currNum = helper.parseFloatFromAny(curr).value;
                         if (Number.isNumber(currNum)) {
                             array[ind] = currNum;
                             numValidValue++;
@@ -294,7 +295,7 @@ function getNumberArrayFromInput(
                     }
                 } else {
                     // Exceeds the length of input, use prev value
-                    let last = parseFloat(splitted[input.length - 1].trim());
+                    let last = helper.parseFloatFromAny(splitted[input.length - 1].trim()).value;
                     if (numValidValue > 0 && Number.isNumber(last)) {
                         array[ind] = last;
                     } else {
@@ -306,7 +307,7 @@ function getNumberArrayFromInput(
             if (input === "") {
                 // all defaultValue
             } else {
-                let inputNum = parseFloat(input);
+                let inputNum = helper.parseFloatFromAny(input).value;
                 if (Number.isNumber(inputNum)) {
                     array[0] = inputNum;
                     numValidValue++;
