@@ -10,9 +10,11 @@ import {
     ChartElements,
     OutputType,
     ValueType,
+    BulletInfo,
 } from "./data";
 import * as summary from "./summary";
 import * as month from "./month";
+import * as bullet from "./bullet";
 import * as helper from "./helper";
 
 function getXTickInterval(datasets: Datasets) {
@@ -147,6 +149,8 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
             return summary.renderSummary(canvas, renderInfo);
         case OutputType.Month:
             return month.renderMonth(canvas, renderInfo);
+        case OutputType.Bullet:
+            return bullet.renderBullet(canvas, renderInfo);
         default:
             return "Unknown output type";
     }

@@ -16,6 +16,7 @@ export enum OutputType {
     Summary,
     Table,
     Month,
+    Bullet,
 }
 
 export enum ValueType {
@@ -492,6 +493,7 @@ export class RenderInfo {
     bar: BarInfo | null;
     summary: SummaryInfo | null;
     month: MonthInfo | null;
+    bullet: BulletInfo | null;
 
     public datasets: Datasets | null;
 
@@ -525,6 +527,7 @@ export class RenderInfo {
         this.summary = null;
         this.bar = null;
         this.month = null;
+        this.bullet = null;
 
         this.datasets = null;
     }
@@ -631,6 +634,14 @@ export class MonthInfo {
 
     constructor() {
         this.startWeekOn = "Sun";
+    }
+}
+
+export class BulletInfo {
+    orientation: string;
+
+    constructor() {
+        this.orientation = "horizontal"; // or vertical
     }
 }
 

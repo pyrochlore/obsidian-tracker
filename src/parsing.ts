@@ -10,6 +10,7 @@ import {
     OutputType,
     LineInfo,
     MonthInfo,
+    BulletInfo,
 } from "./data";
 import { TFolder, normalizePath } from "obsidian";
 import { parseYaml } from "obsidian";
@@ -1173,20 +1174,26 @@ export function getRenderInfoFromYaml(
     if (typeof yaml.month !== "undefined") {
         hasMonth = true;
     }
+    let hasBullet = false;
+    if (typeof yaml.bullet !== "undefined") {
+        hasBullet = true;
+    }
     let sumOutput =
         Number(hasLine) +
         Number(hasBar) +
         Number(hasSummary) +
-        Number(hasMonth);
+        Number(hasMonth) +
+        Number(hasBullet);
     if (sumOutput === 0) {
-        return "No output parameter provided, please place line, bar, month, or summary.";
+        return "No output parameter provided, please place line, bar, month, bullet, or summary.";
     } else if (sumOutput === 1) {
         if (hasLine) renderInfo.output = OutputType.Line;
         if (hasBar) renderInfo.output = OutputType.Bar;
         if (hasSummary) renderInfo.output = OutputType.Summary;
         if (hasMonth) renderInfo.output = OutputType.Month;
+        if (hasBullet) renderInfo.output = OutputType.Bullet;
     } else if (sumOutput >= 2) {
-        return "Too many output parameters, pick line, bar, month, or summary.";
+        return "Too many output parameters, pick line, bar, month, bullet, or summary.";
     }
 
     // line related parameters
@@ -1439,17 +1446,17 @@ export function getRenderInfoFromYaml(
             }
         }
     } // summary related parameters
-    // month related parameters
+    // Month related parameters
     if (renderInfo.output === OutputType.Month) {
         renderInfo.month = new MonthInfo();
 
         if (yaml.month !== null) {
-            let keysOfSummaryInfo = getAvailableKeysOfClass(renderInfo.month);
+            let keysOfMonthInfo = getAvailableKeysOfClass(renderInfo.month);
             let keysFoundInYAML = getAvailableKeysOfClass(yaml.month);
             // console.log(keysOfSummaryInfo);
             // console.log(keysFoundInYAML);
             for (let key of keysFoundInYAML) {
-                if (!keysOfSummaryInfo.includes(key)) {
+                if (!keysOfMonthInfo.includes(key)) {
                     errorMessage = "'" + key + "' is not an available key";
                     return errorMessage;
                 }
@@ -1458,12 +1465,33 @@ export function getRenderInfoFromYaml(
 
         if (yaml.month !== null) {
             if (typeof yaml.month.startWeekOn === "string") {
-                if (yaml.month.startWeekOn === "month") {
-                    renderInfo.month.startWeekOn = yaml.month.startWeekOn;
+                renderInfo.month.startWeekOn = yaml.month.startWeekOn;
+            }
+        }
+    } // Month related parameters
+    // Bullet related parameters
+    if (renderInfo.output === OutputType.Bullet) {
+        renderInfo.bullet = new BulletInfo();
+
+        if (yaml.bullet !== null) {
+            let keysOfBulletInfo = getAvailableKeysOfClass(renderInfo.bullet);
+            let keysFoundInYAML = getAvailableKeysOfClass(yaml.bullet);
+            // console.log(keysOfSummaryInfo);
+            // console.log(keysFoundInYAML);
+            for (let key of keysFoundInYAML) {
+                if (!keysOfBulletInfo.includes(key)) {
+                    errorMessage = "'" + key + "' is not an available key";
+                    return errorMessage;
                 }
             }
         }
-    } // month related parameters
+
+        if (yaml.bullet !== null) {
+            if (typeof yaml.bullet.orientation === "string") {
+                renderInfo.bullet.orientation = yaml.bullet.orientation;
+            }
+        }
+    } // Bullet related parameters
 
     return renderInfo;
 }
