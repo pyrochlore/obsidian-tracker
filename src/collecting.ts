@@ -11,21 +11,6 @@ import {
 } from "./data";
 import * as helper from "./helper";
 
-let timeFormat = [
-    "HH:mm",
-    "HH:m",
-    "H:mm",
-    "H:m",
-    "hh:mm A",
-    "hh:mm a",
-    "hh:m A",
-    "hh:m a",
-    "h:mm A",
-    "h:mm a",
-    "h:m A",
-    "h:m a",
-];
-
 function addToDataMap(
     dataMap: DataMap,
     date: string,
@@ -102,27 +87,13 @@ export function collectDataFromFrontmatterKey(
     let frontMatter = fileCache.frontmatter;
     if (frontMatter) {
         if (helper.deepValue(frontMatter, query.getTarget())) {
-            let value = null;
             let toParse = helper.deepValue(frontMatter, query.getTarget());
-            if (typeof toParse === "string") {
-                if (toParse.includes(":")) {
-                    // time value
-                    let timeValue = window.moment(toParse, timeFormat, true);
-                    if (timeValue.isValid()) {
-                        query.valueType = ValueType.Time;
-                        value = timeValue.diff(
-                            window.moment("00:00", "HH:mm", true),
-                            "seconds"
-                        );
-                    }
-                } else {
-                    value = parseFloat(toParse);
+            let retParse = helper.parseFloatFromAny(toParse);
+            if (retParse.value !== null) {
+                if (retParse.type === ValueType.Time) {
+                    query.valueType = ValueType.Time;
                 }
-            } else {
-                value = parseFloat(toParse);
-            }
-            if (Number.isNumber(value)) {
-                addToDataMap(dataMap, xValueMap.get(-1), query, value);
+                addToDataMap(dataMap, xValueMap.get(-1), query, retParse.value);
             }
         } else if (
             query.getParentTarget() &&
@@ -153,28 +124,18 @@ export function collectDataFromFrontmatterKey(
                 query.getAccessor() >= 0
             ) {
                 // TODO: it's not efficent to retrieve one value at a time, enhance this
-                let value = null;
                 let splittedPart = splitted[query.getAccessor()].trim();
-                if (toParse.includes(":")) {
-                    // time value
-                    let timeValue = window.moment(
-                        splittedPart,
-                        timeFormat,
-                        true
-                    );
-                    if (timeValue.isValid()) {
+                let retParse = helper.parseFloatFromAny(splittedPart);
+                if (retParse.value !== null) {
+                    if (retParse.type === ValueType.Time) {
                         query.valueType = ValueType.Time;
-                        value = timeValue.diff(
-                            window.moment("00:00", "HH:mm", true),
-                            "seconds"
-                        );
                     }
-                } else {
-                    value = parseFloat(splittedPart);
-                }
-
-                if (Number.isNumber(value)) {
-                    addToDataMap(dataMap, xValueMap.get(-1), query, value);
+                    addToDataMap(
+                        dataMap,
+                        xValueMap.get(-1),
+                        query,
+                        retParse.value
+                    );
                 }
             }
         }
@@ -243,25 +204,18 @@ export function collectDataFromInlineTag(
             if (splitted.length === 1) {
                 // console.log("single-value");
                 let toParse = splitted[0].trim();
-                if (toParse.includes(":")) {
-                    let timeValue = window.moment(toParse, timeFormat, true);
-                    if (timeValue.isValid()) {
-                        query.valueType = ValueType.Time;
-                        tagMeasure = timeValue.diff(
-                            window.moment("00:00", "HH:mm", true),
-                            "seconds"
-                        );
+                let retParse = helper.parseFloatFromAny(toParse);
+                if (retParse.value) {
+                    if (retParse.type === ValueType.Time) {
+                        tagMeasure = retParse.value;
                         tagExist = true;
-                    }
-                } else {
-                    let value = parseFloat(toParse);
-                    // console.log(value);
-                    if (!Number.isNaN(value)) {
+                        query.valueType = ValueType.Time;
+                    } else {
                         if (
                             !renderInfo.ignoreZeroValue[query.getId()] ||
-                            value !== 0
+                            retParse.value !== 0
                         ) {
-                            tagMeasure += value;
+                            tagMeasure += retParse.value;
                             tagExist = true;
                         }
                     }
@@ -270,23 +224,15 @@ export function collectDataFromInlineTag(
                 splitted.length > query.getAccessor() &&
                 query.getAccessor() >= 0
             ) {
-                // TODO: it's not efficent to retrieve one value at a time, enhance this
-                // console.log("multiple-values");
                 let toParse = splitted[query.getAccessor()].trim();
-                if (toParse.includes(":")) {
-                    let timeValue = window.moment(toParse, timeFormat, true);
-                    if (timeValue.isValid()) {
-                        query.valueType = ValueType.Time;
-                        tagMeasure = timeValue.diff(
-                            window.moment("00:00", "HH:mm", true),
-                            "seconds"
-                        );
+                let retParse = helper.parseFloatFromAny(toParse);
+                if (retParse.value) {
+                    if (retParse.type === ValueType.Time) {
+                        tagMeasure = retParse.value;
                         tagExist = true;
-                    }
-                } else {
-                    let value = parseFloat(toParse);
-                    if (Number.isNumber(value)) {
-                        tagMeasure += value;
+                        query.valueType = ValueType.Time;
+                    } else {
+                        tagMeasure += retParse.value;
                         tagExist = true;
                     }
                 }
@@ -389,25 +335,18 @@ export function collectDataFromDvField(
             if (splitted.length === 1) {
                 // console.log("single-value");
                 let toParse = splitted[0];
-                if (toParse.includes(":")) {
-                    let timeValue = window.moment(toParse, timeFormat, true);
-                    if (timeValue.isValid()) {
-                        query.valueType = ValueType.Time;
-                        tagMeasure = timeValue.diff(
-                            window.moment("00:00", "HH:mm", true),
-                            "seconds"
-                        );
+                let retParse = helper.parseFloatFromAny(toParse);
+                if (retParse.value) {
+                    if (retParse.type === ValueType.Time) {
+                        tagMeasure = retParse.value;
                         tagExist = true;
-                    }
-                } else {
-                    let value = parseFloat(toParse);
-                    // console.log(value);
-                    if (!Number.isNaN(value)) {
+                        query.valueType = ValueType.Time;
+                    } else {
                         if (
                             !renderInfo.ignoreZeroValue[query.getId()] ||
-                            value !== 0
+                            retParse.value !== 0
                         ) {
-                            tagMeasure += value;
+                            tagMeasure += retParse.value;
                             tagExist = true;
                         }
                     }
@@ -419,20 +358,14 @@ export function collectDataFromDvField(
                 // TODO: it's not efficent to retrieve one value at a time, enhance this
                 // console.log("multiple-values");
                 let toParse = splitted[query.getAccessor()].trim();
-                if (toParse.includes(":")) {
-                    let timeValue = window.moment(toParse, timeFormat, true);
-                    if (timeValue.isValid()) {
-                        query.valueType = ValueType.Time;
-                        tagMeasure = timeValue.diff(
-                            window.moment("00:00", "HH:mm", true),
-                            "seconds"
-                        );
+                let retParse = helper.parseFloatFromAny(toParse);
+                if (retParse.value) {
+                    if (retParse.type === ValueType.Time) {
+                        tagMeasure = retParse.value;
                         tagExist = true;
-                    }
-                } else {
-                    let value = parseFloat(toParse);
-                    if (Number.isNumber(value)) {
-                        tagMeasure += value;
+                        query.valueType = ValueType.Time;
+                    } else {
+                        tagMeasure += retParse.value;
                         tagExist = true;
                     }
                 }

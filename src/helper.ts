@@ -1,6 +1,22 @@
 import { RenderInfo, Size } from "./data";
 import { TFile, TFolder, normalizePath } from "obsidian";
+import { ValueType } from "./data";
 import * as d3 from "d3";
+
+const timeFormat = [
+    "HH:mm",
+    "HH:m",
+    "H:mm",
+    "H:m",
+    "hh:mm A",
+    "hh:mm a",
+    "hh:m A",
+    "hh:m a",
+    "h:mm A",
+    "h:mm a",
+    "h:m A",
+    "h:m a",
+];
 
 // http://jsfiddle.net/alnitak/hEsys/
 export function deepValue(obj: any, str: string) {
@@ -51,6 +67,31 @@ export function getDateFromFilename(file: TFile, renderInfo: RenderInfo) {
     // console.log(fileDate);
 
     return fileDate;
+}
+
+// Parsing
+export function parseFloatFromAny(toParse: any) {
+    let value = null;
+    let valueType = ValueType.Number;
+    if (typeof toParse === "string") {
+        if (toParse.includes(":")) {
+            // time value
+            let timeValue = window.moment(toParse, timeFormat, true);
+            if (timeValue.isValid()) {
+                value = timeValue.diff(
+                    window.moment("00:00", "HH:mm", true),
+                    "seconds"
+                );
+                valueType = ValueType.Time;
+            }
+        } else {
+            value = parseFloat(toParse);
+        }
+    } else if (typeof toParse === "number") {
+        value = toParse;
+    }
+
+    return { type: valueType, value: value };
 }
 
 // Chart helpers
