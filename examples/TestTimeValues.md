@@ -7,7 +7,7 @@ endDate: 2021-01-15
 folder: diary
 line:
     title: "Working Hours"
-    yAxisLabel: "Time"
+    yAxisLabel: "Time (24h)"
 	reverseYAxis: true
     lineColor: yellow, red
     showPoint: true
@@ -21,7 +21,7 @@ folder: diary
 valueShift: -24:00, 00:00
 line:
     title: "Sleep"
-    yAxisLabel: "Time"
+    yAxisLabel: "Time (24h)"
     lineColor: yellow, red
     showPoint: true
 ```

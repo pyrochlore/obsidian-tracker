@@ -89,7 +89,7 @@ function getYTickValues(yLower: number, yUpper: number) {
     return tickValues;
 }
 
-function getYTickFormat(yLower: number, yUpper: number) {
+function getYTickFormat(yLower: number, yUpper: number, skip: boolean = true) {
     // currently used for time value tick only
     // return a function convert value to time string
     function tickFormat(value: number): string {
@@ -97,7 +97,7 @@ function getYTickFormat(yLower: number, yUpper: number) {
         let dayStart = window.moment("00:00", "HH:mm", true);
         let tickTime = dayStart.add(value, "seconds");
         let format = tickTime.format("HH:mm");
-        if (absExtent > 12 * 60 * 60) {
+        if (skip && absExtent > 12 * 60 * 60) {
             let devHour = (value - yLower) / 3600;
             let interleave = devHour % 2;
             if (value <= yLower) {
@@ -437,6 +437,9 @@ function renderYAxis(
 
     // Get max tick label width
     let yTickFormat = d3.tickFormat(yLower, yUpper, 10);
+    if (valueIsTime) {
+        yTickFormat = getYTickFormat(yLower, yUpper, false);
+    }
     let yLowerLabelSize = helper.measureTextSize(
         yTickFormat(yLower),
         "tracker-axis-label"
