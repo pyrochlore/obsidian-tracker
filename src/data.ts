@@ -549,6 +549,7 @@ export class CommonChartInfo {
     yAxisUnit: string[];
     yMin: number[];
     yMax: number[];
+    reverseYAxis: boolean[];
     allowInspectData: boolean;
     showLegend: boolean;
     legendPosition: string;
@@ -567,6 +568,7 @@ export class CommonChartInfo {
         this.yAxisUnit = []; // "", 2 elements
         this.yMin = []; // null, 2 elements
         this.yMax = []; // null, 2 elements
+        this.reverseYAxis = []; // false, 2 elements
         this.allowInspectData = true;
         this.showLegend = false;
         this.legendPosition = ""; // top, bottom, left, right

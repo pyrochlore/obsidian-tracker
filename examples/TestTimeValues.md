@@ -8,6 +8,7 @@ folder: diary
 line:
     title: "Working Hours"
     yAxisLabel: "Time"
+	reverseYAxis: true
     lineColor: yellow, red
     showPoint: true
 ```

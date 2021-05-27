@@ -346,7 +346,14 @@ function renderYAxis(
             yLower = 0.0;
         }
     }
-    yScale.domain([yLower, yUpper]).range([renderInfo.dataAreaSize.height, 0]);
+    let domain = [yLower, yUpper];
+    if (
+        (yAxisLocation === "left" && chartInfo.reverseYAxis[0]) ||
+        (yAxisLocation === "right" && chartInfo.reverseYAxis[1])
+    ) {
+        domain = [yUpper, yLower];
+    }
+    yScale.domain(domain).range([renderInfo.dataAreaSize.height, 0]);
 
     if (yAxisLocation === "left") {
         chartElements["leftYScale"] = yScale;

@@ -275,7 +275,9 @@ function getNumberArrayFromInput(
                     let curr = splitted[ind].trim();
                     let prev = null;
                     if (ind > 0) {
-                        prev = helper.parseFloatFromAny(splitted[ind - 1].trim()).value;
+                        prev = helper.parseFloatFromAny(
+                            splitted[ind - 1].trim()
+                        ).value;
                     }
                     if (curr === "") {
                         if (prev !== null && Number.isNumber(prev)) {
@@ -295,7 +297,9 @@ function getNumberArrayFromInput(
                     }
                 } else {
                     // Exceeds the length of input, use prev value
-                    let last = helper.parseFloatFromAny(splitted[input.length - 1].trim()).value;
+                    let last = helper.parseFloatFromAny(
+                        splitted[input.length - 1].trim()
+                    ).value;
                     if (numValidValue > 0 && Number.isNumber(last)) {
                         array[ind] = last;
                     } else {
@@ -665,6 +669,23 @@ function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
     }
     renderInfo.yMax = retYMax;
     // console.log(renderInfo.yMax);
+
+    // reverseYAxis
+    let retReverseYAxis = getBoolArrayFromInput(
+        "reverseYAxis",
+        yaml?.reverseYAxis,
+        2,
+        false,
+        true
+    );
+    if (typeof retReverseYAxis === "string") {
+        return retReverseYAxis; // errorMessage
+    }
+    if (retReverseYAxis.length > 2) {
+        return "reverseYAxis accepts not more than two values for left and right y-axes";
+    }
+    renderInfo.reverseYAxis = retReverseYAxis;
+    // console.log(renderInfo.reverseYAxis);
 }
 
 function getAvailableKeysOfClass(obj: object): string[] {
