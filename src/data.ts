@@ -638,10 +638,28 @@ export class MonthInfo {
 }
 
 export class BulletInfo {
+    title: string;
+    dataset: string;
     orientation: string;
+    range: number[];
+    rangeColor: string[];
+    value: string;
+    valueColor: string;
+    showMark: boolean;
+    markerValue: number;
+    markerColor: string;
 
     constructor() {
+        this.title = "";
+        this.dataset = "0"; // dataset id or name
         this.orientation = "horizontal"; // or vertical
+        this.range = [];
+        this.rangeColor = [];
+        this.value = ""; // Can possess template varialbe
+        this.valueColor = "";
+        this.showMark = false;
+        this.markerValue = 0;
+        this.markerColor = "";
     }
 }
 

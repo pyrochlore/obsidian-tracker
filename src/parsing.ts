@@ -1487,9 +1487,84 @@ export function getRenderInfoFromYaml(
         }
 
         if (yaml.bullet !== null) {
+            // title
+            if (typeof yaml.bullet.title === "string") {
+                renderInfo.bullet.title = yaml.bullet.title;
+            }
+            // console.log(renderInfo.bullet.title);
+
+            // dataset
+            if (typeof yaml.bullet.dataset === "string") {
+                renderInfo.bullet.dataset = yaml.bullet.dataset;
+            }
+            // console.log(renderInfo.bullet.dataset);
+
+            // orientation
             if (typeof yaml.bullet.orientation === "string") {
                 renderInfo.bullet.orientation = yaml.bullet.orientation;
             }
+            // console.log(renderInfo.bullet.orientation);
+
+            // range
+            let numRange = 0;
+            let retRange = getNumberArrayFromInput(
+                "range",
+                yaml?.bullet?.range,
+                3, // TODO
+                null,
+                true
+            );
+            if (typeof retRange === "string") {
+                return retRange; // errorMessage
+            }
+            renderInfo.bullet.range = retRange;
+            numRange = retRange.length;
+            // console.log(renderInfo.bullet.range);
+
+            // range color
+            let retRangeColor = getStringArrayFromInput(
+                "rangeColor",
+                yaml?.bullet?.rangeColor,
+                numRange,
+                "",
+                validateColor,
+                true
+            );
+            if (typeof retRangeColor === "string") {
+                return retRangeColor; // errorMessage
+            }
+            renderInfo.bullet.rangeColor = retRangeColor;
+            // console.log(renderInfo.bullet.rangeColor);
+
+            // actual value, can possess template variable
+            if (typeof yaml.bullet.value === "string") {
+                renderInfo.bullet.value = yaml.bullet.value;
+            }
+            // console.log(renderInfo.bullet.value);
+
+            // value color
+            if (typeof yaml.bullet.valueColor === "string") {
+                renderInfo.bullet.valueColor = yaml.bullet.valueColor;
+            }
+            // console.log(renderInfo.bullet.valueColor);
+
+            // show mark
+            if (typeof yaml.bullet.showMark === "boolean") {
+                renderInfo.bullet.showMark = yaml.bullet.showMark;
+            }
+            // console.log(renderInfo.bullet.showMark);
+
+            // mark value
+            if (typeof yaml.bullet.markerValue === "number") {
+                renderInfo.bullet.markerValue = yaml.bullet.markerValue;
+            }
+            // console.log(renderInfo.bullet.markValue);
+
+            // mark color
+            if (typeof yaml.bullet.markerColor === "number") {
+                renderInfo.bullet.markerColor = yaml.bullet.markerColor;
+            }
+            // console.log(renderInfo.bullet.markValue);
         }
     } // Bullet related parameters
 

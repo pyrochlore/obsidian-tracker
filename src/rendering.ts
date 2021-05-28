@@ -233,8 +233,8 @@ function renderXAxis(chartElements: ChartElements, renderInfo: RenderInfo) {
     xAxis.attr("height", tickLength + tickLabelHeight);
 
     // Expand areas
-    expandArea(chartElements.svg, 0, tickLength + tickLabelHeight);
-    expandArea(chartElements.graphArea, 0, tickLength + tickLabelHeight);
+    helper.expandArea(chartElements.svg, 0, tickLength + tickLabelHeight);
+    helper.expandArea(chartElements.graphArea, 0, tickLength + tickLabelHeight);
 }
 
 function renderYAxis(
@@ -487,17 +487,17 @@ function renderYAxis(
     yAxis.attr("width", yAxisWidth);
 
     // Expand areas
-    expandArea(chartElements.svg, yAxisWidth, 0);
-    expandArea(chartElements.graphArea, yAxisWidth, 0);
+    helper.expandArea(chartElements.svg, yAxisWidth, 0);
+    helper.expandArea(chartElements.graphArea, yAxisWidth, 0);
 
     // Move areas
     if (yAxisLocation === "left") {
         // Move dataArea
-        moveArea(chartElements.dataArea, yAxisWidth, 0);
+        helper.moveArea(chartElements.dataArea, yAxisWidth, 0);
 
         // Move title
         if (chartElements.title) {
-            moveArea(chartElements.title, yAxisWidth, 0);
+            helper.moveArea(chartElements.title, yAxisWidth, 0);
         }
     }
 }
@@ -887,9 +887,9 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
             legendWidth / 2.0;
         legendY = titleHeight;
         // Expand svg
-        expandArea(svg, 0, legendHeight + ySpacing);
+        helper.expandArea(svg, 0, legendHeight + ySpacing);
         // Move dataArea down
-        moveArea(dataArea, 0, legendHeight + ySpacing);
+        helper.moveArea(dataArea, 0, legendHeight + ySpacing);
     } else if (chartInfo.legendPosition === "bottom") {
         // bellow x-axis label
         legendX =
@@ -902,7 +902,7 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
             xAxisHeight +
             ySpacing;
         // Expand svg
-        expandArea(svg, 0, legendHeight + ySpacing);
+        helper.expandArea(svg, 0, legendHeight + ySpacing);
     } else if (chartInfo.legendPosition === "left") {
         legendX = 0;
         legendY =
@@ -910,9 +910,9 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
             renderInfo.dataAreaSize.height / 2.0 -
             legendHeight / 2.0;
         // Expand svg
-        expandArea(svg, legendWidth + xSpacing, 0);
+        helper.expandArea(svg, legendWidth + xSpacing, 0);
         // Move dataArea right
-        moveArea(dataArea, legendWidth + xSpacing, 0);
+        helper.moveArea(dataArea, legendWidth + xSpacing, 0);
     } else if (chartInfo.legendPosition === "right") {
         legendX =
             renderInfo.dataAreaSize.width +
@@ -924,7 +924,7 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
             renderInfo.dataAreaSize.height / 2.0 -
             legendHeight / 2.0;
         // Expand svg
-        expandArea(svg, legendWidth + xSpacing, 0);
+        helper.expandArea(svg, legendWidth + xSpacing, 0);
     } else {
         return;
     }
@@ -1270,11 +1270,11 @@ function renderTitle(chartElements: ChartElements, renderInfo: RenderInfo) {
     chartElements["title"] = title;
 
     // Expand parent areas
-    expandArea(chartElements.svg, 0, titleSize.height);
-    expandArea(chartElements.graphArea, 0, titleSize.height);
+    helper.expandArea(chartElements.svg, 0, titleSize.height);
+    helper.expandArea(chartElements.graphArea, 0, titleSize.height);
 
     // Move sibling areas
-    moveArea(chartElements.dataArea, 0, titleSize.height);
+    helper.moveArea(chartElements.dataArea, 0, titleSize.height);
 
     return;
 }
@@ -1359,27 +1359,6 @@ function createAreas(
     chartElements["dataArea"] = dataArea;
 
     return chartElements;
-}
-
-function expandArea(area: any, addW: number, addH: number) {
-    let oriWidth = parseFloat(area.attr("width")) | 0;
-    let oriHeight = parseFloat(area.attr("height")) | 0;
-    let newWidth = oriWidth + addW;
-    let newHeight = oriHeight + addH;
-    area.attr("width", newWidth);
-    area.attr("height", newHeight);
-}
-
-function moveArea(area: any, shiftX: number, shiftY: number) {
-    let trans = new Transform(area.attr("transform"));
-    area.attr(
-        "transform",
-        "translate(" +
-            (trans.translateX + shiftX) +
-            "," +
-            (trans.translateY + shiftY) +
-            ")"
-    );
 }
 
 function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {

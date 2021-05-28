@@ -1,4 +1,4 @@
-import { RenderInfo, Size } from "./data";
+import { RenderInfo, Size, Transform } from "./data";
 import { TFile, TFolder, normalizePath } from "obsidian";
 import { ValueType } from "./data";
 import * as d3 from "d3";
@@ -123,4 +123,26 @@ export function measureTextSize(
     var size = container.node().getBBox();
     container.remove();
     return { width: size.width, height: size.height };
+}
+
+// dom
+export function expandArea(area: any, addW: number, addH: number) {
+    let oriWidth = parseFloat(area.attr("width")) | 0;
+    let oriHeight = parseFloat(area.attr("height")) | 0;
+    let newWidth = oriWidth + addW;
+    let newHeight = oriHeight + addH;
+    area.attr("width", newWidth);
+    area.attr("height", newHeight);
+}
+
+export function moveArea(area: any, shiftX: number, shiftY: number) {
+    let trans = new Transform(area.attr("transform"));
+    area.attr(
+        "transform",
+        "translate(" +
+            (trans.translateX + shiftX) +
+            "," +
+            (trans.translateY + shiftY) +
+            ")"
+    );
 }
