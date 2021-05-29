@@ -1506,19 +1506,78 @@ export function getRenderInfoFromYaml(
             // console.log(renderInfo.bullet.orientation);
 
             // range
-            let numRange = 0;
-            let retRange = getNumberArrayFromInput(
-                "range",
-                yaml?.bullet?.range,
-                3, // TODO
-                null,
-                true
-            );
-            if (typeof retRange === "string") {
-                return retRange; // errorMessage
+            let range: Array<number> = [];
+            if (
+                typeof yaml.bullet.range === "object" &&
+                yaml.bullet.range !== null
+            ) {
+                if (Array.isArray(yaml.bullet.range)) {
+                    for (let r of yaml.bullet.range) {
+                        if (typeof r === "string") {
+                            let v = parseFloat(r);
+                            if (Number.isNumber(v)) {
+                                range.push(v);
+                            } else {
+                                errorMessage =
+                                    "Parameter 'range' accepts only numbers";
+                                return errorMessage;
+                            }
+                        }
+                    }
+                }
+            } else if (typeof yaml.bullet.range === "string") {
+                let splitted = yaml.bullet.range.split(",");
+                if (splitted.length > 1) {
+                    for (let piece of splitted) {
+                        let v = parseFloat(piece.trim());
+                        if (!Number.isNaN(v)) {
+                            // Number.isNumber(NaN) --> true
+                            range.push(v);
+                        } else {
+                            errorMessage =
+                                "Parameter 'range' accepts only numbers";
+                            return errorMessage;
+                        }
+                    }
+                } else if (yaml.bullet.range === "") {
+                    errorMessage = "Empty range is not allowed.";
+                } else {
+                    let v = parseFloat(yaml.bullet.range);
+                    if (Number.isNumber(v)) {
+                        range.push(v);
+                    } else {
+                        errorMessage = "Parameter 'range' accepts only numbers";
+                        return errorMessage;
+                    }
+                }
+            } else {
+                errorMessage = "Invalid range";
+                return errorMessage;
             }
-            renderInfo.bullet.range = retRange;
-            numRange = retRange.length;
+            // Check the value is monotonically increasing
+            // Check the value is not negative
+            if (range.length === 1) {
+                if (range[0] < 0) {
+                    errorMessage = "Negative range value is not allowed";
+                    return errorMessage;
+                }
+            } else if (range.length > 1) {
+                let lastBound = range[0];
+                if (lastBound < 0) {
+                    errorMessage = "Negative range value is not allowed";
+                    return errorMessage;
+                } else {
+                    for (let ind = 1; ind < range.length; ind++) {
+                        if (range[ind] <= lastBound) {
+                            errorMessage =
+                                "Values in parameter 'range' should be monotonically increasing";
+                            return errorMessage;
+                        }
+                    }
+                }
+            }
+            renderInfo.bullet.range = range;
+            let numRange = range.length;
             // console.log(renderInfo.bullet.range);
 
             // range color

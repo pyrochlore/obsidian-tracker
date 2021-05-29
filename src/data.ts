@@ -656,7 +656,7 @@ export class BulletInfo {
         this.range = [];
         this.rangeColor = [];
         this.value = ""; // Can possess template varialbe
-        this.valueColor = "";
+        this.valueColor = "#69b3a2";
         this.showMark = false;
         this.markerValue = 0;
         this.markerColor = "";
