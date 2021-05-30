@@ -5,7 +5,7 @@ searchType: tag
 searchTarget: clean-up
 folder: diary
 endDate: 2021-01-31
-fixedScale: 0.1
+fixedScale: 1.1
 bullet:
     title: "Clean Up"
 	dataset: 0
