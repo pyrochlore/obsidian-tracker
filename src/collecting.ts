@@ -205,7 +205,7 @@ export function collectDataFromInlineTag(
                 // console.log("single-value");
                 let toParse = splitted[0].trim();
                 let retParse = helper.parseFloatFromAny(toParse);
-                if (retParse.value) {
+                if (retParse.value !== null) {
                     if (retParse.type === ValueType.Time) {
                         tagMeasure = retParse.value;
                         tagExist = true;
@@ -226,7 +226,8 @@ export function collectDataFromInlineTag(
             ) {
                 let toParse = splitted[query.getAccessor()].trim();
                 let retParse = helper.parseFloatFromAny(toParse);
-                if (retParse.value) {
+                //console.log(retParse);
+                if (retParse.value !== null) {
                     if (retParse.type === ValueType.Time) {
                         tagMeasure = retParse.value;
                         tagExist = true;
