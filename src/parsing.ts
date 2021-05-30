@@ -1575,6 +1575,9 @@ export function getRenderInfoFromYaml(
                         }
                     }
                 }
+            } else {
+                errorMessage = "Empty range is not allowed";
+                return errorMessage;
             }
             renderInfo.bullet.range = range;
             let numRange = range.length;
@@ -1601,6 +1604,12 @@ export function getRenderInfoFromYaml(
             }
             // console.log(renderInfo.bullet.value);
 
+            // value unit
+            if (typeof yaml.bullet.valueUnit === "string") {
+                renderInfo.bullet.valueUnit = yaml.bullet.valueUnit;
+            }
+            // console.log(renderInfo.bullet.valueUnit);
+
             // value color
             if (typeof yaml.bullet.valueColor === "string") {
                 renderInfo.bullet.valueColor = yaml.bullet.valueColor;
@@ -1608,8 +1617,8 @@ export function getRenderInfoFromYaml(
             // console.log(renderInfo.bullet.valueColor);
 
             // show mark
-            if (typeof yaml.bullet.showMark === "boolean") {
-                renderInfo.bullet.showMark = yaml.bullet.showMark;
+            if (typeof yaml.bullet.showMarker === "boolean") {
+                renderInfo.bullet.showMarker = yaml.bullet.showMarker;
             }
             // console.log(renderInfo.bullet.showMark);
 
@@ -1620,7 +1629,7 @@ export function getRenderInfoFromYaml(
             // console.log(renderInfo.bullet.markValue);
 
             // mark color
-            if (typeof yaml.bullet.markerColor === "number") {
+            if (typeof yaml.bullet.markerColor === "string") {
                 renderInfo.bullet.markerColor = yaml.bullet.markerColor;
             }
             // console.log(renderInfo.bullet.markValue);

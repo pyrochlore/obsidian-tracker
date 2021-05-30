@@ -78,78 +78,134 @@ function renderTitle(chartElements: ChartElements, renderInfo: RenderInfo) {
     let bulletInfo = renderInfo.bullet;
     if (!bulletInfo) return;
 
-    if (!bulletInfo.title) return;
+    const spacing = 6; // spacing between title and dataArea
 
-    let titleSize = helper.measureTextSize(
-        bulletInfo.title,
-        "tracker-title-small"
-    );
-    let spacing = 6; // spacing between title and dataArea
-
-    if (bulletInfo.orientation === "horizontal") {
-        let title = chartElements.graphArea
-            .append("text")
-            .text(bulletInfo.title) // pivot at center
-            .attr("id", "title")
-            .attr("x", titleSize.width / 2.0)
-            .attr("y", renderInfo.dataAreaSize.height / 2.0)
-            .attr("height", titleSize.height) // for later use
-            .attr("class", "tracker-title-small");
-        chartElements["title"] = title;
-
-        // Expand parent areas
-        helper.expandArea(chartElements.svg, titleSize.width + spacing, 0);
-        helper.expandArea(
-            chartElements.graphArea,
-            titleSize.width + spacing,
-            0
+    if (bulletInfo.title) {
+        let titleSize = helper.measureTextSize(
+            bulletInfo.title,
+            "tracker-title-small"
         );
 
-        // Move sibling areas
-        helper.moveArea(chartElements.dataArea, titleSize.width + spacing, 0);
-    } else if (bulletInfo.orientation === "vertical") {
-        // if label width > dataArea width
-        let xMiddle = renderInfo.dataAreaSize.width / 2.0;
-        if (titleSize.width > renderInfo.dataAreaSize.width) {
-            helper.expandArea(
-                chartElements.svg,
-                titleSize.width - renderInfo.dataAreaSize.width,
-                0
-            );
+        if (bulletInfo.orientation === "horizontal") {
+            let title = chartElements.graphArea
+                .append("text")
+                .text(bulletInfo.title) // pivot at center
+                .attr("id", "title")
+                .attr("x", titleSize.width / 2.0)
+                .attr("y", renderInfo.dataAreaSize.height / 2.0)
+                .attr("height", titleSize.height) // for later use
+                .attr("class", "tracker-title-small");
+            chartElements["title"] = title;
+
+            // Expand parent areas
+            helper.expandArea(chartElements.svg, titleSize.width + spacing, 0);
             helper.expandArea(
                 chartElements.graphArea,
-                titleSize.width - renderInfo.dataAreaSize.width,
+                titleSize.width + spacing,
                 0
             );
 
+            // Move sibling areas
             helper.moveArea(
                 chartElements.dataArea,
-                titleSize.width / 2.0 - renderInfo.dataAreaSize.width / 2.0,
+                titleSize.width + spacing,
                 0
             );
-            xMiddle = titleSize.width / 2.0;
+        } else if (bulletInfo.orientation === "vertical") {
+            // if label width > dataArea width
+            let xMiddle = renderInfo.dataAreaSize.width / 2.0;
+            if (titleSize.width > renderInfo.dataAreaSize.width) {
+                helper.expandArea(
+                    chartElements.svg,
+                    titleSize.width - renderInfo.dataAreaSize.width,
+                    0
+                );
+                helper.expandArea(
+                    chartElements.graphArea,
+                    titleSize.width - renderInfo.dataAreaSize.width,
+                    0
+                );
+
+                helper.moveArea(
+                    chartElements.dataArea,
+                    titleSize.width / 2.0 - renderInfo.dataAreaSize.width / 2.0,
+                    0
+                );
+                xMiddle = titleSize.width / 2.0;
+            }
+
+            let title = chartElements.graphArea
+                .append("text")
+                .text(bulletInfo.title) // pivot at center
+                .attr("id", "title")
+                .attr("x", xMiddle)
+                .attr("y", titleSize.height / 2.0)
+                .attr("height", titleSize.height) // for later use
+                .attr("class", "tracker-title-small");
+            chartElements["title"] = title;
+
+            // Expand parent areas
+            helper.expandArea(chartElements.svg, 0, titleSize.height + spacing);
+            helper.expandArea(
+                chartElements.graphArea,
+                0,
+                titleSize.height + spacing
+            );
+
+            // Move sibling areas
+            helper.moveArea(
+                chartElements.dataArea,
+                0,
+                titleSize.height + spacing
+            );
         }
+    }
 
-        let title = chartElements.graphArea
-            .append("text")
-            .text(bulletInfo.title) // pivot at center
-            .attr("id", "title")
-            .attr("x", xMiddle)
-            .attr("y", titleSize.height / 2.0)
-            .attr("height", titleSize.height) // for later use
-            .attr("class", "tracker-title-small");
-        chartElements["title"] = title;
-
-        // Expand parent areas
-        helper.expandArea(chartElements.svg, 0, titleSize.height + spacing);
-        helper.expandArea(
-            chartElements.graphArea,
-            0,
-            titleSize.height + spacing
+    if (bulletInfo.valueUnit) {
+        let unitSize = helper.measureTextSize(
+            bulletInfo.valueUnit,
+            "tracker-tick-label"
         );
 
-        // Move sibling areas
-        helper.moveArea(chartElements.dataArea, 0, titleSize.height + spacing);
+        if (bulletInfo.orientation === "horizontal") {
+            let unit = chartElements.dataArea
+                .append("text")
+                .text(bulletInfo.valueUnit)
+                .attr("id", "unit")
+                .attr("x", -1 * (unitSize.width + spacing))
+                .attr("y", renderInfo.dataAreaSize.height + spacing)
+                .attr("height", unitSize.height) // for later use
+                .attr("class", "tracker-tick-label"); // pivot at corder
+            chartElements["unit"] = unit;
+        } else if (bulletInfo.orientation === "vertical") {
+            let unit = chartElements.dataArea
+                .append("text")
+                .text(bulletInfo.valueUnit)
+                .attr("id", "unit")
+                .attr(
+                    "x",
+                    renderInfo.dataAreaSize.width / 2 - unitSize.width / 2
+                )
+                .attr("y", -(unitSize.height / 2.0 + spacing))
+                .attr("height", unitSize.height) // for later use
+                .attr("class", "tracker-tick-label"); // pivot at corder
+            chartElements["unit"] = unit;
+
+            // Expand parent areas
+            helper.expandArea(chartElements.svg, 0, unitSize.height + spacing);
+            helper.expandArea(
+                chartElements.graphArea,
+                0,
+                unitSize.height + spacing
+            );
+
+            // Move dataArea down
+            helper.moveArea(
+                chartElements.dataArea,
+                0,
+                unitSize.height + spacing
+            );
+        }
     }
 }
 
@@ -167,8 +223,12 @@ function renderAxis(
     if (!bulletInfo) return;
 
     let range = bulletInfo.range;
-    let domain = [0, range[range.length - 1]];
+    let lastRange = range[range.length - 1];
+    let domain = [0, lastRange];
+    let tickFormat = d3.tickFormat(0, lastRange, 7);
     let tickLength = 6;
+
+    let valueUnit = bulletInfo.valueUnit;
 
     if (bulletInfo.orientation === "horizontal") {
         let scale = d3.scaleLinear();
@@ -176,6 +236,12 @@ function renderAxis(
         chartElements["scale"] = scale;
 
         let axisGen = d3.axisBottom(scale);
+        axisGen.tickFormat((v) => {
+            if (valueUnit && valueUnit.endsWith("%")) {
+                return tickFormat(v) + " %";
+            }
+            return tickFormat(v);
+        });
         let axis = chartElements.dataArea
             .append("g")
             .attr("id", "axis")
@@ -209,6 +275,12 @@ function renderAxis(
         chartElements["scale"] = scale;
 
         let axisGen = d3.axisLeft(scale);
+        axisGen.tickFormat((v) => {
+            if (valueUnit && valueUnit.endsWith("%")) {
+                return tickFormat(v) + " %";
+            }
+            return tickFormat(v);
+        });
         let axis = chartElements.dataArea
             .append("g")
             .attr("id", "axis")
@@ -265,13 +337,13 @@ function renderBackPanel(
             .enter()
             .append("rect")
             .attr("x", function (d: any, i: number) {
-                return scale(d.start);
+                return Math.floor(scale(d.start));
             })
             .attr("y", function (d: any) {
                 return 0;
             })
             .attr("width", function (d: any, i: number) {
-                return scale(d.end - d.start);
+                return Math.ceil(scale(d.end - d.start));
             })
             .attr("height", renderInfo.dataAreaSize.height)
             .style("fill", function (d: any) {
@@ -287,11 +359,14 @@ function renderBackPanel(
                 return 0;
             })
             .attr("y", function (d: any) {
-                return scale(d.end);
+                return Math.floor(scale(d.end));
             })
             .attr("width", renderInfo.dataAreaSize.width)
             .attr("height", function (d: any) {
-                return renderInfo.dataAreaSize.height - scale(d.end - d.start);
+                return (
+                    renderInfo.dataAreaSize.height -
+                    Math.floor(scale(d.end - d.start))
+                );
             })
             .style("fill", function (d: any) {
                 return d.color;
@@ -329,7 +404,7 @@ function renderBar(
             .append("rect")
             .attr("x", scale(0))
             .attr("y", barWidth)
-            .attr("width", scale(actualValue))
+            .attr("width", Math.floor(scale(actualValue)))
             .attr("height", barWidth)
             .style("fill", valueColor);
     } else if (bulletInfo.orientation === "vertical") {
@@ -337,9 +412,12 @@ function renderBar(
         let bar = chartElements.dataArea
             .append("rect")
             .attr("x", barWidth)
-            .attr("y", scale(actualValue))
+            .attr("y", Math.floor(scale(actualValue)))
             .attr("width", barWidth)
-            .attr("height", renderInfo.dataAreaSize.height - scale(actualValue))
+            .attr(
+                "height",
+                renderInfo.dataAreaSize.height - Math.floor(scale(actualValue))
+            )
             .style("fill", valueColor);
     }
 }
@@ -356,6 +434,9 @@ function renderMark(
     let bulletInfo = renderInfo.bullet;
     if (!bulletInfo) return;
 
+    let showMarker = bulletInfo.showMarker;
+    if (!showMarker) return;
+
     let markerValue = bulletInfo.markerValue;
     let markerColor = bulletInfo.markerColor;
 
@@ -363,7 +444,7 @@ function renderMark(
 
     if (bulletInfo.orientation === "horizontal") {
         let markerLength = (renderInfo.dataAreaSize.height * 2) / 3;
-        let mark = chartElements.dataArea
+        let marker = chartElements.dataArea
             .append("rect")
             .attr("x", scale(markerValue) - 1.5)
             .attr("y", markerLength / 4)
@@ -372,7 +453,7 @@ function renderMark(
             .style("fill", markerColor);
     } else if (bulletInfo.orientation === "vertical") {
         let markerLength = (renderInfo.dataAreaSize.width * 2) / 3;
-        let mark = chartElements.dataArea
+        let marker = chartElements.dataArea
             .append("rect")
             .attr("x", markerLength / 4)
             .attr("y", scale(markerValue) - 1.5)

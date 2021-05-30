@@ -641,11 +641,12 @@ export class BulletInfo {
     title: string;
     dataset: string;
     orientation: string;
+    value: string;
+    valueUnit: string;
+    valueColor: string;
     range: number[];
     rangeColor: string[];
-    value: string;
-    valueColor: string;
-    showMark: boolean;
+    showMarker: boolean;
     markerValue: number;
     markerColor: string;
 
@@ -653,11 +654,12 @@ export class BulletInfo {
         this.title = "";
         this.dataset = "0"; // dataset id or name
         this.orientation = "horizontal"; // or vertical
+        this.value = ""; // Can possess template varialbe
+        this.valueUnit = "";
+        this.valueColor = "#69b3a2";
         this.range = [];
         this.rangeColor = [];
-        this.value = ""; // Can possess template varialbe
-        this.valueColor = "#69b3a2";
-        this.showMark = false;
+        this.showMarker = false;
         this.markerValue = 0;
         this.markerColor = "";
     }

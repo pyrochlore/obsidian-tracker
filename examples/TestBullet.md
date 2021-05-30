@@ -5,7 +5,7 @@ searchType: tag
 searchTarget: clean-up
 folder: diary
 endDate: 2021-01-31
-fixedScale: 1
+fixedScale: 0.1
 bullet:
     title: "Clean Up"
 	dataset: 0
@@ -13,8 +13,9 @@ bullet:
 	range: 10, 20, 40
 	rangeColor: darkgray, silver, lightgray
 	value: "{{lastBreaks}}"
+	valueUnit: times
 	valueColor: '#69b3a2'
-	showMark: false
+	showMarker: true
 	markerValue: 24
 	markerColor: black
 ```
@@ -22,18 +23,19 @@ bullet:
 Vertical bullet chart
 ``` tracker
 searchType: tag
-searchTarget: clean-up
+searchTarget: meditation
 folder: diary
 endDate: 2021-01-31
 bullet:
-    title: "Clean Up"
+    title: "Meditation"
 	dataset: 0
     orientation: vertical
-	range: 10, 20, 40
+	range: 30, 60, 100
 	rangeColor: darkgray, silver, lightgray
-	value: "{{lastBreaks}}"
-	valueColor: '#69b3a2'
-	showMark: false
-	markerValue: 24
-	markerColor: black
+	value: "{{lastStreak}}"
+	valueUnit: %
+	valueColor: steelblue
+	showMarker: true
+	markerValue: 80
+	markerColor: red
 ```
