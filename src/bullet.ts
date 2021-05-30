@@ -286,7 +286,7 @@ function renderAxis(
             .attr("class", "tracker-axis");
         chartElements["axis"] = axis;
 
-        let axisLine = axis.selectAll("path");
+        let axisLine = axis.selectAll("path").style("stroke", "none");
 
         let axisTicks = axis.selectAll("line");
 
@@ -320,7 +320,7 @@ function renderAxis(
             .attr("class", "tracker-axis");
         chartElements["axis"] = axis;
 
-        let axisLine = axis.selectAll("path");
+        let axisLine = axis.selectAll("path").style("stroke", "none");
 
         let axisTicks = axis.selectAll("line");
 

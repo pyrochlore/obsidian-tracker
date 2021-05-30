@@ -32,7 +32,7 @@ bullet:
     orientation: vertical
 	range: 30, 60, 100
 	rangeColor: darkgray, silver, lightgray
-	value: "{{lastStreak}}"
+	value: "{{sum}}"
 	valueUnit: %
 	valueColor: steelblue
 	showMarker: true
