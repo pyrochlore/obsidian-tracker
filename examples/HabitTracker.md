@@ -41,7 +41,7 @@ searchType: tag
 searchTarget: meditation
 folder: diary
 summary:
-    template: "Longest Streak: {{maxStreak}} day(s)\nLongest Break: {{maxBreak}} day(s)\nLast streak: {{lastStreak}} day(s)"
+    template: "Longest Streak: {{maxStreak}} day(s)\nLongest Breaks: {{maxBreaks}} day(s)\nLast streak: {{lastStreak}} day(s)"
 ```
 
 CleanUp
