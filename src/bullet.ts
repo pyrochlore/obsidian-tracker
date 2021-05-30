@@ -143,6 +143,7 @@ function renderTitle(chartElements: ChartElements, renderInfo: RenderInfo) {
             // if label width > dataArea width
             let xMiddle = renderInfo.dataAreaSize.width / 2.0;
             if (titleSize.width > renderInfo.dataAreaSize.width) {
+                // console.log("expand area for vertical title");
                 helper.expandArea(
                     chartElements.svg,
                     titleSize.width - renderInfo.dataAreaSize.width,
@@ -162,11 +163,13 @@ function renderTitle(chartElements: ChartElements, renderInfo: RenderInfo) {
                 xMiddle = titleSize.width / 2.0;
             }
 
+            let axisWidth = parseFloat(chartElements.axis.attr("width"));
+
             let title = chartElements.graphArea
                 .append("text")
                 .text(bulletInfo.title) // pivot at center
                 .attr("id", "title")
-                .attr("x", xMiddle)
+                .attr("x", xMiddle + axisWidth)
                 .attr("y", titleSize.height / 2.0)
                 .attr("height", titleSize.height) // for later use
                 .attr("class", "tracker-title-small");
@@ -253,10 +256,17 @@ function renderAxis(
     let range = bulletInfo.range;
     let lastRange = range[range.length - 1];
     let domain = [0, lastRange];
-    let tickFormat = d3.tickFormat(0, lastRange, 7);
+    
     let tickLength = 6;
-
     let valueUnit = bulletInfo.valueUnit;
+    let tickFormatFn: any = function(value: any) {
+        if (valueUnit && valueUnit.endsWith("%")) {
+            return d3.tickFormat(0, lastRange, 7)(value) + " %";
+        }
+        return d3.tickFormat(0, lastRange, 7)(value);
+    };
+    let maxTickLabel = tickFormatFn(lastRange);
+    let maxTickLabelSize = helper.measureTextSize(maxTickLabel, "tracker-tick-label");
 
     if (bulletInfo.orientation === "horizontal") {
         let scale = d3.scaleLinear();
@@ -264,12 +274,7 @@ function renderAxis(
         chartElements["scale"] = scale;
 
         let axisGen = d3.axisBottom(scale);
-        axisGen.tickFormat((v) => {
-            if (valueUnit && valueUnit.endsWith("%")) {
-                return tickFormat(v) + " %";
-            }
-            return tickFormat(v);
-        });
+        axisGen.tickFormat(tickFormatFn);
         let axis = chartElements.dataArea
             .append("g")
             .attr("id", "axis")
@@ -279,23 +284,25 @@ function renderAxis(
             )
             .call(axisGen)
             .attr("class", "tracker-axis");
+        chartElements["axis"] = axis;
 
         let axisLine = axis.selectAll("path");
 
         let axisTicks = axis.selectAll("line");
 
-        let tickLabelSize = helper.measureTextSize("123456789");
-        let tickLabelHeight = tickLabelSize.height;
+        let axisTickLabels = axis
+            .selectAll("text")
+            .attr("class", "tracker-tick-label");
 
-        axis.attr("width", renderInfo.dataAreaSize.width);
-        axis.attr("height", tickLength + tickLabelHeight);
+        axis.attr("width", renderInfo.dataAreaSize.width + maxTickLabelSize.width);
+        axis.attr("height", tickLength + maxTickLabelSize.height);
 
         // Expand areas
-        helper.expandArea(chartElements.svg, 0, tickLength + tickLabelHeight);
+        helper.expandArea(chartElements.svg,  + maxTickLabelSize.width, tickLength + maxTickLabelSize.height);
         helper.expandArea(
             chartElements.graphArea,
-            0,
-            tickLength + tickLabelHeight
+            + maxTickLabelSize.width,
+            tickLength + maxTickLabelSize.height
         );
     } else if (bulletInfo.orientation === "vertical") {
         let scale = d3.scaleLinear();
@@ -303,12 +310,7 @@ function renderAxis(
         chartElements["scale"] = scale;
 
         let axisGen = d3.axisLeft(scale);
-        axisGen.tickFormat((v) => {
-            if (valueUnit && valueUnit.endsWith("%")) {
-                return tickFormat(v) + " %";
-            }
-            return tickFormat(v);
-        });
+        axisGen.tickFormat(tickFormatFn);
         let axis = chartElements.dataArea
             .append("g")
             .attr("id", "axis")
@@ -316,17 +318,28 @@ function renderAxis(
             .attr("y", 0)
             .call(axisGen)
             .attr("class", "tracker-axis");
+        chartElements["axis"] = axis;
 
         let axisLine = axis.selectAll("path");
 
         let axisTicks = axis.selectAll("line");
 
-        axis.attr("width", tickLength);
+        let axisTickLabels = axis
+            .selectAll("text")
+            .attr("class", "tracker-tick-label");
+
+        axis.attr("width", tickLength + maxTickLabelSize.width);
         axis.attr("height", renderInfo.dataAreaSize.width);
 
         // Expand areas
-        helper.expandArea(chartElements.svg, tickLength, 0);
-        helper.expandArea(chartElements.graphArea, tickLength, 0);
+        helper.expandArea(chartElements.svg, tickLength + maxTickLabelSize.width, 0);
+        helper.expandArea(chartElements.graphArea, tickLength + maxTickLabelSize.width, 0);
+    
+        helper.moveArea(
+            chartElements.dataArea,
+            tickLength + maxTickLabelSize.width,
+            0
+        );
     }
 }
 
