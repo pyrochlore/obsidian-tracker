@@ -256,17 +256,20 @@ function renderAxis(
     let range = bulletInfo.range;
     let lastRange = range[range.length - 1];
     let domain = [0, lastRange];
-    
+
     let tickLength = 6;
     let valueUnit = bulletInfo.valueUnit;
-    let tickFormatFn: any = function(value: any) {
+    let tickFormatFn: any = function (value: any) {
         if (valueUnit && valueUnit.endsWith("%")) {
             return d3.tickFormat(0, lastRange, 7)(value) + " %";
         }
         return d3.tickFormat(0, lastRange, 7)(value);
     };
     let maxTickLabel = tickFormatFn(lastRange);
-    let maxTickLabelSize = helper.measureTextSize(maxTickLabel, "tracker-tick-label");
+    let maxTickLabelSize = helper.measureTextSize(
+        maxTickLabel,
+        "tracker-tick-label"
+    );
 
     if (bulletInfo.orientation === "horizontal") {
         let scale = d3.scaleLinear();
@@ -294,14 +297,21 @@ function renderAxis(
             .selectAll("text")
             .attr("class", "tracker-tick-label");
 
-        axis.attr("width", renderInfo.dataAreaSize.width + maxTickLabelSize.width);
+        axis.attr(
+            "width",
+            renderInfo.dataAreaSize.width + maxTickLabelSize.width
+        );
         axis.attr("height", tickLength + maxTickLabelSize.height);
 
         // Expand areas
-        helper.expandArea(chartElements.svg,  + maxTickLabelSize.width, tickLength + maxTickLabelSize.height);
+        helper.expandArea(
+            chartElements.svg,
+            +maxTickLabelSize.width,
+            tickLength + maxTickLabelSize.height
+        );
         helper.expandArea(
             chartElements.graphArea,
-            + maxTickLabelSize.width,
+            +maxTickLabelSize.width,
             tickLength + maxTickLabelSize.height
         );
     } else if (bulletInfo.orientation === "vertical") {
@@ -332,9 +342,17 @@ function renderAxis(
         axis.attr("height", renderInfo.dataAreaSize.width);
 
         // Expand areas
-        helper.expandArea(chartElements.svg, tickLength + maxTickLabelSize.width, 0);
-        helper.expandArea(chartElements.graphArea, tickLength + maxTickLabelSize.width, 0);
-    
+        helper.expandArea(
+            chartElements.svg,
+            tickLength + maxTickLabelSize.width,
+            0
+        );
+        helper.expandArea(
+            chartElements.graphArea,
+            tickLength + maxTickLabelSize.width,
+            0
+        );
+
         helper.moveArea(
             chartElements.dataArea,
             tickLength + maxTickLabelSize.width,
