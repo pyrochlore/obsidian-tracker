@@ -233,13 +233,25 @@ export default class Tracker extends Plugin {
                                 );
                                 break;
                             case SearchType.Tag:
-                                xDate = collecting.getDateFromTag();
+                                xDate = collecting.getDateFromTag(
+                                    content,
+                                    xDatasetQuery,
+                                    renderInfo
+                                );
                                 break;
                             case SearchType.Text:
-                                xDate = collecting.getDateFromText();
+                                xDate = collecting.getDateFromText(
+                                    content,
+                                    xDatasetQuery,
+                                    renderInfo
+                                );
                                 break;
                             case SearchType.dvField:
-                                xDate = collecting.getDateFromDvField();
+                                xDate = collecting.getDateFromDvField(
+                                    content,
+                                    xDatasetQuery,
+                                    renderInfo
+                                );
                                 break;
                             case SearchType.FileMeta:
                                 xDate = collecting.getDateFromFileMeta(

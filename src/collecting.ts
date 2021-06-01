@@ -37,6 +37,8 @@ export function getDateFromFilename(file: TFile, renderInfo: RenderInfo) {
     return fileDate;
 }
 
+// Not support multiple targets
+// May merge with collectDataFromFrontmatterKey
 export function getDateFromFrontmatter(
     fileCache: CachedMetadata,
     query: Query,
@@ -58,21 +60,125 @@ export function getDateFromFrontmatter(
     return date;
 }
 
-export function getDateFromTag() {
+// Inline tags only
+// Not support multiple targets
+// May merge with collectDataFromInlineTag
+export function getDateFromTag(
+    content: string,
+    query: Query,
+    renderInfo: RenderInfo
+) {
+    // console.log("getDateFromTag");
+
     let date = window.moment("");
+
+    let tagName = query.getTarget();
+    if (query.getParentTarget()) {
+        tagName = query.getParentTarget(); // use parent tag name for multiple values
+    }
+    // console.log(tagName);
+    let strHashtagRegex =
+        "(^|\\s)#" +
+        tagName +
+        "(\\/[\\w-]+)*(:(?<values>[\\d\\.\\/-]*)[a-zA-Z]*)?([\\.!,\\?;~-]*)?(\\s|$)";
+    // console.log(strHashtagRegex);
+    let hashTagRegex = new RegExp(strHashtagRegex, "gm");
+    let match;
+    while ((match = hashTagRegex.exec(content))) {
+        // console.log(match);
+        if (
+            typeof match.groups !== "undefined" &&
+            typeof match.groups.values !== "undefined"
+        ) {
+            let strDate = match.groups.values;
+            date = window.moment(strDate, renderInfo.dateFormat, true);
+            if (date.isValid()) {
+                break;
+            }
+        }
+    }
+    // console.log(date);
     return date;
 }
 
-export function getDateFromText() {
+// Not support multiple targets
+// May merge with colllectDataFromText
+export function getDateFromText(
+    content: string,
+    query: Query,
+    renderInfo: RenderInfo
+) {
+    // console.log("getDateFromText");
+
     let date = window.moment("");
+
+    let strTextRegex = query.getTarget();
+    // console.log(strTextRegex);
+    let textRegex = new RegExp(strTextRegex, "gm");
+    let match;
+    let textMeasure = 0.0;
+    let textExist = false;
+    while ((match = textRegex.exec(content))) {
+        // console.log(match);
+        if (
+            typeof match.groups !== "undefined" &&
+            typeof match.groups.value !== "undefined"
+        ) {
+            let strDate = match.groups.value.trim();
+            // console.log(strDate);
+            date = window.moment(strDate, renderInfo.dateFormat, true);
+            if (date.isValid()) {
+                break;
+            }
+        }
+    }
+    // console.log(date);
     return date;
 }
 
-export function getDateFromDvField() {
+// Not support multiple targets
+// May merge with colllectDataFromDvField
+export function getDateFromDvField(
+    content: string,
+    query: Query,
+    renderInfo: RenderInfo
+) {
+    // console.log("getDateFromDvField");
+
     let date = window.moment("");
+
+    let dvTarget = query.getTarget();
+    if (query.getParentTarget()) {
+        dvTarget = query.getParentTarget(); // use parent tag name for multiple values
+    }
+    // Test this in Regex101
+    // (^|\s)\*{0,2}dvTarget\*{0,2}(::\s*(?<values>[\d\.\/\-\w,@;\s]*))(\s|$)
+    let strHashtagRegex =
+        "(^|\\s)\\*{0,2}" +
+        dvTarget +
+        "\\*{0,2}(::\\s*(?<values>[\\d\\.\\/\\-\\w,@;\\s]*))(\\s|$)";
+    // console.log(strHashtagRegex);
+    let hashTagRegex = new RegExp(strHashtagRegex, "gm");
+    let match;
+    while ((match = hashTagRegex.exec(content))) {
+        // console.log(match);
+        if (
+            typeof match.groups !== "undefined" &&
+            typeof match.groups.values !== "undefined"
+        ) {
+            let strDate = match.groups.values.trim();
+            date = window.moment(strDate, renderInfo.dateFormat, true);
+            if (date.isValid()) {
+                break;
+            }
+        }
+    }
+    // console.log(date);
     return date;
 }
 
+// Not support multiple targets
+// May merge with colllectDataFromFileMeta
 export function getDateFromFileMeta(
     file: TFile,
     query: Query,

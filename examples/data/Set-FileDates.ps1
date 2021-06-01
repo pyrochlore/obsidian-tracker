@@ -1,0 +1,6 @@
+(Get-Item "./data1.md").CreationTime=("25 May 2021 17:00:00")
+(Get-Item "./data2.md").CreationTime=("27 May 2021 17:00:00")
+(Get-Item "./data3.md").CreationTime=("29 May 2021 17:00:00")
+(Get-Item "./data1.md").LastWriteTime=("25 May 2021 17:00:00")
+(Get-Item "./data2.md").LastWriteTime=("27 May 2021 17:00:00")
+(Get-Item "./data3.md").LastWriteTime=("29 May 2021 17:00:00")
