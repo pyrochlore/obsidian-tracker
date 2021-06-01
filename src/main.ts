@@ -208,8 +208,9 @@ export default class Tracker extends Plugin {
             }
 
             // Get xValue and add it into xValueMap for later use
-            let xValueMap: XValueMap = new Map(); // queryId: xValue
+            let xValueMap: XValueMap = new Map(); // queryId: xValue for this file
             let skipThisFile = false;
+            // console.log(renderInfo.xDataset);
             for (let xDatasetId of renderInfo.xDataset) {
                 if (!xValueMap.has(xDatasetId)) {
                     let xDate = window.moment("");
@@ -225,7 +226,11 @@ export default class Tracker extends Plugin {
                         // console.log(xDatasetQuery);
                         switch (xDatasetQuery.getType()) {
                             case SearchType.Frontmatter:
-                                xDate = collecting.getDateFromFrontmatter();
+                                xDate = collecting.getDateFromFrontmatter(
+                                    fileCache,
+                                    xDatasetQuery,
+                                    renderInfo
+                                );
                                 break;
                             case SearchType.Tag:
                                 xDate = collecting.getDateFromTag();
@@ -237,13 +242,17 @@ export default class Tracker extends Plugin {
                                 xDate = collecting.getDateFromDvField();
                                 break;
                             case SearchType.FileMeta:
-                                xDate = collecting.getDateFromFileMeta();
+                                xDate = collecting.getDateFromFileMeta(
+                                    file,
+                                    xDatasetQuery,
+                                    renderInfo
+                                );
                                 break;
                         }
                     }
 
                     if (!xDate.isValid()) {
-                        // console.log("file " + file.basename + " rejected");
+                        // console.log("Invalid xDate");
                         skipThisFile = true;
                     } else {
                         // console.log("file " + file.basename + " accepted");
@@ -260,7 +269,10 @@ export default class Tracker extends Plugin {
                     }
 
                     if (!skipThisFile) {
-                        xValueMap.set(-1, xDate.format(renderInfo.dateFormat));
+                        xValueMap.set(
+                            xDatasetId,
+                            xDate.format(renderInfo.dateFormat)
+                        );
                         fileCounter++;
 
                         // Get min/max date
@@ -280,6 +292,8 @@ export default class Tracker extends Plugin {
             }
             if (skipThisFile) return;
             // console.log(xValueMap);
+            // console.log(`minDate: ${minDate}`);
+            // console.log(`maxDate: ${maxDate}`);
 
             // Loop over queries
             let yDatasetQueries = renderInfo.queries.filter((q) => {
@@ -375,6 +389,7 @@ export default class Tracker extends Plugin {
             await Promise.all(loopQueryPromises);
         });
         await Promise.all(loopFilePromises);
+        // console.log(dataMap);
 
         // Collect data from a file, one file contains full dataset
         let tableQueries = renderInfo.queries.filter(

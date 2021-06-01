@@ -37,8 +37,24 @@ export function getDateFromFilename(file: TFile, renderInfo: RenderInfo) {
     return fileDate;
 }
 
-export function getDateFromFrontmatter() {
+export function getDateFromFrontmatter(
+    fileCache: CachedMetadata,
+    query: Query,
+    renderInfo: RenderInfo
+) {
+    // console.log("getDateFromFrontmatter");
+
     let date = window.moment("");
+
+    let frontMatter = fileCache.frontmatter;
+    if (frontMatter) {
+        if (helper.deepValue(frontMatter, query.getTarget())) {
+            let strDate = helper.deepValue(frontMatter, query.getTarget());
+            date = window.moment(strDate, renderInfo.dateFormat, true);
+            // console.log(date);
+        }
+    }
+
     return date;
 }
 
@@ -57,8 +73,39 @@ export function getDateFromDvField() {
     return date;
 }
 
-export function getDateFromFileMeta() {
+export function getDateFromFileMeta(
+    file: TFile,
+    query: Query,
+    renderInfo: RenderInfo
+) {
+    // console.log("getDateFromFileMeta");
+
     let date = window.moment("");
+
+    if (file && file instanceof TFile) {
+        // console.log(file.stat);
+
+        let target = query.getTarget();
+        if (target === "cDate") {
+            let ctime = file.stat.ctime;
+            date = window.moment(
+                window.moment(ctime).format(renderInfo.dateFormat),
+                renderInfo.dateFormat,
+                true
+            );
+        } else if (target === "mDate") {
+            let mtime = file.stat.mtime;
+            date = window.moment(
+                window.moment(mtime).format(renderInfo.dateFormat),
+                renderInfo.dateFormat,
+                true
+            );
+            date = window.moment(new Date(mtime));
+        } else if (target === "size") {
+        }
+    }
+
+    // console.log(date);
     return date;
 }
 
@@ -121,7 +168,8 @@ export function collectDataFromFrontmatterTag(
             if (tagExist) {
                 value = tagMeasure;
             }
-            addToDataMap(dataMap, xValueMap.get(-1), query, value);
+            let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
+            addToDataMap(dataMap, xValue, query, value);
         }
     }
 }
@@ -144,7 +192,8 @@ export function collectDataFromFrontmatterKey(
                 if (retParse.type === ValueType.Time) {
                     query.valueType = ValueType.Time;
                 }
-                addToDataMap(dataMap, xValueMap.get(-1), query, retParse.value);
+                let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
+                addToDataMap(dataMap, xValue, query, retParse.value);
             }
         } else if (
             query.getParentTarget() &&
@@ -181,12 +230,10 @@ export function collectDataFromFrontmatterKey(
                     if (retParse.type === ValueType.Time) {
                         query.valueType = ValueType.Time;
                     }
-                    addToDataMap(
-                        dataMap,
-                        xValueMap.get(-1),
-                        query,
-                        retParse.value
+                    let xValue = xValueMap.get(
+                        renderInfo.xDataset[query.getId()]
                     );
+                    addToDataMap(dataMap, xValue, query, retParse.value);
                 }
             }
         }
@@ -215,7 +262,8 @@ export function collectDataFromWiki(
     if (linkExist) {
         linkValue = linkMeasure;
     }
-    addToDataMap(dataMap, xValueMap.get(-1), query, linkValue);
+    let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
+    addToDataMap(dataMap, xValue, query, linkValue);
 }
 
 export function collectDataFromInlineTag(
@@ -300,7 +348,8 @@ export function collectDataFromInlineTag(
     if (tagExist) {
         value = tagMeasure;
     }
-    addToDataMap(dataMap, xValueMap.get(-1), query, value);
+    let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
+    addToDataMap(dataMap, xValue, query, value);
 }
 
 export function collectDataFromText(
@@ -346,7 +395,8 @@ export function collectDataFromText(
     }
 
     if (textExist) {
-        addToDataMap(dataMap, xValueMap.get(-1), query, textMeasure);
+        let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
+        addToDataMap(dataMap, xValue, query, textMeasure);
     }
 }
 
@@ -366,14 +416,17 @@ export function collectDataFromFileMeta(
         if (target === "cDate") {
             let ctime = file.stat.ctime;
             query.valueType = ValueType.Date;
-            addToDataMap(dataMap, xValueMap.get(-1), query, ctime);
+            let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
+            addToDataMap(dataMap, xValue, query, ctime);
         } else if (target === "mDate") {
             let mtime = file.stat.mtime;
             query.valueType = ValueType.Date;
-            addToDataMap(dataMap, xValueMap.get(-1), query, mtime);
+            let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
+            addToDataMap(dataMap, xValue, query, mtime);
         } else if (target === "size") {
             let size = file.stat.size;
-            addToDataMap(dataMap, xValueMap.get(-1), query, size);
+            let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
+            addToDataMap(dataMap, xValue, query, size);
         }
     }
 }
@@ -461,5 +514,6 @@ export function collectDataFromDvField(
     if (tagExist) {
         value = tagMeasure;
     }
-    addToDataMap(dataMap, xValueMap.get(-1), query, value);
+    let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
+    addToDataMap(dataMap, xValue, query, value);
 }

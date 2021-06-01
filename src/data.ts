@@ -352,7 +352,9 @@ export class Datasets implements IterableIterator<Dataset> {
     constructor(startDate: Moment, endDate: Moment) {
         this.dates = [];
         this.datasets = [];
+
         let cData = startDate.creationData();
+        // console.log(cData);
         const dateFormat = cData.format.toString();
         for (
             let curDate = startDate.clone();
