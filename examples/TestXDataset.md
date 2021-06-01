@@ -53,3 +53,5 @@ line:
     title: Dataview Inline Field
 	fillGap: true
 ```
+
+Please also check those search targets in markdown files under folder 'data'.

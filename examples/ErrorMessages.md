@@ -136,3 +136,6 @@ xDataset: 0
 line:
 	lineColor: none, yellow
 ```
+
+
+Please also check those search targets in markdown files under folder 'diary' and 'data'.

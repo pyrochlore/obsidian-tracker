@@ -31,4 +31,5 @@ line:
     fillGap: true
 ```
 
+Please also check those search targets in markdown files under folder 'diary' and 'data'.
 

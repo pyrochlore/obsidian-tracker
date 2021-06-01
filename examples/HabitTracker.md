@@ -35,7 +35,7 @@ line:
 ```
 
 ## Summary
-Meditation
+### Meditation
 ``` tracker
 searchType: tag
 searchTarget: meditation
@@ -44,7 +44,7 @@ summary:
     template: "Longest Streak: {{maxStreak}} day(s)\nLongest Breaks: {{maxBreaks}} day(s)\nLast streak: {{lastStreak}} day(s)"
 ```
 
-CleanUp
+### CleanUp
 ``` tracker
 searchType: tag
 searchTarget: clean-up
@@ -54,7 +54,7 @@ summary:
     template: "Last Break: {{lastBreaks}} day(s)"
 ```
 
-Work log
+### Work log
 ``` tracker
 searchType: tag
 searchTarget: work_log

@@ -85,3 +85,5 @@ line:
     title: dvField
     lineColor: green, red
 ```
+
+Please also check those search targets in markdown files under folder 'diary'.

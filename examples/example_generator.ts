@@ -79,6 +79,10 @@ for (
     frontmatter +=
         "bloodpressure2: [" + systolic + ", " + diastolic + "]" + "\n";
 
+    frontmatter += "bp:" + "\n";
+    frontmatter += "    systolic: " + systolic + "\n";
+    frontmatter += "    diastolic: " + diastolic + "\n";
+
     // clock-in clock-out, 24hr
     let time_clock_in =
         randomIntFromInterval(8, 10).toString() +

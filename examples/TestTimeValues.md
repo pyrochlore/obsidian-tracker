@@ -29,3 +29,5 @@ line:
     showPoint: true
 	showLegend: true
 ```
+
+Please also check those search targets in markdown files under folder 'diary'.

@@ -39,3 +39,5 @@ bullet:
 	markerValue: 80
 	markerColor: red
 ```
+
+Please also check those search targets in markdown files under folder 'diary'.

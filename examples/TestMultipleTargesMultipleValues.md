@@ -36,6 +36,7 @@ Retrieve values from a multiple-values-attached tag
 searchType: tag
 searchTarget: sin[0], sin[1], sin[2], sin[3], sin[4], sin[5], sin[6], sin[7], sin[8]
 folder: diary
+datasetName: Sin1, Sin2, Sin3, Sin4, Sin5, Sin6, Sin7, Sin8, Sin9
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -53,6 +54,7 @@ Multiple values separated by slash (/)
 searchType: frontmatter
 searchTarget: bloodpressure[0], bloodpressure[1]
 folder: diary
+datasetName: systolic, diastolic
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -66,6 +68,7 @@ Multiple values separated by comma (,)
 searchType: frontmatter
 searchTarget: bloodpressure1[0], bloodpressure1[1]
 folder: diary
+datasetName: systolic, diastolic
 startDate: 2021-01-01
 endDate: 2021-01-31
 separator: comma
@@ -80,6 +83,7 @@ Values from array
 searchType: frontmatter
 searchTarget: bloodpressure2[0], bloodpressure2[1]
 folder: diary
+datasetName: systolic, diastolic
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -88,12 +92,12 @@ line:
     showLegend: true
 ```
 
-Values in nested parameters
-Not works yet.
+Values from nested keys
 ``` tracker
 searchType: frontmatter
-searchTarget: blood-pressure[0], blood-pressure[1]
+searchTarget: bp.systolic, bp.diastolic
 folder: diary
+datasetName: systolic, diastolic
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -180,3 +184,5 @@ line:
     yAxisLocation: none, left, right
     lineColor: none, yellow, red
 ```
+
+Please also check those search targets in markdown files under folder 'diary' and 'data'.
