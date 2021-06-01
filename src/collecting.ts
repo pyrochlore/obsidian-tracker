@@ -100,7 +100,6 @@ export function getDateFromFileMeta(
                 renderInfo.dateFormat,
                 true
             );
-            date = window.moment(new Date(mtime));
         } else if (target === "size") {
         }
     }

@@ -21,14 +21,14 @@ line:
     fillGap: true
 ```
 
-Use date variables from front matter
+Use file modified dates (mDate) as x values
 ``` tracker
-searchType: frontmatter, dvField
-searchTarget: date, dataviewTarget
+searchType: fileMeta, dvField
+searchTarget: mDate, dataviewTarget
 xDataset: 0
 folder: data
 line:
-    title: Dataview Inline Field
+    fillGap: true
 ```
 
 
