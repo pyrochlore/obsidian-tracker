@@ -212,62 +212,68 @@ export default class Tracker extends Plugin {
             let skipThisFile = false;
             for (let xDatasetId of renderInfo.xDataset) {
                 if (!xValueMap.has(xDatasetId)) {
+                    let xDate = window.moment("");
                     if (xDatasetId === -1) {
                         // Default using date in filename as xValue
-                        let fileDate = helper.getDateFromFilename(
+                        xDate = collecting.getDateFromFilename(
                             file,
                             renderInfo
                         );
-                        // console.log(fileDate);
-                        if (!fileDate.isValid()) {
-                            // console.log("file " + file.basename + " rejected");
-                            skipThisFile = true;
-                        } else {
-                            // console.log("file " + file.basename + " accepted");
-                            if (renderInfo.startDate !== null) {
-                                if (fileDate < renderInfo.startDate) {
-                                    skipThisFile = true;
-                                }
-                            }
-                            if (renderInfo.endDate !== null) {
-                                if (fileDate > renderInfo.endDate) {
-                                    skipThisFile = true;
-                                }
-                            }
-                        }
-
-                        if (!skipThisFile) {
-                            xValueMap.set(
-                                -1,
-                                fileDate.format(renderInfo.dateFormat)
-                            );
-                            fileCounter++;
-
-                            // Get min/max date
-                            if (fileCounter == 1) {
-                                minDate = fileDate.clone();
-                                maxDate = fileDate.clone();
-                            } else {
-                                if (fileDate < minDate) {
-                                    minDate = fileDate.clone();
-                                }
-                                if (fileDate > maxDate) {
-                                    maxDate = fileDate.clone();
-                                }
-                            }
-                        }
+                        // console.log(xDate);
                     } else {
                         let xDatasetQuery = renderInfo.queries[xDatasetId];
                         // console.log(xDatasetQuery);
                         switch (xDatasetQuery.getType()) {
                             case SearchType.Frontmatter:
+                                xDate = collecting.getDateFromFrontmatter();
                                 break;
                             case SearchType.Tag:
+                                xDate = collecting.getDateFromTag();
                                 break;
                             case SearchType.Text:
+                                xDate = collecting.getDateFromText();
                                 break;
                             case SearchType.dvField:
+                                xDate = collecting.getDateFromDvField();
                                 break;
+                            case SearchType.FileMeta:
+                                xDate = collecting.getDateFromFileMeta();
+                                break;
+                        }
+                    }
+
+                    if (!xDate.isValid()) {
+                        // console.log("file " + file.basename + " rejected");
+                        skipThisFile = true;
+                    } else {
+                        // console.log("file " + file.basename + " accepted");
+                        if (renderInfo.startDate !== null) {
+                            if (xDate < renderInfo.startDate) {
+                                skipThisFile = true;
+                            }
+                        }
+                        if (renderInfo.endDate !== null) {
+                            if (xDate > renderInfo.endDate) {
+                                skipThisFile = true;
+                            }
+                        }
+                    }
+
+                    if (!skipThisFile) {
+                        xValueMap.set(-1, xDate.format(renderInfo.dateFormat));
+                        fileCounter++;
+
+                        // Get min/max date
+                        if (fileCounter == 1) {
+                            minDate = xDate.clone();
+                            maxDate = xDate.clone();
+                        } else {
+                            if (xDate < minDate) {
+                                minDate = xDate.clone();
+                            }
+                            if (xDate > maxDate) {
+                                maxDate = xDate.clone();
+                            }
                         }
                     }
                 }
@@ -343,6 +349,17 @@ export default class Tracker extends Plugin {
                         xValueMap
                     );
                 } // Search text
+
+                // console.log("Search FileMeta");
+                if (query.getType() === SearchType.FileMeta) {
+                    collecting.collectDataFromFileMeta(
+                        file,
+                        query,
+                        renderInfo,
+                        dataMap,
+                        xValueMap
+                    );
+                } // Search FileMeta
 
                 // console.log("Search dvField");
                 if (content && query.getType() === SearchType.dvField) {
@@ -477,20 +494,20 @@ export default class Tracker extends Plugin {
 
                     let date = window.moment(data, renderInfo.dateFormat, true);
 
-                    if (!minDate.isValid() && !maxDate.isValid()) {
-                        minDate = date.clone();
-                        maxDate = date.clone();
-                    } else {
-                        if (date < minDate) {
-                            minDate = date.clone();
-                        }
-                        if (date > maxDate) {
-                            maxDate = date.clone();
-                        }
-                    }
-
                     if (date.isValid()) {
                         xValues.push(date);
+
+                        if (!minDate.isValid() && !maxDate.isValid()) {
+                            minDate = date.clone();
+                            maxDate = date.clone();
+                        } else {
+                            if (date < minDate) {
+                                minDate = date.clone();
+                            }
+                            if (date > maxDate) {
+                                maxDate = date.clone();
+                            }
+                        }
                     } else {
                         xValues.push(null);
                     }

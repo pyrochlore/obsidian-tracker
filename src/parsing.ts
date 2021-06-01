@@ -41,7 +41,8 @@ function validateSearchType(searchType: string): boolean {
         searchType === "frontmatter" ||
         searchType === "wiki" ||
         searchType === "dvField" ||
-        searchType === "table"
+        searchType === "table" ||
+        searchType === "fileMeta"
     ) {
         return true;
     }
@@ -805,6 +806,9 @@ export function getRenderInfoFromYaml(
                 break;
             case "table":
                 searchType.push(SearchType.Table);
+                break;
+            case "fileMeta":
+                searchType.push(SearchType.FileMeta);
                 break;
         }
     }

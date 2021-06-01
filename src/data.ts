@@ -7,6 +7,7 @@ export enum SearchType {
     Text,
     dvField,
     Table,
+    FileMeta,
 }
 
 export enum OutputType {

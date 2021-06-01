@@ -43,32 +43,6 @@ export function trimByChar(str: string, char: string) {
         : str.substring(first, str.length - last);
 }
 
-export function getDateFromFilename(file: TFile, renderInfo: RenderInfo) {
-    let fileBaseName = file.basename;
-
-    if (
-        renderInfo.dateFormatPrefix &&
-        fileBaseName.startsWith(renderInfo.dateFormatPrefix)
-    ) {
-        fileBaseName = fileBaseName.slice(renderInfo.dateFormatPrefix.length);
-    }
-    if (
-        renderInfo.dateFormatSuffix &&
-        fileBaseName.endsWith(renderInfo.dateFormatSuffix)
-    ) {
-        fileBaseName = fileBaseName.slice(
-            0,
-            fileBaseName.length - renderInfo.dateFormatSuffix.length
-        );
-    }
-    // console.log(fileBaseName);
-
-    let fileDate = window.moment(fileBaseName, renderInfo.dateFormat, true);
-    // console.log(fileDate);
-
-    return fileDate;
-}
-
 // Parsing
 export function parseFloatFromAny(toParse: any) {
     let value = null;

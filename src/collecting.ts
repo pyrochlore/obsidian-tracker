@@ -11,6 +11,57 @@ import {
 } from "./data";
 import * as helper from "./helper";
 
+export function getDateFromFilename(file: TFile, renderInfo: RenderInfo) {
+    let fileBaseName = file.basename;
+
+    if (
+        renderInfo.dateFormatPrefix &&
+        fileBaseName.startsWith(renderInfo.dateFormatPrefix)
+    ) {
+        fileBaseName = fileBaseName.slice(renderInfo.dateFormatPrefix.length);
+    }
+    if (
+        renderInfo.dateFormatSuffix &&
+        fileBaseName.endsWith(renderInfo.dateFormatSuffix)
+    ) {
+        fileBaseName = fileBaseName.slice(
+            0,
+            fileBaseName.length - renderInfo.dateFormatSuffix.length
+        );
+    }
+    // console.log(fileBaseName);
+
+    let fileDate = window.moment(fileBaseName, renderInfo.dateFormat, true);
+    // console.log(fileDate);
+
+    return fileDate;
+}
+
+export function getDateFromFrontmatter() {
+    let date = window.moment("");
+    return date;
+}
+
+export function getDateFromTag() {
+    let date = window.moment("");
+    return date;
+}
+
+export function getDateFromText() {
+    let date = window.moment("");
+    return date;
+}
+
+export function getDateFromDvField() {
+    let date = window.moment("");
+    return date;
+}
+
+export function getDateFromFileMeta() {
+    let date = window.moment("");
+    return date;
+}
+
 function addToDataMap(
     dataMap: DataMap,
     date: string,
@@ -296,6 +347,34 @@ export function collectDataFromText(
 
     if (textExist) {
         addToDataMap(dataMap, xValueMap.get(-1), query, textMeasure);
+    }
+}
+
+export function collectDataFromFileMeta(
+    file: TFile,
+    query: Query,
+    renderInfo: RenderInfo,
+    dataMap: DataMap,
+    xValueMap: XValueMap
+) {
+    // console.log("collectDataFromFileMeta");
+
+    if (file && file instanceof TFile) {
+        // console.log(file.stat);
+
+        let target = query.getTarget();
+        if (target === "cDate") {
+            let ctime = file.stat.ctime;
+            query.valueType = ValueType.Date;
+            addToDataMap(dataMap, xValueMap.get(-1), query, ctime);
+        } else if (target === "mDate") {
+            let mtime = file.stat.mtime;
+            query.valueType = ValueType.Date;
+            addToDataMap(dataMap, xValueMap.get(-1), query, mtime);
+        } else if (target === "size") {
+            let size = file.stat.size;
+            addToDataMap(dataMap, xValueMap.get(-1), query, size);
+        }
     }
 }
 
