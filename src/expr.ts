@@ -42,13 +42,17 @@ let fnSet = {
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
         return d3.sum(dataset.getValues());
     },
-    // count --> deprecated
+    count: function (renderInfo: RenderInfo, datasetId: number) {
+        return "Deprecated template variable: count";
+    },
     // number of occurrences of a target in a dataset
     numTargets: function (renderInfo: RenderInfo, datasetId: number) {
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
         return dataset.getNumTargets();
     },
-    // days --> deprecated
+    days: function (renderInfo: RenderInfo, datasetId: number) {
+        return "Deprecated template variable: days";
+    },
     numDays: function (renderInfo: RenderInfo, datasetId: number) {
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
         return dataset.getLength();
@@ -200,7 +204,9 @@ let fnSet = {
         }
         return maxBreaksEnd?.format(renderInfo.dateFormat);
     },
-    // lastStreak --> deprecated
+    lastStreak: function(renderInfo: RenderInfo, datasetId: number) {
+        return "Deprecated template variable: lastStreak";
+    },
     currentStreak: function (renderInfo: RenderInfo, datasetId: number) {
         let currentStreak = 0;
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
@@ -349,6 +355,7 @@ let fnSet = {
 };
 
 export function resolveTemplate(template: string, renderInfo: RenderInfo) {
+    //console.log("resolveTemplate");
     let replaceMap: { [key: string]: string } = {};
     // Loop over fnSet, prepare replaceMap
     Object.entries(fnSet).forEach(([fnName, fn]) => {
