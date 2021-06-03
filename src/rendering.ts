@@ -1529,6 +1529,9 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
 }
 
 export function renderErrorMessage(canvas: HTMLElement, errorMessage: string) {
+    // Remove graph not completed
+    let graph = d3.select(canvas).select("#svg").remove();
+
     let svg = d3
         .select(canvas)
         .append("div")
