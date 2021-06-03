@@ -43,7 +43,7 @@ let fnSet = {
         return d3.sum(dataset.getValues());
     },
     count: function (renderInfo: RenderInfo, datasetId: number) {
-        return "Deprecated template variable: count";
+        return "deprecated template variable 'count'";
     },
     // number of occurrences of a target in a dataset
     numTargets: function (renderInfo: RenderInfo, datasetId: number) {
@@ -51,7 +51,7 @@ let fnSet = {
         return dataset.getNumTargets();
     },
     days: function (renderInfo: RenderInfo, datasetId: number) {
-        return "Deprecated template variable: days";
+        return "deprecated template variable 'days'";
     },
     numDays: function (renderInfo: RenderInfo, datasetId: number) {
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
@@ -204,8 +204,8 @@ let fnSet = {
         }
         return maxBreaksEnd?.format(renderInfo.dateFormat);
     },
-    lastStreak: function(renderInfo: RenderInfo, datasetId: number) {
-        return "Deprecated template variable: lastStreak";
+    lastStreak: function (renderInfo: RenderInfo, datasetId: number) {
+        return "deprecated template variable 'lastStreak'";
     },
     currentStreak: function (renderInfo: RenderInfo, datasetId: number) {
         let currentStreak = 0;
@@ -465,6 +465,8 @@ export function resolveTemplate(template: string, renderInfo: RenderInfo) {
                         } else {
                             strResult = result.toFixed(2);
                         }
+                    } else if (typeof result === "string") {
+                        strResult = result;
                     }
 
                     replaceMap[strReplaceRegex] = strResult;

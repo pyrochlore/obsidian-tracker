@@ -446,11 +446,11 @@ function renderBar(
     let bulletInfo = renderInfo.bullet;
     if (!bulletInfo) return;
 
-    let strActualValue = bulletInfo.value;
-    strActualValue = expr.resolveTemplate(strActualValue, renderInfo);
-    let actualValue = parseFloat(strActualValue);
+    let retActualValue = bulletInfo.value;
+    retActualValue = expr.resolveTemplate(retActualValue, renderInfo);
+    let actualValue = parseFloat(retActualValue);
     if (Number.isNaN(actualValue)) {
-        errorMessage = "Invalid paramter 'actualValue'";
+        errorMessage = "Invalid input value: " + retActualValue;
         return errorMessage;
     }
     let valueColor = bulletInfo.valueColor;
