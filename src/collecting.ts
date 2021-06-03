@@ -11,6 +11,18 @@ import {
 } from "./data";
 import * as helper from "./helper";
 
+export function strToDate(strDate: string, dateFormat: string) {
+    if (
+        strDate.length > 4 &&
+        strDate.startsWith("[[") &&
+        strDate.endsWith("]]")
+    ) {
+        strDate = strDate.substring(2, strDate.length - 2);
+    }
+
+    return window.moment(strDate, dateFormat, true);
+}
+
 export function getDateFromFilename(file: TFile, renderInfo: RenderInfo) {
     let fileBaseName = file.basename;
 
@@ -52,7 +64,8 @@ export function getDateFromFrontmatter(
     if (frontMatter) {
         if (helper.deepValue(frontMatter, query.getTarget())) {
             let strDate = helper.deepValue(frontMatter, query.getTarget());
-            date = window.moment(strDate, renderInfo.dateFormat, true);
+
+            date = strToDate(strDate, renderInfo.dateFormat);
             // console.log(date);
         }
     }
@@ -91,7 +104,7 @@ export function getDateFromTag(
             typeof match.groups.values !== "undefined"
         ) {
             let strDate = match.groups.values;
-            date = window.moment(strDate, renderInfo.dateFormat, true);
+            date = strToDate(strDate, renderInfo.dateFormat);
             if (date.isValid()) {
                 break;
             }
@@ -126,7 +139,8 @@ export function getDateFromText(
         ) {
             let strDate = match.groups.value.trim();
             // console.log(strDate);
-            date = window.moment(strDate, renderInfo.dateFormat, true);
+
+            date = strToDate(strDate, renderInfo.dateFormat);
             if (date.isValid()) {
                 break;
             }
@@ -167,7 +181,7 @@ export function getDateFromDvField(
             typeof match.groups.values !== "undefined"
         ) {
             let strDate = match.groups.values.trim();
-            date = window.moment(strDate, renderInfo.dateFormat, true);
+            date = strToDate(strDate, renderInfo.dateFormat);
             if (date.isValid()) {
                 break;
             }

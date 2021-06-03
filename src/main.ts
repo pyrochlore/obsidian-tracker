@@ -518,8 +518,10 @@ export default class Tracker extends Plugin {
                 let dataRowSplitted = dataRow.split("|");
                 if (columnXDataset < dataRowSplitted.length) {
                     let data = dataRowSplitted[columnXDataset].trim();
-
-                    let date = window.moment(data, renderInfo.dateFormat, true);
+                    let date = collecting.strToDate(
+                        data,
+                        renderInfo.dateFormat
+                    );
 
                     if (date.isValid()) {
                         xValues.push(date);
