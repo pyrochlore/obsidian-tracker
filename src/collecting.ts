@@ -165,12 +165,16 @@ export function getDateFromDvField(
     if (query.getParentTarget()) {
         dvTarget = query.getParentTarget(); // use parent tag name for multiple values
     }
+    // Dataview ask user to add dashes for spaces as search target
+    // So a dash may stands for a real dash or a space
+    dvTarget = dvTarget.replace("-", "[\\s\\-]");
+
     // Test this in Regex101
     // (^|\s)\*{0,2}dvTarget\*{0,2}(::\s*(?<values>[\d\.\/\-\w,@;\s]*))(\s|$)
     let strHashtagRegex =
         "(^|\\s)\\*{0,2}" +
         dvTarget +
-        "\\*{0,2}(::\\s*(?<values>[\\d\\.\\/\\-\\w,@;\\s]*))(\\s|$)";
+        "\\*{0,2}(::\\s*(?<values>[\\d\\.\\/\\-\\w,@;\\s]*))(\r?\n|\r)";
     // console.log(strHashtagRegex);
     let hashTagRegex = new RegExp(strHashtagRegex, "gm");
     let match;
@@ -576,12 +580,16 @@ export function collectDataFromDvField(
     if (query.getParentTarget()) {
         dvTarget = query.getParentTarget(); // use parent tag name for multiple values
     }
+    // Dataview ask user to add dashes for spaces as search target
+    // So a dash may stands for a real dash or a space
+    dvTarget = dvTarget.replace("-", "[\\s\\-]");
+
     // Test this in Regex101
     // (^|\s)\*{0,2}dvTarget\*{0,2}(::\s*(?<values>[\d\.\/\-\w,@;\s]*))(\s|$)
     let strHashtagRegex =
         "(^|\\s)\\*{0,2}" +
         dvTarget +
-        "\\*{0,2}(::\\s*(?<values>[\\d\\.\\/\\-\\w,@;\\s]*))(\\s|$)";
+        "\\*{0,2}(::\\s*(?<values>[\\d\\.\\/\\-\\w,@;\\s]*))(\r?\n|\r)";
     // console.log(strHashtagRegex);
     let hashTagRegex = new RegExp(strHashtagRegex, "gm");
     let match;
@@ -603,7 +611,7 @@ export function collectDataFromDvField(
                 // console.log("single-value");
                 let toParse = splitted[0];
                 let retParse = helper.parseFloatFromAny(toParse);
-                if (retParse.value) {
+                if (retParse.value !== null) {
                     if (retParse.type === ValueType.Time) {
                         tagMeasure = retParse.value;
                         tagExist = true;
@@ -628,7 +636,7 @@ export function collectDataFromDvField(
                 // console.log("multiple-values");
                 let toParse = splitted[query.getAccessor()].trim();
                 let retParse = helper.parseFloatFromAny(toParse);
-                if (retParse.value) {
+                if (retParse.value !== null) {
                     if (retParse.type === ValueType.Time) {
                         tagMeasure = retParse.value;
                         tagExist = true;
