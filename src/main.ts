@@ -682,6 +682,9 @@ export default class Tracker extends Plugin {
             // We still create a dataset for xDataset,
             // to keep the sequence and order of targets
             let dataset = datasets.createDataset(query, renderInfo);
+            // Add number of targets to the dataset
+            // Number of targets has been accumulated while collecting data
+            dataset.addNumTargets(query.getNumTargets());
             for (
                 let curDate = renderInfo.startDate.clone();
                 curDate <= renderInfo.endDate;
@@ -698,22 +701,23 @@ export default class Tracker extends Plugin {
                         });
                     if (queryValuePairs.length > 0) {
                         // Merge values of the same day same query
-                        let pair = queryValuePairs[0];
-                        let value = 0;
-                        let hasValue = false;
+                        let value = null;
                         for (
                             let indPair = 0;
                             indPair < queryValuePairs.length;
                             indPair++
                         ) {
                             if (queryValuePairs[indPair].value !== null) {
-                                value += queryValuePairs[indPair].value;
-                                hasValue = true;
+                                if (value === null) {
+                                    value = queryValuePairs[indPair].value;
+                                } else {
+                                    value += queryValuePairs[indPair].value;
+                                }
                             }
                         }
                         // console.log(hasValue);
                         // console.log(value);
-                        if (hasValue) {
+                        if (value) {
                             dataset.setValue(curDate, value);
                         }
                     }

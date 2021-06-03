@@ -48,6 +48,7 @@ export class Query {
     private accessor: number;
     private accessor1: number;
     private accessor2: number;
+    private numTargets: number;
 
     valueType: ValueType;
     usedAsXDataset: boolean;
@@ -62,6 +63,7 @@ export class Query {
         this.accessor2 = -1;
         this.valueType = ValueType.Number;
         this.usedAsXDataset = false;
+        this.numTargets = 0;
 
         if (searchType === SearchType.Table) {
             // searchTarget --> {{filePath}}[{{table}}][{{column}}]
@@ -161,6 +163,14 @@ export class Query {
     public getSeparator() {
         return this.separator;
     }
+
+    public addNumTargets(num: number = 1) {
+        this.numTargets = this.numTargets + num;
+    }
+
+    public getNumTargets() {
+        return this.numTargets;
+    }
 }
 
 export interface QueryValuePair {
@@ -177,6 +187,9 @@ export class Dataset implements IterableIterator<DataPoint> {
     private id: number;
     private yMin: number;
     private yMax: number;
+    private startDate: Moment;
+    private endDate: Moment;
+    private numTargets: number;
     private lineInfo: LineInfo;
     private barInfo: BarInfo;
 
@@ -192,6 +205,9 @@ export class Dataset implements IterableIterator<DataPoint> {
         this.id = -1;
         this.yMin = null;
         this.yMax = null;
+        this.startDate = null;
+        this.endDate = null;
+        this.numTargets = 0;
         this.lineInfo = null;
         this.barInfo = null;
         this.valueType = query.valueType;
@@ -232,6 +248,14 @@ export class Dataset implements IterableIterator<DataPoint> {
         this.id = id;
     }
 
+    public addNumTargets(num: number) {
+        this.numTargets = this.numTargets + num;
+    }
+
+    public getNumTargets() {
+        return this.numTargets;
+    }
+
     public setValue(date: Moment, value: number) {
         let ind = this.parent.getIndexOfDate(date);
         // console.log(ind);
@@ -244,6 +268,12 @@ export class Dataset implements IterableIterator<DataPoint> {
             if (this.yMax === null || value > this.yMax) {
                 this.yMax = value;
             }
+            if (this.startDate === null || date < this.startDate) {
+                this.startDate = date.clone();
+            }
+            if (this.endDate === null || date > this.endDate) {
+                this.endDate = date.clone();
+            }
         }
     }
 
@@ -253,6 +283,14 @@ export class Dataset implements IterableIterator<DataPoint> {
 
     public getYMax() {
         return this.yMax;
+    }
+
+    public getStartDate() {
+        return this.startDate;
+    }
+
+    public getEndDate() {
+        return this.endDate;
     }
 
     public shift(shiftAmount: number) {
@@ -418,6 +456,8 @@ export class Datasets implements IterableIterator<Dataset> {
                 return dataset;
             }
         }
+
+        return null;
     }
 
     public getXDatasetIds() {

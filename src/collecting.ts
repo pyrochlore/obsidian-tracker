@@ -258,10 +258,12 @@ export function collectDataFromFrontmatterTag(
                 // simple tag
                 tagMeasure = tagMeasure + renderInfo.constValue[query.getId()];
                 tagExist = true;
+                query.addNumTargets();
             } else if (tag.startsWith(query.getTarget() + "/")) {
                 // nested tag
                 tagMeasure = tagMeasure + renderInfo.constValue[query.getId()];
                 tagExist = true;
+                query.addNumTargets();
             } else {
                 continue;
             }
@@ -297,6 +299,7 @@ export function collectDataFromFrontmatterKey(
                 if (retParse.type === ValueType.Time) {
                     query.valueType = ValueType.Time;
                 }
+                query.addNumTargets();
                 let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
                 addToDataMap(dataMap, xValue, query, retParse.value);
             }
@@ -335,6 +338,7 @@ export function collectDataFromFrontmatterKey(
                     if (retParse.type === ValueType.Time) {
                         query.valueType = ValueType.Time;
                     }
+                    query.addNumTargets();
                     let xValue = xValueMap.get(
                         renderInfo.xDataset[query.getId()]
                     );
@@ -360,6 +364,7 @@ export function collectDataFromWiki(
         if (link.link === query.getTarget()) {
             linkExist = true;
             linkMeasure = linkMeasure + renderInfo.constValue[query.getId()];
+            query.addNumTargets();
         }
     }
 
@@ -414,6 +419,7 @@ export function collectDataFromInlineTag(
                         tagMeasure = retParse.value;
                         tagExist = true;
                         query.valueType = ValueType.Time;
+                        query.addNumTargets();
                     } else {
                         if (
                             !renderInfo.ignoreZeroValue[query.getId()] ||
@@ -421,6 +427,7 @@ export function collectDataFromInlineTag(
                         ) {
                             tagMeasure += retParse.value;
                             tagExist = true;
+                            query.addNumTargets();
                         }
                     }
                 }
@@ -436,9 +443,11 @@ export function collectDataFromInlineTag(
                         tagMeasure = retParse.value;
                         tagExist = true;
                         query.valueType = ValueType.Time;
+                        query.addNumTargets();
                     } else {
                         tagMeasure += retParse.value;
                         tagExist = true;
+                        query.addNumTargets();
                     }
                 }
             }
@@ -446,6 +455,7 @@ export function collectDataFromInlineTag(
             // console.log("simple-tag");
             tagMeasure = tagMeasure + renderInfo.constValue[query.getId()];
             tagExist = true;
+            query.addNumTargets();
         }
     }
 
@@ -489,6 +499,7 @@ export function collectDataFromText(
                     ) {
                         textMeasure += value;
                         textExist = true;
+                        query.addNumTargets();
                     }
                 }
             }
@@ -496,6 +507,7 @@ export function collectDataFromText(
             // console.log("simple-text");
             textMeasure = textMeasure + renderInfo.constValue[query.getId()];
             textExist = true;
+            query.addNumTargets();
         }
     }
 
@@ -521,15 +533,18 @@ export function collectDataFromFileMeta(
         if (target === "cDate") {
             let ctime = file.stat.ctime;
             query.valueType = ValueType.Date;
+            query.addNumTargets();
             let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
             addToDataMap(dataMap, xValue, query, ctime);
         } else if (target === "mDate") {
             let mtime = file.stat.mtime;
             query.valueType = ValueType.Date;
+            query.addNumTargets();
             let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
             addToDataMap(dataMap, xValue, query, mtime);
         } else if (target === "size") {
             let size = file.stat.size;
+            query.addNumTargets();
             let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
             addToDataMap(dataMap, xValue, query, size);
         }
@@ -579,6 +594,7 @@ export function collectDataFromDvField(
                         tagMeasure = retParse.value;
                         tagExist = true;
                         query.valueType = ValueType.Time;
+                        query.addNumTargets();
                     } else {
                         if (
                             !renderInfo.ignoreZeroValue[query.getId()] ||
@@ -586,6 +602,7 @@ export function collectDataFromDvField(
                         ) {
                             tagMeasure += retParse.value;
                             tagExist = true;
+                            query.addNumTargets();
                         }
                     }
                 }
@@ -602,9 +619,11 @@ export function collectDataFromDvField(
                         tagMeasure = retParse.value;
                         tagExist = true;
                         query.valueType = ValueType.Time;
+                        query.addNumTargets();
                     } else {
                         tagMeasure += retParse.value;
                         tagExist = true;
+                        query.addNumTargets();
                     }
                 }
             }
@@ -612,6 +631,7 @@ export function collectDataFromDvField(
             // console.log("simple-tag");
             tagMeasure = tagMeasure + renderInfo.constValue[query.getId()];
             tagExist = true;
+            query.addNumTargets();
         }
     }
 
