@@ -719,7 +719,7 @@ export default class Tracker extends Plugin {
                         }
                         // console.log(hasValue);
                         // console.log(value);
-                        if (value) {
+                        if (value !== null) {
                             dataset.setValue(curDate, value);
                         }
                     }
