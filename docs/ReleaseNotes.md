@@ -1,7 +1,7 @@
 # Release Notes
 
 ### v1.6.0
-- Add a new input type 'file', getting meta data from a file
+- Add a new input type 'fileMeta', getting meta data from a file
 - Add a new output type 'bullet', rendering a bullet chart
 - Enhancement
     - Accept tracking time values
