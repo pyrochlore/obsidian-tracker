@@ -1,0 +1,36 @@
+# Examples
+
+The following table lists use cases with information of target location (Location), target to track (Target to Track), simplified tracker block (Tracker), and what kind of data you will get ((((O)ccurence/(V)alue). Various kinds of full examples can also be found in the following section after the table.
+
+## Table of Use Cases
+
+| Location | Target to Track  | Tracker | Get (O)ccurrence/(V)alue |
+|:--------|:-------|:---------|:--:|
+| content | #meditation | searchType: tag<br>searchTarget: meditation | O |
+| frontmatter | ---<br>tags: meditation<br>--- | searchType: tag<br>searchTarget: meditation | O |
+| content | #weight:60.5kg | searchType: tag<br>searchTarget: weight | V |
+| content | #finance/bank1/transfer:100USD | searchType: tag<br>searchTarget: finance/bank1/transfer | V |
+| content | #finance/bank1/transfer:100USD<br>#finance/bank1/income:80USD<br>#finance/bank1/outcome:-120USD | searchType: tag<br>searchTarget: finance/bank1 | V |
+| content | #blood-pressure:180/120 | searchType: tag<br>searchTarget: blood-pressure[0], blood-pressure[1] | V |
+| content | dvTarget:: 20.5 | searchType: dvField<br>searchTarget: dvTarget | V |
+| content | dvTarget:: 20.5/30.5 | searchType: dvField<br>searchTarget: dvTarget[0], dvTarget[1] | V |
+| content | dvTarget:: 20.5, 30.5 | searchType: dvField<br>searchTarget: dvTarget[0], dvTarget[1]<br>separator: 'comma' | V |
+| frontmatter | ---<br>mood: 10<br>--- | searchType: frontmatter<br>searchTarget: mood | V |
+| frontmatter | ---<br>bp: 184.4/118.8<br>--- | searchType: frontmatter<br>searchTarget: bp[0], bp[1] | V |
+| frontmatter | ---<br>bp: 184.4, 118.8<br>--- | searchType: frontmatter<br>searchTarget: bp[0], bp[1]<br>separator: 'comma' | V |
+| frontmatter | ---<br>bp: [184.4, 118.8]<br>--- | searchType: frontmatter<br>searchTarget: bp[0], bp[1] | V |
+| frontmatter | ---<br>clock-in: 10:45<br>clock-out: 20:51<br>--- | searchType: frontmatter<br>searchTarget: clock-in, clock-out | V |
+| content | [[journal]] | searchType: wiki<br>searchTarget: journal | O |
+| content | ⭐ | searchType: text<br>searchTarget: ⭐ | O | 
+| content | love | searchType: text<br>searchTarget: love | O |
+| content | test@gmail.com<br>test@hotmail.com | searchType: text<br>serchTarget: '.+\\@.+\\..+' | O |
+| content | #weightlifting: 50 | searchType: text<br>searchTarget: 'weightlifting: (?\<value\>[\\-]?[0-9]+[\\.][0-9]+\|[\\-]?[0-9]+)' | V |
+| content | I walked 10000 steps today. | searchType: text<br>searchTarget: 'walked\\s+(?\<value\>[0-9]+)\\s+steps' | V |
+| content | myvalues 1/2/3 | searchType: text<br>searchTarget: 'myvalues\\s+(?\<value\>[0-9]+)/([0-9]+)/([0-9]+), myvalues\\s+([0-9]+)/(?\<value\>[0-9]+)/([0-9]+), myvalues\\s+([0-9]+)/([0-9]+)/(?\<value\>[0-9]+)' | V |
+| table content | { a table filled with dates and values }<br>[example table](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/data/Tables.md) | searchType: table<br>searchTarget: filePath[0][0], filePath[0][1] | V |
+| talbe content | { a table filled with dates and values }<br>[example table](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/data/Tables.md) | searchType: table<br>searchTarget: filePath[1][0], filePath[1][1][0], filePath[1][1][1] | V |
+| file meta | meta data from files (size, cDate, mDate) | searchType: fileMeta<br>searchTarget: size | V |
+
+## Full examples
+
+Full tracker code blocks can be found [here](https://github.com/pyrochlore/obsidian-tracker/tree/master/examples) and the corresponding notes can be found under folder 'diary' and 'data'.

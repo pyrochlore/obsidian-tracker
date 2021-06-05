@@ -4,7 +4,6 @@ import { TFile, TFolder, normalizePath } from "obsidian";
 import { render, renderErrorMessage } from "./rendering";
 import { getRenderInfoFromYaml } from "./parsing";
 import {
-    NullableNumber,
     Datasets,
     Query,
     QueryValuePair,
@@ -119,12 +118,7 @@ export default class Tracker extends Plugin {
     }
 
     // To be moved to collecting.ts
-    addToDataMap(
-        dataMap: DataMap,
-        date: string,
-        query: Query,
-        value: NullableNumber
-    ) {
+    addToDataMap(dataMap: DataMap, date: string, query: Query, value: number) {
         if (!dataMap.has(date)) {
             let queryValuePairs = new Array<QueryValuePair>();
             queryValuePairs.push({ query: query, value: value });
@@ -214,72 +208,104 @@ export default class Tracker extends Plugin {
             }
 
             // Get xValue and add it into xValueMap for later use
-            let xValueMap: XValueMap = new Map(); // queryId: xValue
+            let xValueMap: XValueMap = new Map(); // queryId: xValue for this file
             let skipThisFile = false;
+            // console.log(renderInfo.xDataset);
             for (let xDatasetId of renderInfo.xDataset) {
                 if (!xValueMap.has(xDatasetId)) {
+                    let xDate = window.moment("");
                     if (xDatasetId === -1) {
                         // Default using date in filename as xValue
-                        let fileDate = helper.getDateFromFilename(
+                        xDate = collecting.getDateFromFilename(
                             file,
                             renderInfo
                         );
-                        // console.log(fileDate);
-                        if (!fileDate.isValid()) {
-                            // console.log("file " + file.basename + " rejected");
-                            skipThisFile = true;
-                        } else {
-                            // console.log("file " + file.basename + " accepted");
-                            if (renderInfo.startDate !== null) {
-                                if (fileDate < renderInfo.startDate) {
-                                    skipThisFile = true;
-                                }
-                            }
-                            if (renderInfo.endDate !== null) {
-                                if (fileDate > renderInfo.endDate) {
-                                    skipThisFile = true;
-                                }
-                            }
-                        }
-
-                        if (!skipThisFile) {
-                            xValueMap.set(
-                                -1,
-                                fileDate.format(renderInfo.dateFormat)
-                            );
-                            fileCounter++;
-
-                            // Get min/max date
-                            if (fileCounter == 1) {
-                                minDate = fileDate.clone();
-                                maxDate = fileDate.clone();
-                            } else {
-                                if (fileDate < minDate) {
-                                    minDate = fileDate.clone();
-                                }
-                                if (fileDate > maxDate) {
-                                    maxDate = fileDate.clone();
-                                }
-                            }
-                        }
+                        // console.log(xDate);
                     } else {
                         let xDatasetQuery = renderInfo.queries[xDatasetId];
                         // console.log(xDatasetQuery);
                         switch (xDatasetQuery.getType()) {
                             case SearchType.Frontmatter:
+                                xDate = collecting.getDateFromFrontmatter(
+                                    fileCache,
+                                    xDatasetQuery,
+                                    renderInfo
+                                );
                                 break;
                             case SearchType.Tag:
+                                xDate = collecting.getDateFromTag(
+                                    content,
+                                    xDatasetQuery,
+                                    renderInfo
+                                );
                                 break;
                             case SearchType.Text:
+                                xDate = collecting.getDateFromText(
+                                    content,
+                                    xDatasetQuery,
+                                    renderInfo
+                                );
                                 break;
                             case SearchType.dvField:
+                                xDate = collecting.getDateFromDvField(
+                                    content,
+                                    xDatasetQuery,
+                                    renderInfo
+                                );
                                 break;
+                            case SearchType.FileMeta:
+                                xDate = collecting.getDateFromFileMeta(
+                                    file,
+                                    xDatasetQuery,
+                                    renderInfo
+                                );
+                                break;
+                        }
+                    }
+
+                    if (!xDate.isValid()) {
+                        // console.log("Invalid xDate");
+                        skipThisFile = true;
+                    } else {
+                        // console.log("file " + file.basename + " accepted");
+                        if (renderInfo.startDate !== null) {
+                            if (xDate < renderInfo.startDate) {
+                                skipThisFile = true;
+                            }
+                        }
+                        if (renderInfo.endDate !== null) {
+                            if (xDate > renderInfo.endDate) {
+                                skipThisFile = true;
+                            }
+                        }
+                    }
+
+                    if (!skipThisFile) {
+                        xValueMap.set(
+                            xDatasetId,
+                            xDate.format(renderInfo.dateFormat)
+                        );
+                        fileCounter++;
+
+                        // Get min/max date
+                        if (fileCounter == 1) {
+                            minDate = xDate.clone();
+                            maxDate = xDate.clone();
+                        } else {
+                            if (xDate < minDate) {
+                                minDate = xDate.clone();
+                            }
+                            if (xDate > maxDate) {
+                                maxDate = xDate.clone();
+                            }
                         }
                     }
                 }
             }
             if (skipThisFile) return;
             // console.log(xValueMap);
+            // console.log(`minDate: ${minDate}`);
+            // console.log(`maxDate: ${maxDate}`);
 
             // Loop over queries
             let yDatasetQueries = renderInfo.queries.filter((q) => {
@@ -350,6 +376,17 @@ export default class Tracker extends Plugin {
                     );
                 } // Search text
 
+                // console.log("Search FileMeta");
+                if (query.getType() === SearchType.FileMeta) {
+                    collecting.collectDataFromFileMeta(
+                        file,
+                        query,
+                        renderInfo,
+                        dataMap,
+                        xValueMap
+                    );
+                } // Search FileMeta
+
                 // console.log("Search dvField");
                 if (content && query.getType() === SearchType.dvField) {
                     collecting.collectDataFromDvField(
@@ -364,6 +401,7 @@ export default class Tracker extends Plugin {
             await Promise.all(loopQueryPromises);
         });
         await Promise.all(loopFilePromises);
+        // console.log(dataMap);
 
         // Collect data from a file, one file contains full dataset
         let tableQueries = renderInfo.queries.filter(
@@ -473,44 +511,43 @@ export default class Tracker extends Plugin {
             let columnXDataset = xDatasetQuery.getAccessor(1);
             if (columnXDataset >= numColumns) continue;
             let xValues = [];
-            
+
             let indLine = 0;
             for (let tableLine of tableLines) {
                 let dataRow = helper.trimByChar(tableLine.trim(), "|");
                 let dataRowSplitted = dataRow.split("|");
                 if (columnXDataset < dataRowSplitted.length) {
                     let data = dataRowSplitted[columnXDataset].trim();
-
-                    let date = window.moment(data, renderInfo.dateFormat, true);
-
-                    if (!minDate.isValid() && !maxDate.isValid()) {
-                        minDate = date.clone();
-                        maxDate = date.clone();
-                    } else {
-                        if (date < minDate) {
-                            minDate = date.clone();
-                        }
-                        if (date > maxDate) {
-                            maxDate = date.clone();
-                        }
-                    }
+                    let date = collecting.strToDate(
+                        data,
+                        renderInfo.dateFormat
+                    );
 
                     if (date.isValid()) {
                         xValues.push(date);
-                    }
-                    else {
+
+                        if (!minDate.isValid() && !maxDate.isValid()) {
+                            minDate = date.clone();
+                            maxDate = date.clone();
+                        } else {
+                            if (date < minDate) {
+                                minDate = date.clone();
+                            }
+                            if (date > maxDate) {
+                                maxDate = date.clone();
+                            }
+                        }
+                    } else {
                         xValues.push(null);
                     }
-                    
-                }
-                else {
+                } else {
                     xValues.push(null);
                 }
                 indLine++;
             }
             // console.log(xValues);
 
-            if (xValues.every(v => v === null)) {
+            if (xValues.every((v) => v === null)) {
                 let errorMessage = "No valid X value found";
                 renderErrorMessage(canvas, errorMessage);
                 el.appendChild(canvas);
@@ -534,7 +571,10 @@ export default class Tracker extends Plugin {
                         if (splitted.length === 1) {
                             let value = parseFloat(splitted[0]);
                             if (Number.isNumber(value)) {
-                                if (indLine < xValues.length && xValues[indLine]) {
+                                if (
+                                    indLine < xValues.length &&
+                                    xValues[indLine]
+                                ) {
                                     this.addToDataMap(
                                         dataMap,
                                         xValues[indLine].format(
@@ -554,7 +594,10 @@ export default class Tracker extends Plugin {
                                 splitted[yDatasetQuery.getAccessor(2)].trim();
                             value = parseFloat(splittedPart);
                             if (Number.isNumber(value)) {
-                                if (indLine < xValues.length && xValues[indLine]) {
+                                if (
+                                    indLine < xValues.length &&
+                                    xValues[indLine]
+                                ) {
                                     this.addToDataMap(
                                         dataMap,
                                         xValues[indLine].format(
@@ -641,6 +684,9 @@ export default class Tracker extends Plugin {
             // We still create a dataset for xDataset,
             // to keep the sequence and order of targets
             let dataset = datasets.createDataset(query, renderInfo);
+            // Add number of targets to the dataset
+            // Number of targets has been accumulated while collecting data
+            dataset.addNumTargets(query.getNumTargets());
             for (
                 let curDate = renderInfo.startDate.clone();
                 curDate <= renderInfo.endDate;
@@ -657,22 +703,23 @@ export default class Tracker extends Plugin {
                         });
                     if (queryValuePairs.length > 0) {
                         // Merge values of the same day same query
-                        let pair = queryValuePairs[0];
-                        let value = 0;
-                        let hasValue = false;
+                        let value = null;
                         for (
                             let indPair = 0;
                             indPair < queryValuePairs.length;
                             indPair++
                         ) {
                             if (queryValuePairs[indPair].value !== null) {
-                                value += queryValuePairs[indPair].value;
-                                hasValue = true;
+                                if (value === null) {
+                                    value = queryValuePairs[indPair].value;
+                                } else {
+                                    value += queryValuePairs[indPair].value;
+                                }
                             }
                         }
                         // console.log(hasValue);
                         // console.log(value);
-                        if (hasValue) {
+                        if (value !== null) {
                             dataset.setValue(curDate, value);
                         }
                     }

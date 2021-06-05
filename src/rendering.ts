@@ -1,19 +1,23 @@
 import * as d3 from "d3";
+import { Moment } from "moment";
 import {
     Datasets,
     DataPoint,
     RenderInfo,
     Dataset,
-    LineInfo,
-    BarInfo,
     Size,
     Transform,
-    CommonChartInfo,
     ChartElements,
     OutputType,
+    ValueType,
+    BulletInfo,
 } from "./data";
+import * as summary from "./summary";
+import * as month from "./month";
+import * as bullet from "./bullet";
+import * as helper from "./helper";
 
-function getTickInterval(datasets: Datasets) {
+function getXTickInterval(datasets: Datasets) {
     let tickInterval;
     let days = datasets.getDates().length;
 
@@ -65,39 +69,54 @@ function getXTickFormat(datasets: Datasets) {
     return tickFormat;
 }
 
-function getYTickFormat() {
+function getYTickValues(yLower: number, yUpper: number) {
+    // currently used for time value tick only, value in seconds
+    const absExtent = Math.abs(yUpper - yLower);
+    let tickValues = [];
+    if (absExtent > 5 * 60 * 60) {
+        // extent over than 5 hours
+        // tick on the hour
+        yLower = Math.floor(yLower / 3600) * 3600;
+        yUpper = Math.ceil(yUpper / 3600) * 3600;
+
+        tickValues = d3.range(yLower, yUpper, 3600);
+    } else {
+        // tick on the half hour
+        yLower = Math.floor(yLower / 1800) * 1800;
+        yUpper = Math.ceil(yUpper / 1800) * 1800;
+
+        tickValues = d3.range(yLower, yUpper, 1800);
+    }
+
+    return tickValues;
+}
+
+function getYTickFormat(yLower: number, yUpper: number, skip: boolean = true) {
     // currently used for time value tick only
     // return a function convert value to time string
     function tickFormat(value: number): string {
+        const absExtent = Math.abs(yUpper - yLower);
         let dayStart = window.moment("00:00", "HH:mm", true);
         let tickTime = dayStart.add(value, "seconds");
-        return tickTime.format("HH:mm");
+        let format = tickTime.format("HH:mm");
+        if (skip && absExtent > 12 * 60 * 60) {
+            let devHour = (value - yLower) / 3600;
+            let interleave = devHour % 2;
+            if (value <= yLower) {
+                format = "";
+            } else if (value >= yUpper) {
+                format = "";
+            } else if (interleave > 1.0) {
+                format = tickTime.format("HH:mm");
+            } else {
+                format = "";
+            }
+        }
+
+        return format;
     }
 
     return tickFormat;
-}
-
-// Is there a better way to measure text size??
-function measureTextSize(
-    text: string,
-    styleClass: string = "",
-    rotate: string = ""
-): Size {
-    var container = d3.select("body").append("svg");
-    let textBlock = container
-        .append("text")
-        .text(text)
-        .attr("x", -99999)
-        .attr("y", -99999);
-    if (styleClass) {
-        textBlock.attr("class", styleClass);
-    }
-    if (rotate) {
-        textBlock.attr("transform", "rotate(" + rotate + ")");
-    }
-    var size = container.node().getBBox();
-    container.remove();
-    return { width: size.width, height: size.height };
 }
 
 export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
@@ -105,12 +124,17 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log(renderInfo.datasets);
 
     // Data preprocessing
-
     for (let dataset of renderInfo.datasets) {
         if (dataset.getQuery().usedAsXDataset) continue;
+        // valueShift
+        if (renderInfo.valueShift[dataset.getId()] !== null) {
+            dataset.shift(renderInfo.valueShift[dataset.getId()]);
+        }
+        // penalty
         if (renderInfo.penalty[dataset.getId()] !== null) {
             dataset.setPenalty(renderInfo.penalty[dataset.getId()]);
         }
+        // accum
         if (renderInfo.accum[dataset.getId()]) {
             dataset.accumulateValues();
         }
@@ -122,7 +146,11 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
         case OutputType.Bar:
             return renderBarChart(canvas, renderInfo);
         case OutputType.Summary:
-            return renderSummary(canvas, renderInfo);
+            return summary.renderSummary(canvas, renderInfo);
+        case OutputType.Month:
+            return month.renderMonth(canvas, renderInfo);
+        case OutputType.Bullet:
+            return bullet.renderBullet(canvas, renderInfo);
         default:
             return "Unknown output type";
     }
@@ -149,7 +177,7 @@ function renderXAxis(chartElements: ChartElements, renderInfo: RenderInfo) {
         .range([0, renderInfo.dataAreaSize.width]);
     chartElements["xScale"] = xScale;
 
-    let tickInterval = getTickInterval(datasets);
+    let tickInterval = getXTickInterval(datasets);
     let tickFormat = getXTickFormat(datasets);
 
     let xAxisGen = d3
@@ -170,7 +198,7 @@ function renderXAxis(chartElements: ChartElements, renderInfo: RenderInfo) {
     }
     chartElements["xAxis"] = xAxis;
 
-    let textSize = measureTextSize("99-99-99");
+    let textSize = helper.measureTextSize("99-99-99");
 
     let xAxisTickLabels = xAxis
         .selectAll("text")
@@ -205,8 +233,8 @@ function renderXAxis(chartElements: ChartElements, renderInfo: RenderInfo) {
     xAxis.attr("height", tickLength + tickLabelHeight);
 
     // Expand areas
-    expandArea(chartElements.svg, 0, tickLength + tickLabelHeight);
-    expandArea(chartElements.graphArea, 0, tickLength + tickLabelHeight);
+    helper.expandArea(chartElements.svg, 0, tickLength + tickLabelHeight);
+    helper.expandArea(chartElements.graphArea, 0, tickLength + tickLabelHeight);
 }
 
 function renderYAxis(
@@ -253,7 +281,7 @@ function renderYAxis(
         }
 
         // Need all datasets have same settings for time value
-        valueIsTime = dataset.isUsingTimeValue();
+        valueIsTime = dataset.valueType === ValueType.Time;
         if (tmpValueIsTime === null) {
             tmpValueIsTime = valueIsTime;
         } else {
@@ -322,7 +350,14 @@ function renderYAxis(
             yLower = 0.0;
         }
     }
-    yScale.domain([yLower, yUpper]).range([renderInfo.dataAreaSize.height, 0]);
+    let domain = [yLower, yUpper];
+    if (
+        (yAxisLocation === "left" && chartInfo.reverseYAxis[0]) ||
+        (yAxisLocation === "right" && chartInfo.reverseYAxis[1])
+    ) {
+        domain = [yUpper, yLower];
+    }
+    yScale.domain(domain).range([renderInfo.dataAreaSize.height, 0]);
 
     if (yAxisLocation === "left") {
         chartElements["leftYScale"] = yScale;
@@ -365,9 +400,11 @@ function renderYAxis(
         yAxisGen = d3.axisRight(yScale);
     }
     if (yAxisGen && valueIsTime) {
-        let tickFormat = getYTickFormat();
-        yAxisGen.tickFormat(tickFormat);
+        let tickFormat = getYTickFormat(yLower, yUpper);
+        let tickValues = getYTickValues(yLower, yUpper);
+        yAxisGen.tickValues(tickValues).tickFormat(tickFormat);
     }
+
     let yAxis = chartElements.dataArea
         .append("g")
         .attr("id", "yAxis")
@@ -404,11 +441,14 @@ function renderYAxis(
 
     // Get max tick label width
     let yTickFormat = d3.tickFormat(yLower, yUpper, 10);
-    let yLowerLabelSize = measureTextSize(
+    if (valueIsTime) {
+        yTickFormat = getYTickFormat(yLower, yUpper, false);
+    }
+    let yLowerLabelSize = helper.measureTextSize(
         yTickFormat(yLower),
         "tracker-axis-label"
     );
-    let yUpperLabelSize = measureTextSize(
+    let yUpperLabelSize = helper.measureTextSize(
         yTickFormat(yUpper),
         "tracker-axis-label"
     );
@@ -421,7 +461,7 @@ function renderYAxis(
         yAxisLabelText += " (" + yAxisUnitText + ")";
     }
     let yTickLength = 6;
-    let yAxisLabelSize = measureTextSize(yAxisLabelText);
+    let yAxisLabelSize = helper.measureTextSize(yAxisLabelText);
     let yAxisLabel = yAxis
         .append("text")
         .text(yAxisLabelText)
@@ -447,17 +487,17 @@ function renderYAxis(
     yAxis.attr("width", yAxisWidth);
 
     // Expand areas
-    expandArea(chartElements.svg, yAxisWidth, 0);
-    expandArea(chartElements.graphArea, yAxisWidth, 0);
+    helper.expandArea(chartElements.svg, yAxisWidth, 0);
+    helper.expandArea(chartElements.graphArea, yAxisWidth, 0);
 
     // Move areas
     if (yAxisLocation === "left") {
         // Move dataArea
-        moveArea(chartElements.dataArea, yAxisWidth, 0);
+        helper.moveArea(chartElements.dataArea, yAxisWidth, 0);
 
         // Move title
         if (chartElements.title) {
-            moveArea(chartElements.title, yAxisWidth, 0);
+            helper.moveArea(chartElements.title, yAxisWidth, 0);
         }
     }
 }
@@ -566,6 +606,7 @@ function renderPoints(
                     return p.value.toFixed(2);
                 }
             })
+            .attr("valueType", ValueType[dataset.valueType])
             .attr("class", "tracker-dot");
         if (lineInfo.pointColor[dataset.getId()]) {
             dots.style("fill", lineInfo.pointColor[dataset.getId()]);
@@ -607,10 +648,22 @@ function renderPoints(
                 .attr("y", (renderInfo.tooltipSize.height / 5) * 4);
 
             dots.on("mouseenter", function (event: any) {
+                // Date
                 tooltipLabelDate.text("date:" + d3.select(this).attr("date"));
-                tooltipLabelValue.text(
-                    "value:" + d3.select(this).attr("value")
-                );
+                // Value
+                let valueType = d3.select(this).attr("valueType");
+                let strValue = d3.select(this).attr("value");
+                if (valueType === "Time") {
+                    let dayStart = window.moment("00:00", "HH:mm", true);
+                    let tickTime = dayStart.add(
+                        parseFloat(strValue),
+                        "seconds"
+                    );
+                    let dateValue = tickTime.format("HH:mm");
+                    tooltipLabelValue.text("value:" + dateValue);
+                } else {
+                    tooltipLabelValue.text("value:" + strValue);
+                }
 
                 const [x, y] = d3.pointer(event);
                 if (x < renderInfo.dataAreaSize.width / 2) {
@@ -781,7 +834,7 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
     // Get names and their dimension
     let names = datasets.getNames(); // xDataset name included
     let nameSizes = names.map(function (n) {
-        return measureTextSize(n, "tracker-legend-label");
+        return helper.measureTextSize(n, "tracker-legend-label");
     });
     let indMaxName = 0;
     let maxNameWidth = 0.0;
@@ -834,9 +887,9 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
             legendWidth / 2.0;
         legendY = titleHeight;
         // Expand svg
-        expandArea(svg, 0, legendHeight + ySpacing);
+        helper.expandArea(svg, 0, legendHeight + ySpacing);
         // Move dataArea down
-        moveArea(dataArea, 0, legendHeight + ySpacing);
+        helper.moveArea(dataArea, 0, legendHeight + ySpacing);
     } else if (chartInfo.legendPosition === "bottom") {
         // bellow x-axis label
         legendX =
@@ -849,7 +902,7 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
             xAxisHeight +
             ySpacing;
         // Expand svg
-        expandArea(svg, 0, legendHeight + ySpacing);
+        helper.expandArea(svg, 0, legendHeight + ySpacing);
     } else if (chartInfo.legendPosition === "left") {
         legendX = 0;
         legendY =
@@ -857,9 +910,9 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
             renderInfo.dataAreaSize.height / 2.0 -
             legendHeight / 2.0;
         // Expand svg
-        expandArea(svg, legendWidth + xSpacing, 0);
+        helper.expandArea(svg, legendWidth + xSpacing, 0);
         // Move dataArea right
-        moveArea(dataArea, legendWidth + xSpacing, 0);
+        helper.moveArea(dataArea, legendWidth + xSpacing, 0);
     } else if (chartInfo.legendPosition === "right") {
         legendX =
             renderInfo.dataAreaSize.width +
@@ -871,7 +924,7 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
             renderInfo.dataAreaSize.height / 2.0 -
             legendHeight / 2.0;
         // Expand svg
-        expandArea(svg, legendWidth + xSpacing, 0);
+        helper.expandArea(svg, legendWidth + xSpacing, 0);
     } else {
         return;
     }
@@ -1197,7 +1250,7 @@ function renderTitle(chartElements: ChartElements, renderInfo: RenderInfo) {
     if (!chartInfo) return;
 
     if (!chartInfo.title) return;
-    let titleSize = measureTextSize(chartInfo.title, "tracker-title");
+    let titleSize = helper.measureTextSize(chartInfo.title, "tracker-title");
 
     // Append title
     let title = chartElements.graphArea
@@ -1217,11 +1270,11 @@ function renderTitle(chartElements: ChartElements, renderInfo: RenderInfo) {
     chartElements["title"] = title;
 
     // Expand parent areas
-    expandArea(chartElements.svg, 0, titleSize.height);
-    expandArea(chartElements.graphArea, 0, titleSize.height);
+    helper.expandArea(chartElements.svg, 0, titleSize.height);
+    helper.expandArea(chartElements.graphArea, 0, titleSize.height);
 
     // Move sibling areas
-    moveArea(chartElements.dataArea, 0, titleSize.height);
+    helper.moveArea(chartElements.dataArea, 0, titleSize.height);
 
     return;
 }
@@ -1306,27 +1359,6 @@ function createAreas(
     chartElements["dataArea"] = dataArea;
 
     return chartElements;
-}
-
-function expandArea(area: any, addW: number, addH: number) {
-    let oriWidth = parseFloat(area.attr("width")) | 0;
-    let oriHeight = parseFloat(area.attr("height")) | 0;
-    let newWidth = oriWidth + addW;
-    let newHeight = oriHeight + addH;
-    area.attr("width", newWidth);
-    area.attr("height", newHeight);
-}
-
-function moveArea(area: any, shiftX: number, shiftY: number) {
-    let trans = new Transform(area.attr("transform"));
-    area.attr(
-        "transform",
-        "translate(" +
-            (trans.translateX + shiftX) +
-            "," +
-            (trans.translateY + shiftY) +
-            ")"
-    );
 }
 
 function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
@@ -1496,248 +1528,10 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     setChartScale(canvas, chartElements, renderInfo);
 }
 
-function checkSummaryTemplateValid(summaryTemplate: string): boolean {
-    return true;
-}
-
-let fnSet = {
-    min: function (renderInfo: RenderInfo, datasetId: number) {
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
-        return d3.min(dataset.getValues());
-    },
-    max: function (renderInfo: RenderInfo, datasetId: number) {
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
-        return d3.max(dataset.getValues());
-    },
-    sum: function (renderInfo: RenderInfo, datasetId: number) {
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
-        return d3.sum(dataset.getValues());
-    },
-    count: function (renderInfo: RenderInfo, datasetId: number) {
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
-        return dataset.getLengthNotNull();
-    },
-    days: function (renderInfo: RenderInfo, datasetId: number) {
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
-        let result = dataset.getLength();
-        return result;
-    },
-    maxStreak: function (renderInfo: RenderInfo, datasetId: number) {
-        let streak = 0;
-        let maxStreak = 0;
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
-        for (let dataPoint of dataset) {
-            if (dataPoint.value !== null) {
-                streak++;
-            } else {
-                streak = 0;
-            }
-            if (streak > maxStreak) {
-                maxStreak = streak;
-            }
-        }
-        return maxStreak;
-    },
-    maxBreak: function (renderInfo: RenderInfo, datasetId: number) {
-        let streak = 0;
-        let maxBreak = 0;
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
-
-        for (let dataPoint of dataset) {
-            if (dataPoint.value === null) {
-                streak++;
-            } else {
-                streak = 0;
-            }
-            if (streak > maxBreak) {
-                maxBreak = streak;
-            }
-        }
-        return maxBreak;
-    },
-    lastStreak: function (renderInfo: RenderInfo, datasetId: number) {
-        let streak = 0;
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
-        let values = dataset.getValues();
-        for (let ind = values.length - 1; ind >= 0; ind--) {
-            let value = values[ind];
-            if (value === null) {
-                break;
-            } else {
-                streak++;
-            }
-        }
-        return streak;
-    },
-    average: function (renderInfo: RenderInfo, datasetId: number) {
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
-        let countNotNull = dataset.getLengthNotNull();
-        if (countNotNull > 0) {
-            let sum = d3.sum(dataset.getValues());
-            return sum / countNotNull;
-        }
-        return null;
-    },
-    median: function (renderInfo: RenderInfo, datasetId: number) {
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
-        return d3.median(dataset.getValues());
-    },
-    variance: function (renderInfo: RenderInfo, datasetId: number) {
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
-        return d3.variance(dataset.getValues());
-    },
-};
-
-function renderSummary(canvas: HTMLElement, renderInfo: RenderInfo) {
-    // console.log("renderSummary");
-    // console.log(renderInfo);
-    if (renderInfo.summary === null) return;
-
-    let outputSummary = "";
-    if (checkSummaryTemplateValid(renderInfo.summary.template)) {
-        outputSummary = renderInfo.summary.template;
-    } else {
-        return "Invalid summary template";
-    }
-
-    let replaceMap: { [key: string]: string } = {};
-    // Loop over fnSet, prepare replaceMap
-    Object.entries(fnSet).forEach(([fnName, fn]) => {
-        // {{\s*max(\(\s*Dataset\(\s*(?<datasetId>\d+)\s*\)\s*\))?\s*}}
-        let strRegex =
-            "{{\\s*" +
-            fnName +
-            "(\\(\\s*Dataset\\(\\s*((?<datasetId>\\d+)|(?<datasetName>\\w+))\\s*\\)\\s*\\))?\\s*}}";
-        // console.log(strRegex);
-        let regex = new RegExp(strRegex, "gm");
-        let match;
-        while ((match = regex.exec(outputSummary))) {
-            // console.log(match);
-            if (typeof match.groups !== "undefined") {
-                if (typeof match.groups.datasetId !== "undefined") {
-                    let datasetId = parseInt(match.groups.datasetId);
-                    // console.log(datasetId);
-                    if (Number.isInteger(datasetId)) {
-                        let strReplaceRegex =
-                            "{{\\s*" +
-                            fnName +
-                            "(\\(\\s*Dataset\\(\\s*" +
-                            datasetId.toString() +
-                            "\\s*\\)\\s*\\))?\\s*}}";
-
-                        if (!(strReplaceRegex in replaceMap)) {
-                            let result = fn(renderInfo, datasetId); // calculate result
-                            let strResult = "{{NA}}";
-                            if (
-                                typeof result !== "undefined" &&
-                                result !== null
-                            ) {
-                                if (Number.isInteger(result)) {
-                                    strResult = result.toFixed(0);
-                                } else {
-                                    strResult = result.toFixed(2);
-                                }
-                            }
-
-                            replaceMap[strReplaceRegex] = strResult;
-                        }
-                    }
-                } else if (typeof match.groups.datasetName !== "undefined") {
-                    let datasetName = match.groups.datasetName;
-                    // console.log(datasetName);
-                    let strReplaceRegex =
-                        "{{\\s*" +
-                        fnName +
-                        "(\\(\\s*Dataset\\(\\s*" +
-                        datasetName +
-                        "\\s*\\)\\s*\\))?\\s*}}";
-
-                    let datasetId = renderInfo.datasetName.indexOf(datasetName);
-                    // console.log(datasetName);
-                    // console.log(renderInfo.datasetName);
-                    // console.log(datasetId);
-                    if (!(strReplaceRegex in replaceMap)) {
-                        let strResult = "{{NA}}";
-                        if (datasetId >= 0) {
-                            let result = fn(renderInfo, datasetId); // calculate result
-                            if (
-                                typeof result !== "undefined" &&
-                                result !== null
-                            ) {
-                                if (Number.isInteger(result)) {
-                                    strResult = result.toFixed(0);
-                                } else {
-                                    strResult = result.toFixed(2);
-                                }
-                            }
-                        }
-                        replaceMap[strReplaceRegex] = strResult;
-                    }
-                } else {
-                    // no datasetId assigned use id 0
-                    // console.log("{{" + fnName + "}}")
-                    let strReplaceRegex = "{{\\s*" + fnName + "\\s*}}";
-                    if (!(strReplaceRegex in replaceMap)) {
-                        let result = fn(renderInfo, 0); // calculate result
-                        let strResult = "{{NA}}";
-                        if (typeof result !== "undefined" && result !== null) {
-                            if (Number.isInteger(result)) {
-                                strResult = result.toFixed(0);
-                            } else {
-                                strResult = result.toFixed(2);
-                            }
-                        }
-
-                        replaceMap[strReplaceRegex] = strResult;
-                    }
-                }
-            } else {
-                // groups undefined
-                // no datasetId assigned use id 0
-                // console.log("{{" + fnName + "}}")
-                let strReplaceRegex = "{{\\s*" + fnName + "\\s*}}";
-                if (!(strReplaceRegex in replaceMap)) {
-                    let result = fn(renderInfo, 0); // calculate result
-                    let strResult = "{{NA}}";
-                    if (typeof result !== "undefined" && result !== null) {
-                        if (Number.isInteger(result)) {
-                            strResult = result.toFixed(0);
-                        } else {
-                            strResult = result.toFixed(2);
-                        }
-                    }
-
-                    replaceMap[strReplaceRegex] = strResult;
-                }
-            }
-        }
-    });
-    // console.log(replaceMap);
-    // Do replace
-    for (let strReplaceRegex in replaceMap) {
-        let strResult = replaceMap[strReplaceRegex];
-        let regex = new RegExp(strReplaceRegex, "gi");
-        outputSummary = outputSummary.replace(regex, strResult);
-    }
-
-    if (outputSummary !== "") {
-        let textBlock = d3.select(canvas).append("div");
-        if (outputSummary.includes("\n")) {
-            let outputLines = outputSummary.split("\n");
-            for (let outputLine of outputLines) {
-                textBlock.append("div").text(outputLine);
-            }
-        } else {
-            textBlock.text(outputSummary);
-        }
-
-        if (renderInfo.summary.style !== "") {
-            textBlock.attr("style", renderInfo.summary.style);
-        }
-    }
-}
-
 export function renderErrorMessage(canvas: HTMLElement, errorMessage: string) {
+    // Remove graph not completed
+    let graph = d3.select(canvas).select("#svg").remove();
+
     let svg = d3
         .select(canvas)
         .append("div")

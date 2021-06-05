@@ -44,6 +44,12 @@
     font-size: 18px;
 }
 
+.tracker-title-small {
+    fill: var(--color-title);
+    text-anchor: middle;
+    font-size: 16px;
+}
+
 .tracker-axis {
     fill: none;
     stroke: var(--color-axis);

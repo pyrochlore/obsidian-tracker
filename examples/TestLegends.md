@@ -192,3 +192,5 @@ bar:
     showLegend: true
     legendPosition: right
 ```
+
+Please also check those search targets in markdown files under folder 'diary'.

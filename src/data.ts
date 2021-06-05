@@ -1,7 +1,5 @@
 import { Moment } from "moment";
 
-export type NullableNumber = number | null;
-
 export enum SearchType {
     Tag,
     Frontmatter,
@@ -9,6 +7,7 @@ export enum SearchType {
     Text,
     dvField,
     Table,
+    FileMeta,
 }
 
 export enum OutputType {
@@ -17,14 +16,24 @@ export enum OutputType {
     Radar,
     Summary,
     Table,
-    Heatmap,
+    Month,
+    Bullet,
+}
+
+export enum ValueType {
+    Number,
+    Int,
+    Date,
+    Time,
+    DateTime,
+    String,
 }
 
 export class DataPoint {
     date: Moment;
-    value: NullableNumber;
+    value: number;
 
-    constructor(date: Moment, value: NullableNumber) {
+    constructor(date: Moment, value: number) {
         this.date = date;
         this.value = value;
     }
@@ -39,8 +48,9 @@ export class Query {
     private accessor: number;
     private accessor1: number;
     private accessor2: number;
+    private numTargets: number;
 
-    private valueIsTime: boolean;
+    valueType: ValueType;
     usedAsXDataset: boolean;
 
     constructor(id: number, searchType: SearchType, searchTarget: string) {
@@ -51,8 +61,9 @@ export class Query {
         this.accessor = -1;
         this.accessor1 = -1;
         this.accessor2 = -1;
-        this.valueIsTime = false;
+        this.valueType = ValueType.Number;
         this.usedAsXDataset = false;
+        this.numTargets = 0;
 
         if (searchType === SearchType.Table) {
             // searchTarget --> {{filePath}}[{{table}}][{{column}}]
@@ -145,14 +156,6 @@ export class Query {
         return null;
     }
 
-    public isUsingTimeValue() {
-        return this.valueIsTime;
-    }
-
-    public setUsingTimeValue() {
-        this.valueIsTime = true;
-    }
-
     public setSeparator(sep: string) {
         this.separator = sep;
     }
@@ -160,25 +163,37 @@ export class Query {
     public getSeparator() {
         return this.separator;
     }
+
+    public addNumTargets(num: number = 1) {
+        this.numTargets = this.numTargets + num;
+    }
+
+    public getNumTargets() {
+        return this.numTargets;
+    }
 }
 
 export interface QueryValuePair {
     query: Query;
-    value: NullableNumber;
+    value: number;
 }
 
 export class Dataset implements IterableIterator<DataPoint> {
     // Array of DataPoints
     private name: string;
     private query: Query;
-    private values: NullableNumber[];
+    private values: number[];
     private parent: Datasets;
     private id: number;
-    private yMin: NullableNumber;
-    private yMax: NullableNumber;
+    private yMin: number;
+    private yMax: number;
+    private startDate: Moment;
+    private endDate: Moment;
+    private numTargets: number;
     private lineInfo: LineInfo;
     private barInfo: BarInfo;
-    private valueIsTime: boolean;
+
+    valueType: ValueType;
 
     private currentIndex = 0; // IterableIterator
 
@@ -190,9 +205,12 @@ export class Dataset implements IterableIterator<DataPoint> {
         this.id = -1;
         this.yMin = null;
         this.yMax = null;
+        this.startDate = null;
+        this.endDate = null;
+        this.numTargets = 0;
         this.lineInfo = null;
         this.barInfo = null;
-        this.valueIsTime = query.isUsingTimeValue();
+        this.valueType = query.valueType;
 
         for (let ind = 0; ind < parent.getDates().length; ind++) {
             this.values.push(null);
@@ -230,7 +248,15 @@ export class Dataset implements IterableIterator<DataPoint> {
         this.id = id;
     }
 
-    public setValue(date: Moment, value: NullableNumber) {
+    public addNumTargets(num: number) {
+        this.numTargets = this.numTargets + num;
+    }
+
+    public getNumTargets() {
+        return this.numTargets;
+    }
+
+    public setValue(date: Moment, value: number) {
         let ind = this.parent.getIndexOfDate(date);
         // console.log(ind);
         if (ind >= 0) {
@@ -242,6 +268,12 @@ export class Dataset implements IterableIterator<DataPoint> {
             if (this.yMax === null || value > this.yMax) {
                 this.yMax = value;
             }
+            if (this.startDate === null || date < this.startDate) {
+                this.startDate = date.clone();
+            }
+            if (this.endDate === null || date > this.endDate) {
+                this.endDate = date.clone();
+            }
         }
     }
 
@@ -251,6 +283,24 @@ export class Dataset implements IterableIterator<DataPoint> {
 
     public getYMax() {
         return this.yMax;
+    }
+
+    public getStartDate() {
+        return this.startDate;
+    }
+
+    public getEndDate() {
+        return this.endDate;
+    }
+
+    public shift(shiftAmount: number) {
+        for (let ind = 0; ind < this.values.length; ind++) {
+            if (this.values[ind] !== null) {
+                this.values[ind] = this.values[ind] + shiftAmount;
+            }
+        }
+        this.yMin = this.yMin + shiftAmount;
+        this.yMax = this.yMax + shiftAmount;
     }
 
     public setPenalty(penalty: number) {
@@ -269,10 +319,6 @@ export class Dataset implements IterableIterator<DataPoint> {
 
     public getQuery(): Query {
         return this.query;
-    }
-
-    public isUsingTimeValue() {
-        return this.valueIsTime;
     }
 
     public accumulateValues() {
@@ -344,7 +390,9 @@ export class Datasets implements IterableIterator<Dataset> {
     constructor(startDate: Moment, endDate: Moment) {
         this.dates = [];
         this.datasets = [];
+
         let cData = startDate.creationData();
+        // console.log(cData);
         const dateFormat = cData.format.toString();
         for (
             let curDate = startDate.clone();
@@ -408,6 +456,8 @@ export class Datasets implements IterableIterator<Dataset> {
                 return dataset;
             }
         }
+
+        return null;
     }
 
     public getXDatasetIds() {
@@ -471,6 +521,8 @@ export class RenderInfo {
     ignoreZeroValue: boolean[];
     accum: boolean[];
     penalty: number[];
+    valueShift: number[];
+    valueType: string[]; // number/float, int, string, boolean, date, time, datetime
 
     dataAreaSize: Size;
     margin: Margin;
@@ -483,6 +535,8 @@ export class RenderInfo {
     line: LineInfo | null;
     bar: BarInfo | null;
     summary: SummaryInfo | null;
+    month: MonthInfo | null;
+    bullet: BulletInfo | null;
 
     public datasets: Datasets | null;
 
@@ -501,6 +555,8 @@ export class RenderInfo {
         this.ignoreZeroValue = []; // false
         this.accum = []; // false, accum values start from zero over days
         this.penalty = []; // null, use this value instead of null value
+        this.valueShift = [];
+        this.valueType = [];
 
         this.dataAreaSize = new Size(300, 300);
         this.margin = new Margin(10, 10, 10, 10); // top, right, bottom, left
@@ -513,6 +569,8 @@ export class RenderInfo {
         this.line = null;
         this.summary = null;
         this.bar = null;
+        this.month = null;
+        this.bullet = null;
 
         this.datasets = null;
     }
@@ -535,8 +593,9 @@ export class CommonChartInfo {
     yAxisColor: string[];
     yAxisLabelColor: string[];
     yAxisUnit: string[];
-    yMin: NullableNumber[];
-    yMax: NullableNumber[];
+    yMin: number[];
+    yMax: number[];
+    reverseYAxis: boolean[];
     allowInspectData: boolean;
     showLegend: boolean;
     legendPosition: string;
@@ -555,6 +614,7 @@ export class CommonChartInfo {
         this.yAxisUnit = []; // "", 2 elements
         this.yMin = []; // null, 2 elements
         this.yMax = []; // null, 2 elements
+        this.reverseYAxis = []; // false, 2 elements
         this.allowInspectData = true;
         this.showLegend = false;
         this.legendPosition = ""; // top, bottom, left, right
@@ -609,6 +669,42 @@ export class SummaryInfo {
     constructor() {
         this.template = "";
         this.style = "";
+    }
+}
+
+export class MonthInfo {
+    startWeekOn: string;
+
+    constructor() {
+        this.startWeekOn = "Sun";
+    }
+}
+
+export class BulletInfo {
+    title: string;
+    dataset: string;
+    orientation: string;
+    value: string;
+    valueUnit: string;
+    valueColor: string;
+    range: number[];
+    rangeColor: string[];
+    showMarker: boolean;
+    markerValue: number;
+    markerColor: string;
+
+    constructor() {
+        this.title = "";
+        this.dataset = "0"; // dataset id or name
+        this.orientation = "horizontal"; // or vertical
+        this.value = ""; // Can possess template varialbe
+        this.valueUnit = "";
+        this.valueColor = "#69b3a2";
+        this.range = [];
+        this.rangeColor = [];
+        this.showMarker = false;
+        this.markerValue = 0;
+        this.markerColor = "";
     }
 }
 

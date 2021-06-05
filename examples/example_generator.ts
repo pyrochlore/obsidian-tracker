@@ -79,6 +79,10 @@ for (
     frontmatter +=
         "bloodpressure2: [" + systolic + ", " + diastolic + "]" + "\n";
 
+    frontmatter += "bp:" + "\n";
+    frontmatter += "    systolic: " + systolic + "\n";
+    frontmatter += "    diastolic: " + diastolic + "\n";
+
     // clock-in clock-out, 24hr
     let time_clock_in =
         randomIntFromInterval(8, 10).toString() +
@@ -103,6 +107,16 @@ for (
         randomIntFromInterval(0, 59).toString() +
         " am";
     frontmatter += "sleep: " + time_in_bed + "/" + time_out_of_bed + "\n";
+
+    // deep value
+    let deepValue = randomFloatFromInterval(0.0, 100.0);
+    frontmatter += "deepValue: " + "\n";
+    let indent = "    ";
+    for (let ind = 0; ind < 5; ind++) {
+        frontmatter += indent + "very: " + "\n";
+        indent = indent + "    ";
+    }
+    frontmatter += indent + "deep: " + deepValue.toFixed(1) + "\n";
 
     frontmatter += "---\n";
     content += frontmatter;
@@ -141,6 +155,15 @@ for (
     let textStar = "⭐";
     let numStar = randomIntFromInterval(0, 5);
     content += textStar.repeat(numStar) + "\n";
+
+    content += "\n";
+
+    // clean up
+    let tagCleanUp = "#clean-up";
+    let doCleanUp = randomIntFromInterval(0, 30);
+    if (doCleanUp === 1) {
+        content += tagCleanUp + "\n";
+    }
 
     content += "\n";
 
@@ -193,6 +216,8 @@ for (
     let dataviewValue1 = randomIntFromInterval(0, 50);
     let dataviewValue2 = randomIntFromInterval(50, 100);
     content += "dataviewTarget:: " + dataviewValue + "\n";
+    content += "- Make Progress:: " + dataviewValue1 + "\n";
+    content += "- Make-Progress:: " + dataviewValue2 + "\n";
     content +=
         "dataviewTarget1:: " + dataviewValue + "/" + dataviewValue1 + "\n";
     content +=

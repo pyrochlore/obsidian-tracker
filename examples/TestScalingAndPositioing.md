@@ -99,3 +99,5 @@ line:
     yAxisLabel: Count
     lineColor: "#d65d0e"
 ```
+
+Please also check those search targets in markdown files under folder 'diary'.

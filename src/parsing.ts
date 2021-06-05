@@ -9,10 +9,13 @@ import {
     Margin,
     OutputType,
     LineInfo,
+    MonthInfo,
+    BulletInfo,
 } from "./data";
 import { TFolder, normalizePath } from "obsidian";
 import { parseYaml } from "obsidian";
 import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
+import * as helper from "./helper";
 
 function strToBool(str: string): boolean | null {
     str = str.trim().toLowerCase();
@@ -38,7 +41,8 @@ function validateSearchType(searchType: string): boolean {
         searchType === "frontmatter" ||
         searchType === "wiki" ||
         searchType === "dvField" ||
-        searchType === "table"
+        searchType === "table" ||
+        searchType === "fileMeta"
     ) {
         return true;
     }
@@ -273,7 +277,9 @@ function getNumberArrayFromInput(
                     let curr = splitted[ind].trim();
                     let prev = null;
                     if (ind > 0) {
-                        prev = parseFloat(splitted[ind - 1].trim());
+                        prev = helper.parseFloatFromAny(
+                            splitted[ind - 1].trim()
+                        ).value;
                     }
                     if (curr === "") {
                         if (prev !== null && Number.isNumber(prev)) {
@@ -282,7 +288,7 @@ function getNumberArrayFromInput(
                             array[ind] = defaultValue;
                         }
                     } else {
-                        let currNum = parseFloat(curr);
+                        let currNum = helper.parseFloatFromAny(curr).value;
                         if (Number.isNumber(currNum)) {
                             array[ind] = currNum;
                             numValidValue++;
@@ -293,7 +299,9 @@ function getNumberArrayFromInput(
                     }
                 } else {
                     // Exceeds the length of input, use prev value
-                    let last = parseFloat(splitted[input.length - 1].trim());
+                    let last = helper.parseFloatFromAny(
+                        splitted[input.length - 1].trim()
+                    ).value;
                     if (numValidValue > 0 && Number.isNumber(last)) {
                         array[ind] = last;
                     } else {
@@ -305,7 +313,7 @@ function getNumberArrayFromInput(
             if (input === "") {
                 // all defaultValue
             } else {
-                let inputNum = parseFloat(input);
+                let inputNum = helper.parseFloatFromAny(input).value;
                 if (Number.isNumber(inputNum)) {
                     array[0] = inputNum;
                     numValidValue++;
@@ -663,6 +671,23 @@ function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
     }
     renderInfo.yMax = retYMax;
     // console.log(renderInfo.yMax);
+
+    // reverseYAxis
+    let retReverseYAxis = getBoolArrayFromInput(
+        "reverseYAxis",
+        yaml?.reverseYAxis,
+        2,
+        false,
+        true
+    );
+    if (typeof retReverseYAxis === "string") {
+        return retReverseYAxis; // errorMessage
+    }
+    if (retReverseYAxis.length > 2) {
+        return "reverseYAxis accepts not more than two values for left and right y-axes";
+    }
+    renderInfo.reverseYAxis = retReverseYAxis;
+    // console.log(renderInfo.reverseYAxis);
 }
 
 function getAvailableKeysOfClass(obj: object): string[] {
@@ -782,6 +807,9 @@ export function getRenderInfoFromYaml(
             case "table":
                 searchType.push(SearchType.Table);
                 break;
+            case "fileMeta":
+                searchType.push(SearchType.FileMeta);
+                break;
         }
     }
     // Currently, we don't allow type 'table' used with other types
@@ -808,13 +836,32 @@ export function getRenderInfoFromYaml(
     if (typeof retMultipleValueSparator === "string") {
         return retMultipleValueSparator; // errorMessage
     }
-    multipleValueSparator = retMultipleValueSparator;
+    multipleValueSparator = retMultipleValueSparator.map((sep) => {
+        if (sep === "comma") {
+            return ",";
+        }
+        return sep;
+    });
+    // console.log(multipleValueSparator);
 
     // xDataset
-    let xDataset = null;
-    if (typeof yaml.xDataset === "number") {
-        xDataset = yaml.xDataset;
+    let retXDataset = getNumberArrayFromInput(
+        "xDataset",
+        yaml.xDataset,
+        numDatasets,
+        -1,
+        true
+    );
+    if (typeof retXDataset === "string") {
+        return retXDataset; // errorMessage
     }
+    let xDataset = retXDataset.map((d: number) => {
+        if (d < 0 || d >= numDatasets) {
+            return -1;
+        }
+        return d;
+    });
+    // assign this to renderInfo later
 
     // Create queries
     let queries: Array<Query> = [];
@@ -825,7 +872,7 @@ export function getRenderInfoFromYaml(
             searchTarget[ind]
         );
         query.setSeparator(multipleValueSparator[ind]);
-        if (ind === xDataset) query.usedAsXDataset = true;
+        if (xDataset.includes(ind)) query.usedAsXDataset = true;
         queries.push(query);
     }
     // console.log(queries);
@@ -833,11 +880,7 @@ export function getRenderInfoFromYaml(
     // Create grarph info
     let renderInfo = new RenderInfo(queries);
     let keysOfRenderInfo = getAvailableKeysOfClass(renderInfo);
-    let additionalAllowedKeys = [
-        "searchType",
-        "searchTarget",
-        "separator",
-    ];
+    let additionalAllowedKeys = ["searchType", "searchTarget", "separator"];
     // console.log(keysOfRenderInfo);
     for (let key of keysFoundInYAML) {
         if (
@@ -975,23 +1018,7 @@ export function getRenderInfoFromYaml(
     // console.log(renderInfo.endDate);
 
     // xDataset
-    let retXDataset = getNumberArrayFromInput(
-        "xDataset",
-        yaml.xDataset,
-        numDatasets,
-        -1,
-        true
-    );
-    if (typeof retXDataset === "string") {
-        return retXDataset; // errorMessage
-    }
-    retXDataset = retXDataset.map((d: number) => {
-        if (d < 0 || d >= numDatasets) {
-            return -1;
-        }
-        return d;
-    });
-    renderInfo.xDataset = retXDataset;
+    renderInfo.xDataset = xDataset;
     // console.log(renderInfo.xDataset);
 
     // Dataset name (need xDataset to set default name)
@@ -1094,6 +1121,20 @@ export function getRenderInfoFromYaml(
     renderInfo.penalty = retPenalty;
     // console.log(renderInfo.penalty);
 
+    // valueShift
+    let retValueShift = getNumberArrayFromInput(
+        "valueShift",
+        yaml.valueShift,
+        numDatasets,
+        0,
+        true
+    );
+    if (typeof retValueShift === "string") {
+        return retValueShift;
+    }
+    renderInfo.valueShift = retValueShift;
+    // console.log(renderInfo.valueShift);
+
     // fixedScale
     if (typeof yaml.fixedScale === "number") {
         renderInfo.fixedScale = yaml.fixedScale;
@@ -1133,15 +1174,30 @@ export function getRenderInfoFromYaml(
     if (typeof yaml.summary !== "undefined") {
         hasSummary = true;
     }
-    let sumOutput = Number(hasLine) + Number(hasBar) + Number(hasSummary);
+    let hasMonth = false;
+    if (typeof yaml.month !== "undefined") {
+        hasMonth = true;
+    }
+    let hasBullet = false;
+    if (typeof yaml.bullet !== "undefined") {
+        hasBullet = true;
+    }
+    let sumOutput =
+        Number(hasLine) +
+        Number(hasBar) +
+        Number(hasSummary) +
+        Number(hasMonth) +
+        Number(hasBullet);
     if (sumOutput === 0) {
-        return "No output parameter provided, please place line, bar, or summary.";
+        return "No output parameter provided, please place line, bar, month, bullet, or summary.";
     } else if (sumOutput === 1) {
         if (hasLine) renderInfo.output = OutputType.Line;
         if (hasBar) renderInfo.output = OutputType.Bar;
         if (hasSummary) renderInfo.output = OutputType.Summary;
+        if (hasMonth) renderInfo.output = OutputType.Month;
+        if (hasBullet) renderInfo.output = OutputType.Bullet;
     } else if (sumOutput >= 2) {
-        return "Too many output parameters, pick line, bar, or summary.";
+        return "Too many output parameters, pick line, bar, month, bullet, or summary.";
     }
 
     // line related parameters
@@ -1394,6 +1450,195 @@ export function getRenderInfoFromYaml(
             }
         }
     } // summary related parameters
+    // Month related parameters
+    if (renderInfo.output === OutputType.Month) {
+        renderInfo.month = new MonthInfo();
+
+        if (yaml.month !== null) {
+            let keysOfMonthInfo = getAvailableKeysOfClass(renderInfo.month);
+            let keysFoundInYAML = getAvailableKeysOfClass(yaml.month);
+            // console.log(keysOfSummaryInfo);
+            // console.log(keysFoundInYAML);
+            for (let key of keysFoundInYAML) {
+                if (!keysOfMonthInfo.includes(key)) {
+                    errorMessage = "'" + key + "' is not an available key";
+                    return errorMessage;
+                }
+            }
+        }
+
+        if (yaml.month !== null) {
+            if (typeof yaml.month.startWeekOn === "string") {
+                renderInfo.month.startWeekOn = yaml.month.startWeekOn;
+            }
+        }
+    } // Month related parameters
+    // Bullet related parameters
+    if (renderInfo.output === OutputType.Bullet) {
+        renderInfo.bullet = new BulletInfo();
+
+        if (yaml.bullet !== null) {
+            let keysOfBulletInfo = getAvailableKeysOfClass(renderInfo.bullet);
+            let keysFoundInYAML = getAvailableKeysOfClass(yaml.bullet);
+            // console.log(keysOfSummaryInfo);
+            // console.log(keysFoundInYAML);
+            for (let key of keysFoundInYAML) {
+                if (!keysOfBulletInfo.includes(key)) {
+                    errorMessage = "'" + key + "' is not an available key";
+                    return errorMessage;
+                }
+            }
+        }
+
+        if (yaml.bullet !== null) {
+            // title
+            if (typeof yaml.bullet.title === "string") {
+                renderInfo.bullet.title = yaml.bullet.title;
+            }
+            // console.log(renderInfo.bullet.title);
+
+            // dataset
+            if (typeof yaml.bullet.dataset === "string") {
+                renderInfo.bullet.dataset = yaml.bullet.dataset;
+            }
+            // console.log(renderInfo.bullet.dataset);
+
+            // orientation
+            if (typeof yaml.bullet.orientation === "string") {
+                renderInfo.bullet.orientation = yaml.bullet.orientation;
+            }
+            // console.log(renderInfo.bullet.orientation);
+
+            // range
+            let range: Array<number> = [];
+            if (
+                typeof yaml.bullet.range === "object" &&
+                yaml.bullet.range !== null
+            ) {
+                if (Array.isArray(yaml.bullet.range)) {
+                    for (let r of yaml.bullet.range) {
+                        if (typeof r === "string") {
+                            let v = parseFloat(r);
+                            if (Number.isNumber(v)) {
+                                range.push(v);
+                            } else {
+                                errorMessage =
+                                    "Parameter 'range' accepts only numbers";
+                                return errorMessage;
+                            }
+                        }
+                    }
+                }
+            } else if (typeof yaml.bullet.range === "string") {
+                let splitted = yaml.bullet.range.split(",");
+                if (splitted.length > 1) {
+                    for (let piece of splitted) {
+                        let v = parseFloat(piece.trim());
+                        if (!Number.isNaN(v)) {
+                            // Number.isNumber(NaN) --> true
+                            range.push(v);
+                        } else {
+                            errorMessage =
+                                "Parameter 'range' accepts only numbers";
+                            return errorMessage;
+                        }
+                    }
+                } else if (yaml.bullet.range === "") {
+                    errorMessage = "Empty range is not allowed.";
+                } else {
+                    let v = parseFloat(yaml.bullet.range);
+                    if (Number.isNumber(v)) {
+                        range.push(v);
+                    } else {
+                        errorMessage = "Parameter 'range' accepts only numbers";
+                        return errorMessage;
+                    }
+                }
+            } else {
+                errorMessage = "Invalid range";
+                return errorMessage;
+            }
+            // Check the value is monotonically increasing
+            // Check the value is not negative
+            if (range.length === 1) {
+                if (range[0] < 0) {
+                    errorMessage = "Negative range value is not allowed";
+                    return errorMessage;
+                }
+            } else if (range.length > 1) {
+                let lastBound = range[0];
+                if (lastBound < 0) {
+                    errorMessage = "Negative range value is not allowed";
+                    return errorMessage;
+                } else {
+                    for (let ind = 1; ind < range.length; ind++) {
+                        if (range[ind] <= lastBound) {
+                            errorMessage =
+                                "Values in parameter 'range' should be monotonically increasing";
+                            return errorMessage;
+                        }
+                    }
+                }
+            } else {
+                errorMessage = "Empty range is not allowed";
+                return errorMessage;
+            }
+            renderInfo.bullet.range = range;
+            let numRange = range.length;
+            // console.log(renderInfo.bullet.range);
+
+            // range color
+            let retRangeColor = getStringArrayFromInput(
+                "rangeColor",
+                yaml?.bullet?.rangeColor,
+                numRange,
+                "",
+                validateColor,
+                true
+            );
+            if (typeof retRangeColor === "string") {
+                return retRangeColor; // errorMessage
+            }
+            renderInfo.bullet.rangeColor = retRangeColor;
+            // console.log(renderInfo.bullet.rangeColor);
+
+            // actual value, can possess template variable
+            if (typeof yaml.bullet.value === "string") {
+                renderInfo.bullet.value = yaml.bullet.value;
+            }
+            // console.log(renderInfo.bullet.value);
+
+            // value unit
+            if (typeof yaml.bullet.valueUnit === "string") {
+                renderInfo.bullet.valueUnit = yaml.bullet.valueUnit;
+            }
+            // console.log(renderInfo.bullet.valueUnit);
+
+            // value color
+            if (typeof yaml.bullet.valueColor === "string") {
+                renderInfo.bullet.valueColor = yaml.bullet.valueColor;
+            }
+            // console.log(renderInfo.bullet.valueColor);
+
+            // show mark
+            if (typeof yaml.bullet.showMarker === "boolean") {
+                renderInfo.bullet.showMarker = yaml.bullet.showMarker;
+            }
+            // console.log(renderInfo.bullet.showMark);
+
+            // mark value
+            if (typeof yaml.bullet.markerValue === "number") {
+                renderInfo.bullet.markerValue = yaml.bullet.markerValue;
+            }
+            // console.log(renderInfo.bullet.markValue);
+
+            // mark color
+            if (typeof yaml.bullet.markerColor === "string") {
+                renderInfo.bullet.markerColor = yaml.bullet.markerColor;
+            }
+            // console.log(renderInfo.bullet.markValue);
+        }
+    } // Bullet related parameters
 
     return renderInfo;
 }

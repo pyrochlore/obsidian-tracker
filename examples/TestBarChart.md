@@ -52,3 +52,5 @@ bar:
     yMin: 0
     barColor: yellow, red, green, blue, orange, white
 ```
+
+Please also check those search targets in markdown files under folder 'diary'.

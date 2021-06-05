@@ -35,14 +35,26 @@ line:
 ```
 
 ## Summary
+### Meditation
 ``` tracker
 searchType: tag
 searchTarget: meditation
 folder: diary
 summary:
-    template: "Longest Streak: {{maxStreak}} day(s)\nLongest Break: {{maxBreak}} day(s)\nLast streak: {{lastStreak}} day(s)"
+    template: "Longest Streak: {{maxStreak}} day(s)\nLongest Breaks: {{maxBreaks}} day(s)\nLast streak: {{currentStreak}} day(s)"
 ```
 
+### CleanUp
+``` tracker
+searchType: tag
+searchTarget: clean-up
+folder: diary
+endDate: 2021-01-31
+summary:
+    template: "Last Break: {{currentBreaks}} day(s)"
+```
+
+### Work log
 ``` tracker
 searchType: tag
 searchTarget: work_log
