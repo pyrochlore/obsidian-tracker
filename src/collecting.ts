@@ -408,6 +408,9 @@ export function collectDataFromInlineTag(
     if (query.getParentTarget()) {
         tagName = query.getParentTarget(); // use parent tag name for multiple values
     }
+    if (tagName.length > 1 && tagName.startsWith("#")) {
+        tagName = tagName.substring(1);
+    }
     let strHashtagRegex =
         "(^|\\s)#" +
         tagName +
