@@ -1,7 +1,7 @@
 # Obsidian Tracker Plugin
 ![GitHub release](https://img.shields.io/github/v/release/pyrochlore/obsidian-tracker)
 
-<img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/docs/images/screenshot_v1.3.png" width="800">
+<img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/docs/images/screenshot_v1.6.png" width="800">
 
 This is an [Obsidian](https://obsidian.md/) plugin that helps you do tracking in notes [over dates](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Questions.md) and represent the collected data comprehensively. 
 
