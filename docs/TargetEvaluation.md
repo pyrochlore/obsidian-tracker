@@ -1,78 +1,114 @@
 # Target Evaluation
 
-According to the [input parameters](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/InputParameters.md) you provided, the search target will be counted or evaluated as a value. Obsidian-tracker supports four kinds of searchType: 'tag', 'frontmatter', 'wiki', and 'text', dealing with different types of searching condition.
+According to the [input parameters](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/InputParameters.md) you provided, the search targets will be counted or evaluated as a value. Obsidian-tracker supports seven kinds of `searchType`: `tag`, `frontmatter`, `wiki`, `text`, `table`, `dvField`, and `fileMeta`, dealing with different types of searching condition.
 
-## tag
+## Multiple Targets
+You can provide multiple search targets by entering an array of targets separated by a comma. Each of the targets will be identified according your search condition then the corresponding value will be evaluated and form a dataset indexed by the order in the array (zero-based indexing).
 
-Simple tags in the format of '*#tagName*' in the file content are evaluated as a constant value (default value 1.0). You can override the value by assigning the key '**constValue**' in the code block. Use the tag name (the name after #) as the value of key '**searchTarget**' or use quoted tag ('**#tagName**') to make it work.
+```
+searchTarget: target0, target1, target2, ...... 
+searchType: type0, type1, type2, .....
+datasetName: dataset0, dataset1, dataset2, ......
+line:
+    lineColor: red, blue, yellow
+```
+
+Above is an example of multiple target searching. Multiple targets are provided and separated by a comma. If they have a different searchType, provide the same number of types in the same order. In this case, the second search target 'target1' with index 1 has type 'type1'. Other parameters that accept multiple values (e.g. lineColor) can also be provided and will be applied to the corresponding dataset.
+
+## Multiple Values
+
+Multiple values under a target (value tuple) separated by a slash, e.g. #bloodpressure:180/120mmHg, are also got supported in version 1.3.0. To identify a specific value as a target, use an accessor with bracket notation where the value in the bracket is the index by the order of values. In this case, they are bloodpressure[0] and bloodpressure[1]. You can find the example of this [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/BloodPressureTracker.md). You can also use a custom separator by using the parameter `separator`.
+
+## Search Target in Detail
+
+## searchType: tag
+
+Simple tags in the format of '*#tagName*' in the file content are evaluated as a constant value (default value 1.0). You can override the value by assigning the key `constValue` in the code block. Use the tag name (the name after #) as the value of key `searchTarget` or use quoted tag (`#tagName`) to make it work.
 
 For tags in frontmatter (e.g. tags: meditation), it works like simple tags and will be evaluated as a constant value. For example, 
-<br>
+
 \-\-\-<br>
 tags: tagName1, tagName2<br>
+......<br>
 \-\-\-<br>
-Set '**searchTarget**' to tagName1 or tagName2 will make the plugin do his work.
 
-In your content, a value can be attached to the tag in the format of '*#tagName:value*'. Note the value should be appended right after your tag and an extra colon without spaces. If a value is attached this way, the obsidian-tracker will automatically use the provided value instead of the constant one. 
+Set `searchTarget` to tagName1 or tagName2 will make the plugin do its work.
+
+In your content, a value can be attached to the tag in the format of '*#tagName:value*'. Note the value should be appended right after your tag and an extra colon **without spaces**. If a value is attached this way, the obsidian-tracker will automatically use the provided value instead of the constant one. 
 
 Nested tags with values attached could be useful for tracking children's data separately and also still see the overall merged data using parent tags.
 
-If you don't want value-attached tags in your content, you can use the '**frontmatter**' as your searchType.
+If you don't want value-attached tags in your content, you can also put data in front matter and use `frontmatter` as your searchType.
 
-## frontmatter
+## searchType: frontmatter
+
 This search type is used to query the key-value pairs in the front matter. If you don't want these values been seen in your article, the front matter would be the best place to record. For example,
-<br>
+
 \-\-\-<br>
 mood: 10<br>
+......<br>
 \-\-\-<br>
 
-## wiki
+## searchType: wiki
 This search type helps you count wiki links in articles. For example,
 [[A]]
 [[B|Link to B]]
 
-## text
-searchType 'text' is the most powerful one among all. If you simply provide text like 'love', the number of occurrences of tags will be counted. You can provide a regular expression to search for a very complicated target by wrapping it in single quotes. If you want to retrieve a value from it, use the group name in the expression. To see more detail, see [this case](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TrackUsingRegex.md).
+## searchType: text
+searchType `text` is the most powerful one among all. If you simply provide text like 'love', the number of occurrences of tags will be counted. You can provide a regular expression to search for a very complicated target by wrapping it in single quotes. If you want to retrieve a value from it, use the group name in the expression. To see more detail, see [this case](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TrackUsingRegex.md).
 
 Multiple values in text search can be achieved by separate regex by comma and wrap them all in single quotes as follows:
-<br>
-\`\`\` tracker<br>
-searchTarget: 'regex1, regex2'<br>
-\`\`\`<br>
 
-## dvField
-From version 1.5.0, the plugin supports retrieving inline fields used with the dataview plugin. To get "targetName:: value" in your article, try the following tracker settings.
-<br>
-\`\`\` tracker<br>
-searchType: dvField<br>
-searchTarget: targetName<br>
-......<br>
-\`\`\`<br>
+```
+searchTarget: 'regex1, regex2'
+......
+```
+
+## searchType: dvField
+
+Tracker supports retrieving inline fields used with the dataview plugin. To get "targetName:: value" in your article, try the following tracker settings.
+
+```
+searchType: dvField
+searchTarget: targetName
+......
+```
 
 If you have multiple values in field, like "targetName:: 123 @ 456", use the following tracker settings.
 <br>
-\`\`\` tracker<br>
-searchType: dvField<br>
-searchTarget: targetName[0], targetName[1]<br>
-separator: '@'<br>
-......<br>
-\`\`\`<br>
+```
+searchType: dvField
+searchTarget: targetName[0], targetName[1]
+separator: '@'
+......
+```
 
 More dvField example can be found [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestMultipleTargesMultipleValues.md#multiple-values-in-dvfield-dataview-inline-field). 
 
-## table
-This search type is a special one because it does not search over files in the specified folder. Instead, it looks into a given file, finds the specified table, and retrieves data from specified columns. Here is an example,
-<br>
-\`\`\` tracker<br>
-searchType: table<br>
-searchTarget: data/Tables[0][0], data/Tables[0][1], data/Tables[0][2]<br>
-xDataset: 0<br>
-line:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;yAxisLocation: none, left, right<br>
-&nbsp;&nbsp;&nbsp;&nbsp;lineColor: none, yellow, red<br>
-&nbsp;&nbsp;&nbsp;&nbsp;showLegend: true<br>
-\`\`\`<br>
+## searchType: table
+
+This search type is very much different from others because it does not search over files in the specified folder. Instead, it looks into a given file, finds the specified table, and retrieves data from specified columns. Here is an example,
+
+```
+searchType: table
+searchTarget: data/Tables[0][0], data/Tables[0][1], data/Tables[0][2]
+xDataset:
+line:
+    yAxisLocation: none, left, right
+    lineColor: none, yellow, red
+    showLegend: true
+```
 
 In this case, "data/Tables" is the path of the file of interest.  The number in the first brackets after the path ([0]) is the index of the table of interest in the file, starts from 0. And the number in the second brackets is the index of the column containing target data. If there are multiple values in table cells, you can provide a third index to identify them.
 
 More table examples can be found [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestTable.md).
+
+## searchType: fileMeta
+
+With this search type, you can retrieve infomation of files. Currently, three kinds of data you can get.
+
+- cDate: creation date of a file
+- mDate: last modification date of a file
+- size: file size in bytes
+
+`cData` and `mDate` can be used as X dataset and `size` can be used as Y dataset.
