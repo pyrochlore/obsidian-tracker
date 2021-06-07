@@ -10,7 +10,12 @@ import {
     ChartElements,
     OutputType,
     ValueType,
+    CommonChartInfo,
+    LineInfo,
+    BarInfo,
+    SummaryInfo,
     BulletInfo,
+    MonthInfo,
 } from "./data";
 import * as summary from "./summary";
 import * as month from "./month";
@@ -140,34 +145,46 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    switch (renderInfo.output) {
-        case OutputType.Line:
-            return renderLineChart(canvas, renderInfo);
-        case OutputType.Bar:
-            return renderBarChart(canvas, renderInfo);
-        case OutputType.Summary:
-            return summary.renderSummary(canvas, renderInfo);
-        case OutputType.Month:
-            return month.renderMonth(canvas, renderInfo);
-        case OutputType.Bullet:
-            return bullet.renderBullet(canvas, renderInfo);
-        default:
-            return "Unknown output type";
+    for (let lineInfo of renderInfo.line) {
+        let ret = renderLineChart(canvas, renderInfo, lineInfo);
+        if (typeof ret === "string") {
+            return ret;
+        }
+    }
+    for (let barInfo of renderInfo.bar) {
+        let ret = renderBarChart(canvas, renderInfo, barInfo);
+        if (typeof ret === "string") {
+            return ret;
+        }
+    }
+    for (let summaryInfo of renderInfo.summary) {
+        let ret = summary.renderSummary(canvas, renderInfo, summaryInfo);
+        if (typeof ret === "string") {
+            return ret;
+        }
+    }
+    for (let bulletInfo of renderInfo.bullet) {
+        let ret = bullet.renderBullet(canvas, renderInfo, bulletInfo);
+        if (typeof ret === "string") {
+            return ret;
+        }
+    }
+    for (let monthInfo of renderInfo.month) {
+        let ret = month.renderMonth(canvas, renderInfo, monthInfo);
+        if (typeof ret === "string") {
+            return ret;
+        }
     }
 }
 
-function renderXAxis(chartElements: ChartElements, renderInfo: RenderInfo) {
+function renderXAxis(
+    chartElements: ChartElements,
+    renderInfo: RenderInfo,
+    chartInfo: CommonChartInfo
+) {
     // console.log("renderXAxis");
 
-    let chartInfo = null;
-    if (renderInfo.output === OutputType.Line) {
-        chartInfo = renderInfo.line;
-    } else if (renderInfo.output === OutputType.Bar) {
-        chartInfo = renderInfo.bar;
-    } else {
-        return;
-    }
-    if (!chartInfo) return;
+    if (!renderInfo || !chartInfo) return;
 
     let datasets = renderInfo.datasets;
     let xDomain = d3.extent(datasets.getDates());
@@ -240,6 +257,7 @@ function renderXAxis(chartElements: ChartElements, renderInfo: RenderInfo) {
 function renderYAxis(
     chartElements: ChartElements,
     renderInfo: RenderInfo,
+    chartInfo: CommonChartInfo,
     yAxisLocation: string,
     datasetIds: Array<number>
 ) {
@@ -248,15 +266,7 @@ function renderYAxis(
     // console.log(renderInfo);
     // console.log(datasetIds);
 
-    let chartInfo = null;
-    if (renderInfo.output === OutputType.Line) {
-        chartInfo = renderInfo.line;
-    } else if (renderInfo.output === OutputType.Bar) {
-        chartInfo = renderInfo.bar;
-    } else {
-        return;
-    }
-    if (!chartInfo) return;
+    if (!renderInfo || !chartInfo) return;
 
     let datasets = renderInfo.datasets;
     if (datasetIds.length === 0) {
@@ -342,7 +352,7 @@ function renderYAxis(
         yUpper = yMax + yExtent * 0.2;
     }
     // if it is bar chart, zero must be contained in the range
-    if (renderInfo.output === OutputType.Bar) {
+    if (chartInfo.GetChartType() === OutputType.Bar) {
         if (yUpper < 0.0) {
             yUpper = 0;
         }
@@ -505,16 +515,14 @@ function renderYAxis(
 function renderLine(
     chartElements: ChartElements,
     renderInfo: RenderInfo,
+    lineInfo: LineInfo,
     dataset: Dataset,
     yAxisLocation: string
 ) {
     // console.log(dataset);
     // console.log(renderInfo);
 
-    if (renderInfo.output !== OutputType.Line) return;
-
-    let lineInfo = renderInfo.line;
-    if (!lineInfo) return;
+    if (!renderInfo || !lineInfo) return;
 
     let yScale: any = null;
     if (yAxisLocation === "left") {
@@ -560,16 +568,14 @@ function renderLine(
 function renderPoints(
     chartElements: ChartElements,
     renderInfo: RenderInfo,
+    lineInfo: LineInfo,
     dataset: Dataset,
     yAxisLocation: string
 ) {
     // console.log(lineInfo);
     // console.log(dataset);
 
-    if (renderInfo.output !== OutputType.Line) return;
-
-    let lineInfo = renderInfo.line;
-    if (!lineInfo) return;
+    if (!renderInfo || !lineInfo) return;
 
     let yScale: any = null;
     if (yAxisLocation === "left") {
@@ -697,6 +703,7 @@ function renderPoints(
 function renderBar(
     chartElements: ChartElements,
     renderInfo: RenderInfo,
+    barInfo: BarInfo,
     dataset: Dataset,
     yAxisLocation: string,
     currBarSet: number,
@@ -706,10 +713,7 @@ function renderBar(
     // console.log(barInfo);
     // console.log("%d/%d", currBarSet, totalNumOfBarSets);
 
-    if (renderInfo.output !== OutputType.Bar) return;
-
-    let barInfo = renderInfo.bar;
-    if (!barInfo) return;
+    if (!renderInfo || !barInfo) return;
 
     let barGap = 1;
     let barSetWidth = renderInfo.dataAreaSize.width / dataset.getLength();
@@ -791,17 +795,13 @@ function renderBar(
     }
 }
 
-function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
+function renderLegend(
+    chartElements: ChartElements,
+    renderInfo: RenderInfo,
+    chartInfo: CommonChartInfo
+) {
     // console.log(renderInfo.legendPosition);
     // console.log(renderInfo.legendOrientation);
-
-    // Get chart info
-    let chartInfo = null;
-    if (renderInfo.output === OutputType.Line) {
-        chartInfo = renderInfo.line;
-    } else if (renderInfo.output === OutputType.Bar) {
-        chartInfo = renderInfo.bar;
-    }
 
     // Get chart elements
     let svg = chartElements.svg;
@@ -954,7 +954,7 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
     let firstLabelY = firstMarkerY;
 
     if (chartInfo.legendOrientation === "vertical") {
-        if (renderInfo.output === OutputType.Line) {
+        if (chartInfo.GetChartType() === OutputType.Line) {
             // lines
             legend
                 .selectAll("markers")
@@ -979,9 +979,7 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
                 })
                 .style("stroke", function (name: string, i: number) {
                     if (xDatasetIds.includes(i)) return;
-                    return datasets
-                        .getDatasetById(i)
-                        .getLineInfo().lineColor[i];
+                    return (chartInfo as LineInfo).lineColor[i];
                 });
 
             // points
@@ -1000,19 +998,16 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
                 })
                 .attr("r", function (name: string, i: number) {
                     if (xDatasetIds.includes(i)) return;
-                    if (datasets.getDatasetById(i).getLineInfo().showPoint[i]) {
-                        return datasets.getDatasetById(i).getLineInfo()
-                            .pointSize[i];
+                    if ((chartInfo as LineInfo).showPoint[i]) {
+                        return (chartInfo as LineInfo).pointSize[i];
                     }
                     return 0.0;
                 })
                 .style("fill", function (name: string, i: number) {
                     if (xDatasetIds.includes(i)) return;
-                    return datasets
-                        .getDatasetById(i)
-                        .getLineInfo().pointColor[i];
+                    return (chartInfo as LineInfo).pointColor[i];
                 });
-        } else if (renderInfo.output === OutputType.Bar) {
+        } else if (chartInfo.GetChartType() === OutputType.Bar) {
             // bars
             legend
                 .selectAll("markers")
@@ -1031,7 +1026,7 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
                 .attr("height", nameHeight)
                 .style("fill", function (name: string, i: number) {
                     if (xDatasetIds.includes(i)) return;
-                    return datasets.getDatasetById(i).getBarInfo().barColor[i];
+                    return (chartInfo as BarInfo).barColor[i];
                 });
         }
 
@@ -1056,21 +1051,21 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
             .style("alignment-baseline", "middle")
             .attr("class", "tracker-legend-label");
 
-        if (renderInfo.output === OutputType.Line) {
+        if (chartInfo.GetChartType() === OutputType.Line) {
             nameLabels.style("fill", function (name: string, i: number) {
                 if (xDatasetIds.includes(i)) return;
-                return datasets.getDatasetById(i).getLineInfo().lineColor[i];
+                return (chartInfo as LineInfo).lineColor[i];
             });
-        } else if (renderInfo.output === OutputType.Bar) {
+        } else if (chartInfo.GetChartType() === OutputType.Bar) {
             nameLabels.style("fill", function (name: string, i: number) {
                 if (xDatasetIds.includes(i)) return;
-                return datasets.getDatasetById(i).getBarInfo().barColor[i];
+                return (chartInfo as BarInfo).barColor[i];
             });
         }
     } else if (chartInfo.legendOrientation === "horizontal") {
         let currRenderPosX = 0.0;
         let currRenderPosX2 = 0.0;
-        if (renderInfo.output === OutputType.Line) {
+        if (chartInfo.GetChartType() === OutputType.Line) {
             // lines
             legend
                 .selectAll("markers")
@@ -1113,9 +1108,7 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
                 .attr("y2", firstMarkerY)
                 .style("stroke", function (name: string, i: number) {
                     if (xDatasetIds.includes(i)) return;
-                    return datasets
-                        .getDatasetById(i)
-                        .getLineInfo().lineColor[i];
+                    return (chartInfo as LineInfo).lineColor[i];
                 });
 
             // points
@@ -1144,19 +1137,16 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
                 .attr("cy", firstMarkerY)
                 .attr("r", function (name: string, i: number) {
                     if (xDatasetIds.includes(i)) return;
-                    if (datasets.getDatasetById(i).getLineInfo().showPoint[i]) {
-                        return datasets.getDatasetById(i).getLineInfo()
-                            .pointSize[i];
+                    if ((chartInfo as LineInfo).showPoint[i]) {
+                        return (chartInfo as LineInfo).pointSize[i];
                     }
                     return 0.0;
                 })
                 .style("fill", function (name: string, i: number) {
                     if (xDatasetIds.includes(i)) return;
-                    return datasets
-                        .getDatasetById(i)
-                        .getLineInfo().pointColor[i];
+                    return (chartInfo as LineInfo).pointColor[i];
                 });
-        } else if (renderInfo.output === OutputType.Bar) {
+        } else if (chartInfo.GetChartType() === OutputType.Bar) {
             // bars
             currRenderPosX = 0.0;
             legend
@@ -1189,7 +1179,7 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
                 .attr("height", nameHeight)
                 .style("fill", function (name: string, i: number) {
                     if (xDatasetIds.includes(i)) return;
-                    return datasets.getDatasetById(i).getBarInfo().barColor[i];
+                    return (chartInfo as BarInfo).barColor[i];
                 });
         }
 
@@ -1221,33 +1211,29 @@ function renderLegend(chartElements: ChartElements, renderInfo: RenderInfo) {
             .style("alignment-baseline", "middle")
             .attr("class", "tracker-legend-label");
 
-        if (renderInfo.output === OutputType.Line) {
+        if (chartInfo.GetChartType() === OutputType.Line) {
             nameLabels.style("fill", function (name: string, i: number) {
                 if (xDatasetIds.includes(i)) return;
-                return datasets.getDatasetById(i).getLineInfo().lineColor[i];
+                return (chartInfo as LineInfo).lineColor[i];
             });
-        } else if (renderInfo.output === OutputType.Bar) {
+        } else if (chartInfo.GetChartType() === OutputType.Bar) {
             nameLabels.style("fill", function (name: string, i: number) {
                 if (xDatasetIds.includes(i)) return;
-                return datasets.getDatasetById(i).getBarInfo().barColor[i];
+                return (chartInfo as BarInfo).barColor[i];
             });
         }
     }
 }
 
-function renderTitle(chartElements: ChartElements, renderInfo: RenderInfo) {
+function renderTitle(
+    chartElements: ChartElements,
+    renderInfo: RenderInfo,
+    chartInfo: CommonChartInfo
+) {
     // console.log("renderTitle")
     // under graphArea
 
-    let chartInfo = null;
-    if (renderInfo.output === OutputType.Line) {
-        chartInfo = renderInfo.line;
-    } else if (renderInfo.output === OutputType.Bar) {
-        chartInfo = renderInfo.bar;
-    } else {
-        return;
-    }
-    if (!chartInfo) return;
+    if (!renderInfo || !chartInfo) return;
 
     if (!chartInfo.title) return;
     let titleSize = helper.measureTextSize(chartInfo.title, "tracker-title");
@@ -1361,25 +1347,30 @@ function createAreas(
     return chartElements;
 }
 
-function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
+function renderLineChart(
+    canvas: HTMLElement,
+    renderInfo: RenderInfo,
+    lineInfo: LineInfo
+) {
     // console.log("renderLineChart");
     // console.log(renderInfo);
-    if (renderInfo.line === null) return;
+
+    if (!renderInfo || !lineInfo) return;
 
     let chartElements = createAreas(canvas, renderInfo);
 
-    renderTitle(chartElements, renderInfo);
+    renderTitle(chartElements, renderInfo, lineInfo);
 
-    renderXAxis(chartElements, renderInfo);
+    renderXAxis(chartElements, renderInfo, lineInfo);
     // console.log(chartElements.xAxis);
     // console.log(chartElements.xScale);
 
     let datasetOnLeftYAxis = [];
     let datasetOnRightYAxis = [];
     let xDatasetIds = renderInfo.datasets.getXDatasetIds();
-    for (let ind = 0; ind < renderInfo.line.yAxisLocation.length; ind++) {
+    for (let ind = 0; ind < lineInfo.yAxisLocation.length; ind++) {
         if (xDatasetIds.includes(ind)) continue;
-        let yAxisLocation = renderInfo.line.yAxisLocation[ind];
+        let yAxisLocation = lineInfo.yAxisLocation[ind];
         if (yAxisLocation.toLowerCase() === "left") {
             datasetOnLeftYAxis.push(ind);
         } else if (yAxisLocation.toLocaleLowerCase() === "right") {
@@ -1390,6 +1381,7 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     let retRenderLeftYAxis = renderYAxis(
         chartElements,
         renderInfo,
+        lineInfo,
         "left",
         datasetOnLeftYAxis
     );
@@ -1402,15 +1394,16 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
             let dataset = renderInfo.datasets.getDatasetById(datasetId);
             if (dataset.getQuery().usedAsXDataset) continue;
 
-            renderLine(chartElements, renderInfo, dataset, "left");
+            renderLine(chartElements, renderInfo, lineInfo, dataset, "left");
 
-            renderPoints(chartElements, renderInfo, dataset, "left");
+            renderPoints(chartElements, renderInfo, lineInfo, dataset, "left");
         }
     }
 
     let retRenderRightYAxis = renderYAxis(
         chartElements,
         renderInfo,
+        lineInfo,
         "right",
         datasetOnRightYAxis
     );
@@ -1423,36 +1416,40 @@ function renderLineChart(canvas: HTMLElement, renderInfo: RenderInfo) {
             let dataset = renderInfo.datasets.getDatasetById(datasetId);
             if (dataset.getQuery().usedAsXDataset) continue;
 
-            renderLine(chartElements, renderInfo, dataset, "right");
+            renderLine(chartElements, renderInfo, lineInfo, dataset, "right");
 
-            renderPoints(chartElements, renderInfo, dataset, "right");
+            renderPoints(chartElements, renderInfo, lineInfo, dataset, "right");
         }
     }
 
-    if (renderInfo.line.showLegend) {
-        renderLegend(chartElements, renderInfo);
+    if (lineInfo.showLegend) {
+        renderLegend(chartElements, renderInfo, lineInfo);
     }
 
     setChartScale(canvas, chartElements, renderInfo);
 }
 
-function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
+function renderBarChart(
+    canvas: HTMLElement,
+    renderInfo: RenderInfo,
+    barInfo: BarInfo
+) {
     // console.log("renderBarChart");
     // console.log(renderInfo);
-    if (renderInfo.bar === null) return;
+    if (!renderInfo || !barInfo) return;
 
     let chartElements = createAreas(canvas, renderInfo);
 
-    renderTitle(chartElements, renderInfo);
+    renderTitle(chartElements, renderInfo, barInfo);
 
-    renderXAxis(chartElements, renderInfo);
+    renderXAxis(chartElements, renderInfo, barInfo);
 
     let datasetOnLeftYAxis = [];
     let datasetOnRightYAxis = [];
     let xDatasetIds = renderInfo.datasets.getXDatasetIds();
-    for (let ind = 0; ind < renderInfo.bar.yAxisLocation.length; ind++) {
+    for (let ind = 0; ind < barInfo.yAxisLocation.length; ind++) {
         if (xDatasetIds.includes(ind)) continue;
-        let yAxisLocation = renderInfo.bar.yAxisLocation[ind];
+        let yAxisLocation = barInfo.yAxisLocation[ind];
         if (yAxisLocation.toLowerCase() === "left") {
             datasetOnLeftYAxis.push(ind);
         } else if (yAxisLocation.toLocaleLowerCase() === "right") {
@@ -1464,6 +1461,7 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     let retRenderLeftYAxis = renderYAxis(
         chartElements,
         renderInfo,
+        barInfo,
         "left",
         datasetOnLeftYAxis
     );
@@ -1483,6 +1481,7 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
             renderBar(
                 chartElements,
                 renderInfo,
+                barInfo,
                 dataset,
                 "left",
                 currBarSet,
@@ -1496,6 +1495,7 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
     let retRenderRightYAxis = renderYAxis(
         chartElements,
         renderInfo,
+        barInfo,
         "right",
         datasetOnRightYAxis
     );
@@ -1511,6 +1511,7 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
             renderBar(
                 chartElements,
                 renderInfo,
+                barInfo,
                 dataset,
                 "right",
                 currBarSet,
@@ -1521,8 +1522,8 @@ function renderBarChart(canvas: HTMLElement, renderInfo: RenderInfo) {
         }
     }
 
-    if (renderInfo.bar.showLegend) {
-        renderLegend(chartElements, renderInfo);
+    if (barInfo.showLegend) {
+        renderLegend(chartElements, renderInfo, barInfo);
     }
 
     setChartScale(canvas, chartElements, renderInfo);

@@ -18,6 +18,7 @@ export enum OutputType {
     Table,
     Month,
     Bullet,
+    Unknown,
 }
 
 export enum ValueType {
@@ -224,21 +225,6 @@ export class Dataset implements IterableIterator<DataPoint> {
     public setName(name: string) {
         this.name = name;
     }
-    public getLineInfo() {
-        return this.lineInfo;
-    }
-
-    public setLineInfo(lineInfo: LineInfo) {
-        this.lineInfo = lineInfo;
-    }
-
-    public getBarInfo() {
-        return this.barInfo;
-    }
-
-    public setBarInfo(barInfo: BarInfo) {
-        this.barInfo = barInfo;
-    }
 
     public getId() {
         return this.id;
@@ -414,13 +400,6 @@ export class Datasets implements IterableIterator<Dataset> {
         dataset.setId(query.getId());
         if (renderInfo) {
             dataset.setName(renderInfo.datasetName[query.getId()]);
-
-            if (renderInfo.line) {
-                dataset.setLineInfo(renderInfo.line);
-            }
-            if (renderInfo.bar) {
-                dataset.setBarInfo(renderInfo.bar);
-            }
         }
 
         this.datasets.push(dataset);
@@ -531,12 +510,12 @@ export class RenderInfo {
     fixedScale: number;
     fitPanelWidth: boolean;
 
-    output: OutputType;
-    line: LineInfo | null;
-    bar: BarInfo | null;
-    summary: SummaryInfo | null;
-    month: MonthInfo | null;
-    bullet: BulletInfo | null;
+    output: any[];
+    line: LineInfo[];
+    bar: BarInfo[];
+    summary: SummaryInfo[];
+    month: MonthInfo[];
+    bullet: BulletInfo[];
 
     public datasets: Datasets | null;
 
@@ -565,12 +544,12 @@ export class RenderInfo {
         this.fixedScale = 1.0;
         this.fitPanelWidth = false;
 
-        this.output = OutputType.Line;
-        this.line = null;
-        this.summary = null;
-        this.bar = null;
-        this.month = null;
-        this.bullet = null;
+        this.output = [];
+        this.line = [];
+        this.summary = [];
+        this.bar = [];
+        this.month = [];
+        this.bullet = [];
 
         this.datasets = null;
     }
@@ -584,7 +563,11 @@ export class RenderInfo {
     }
 }
 
-export class CommonChartInfo {
+export class OutputInfo {
+    constructor() {}
+}
+
+export class CommonChartInfo extends OutputInfo {
     title: string;
     xAxisLabel: string;
     xAxisColor: string;
@@ -602,8 +585,10 @@ export class CommonChartInfo {
     legendOrientation: string;
     legendBgColor: string;
     legendBorderColor: string;
+    chartType: OutputType;
 
     constructor() {
+        super();
         this.title = "";
         this.xAxisLabel = "Date";
         this.xAxisColor = "";
@@ -621,6 +606,11 @@ export class CommonChartInfo {
         this.legendOrientation = ""; // horizontal, vertical
         this.legendBgColor = "";
         this.legendBorderColor = "";
+        this.chartType = OutputType.Unknown;
+    }
+
+    public GetChartType() {
+        return this.chartType;
     }
 }
 
@@ -649,6 +639,10 @@ export class LineInfo extends CommonChartInfo {
         this.fillGap = []; // false
         this.yAxisLocation = []; // left, for each target
     }
+
+    public GetChartType() {
+        return OutputType.Line;
+    }
 }
 
 export class BarInfo extends CommonChartInfo {
@@ -660,13 +654,18 @@ export class BarInfo extends CommonChartInfo {
         this.barColor = []; // #69b3a2
         this.yAxisLocation = []; // left, for each target
     }
+
+    public GetChartType() {
+        return OutputType.Bar;
+    }
 }
 
-export class SummaryInfo {
+export class SummaryInfo extends OutputInfo {
     template: string;
     style: string;
 
     constructor() {
+        super();
         this.template = "";
         this.style = "";
     }
@@ -680,7 +679,7 @@ export class MonthInfo {
     }
 }
 
-export class BulletInfo {
+export class BulletInfo extends OutputInfo {
     title: string;
     dataset: string;
     orientation: string;
@@ -694,6 +693,7 @@ export class BulletInfo {
     markerColor: string;
 
     constructor() {
+        super();
         this.title = "";
         this.dataset = "0"; // dataset id or name
         this.orientation = "horizontal"; // or vertical

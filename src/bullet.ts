@@ -2,6 +2,7 @@ import {
     Datasets,
     DataPoint,
     RenderInfo,
+    BulletInfo,
     Dataset,
     Size,
     Transform,
@@ -15,13 +16,13 @@ import * as expr from "./expr";
 
 function createAreas(
     canvas: HTMLElement,
-    renderInfo: RenderInfo
+    renderInfo: RenderInfo,
+    bulletInfo: BulletInfo
 ): ChartElements {
     let chartElements: ChartElements = {};
     // whole area for plotting, includes margins
 
-    let bulletInfo = renderInfo.bullet;
-    if (!bulletInfo) return;
+    if (!renderInfo || !bulletInfo) return;
 
     let svg = d3
         .select(canvas)
@@ -99,12 +100,15 @@ function setChartScale(
     }
 }
 
-function renderTitle(chartElements: ChartElements, renderInfo: RenderInfo) {
+function renderTitle(
+    chartElements: ChartElements,
+    renderInfo: RenderInfo,
+    bulletInfo: BulletInfo
+) {
     // console.log("renderTitle");
     // under graphArea
 
-    let bulletInfo = renderInfo.bullet;
-    if (!bulletInfo) return;
+    if (!renderInfo || !bulletInfo) return;
 
     const spacing = 6; // spacing between title and dataArea
 
@@ -244,14 +248,14 @@ function renderTitle(chartElements: ChartElements, renderInfo: RenderInfo) {
 function renderAxis(
     chartElements: ChartElements,
     renderInfo: RenderInfo,
+    bulletInfo: BulletInfo,
     dataset: Dataset
 ) {
     // console.log("renderAxis");
     // console.log(chartElements);
     // console.log(dataset);
 
-    let bulletInfo = renderInfo.bullet;
-    if (!bulletInfo) return;
+    if (!renderInfo || !bulletInfo) return;
 
     let range = bulletInfo.range;
     let lastRange = range[range.length - 1];
@@ -365,13 +369,13 @@ function renderAxis(
 function renderBackPanel(
     chartElements: ChartElements,
     renderInfo: RenderInfo,
+    bulletInfo: BulletInfo,
     dataset: Dataset
 ) {
     // console.log("renderBackPanel");
     // console.log(dataset);
 
-    let bulletInfo = renderInfo.bullet;
-    if (!bulletInfo) return;
+    if (!renderInfo || !bulletInfo) return;
 
     let scale = chartElements.scale;
 
@@ -437,14 +441,14 @@ function renderBackPanel(
 function renderBar(
     chartElements: ChartElements,
     renderInfo: RenderInfo,
+    bulletInfo: BulletInfo,
     dataset: Dataset
 ) {
     // console.log("renderBar");
     // console.log(dataset);
     let errorMessage = "";
 
-    let bulletInfo = renderInfo.bullet;
-    if (!bulletInfo) return;
+    if (!renderInfo || !bulletInfo) return;
 
     let retActualValue = bulletInfo.value;
     retActualValue = expr.resolveTemplate(retActualValue, renderInfo);
@@ -485,13 +489,13 @@ function renderBar(
 function renderMark(
     chartElements: ChartElements,
     renderInfo: RenderInfo,
+    bulletInfo: BulletInfo,
     dataset: Dataset
 ) {
     // console.log("renderMark");
     // console.log(dataset);
 
-    let bulletInfo = renderInfo.bullet;
-    if (!bulletInfo) return;
+    if (!renderInfo || !bulletInfo) return;
 
     let showMarker = bulletInfo.showMarker;
     if (!showMarker) return;
@@ -523,11 +527,14 @@ function renderMark(
 }
 
 // Bullet graph https://en.wikipedia.org/wiki/Bullet_graph
-export function renderBullet(canvas: HTMLElement, renderInfo: RenderInfo) {
+export function renderBullet(
+    canvas: HTMLElement,
+    renderInfo: RenderInfo,
+    bulletInfo: BulletInfo
+) {
     // console.log("renderBullet");
     // console.log(renderInfo);
-    let bulletInfo = renderInfo.bullet;
-    if (bulletInfo === null) return;
+    if (!renderInfo || !bulletInfo) return;
 
     let datasetId = parseFloat(bulletInfo.dataset);
     let dataset = renderInfo.datasets.getDatasetById(datasetId);
@@ -539,23 +546,33 @@ export function renderBullet(canvas: HTMLElement, renderInfo: RenderInfo) {
         renderInfo.dataAreaSize = { width: 24, height: 250 };
     }
 
-    let chartElements = createAreas(canvas, renderInfo);
+    let chartElements = createAreas(canvas, renderInfo, bulletInfo);
 
-    let retRenderAxis = renderAxis(chartElements, renderInfo, dataset);
+    let retRenderAxis = renderAxis(
+        chartElements,
+        renderInfo,
+        bulletInfo,
+        dataset
+    );
     if (typeof retRenderAxis === "string") {
         return retRenderAxis;
     }
 
-    renderTitle(chartElements, renderInfo);
+    renderTitle(chartElements, renderInfo, bulletInfo);
 
-    renderBackPanel(chartElements, renderInfo, dataset);
+    renderBackPanel(chartElements, renderInfo, bulletInfo, dataset);
 
-    let retRenderBar = renderBar(chartElements, renderInfo, dataset);
+    let retRenderBar = renderBar(
+        chartElements,
+        renderInfo,
+        bulletInfo,
+        dataset
+    );
     if (typeof retRenderBar === "string") {
         return retRenderBar;
     }
 
-    renderMark(chartElements, renderInfo, dataset);
+    renderMark(chartElements, renderInfo, bulletInfo, dataset);
 
     setChartScale(canvas, chartElements, renderInfo);
 }
