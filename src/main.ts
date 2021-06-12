@@ -717,11 +717,12 @@ export default class Tracker extends Plugin {
                             indPair < queryValuePairs.length;
                             indPair++
                         ) {
-                            if (queryValuePairs[indPair].value !== null) {
+                            let collected = queryValuePairs[indPair].value;
+                            if (Number.isNumber(collected) && !Number.isNaN(collected)) {
                                 if (value === null) {
-                                    value = queryValuePairs[indPair].value;
+                                    value = collected;
                                 } else {
-                                    value += queryValuePairs[indPair].value;
+                                    value += collected;
                                 }
                             }
                         }
