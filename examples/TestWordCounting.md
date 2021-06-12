@@ -5,13 +5,14 @@ searchType: fileMeta
 searchTarget: numWords, numChars
 folder: diary
 startDate: 2021-01-01
-endDate: 2021-01-03
+endDate: 2021-01-05
+datasetName: words, chars
 line:
     title: Word Counting
 	yAxisLocation: left, right
 	yAxisLabel: Words, Characters
 	lineColor: red, yellow
-	yMin: 99, 850
+	showLegend: true
 ```
 
 ``` tracker
@@ -19,7 +20,7 @@ searchType: fileMeta
 searchTarget: numWords
 folder: diary
 startDate: 2021-01-01
-endDate: 2021-01-03
+endDate: 2021-01-05
 summary:
     template: 'Total number of words: {{sum}}'
 ```
@@ -29,7 +30,7 @@ searchType: fileMeta
 searchTarget: numChars
 folder: diary
 startDate: 2021-01-01
-endDate: 2021-01-03
+endDate: 2021-01-05
 summary:
     template: 'Total number of characters: {{sum}}'
 ```
