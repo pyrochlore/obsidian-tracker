@@ -8,8 +8,11 @@ This is an [Obsidian](https://obsidian.md/) plugin that helps you do tracking in
 [Here](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Examples.md) is a simplified table of examples showing what you can track.
 
 ## What's New
+Version 1.6.1
+1. Add new targets 'numWords', 'numChars', and 'numSentences' for input type 'fileMeta' ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestWordCounting.md))
+
 Version 1.6.0
-1. Add a new input type 'fileMeta', getting meta data from a file ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/Test%20FileMeta.md))
+1. Add a new input type 'fileMeta', getting meta data from a file ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestFileMeta.md))
 2. Add a new output type 'bullet', rendering a bullet chart ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestBullet.md))
 3. Accept tracking time values ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestTimeValues.md))
 4. Allow tracking nested values from front matter
