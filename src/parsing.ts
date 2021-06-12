@@ -882,6 +882,34 @@ export function getRenderInfoFromYaml(
     let keysOfRenderInfo = getAvailableKeysOfClass(renderInfo);
     let additionalAllowedKeys = ["searchType", "searchTarget", "separator"];
     // console.log(keysOfRenderInfo);
+    let yamlLineKeys = [];
+    let yamlBarKeys = [];
+    let yamlSummaryKeys = [];
+    let yamlMonthKeys = [];
+    let yamlBulletKeys = [];
+    for (let key of keysFoundInYAML) {
+        if (/line[0-9]*/.test(key)) {
+            yamlLineKeys.push(key);
+            additionalAllowedKeys.push(key);
+        }
+        if (/bar[0-9]*/.test(key)) {
+            yamlBarKeys.push(key);
+            additionalAllowedKeys.push(key);
+        }
+        if (/summary[0-9]*/.test(key)) {
+            yamlSummaryKeys.push(key);
+            additionalAllowedKeys.push(key);
+        }
+        if (/bullet[0-9]*/.test(key)) {
+            yamlBulletKeys.push(key);
+            additionalAllowedKeys.push(key);
+        }
+        if (/month[0-9]*/.test(key)) {
+            yamlMonthKeys.push(key);
+            additionalAllowedKeys.push(key);
+        }
+    }
+    // console.log(additionalAllowedKeys);
     for (let key of keysFoundInYAML) {
         if (
             !keysOfRenderInfo.includes(key) &&
@@ -890,6 +918,16 @@ export function getRenderInfoFromYaml(
             errorMessage = "'" + key + "' is not an available key";
             return errorMessage;
         }
+    }
+
+    let totalNumOutputs =
+        yamlLineKeys.length +
+        yamlBarKeys.length +
+        yamlSummaryKeys.length +
+        +yamlBulletKeys.length +
+        yamlMonthKeys.length;
+    if (totalNumOutputs === 0) {
+        return "No output parameter provided, please place line, bar, month, bullet, or summary.";
     }
 
     // Get daily notes settings using obsidian-daily-notes-interface
@@ -1161,66 +1199,23 @@ export function getRenderInfoFromYaml(
     );
     // console.log(renderInfo.margin);
 
-    // Determine outputType
-    let hasLine = false;
-    if (typeof yaml.line !== "undefined") {
-        hasLine = true;
-    }
-    let hasBar = false;
-    if (typeof yaml.bar !== "undefined") {
-        hasBar = true;
-    }
-    let hasSummary = false;
-    if (typeof yaml.summary !== "undefined") {
-        hasSummary = true;
-    }
-    let hasMonth = false;
-    if (typeof yaml.month !== "undefined") {
-        hasMonth = true;
-    }
-    let hasBullet = false;
-    if (typeof yaml.bullet !== "undefined") {
-        hasBullet = true;
-    }
-    let sumOutput =
-        Number(hasLine) +
-        Number(hasBar) +
-        Number(hasSummary) +
-        Number(hasMonth) +
-        Number(hasBullet);
-    if (sumOutput === 0) {
-        return "No output parameter provided, please place line, bar, month, bullet, or summary.";
-    } else if (sumOutput === 1) {
-        if (hasLine) renderInfo.output = OutputType.Line;
-        if (hasBar) renderInfo.output = OutputType.Bar;
-        if (hasSummary) renderInfo.output = OutputType.Summary;
-        if (hasMonth) renderInfo.output = OutputType.Month;
-        if (hasBullet) renderInfo.output = OutputType.Bullet;
-    } else if (sumOutput >= 2) {
-        return "Too many output parameters, pick line, bar, month, bullet, or summary.";
-    }
-
     // line related parameters
-    if (renderInfo.output === OutputType.Line) {
-        renderInfo.line = new LineInfo();
+    for (let lineKey of yamlLineKeys) {
+        let line = new LineInfo();
+        let yamlLine = yaml[lineKey];
 
-        if (yaml.line !== null) {
-            let keysOfLineInfo = getAvailableKeysOfClass(renderInfo.line);
-            let keysFoundInYAML = getAvailableKeysOfClass(yaml.line);
-            // console.log(keysOfLineInfo);
-            // console.log(keysFoundInYAML);
-            for (let key of keysFoundInYAML) {
-                if (!keysOfLineInfo.includes(key)) {
-                    errorMessage = "'" + key + "' is not an available key";
-                    return errorMessage;
-                }
+        let keysOfLineInfo = getAvailableKeysOfClass(line);
+        let keysFoundInYAML = getAvailableKeysOfClass(yamlLine);
+        // console.log(keysOfLineInfo);
+        // console.log(keysFoundInYAML);
+        for (let key of keysFoundInYAML) {
+            if (!keysOfLineInfo.includes(key)) {
+                errorMessage = "'" + key + "' is not an available key";
+                return errorMessage;
             }
         }
 
-        let retParseCommonChartInfo = parseCommonChartInfo(
-            yaml.line,
-            renderInfo.line
-        );
+        let retParseCommonChartInfo = parseCommonChartInfo(yamlLine, line);
         if (typeof retParseCommonChartInfo === "string") {
             return retParseCommonChartInfo;
         }
@@ -1228,7 +1223,7 @@ export function getRenderInfoFromYaml(
         // lineColor
         let retLineColor = getStringArrayFromInput(
             "lineColor",
-            yaml?.line?.lineColor,
+            yamlLine?.lineColor,
             numDatasets,
             "",
             validateColor,
@@ -1237,13 +1232,13 @@ export function getRenderInfoFromYaml(
         if (typeof retLineColor === "string") {
             return retLineColor; // errorMessage
         }
-        renderInfo.line.lineColor = retLineColor;
-        // console.log(renderInfo.line.lineColor);
+        line.lineColor = retLineColor;
+        // console.log(line.lineColor);
 
         // lineWidth
         let retLineWidth = getNumberArrayFromInput(
             "lineWidth",
-            yaml?.line?.lineWidth,
+            yamlLine?.lineWidth,
             numDatasets,
             1.5,
             true
@@ -1251,13 +1246,13 @@ export function getRenderInfoFromYaml(
         if (typeof retLineWidth === "string") {
             return retLineWidth; // errorMessage
         }
-        renderInfo.line.lineWidth = retLineWidth;
-        // console.log(renderInfo.line.lineWidth);
+        line.lineWidth = retLineWidth;
+        // console.log(line.lineWidth);
 
         // showLine
         let retShowLine = getBoolArrayFromInput(
             "showLine",
-            yaml?.line?.showLine,
+            yamlLine?.showLine,
             numDatasets,
             true,
             true
@@ -1265,13 +1260,13 @@ export function getRenderInfoFromYaml(
         if (typeof retShowLine === "string") {
             return retShowLine;
         }
-        renderInfo.line.showLine = retShowLine;
-        // console.log(renderInfo.line.showLine);
+        line.showLine = retShowLine;
+        // console.log(line.showLine);
 
         // showPoint
         let retShowPoint = getBoolArrayFromInput(
             "showPoint",
-            yaml?.line?.showPoint,
+            yamlLine?.showPoint,
             numDatasets,
             true,
             true
@@ -1279,13 +1274,13 @@ export function getRenderInfoFromYaml(
         if (typeof retShowPoint === "string") {
             return retShowPoint;
         }
-        renderInfo.line.showPoint = retShowPoint;
-        // console.log(renderInfo.line.showPoint);
+        line.showPoint = retShowPoint;
+        // console.log(line.showPoint);
 
         // pointColor
         let retPointColor = getStringArrayFromInput(
             "pointColor",
-            yaml?.line?.pointColor,
+            yamlLine?.pointColor,
             numDatasets,
             "#69b3a2",
             validateColor,
@@ -1294,13 +1289,13 @@ export function getRenderInfoFromYaml(
         if (typeof retPointColor === "string") {
             return retPointColor;
         }
-        renderInfo.line.pointColor = retPointColor;
-        // console.log(renderInfo.line.pointColor);
+        line.pointColor = retPointColor;
+        // console.log(line.pointColor);
 
         // pointBorderColor
         let retPointBorderColor = getStringArrayFromInput(
             "pointBorderColor",
-            yaml?.line?.pointBorderColor,
+            yamlLine?.pointBorderColor,
             numDatasets,
             "#69b3a2",
             validateColor,
@@ -1309,13 +1304,13 @@ export function getRenderInfoFromYaml(
         if (typeof retPointBorderColor === "string") {
             return retPointBorderColor;
         }
-        renderInfo.line.pointBorderColor = retPointBorderColor;
-        // console.log(renderInfo.line.pointBorderColor);
+        line.pointBorderColor = retPointBorderColor;
+        // console.log(line.pointBorderColor);
 
         // pointBorderWidth
         let retPointBorderWidth = getNumberArrayFromInput(
             "pointBorderWidth",
-            yaml?.line?.pointBorderWidth,
+            yamlLine?.pointBorderWidth,
             numDatasets,
             0.0,
             true
@@ -1323,13 +1318,13 @@ export function getRenderInfoFromYaml(
         if (typeof retPointBorderWidth === "string") {
             return retPointBorderWidth; // errorMessage
         }
-        renderInfo.line.pointBorderWidth = retPointBorderWidth;
-        // console.log(renderInfo.line.pointBorderWidth);
+        line.pointBorderWidth = retPointBorderWidth;
+        // console.log(line.pointBorderWidth);
 
         // pointSize
         let retPointSize = getNumberArrayFromInput(
             "pointSize",
-            yaml?.line?.pointSize,
+            yamlLine?.pointSize,
             numDatasets,
             3.0,
             true
@@ -1337,13 +1332,13 @@ export function getRenderInfoFromYaml(
         if (typeof retPointSize === "string") {
             return retPointSize; // errorMessage
         }
-        renderInfo.line.pointSize = retPointSize;
-        // console.log(renderInfo.line.pointSize);
+        line.pointSize = retPointSize;
+        // console.log(line.pointSize);
 
         // fillGap
         let retFillGap = getBoolArrayFromInput(
             "fillGap",
-            yaml?.line?.fillGap,
+            yamlLine?.fillGap,
             numDatasets,
             false,
             true
@@ -1351,13 +1346,13 @@ export function getRenderInfoFromYaml(
         if (typeof retFillGap === "string") {
             return retFillGap;
         }
-        renderInfo.line.fillGap = retFillGap;
-        // console.log(renderInfo.line.fillGap);
+        line.fillGap = retFillGap;
+        // console.log(line.fillGap);
 
         // yAxisLocation
         let retYAxisLocation = getStringArrayFromInput(
             "yAxisLocation",
-            yaml?.line?.yAxisLocation,
+            yamlLine?.yAxisLocation,
             numDatasets,
             "left",
             validateYAxisLocation,
@@ -1366,29 +1361,30 @@ export function getRenderInfoFromYaml(
         if (typeof retYAxisLocation === "string") {
             return retYAxisLocation; // errorMessage
         }
-        renderInfo.line.yAxisLocation = retYAxisLocation;
-        // console.log(renderInfo.line.yAxisLocation);
-    } // line related parameters
-    if (renderInfo.output === OutputType.Bar) {
-        renderInfo.bar = new BarInfo();
+        line.yAxisLocation = retYAxisLocation;
+        // console.log(line.yAxisLocation);
 
-        if (yaml.bar !== null) {
-            let keysOfBarInfo = getAvailableKeysOfClass(renderInfo.bar);
-            let keysFoundInYAML = getAvailableKeysOfClass(yaml.bar);
-            // console.log(keysOfBarInfo);
-            // console.log(keysFoundInYAML);
-            for (let key of keysFoundInYAML) {
-                if (!keysOfBarInfo.includes(key)) {
-                    errorMessage = "'" + key + "' is not an available key";
-                    return errorMessage;
-                }
+        renderInfo.line.push(line);
+    } // line related parameters
+    // console.log(renderInfo.line);
+
+    // bar related parameters
+    for (let barKey of yamlBarKeys) {
+        let bar = new BarInfo();
+        let yamlBar = yaml[barKey];
+
+        let keysOfBarInfo = getAvailableKeysOfClass(bar);
+        let keysFoundInYAML = getAvailableKeysOfClass(yamlBar);
+        // console.log(keysOfBarInfo);
+        // console.log(keysFoundInYAML);
+        for (let key of keysFoundInYAML) {
+            if (!keysOfBarInfo.includes(key)) {
+                errorMessage = "'" + key + "' is not an available key";
+                return errorMessage;
             }
         }
 
-        let retParseCommonChartInfo = parseCommonChartInfo(
-            yaml.bar,
-            renderInfo.bar
-        );
+        let retParseCommonChartInfo = parseCommonChartInfo(yamlBar, bar);
         if (typeof retParseCommonChartInfo === "string") {
             return retParseCommonChartInfo;
         }
@@ -1396,7 +1392,7 @@ export function getRenderInfoFromYaml(
         // barColor
         let retBarColor = getStringArrayFromInput(
             "barColor",
-            yaml?.bar?.barColor,
+            yamlBar?.barColor,
             numDatasets,
             "",
             validateColor,
@@ -1405,13 +1401,13 @@ export function getRenderInfoFromYaml(
         if (typeof retBarColor === "string") {
             return retBarColor; // errorMessage
         }
-        renderInfo.bar.barColor = retBarColor;
-        // console.log(renderInfo.bar.barColor);
+        bar.barColor = retBarColor;
+        // console.log(bar.barColor);
 
         // yAxisLocation
         let retYAxisLocation = getStringArrayFromInput(
             "yAxisLocation",
-            yaml?.bar?.yAxisLocation,
+            yamlBar?.yAxisLocation,
             numDatasets,
             "left",
             validateYAxisLocation,
@@ -1420,122 +1416,107 @@ export function getRenderInfoFromYaml(
         if (typeof retYAxisLocation === "string") {
             return retYAxisLocation; // errorMessage
         }
-        renderInfo.bar.yAxisLocation = retYAxisLocation;
-        // console.log(renderInfo.bar.yAxisLocation);
+        bar.yAxisLocation = retYAxisLocation;
+        // console.log(bar.yAxisLocation);
+
+        renderInfo.bar.push(bar);
     } // bar related parameters
+    // console.log(renderInfo.bar);
+
     // summary related parameters
-    if (renderInfo.output === OutputType.Summary) {
-        renderInfo.summary = new SummaryInfo();
+    for (let summaryKey of yamlSummaryKeys) {
+        let summary = new SummaryInfo();
+        let yamlSummary = yaml[summaryKey];
 
-        if (yaml.summary !== null) {
-            let keysOfSummaryInfo = getAvailableKeysOfClass(renderInfo.summary);
-            let keysFoundInYAML = getAvailableKeysOfClass(yaml.summary);
-            // console.log(keysOfSummaryInfo);
-            // console.log(keysFoundInYAML);
-            for (let key of keysFoundInYAML) {
-                if (!keysOfSummaryInfo.includes(key)) {
-                    errorMessage = "'" + key + "' is not an available key";
-                    return errorMessage;
-                }
+        let keysOfSummaryInfo = getAvailableKeysOfClass(summary);
+        let keysFoundInYAML = getAvailableKeysOfClass(yamlSummary);
+        // console.log(keysOfSummaryInfo);
+        // console.log(keysFoundInYAML);
+        for (let key of keysFoundInYAML) {
+            if (!keysOfSummaryInfo.includes(key)) {
+                errorMessage = "'" + key + "' is not an available key";
+                return errorMessage;
             }
         }
 
-        if (yaml.summary !== null) {
-            // template
-            if (typeof yaml.summary.template === "string") {
-                renderInfo.summary.template = yaml.summary.template;
-            }
-            if (typeof yaml.summary.style === "string") {
-                renderInfo.summary.style = yaml.summary.style;
-            }
+        // template
+        if (typeof yamlSummary?.template === "string") {
+            summary.template = yamlSummary.template;
         }
+        if (typeof yamlSummary?.style === "string") {
+            summary.style = yamlSummary.style;
+        }
+
+        renderInfo.summary.push(summary);
     } // summary related parameters
-    // Month related parameters
-    if (renderInfo.output === OutputType.Month) {
-        renderInfo.month = new MonthInfo();
 
-        if (yaml.month !== null) {
-            let keysOfMonthInfo = getAvailableKeysOfClass(renderInfo.month);
-            let keysFoundInYAML = getAvailableKeysOfClass(yaml.month);
-            // console.log(keysOfSummaryInfo);
-            // console.log(keysFoundInYAML);
-            for (let key of keysFoundInYAML) {
-                if (!keysOfMonthInfo.includes(key)) {
-                    errorMessage = "'" + key + "' is not an available key";
-                    return errorMessage;
-                }
+    // Month related parameters
+    for (let monthKey of yamlMonthKeys) {
+        let month = new MonthInfo();
+        let yamlMonth = yaml[monthKey];
+
+        let keysOfMonthInfo = getAvailableKeysOfClass(month);
+        let keysFoundInYAML = getAvailableKeysOfClass(yamlMonth);
+        // console.log(keysOfSummaryInfo);
+        // console.log(keysFoundInYAML);
+        for (let key of keysFoundInYAML) {
+            if (!keysOfMonthInfo.includes(key)) {
+                errorMessage = "'" + key + "' is not an available key";
+                return errorMessage;
             }
         }
 
-        if (yaml.month !== null) {
-            if (typeof yaml.month.startWeekOn === "string") {
-                renderInfo.month.startWeekOn = yaml.month.startWeekOn;
-            }
+        if (typeof yamlMonth?.startWeekOn === "string") {
+            month.startWeekOn = yamlMonth.startWeekOn;
         }
     } // Month related parameters
-    // Bullet related parameters
-    if (renderInfo.output === OutputType.Bullet) {
-        renderInfo.bullet = new BulletInfo();
+    // console.log(renderInfo.month);
 
-        if (yaml.bullet !== null) {
-            let keysOfBulletInfo = getAvailableKeysOfClass(renderInfo.bullet);
-            let keysFoundInYAML = getAvailableKeysOfClass(yaml.bullet);
-            // console.log(keysOfSummaryInfo);
-            // console.log(keysFoundInYAML);
-            for (let key of keysFoundInYAML) {
-                if (!keysOfBulletInfo.includes(key)) {
-                    errorMessage = "'" + key + "' is not an available key";
-                    return errorMessage;
-                }
+    // Bullet related parameters
+    for (let bulletKey of yamlBulletKeys) {
+        let bullet = new BulletInfo();
+        let yamlBullet = yaml[bulletKey];
+
+        let keysOfBulletInfo = getAvailableKeysOfClass(bullet);
+        let keysFoundInYAML = getAvailableKeysOfClass(yamlBullet);
+        // console.log(keysOfSummaryInfo);
+        // console.log(keysFoundInYAML);
+        for (let key of keysFoundInYAML) {
+            if (!keysOfBulletInfo.includes(key)) {
+                errorMessage = "'" + key + "' is not an available key";
+                return errorMessage;
             }
         }
 
-        if (yaml.bullet !== null) {
-            // title
-            if (typeof yaml.bullet.title === "string") {
-                renderInfo.bullet.title = yaml.bullet.title;
-            }
-            // console.log(renderInfo.bullet.title);
+        // title
+        if (typeof yamlBullet?.title === "string") {
+            bullet.title = yamlBullet.title;
+        }
+        // console.log(bullet.title);
 
-            // dataset
-            if (typeof yaml.bullet.dataset === "string") {
-                renderInfo.bullet.dataset = yaml.bullet.dataset;
-            }
-            // console.log(renderInfo.bullet.dataset);
+        // dataset
+        if (typeof yamlBullet?.dataset === "string") {
+            bullet.dataset = yamlBullet.dataset;
+        }
+        // console.log(bullet.dataset);
 
-            // orientation
-            if (typeof yaml.bullet.orientation === "string") {
-                renderInfo.bullet.orientation = yaml.bullet.orientation;
-            }
-            // console.log(renderInfo.bullet.orientation);
+        // orientation
+        if (typeof yamlBullet?.orientation === "string") {
+            bullet.orientation = yamlBullet.orientation;
+        }
+        // console.log(bullet.orientation);
 
-            // range
-            let range: Array<number> = [];
-            if (
-                typeof yaml.bullet.range === "object" &&
-                yaml.bullet.range !== null
-            ) {
-                if (Array.isArray(yaml.bullet.range)) {
-                    for (let r of yaml.bullet.range) {
-                        if (typeof r === "string") {
-                            let v = parseFloat(r);
-                            if (Number.isNumber(v)) {
-                                range.push(v);
-                            } else {
-                                errorMessage =
-                                    "Parameter 'range' accepts only numbers";
-                                return errorMessage;
-                            }
-                        }
-                    }
-                }
-            } else if (typeof yaml.bullet.range === "string") {
-                let splitted = yaml.bullet.range.split(",");
-                if (splitted.length > 1) {
-                    for (let piece of splitted) {
-                        let v = parseFloat(piece.trim());
-                        if (!Number.isNaN(v)) {
-                            // Number.isNumber(NaN) --> true
+        // range
+        let range: Array<number> = [];
+        if (
+            typeof yamlBullet?.range === "object" &&
+            yamlBullet?.range !== null
+        ) {
+            if (Array.isArray(yamlBullet.range)) {
+                for (let r of yamlBullet.range) {
+                    if (typeof r === "string") {
+                        let v = parseFloat(r);
+                        if (Number.isNumber(v)) {
                             range.push(v);
                         } else {
                             errorMessage =
@@ -1543,102 +1524,119 @@ export function getRenderInfoFromYaml(
                             return errorMessage;
                         }
                     }
-                } else if (yaml.bullet.range === "") {
-                    errorMessage = "Empty range is not allowed.";
-                } else {
-                    let v = parseFloat(yaml.bullet.range);
-                    if (Number.isNumber(v)) {
+                }
+            }
+        } else if (typeof yamlBullet?.range === "string") {
+            let splitted = yamlBullet?.range.split(",");
+            if (splitted.length > 1) {
+                for (let piece of splitted) {
+                    let v = parseFloat(piece.trim());
+                    if (!Number.isNaN(v)) {
+                        // Number.isNumber(NaN) --> true
                         range.push(v);
                     } else {
                         errorMessage = "Parameter 'range' accepts only numbers";
                         return errorMessage;
                     }
                 }
+            } else if (yamlBullet?.range === "") {
+                errorMessage = "Empty range is not allowed.";
             } else {
-                errorMessage = "Invalid range";
-                return errorMessage;
-            }
-            // Check the value is monotonically increasing
-            // Check the value is not negative
-            if (range.length === 1) {
-                if (range[0] < 0) {
-                    errorMessage = "Negative range value is not allowed";
+                let v = parseFloat(yamlBullet?.range);
+                if (Number.isNumber(v)) {
+                    range.push(v);
+                } else {
+                    errorMessage = "Parameter 'range' accepts only numbers";
                     return errorMessage;
                 }
-            } else if (range.length > 1) {
-                let lastBound = range[0];
-                if (lastBound < 0) {
-                    errorMessage = "Negative range value is not allowed";
-                    return errorMessage;
-                } else {
-                    for (let ind = 1; ind < range.length; ind++) {
-                        if (range[ind] <= lastBound) {
-                            errorMessage =
-                                "Values in parameter 'range' should be monotonically increasing";
-                            return errorMessage;
-                        }
+            }
+        } else {
+            errorMessage = "Invalid range";
+            return errorMessage;
+        }
+        // Check the value is monotonically increasing
+        // Check the value is not negative
+        if (range.length === 1) {
+            if (range[0] < 0) {
+                errorMessage = "Negative range value is not allowed";
+                return errorMessage;
+            }
+        } else if (range.length > 1) {
+            let lastBound = range[0];
+            if (lastBound < 0) {
+                errorMessage = "Negative range value is not allowed";
+                return errorMessage;
+            } else {
+                for (let ind = 1; ind < range.length; ind++) {
+                    if (range[ind] <= lastBound) {
+                        errorMessage =
+                            "Values in parameter 'range' should be monotonically increasing";
+                        return errorMessage;
                     }
                 }
-            } else {
-                errorMessage = "Empty range is not allowed";
-                return errorMessage;
             }
-            renderInfo.bullet.range = range;
-            let numRange = range.length;
-            // console.log(renderInfo.bullet.range);
-
-            // range color
-            let retRangeColor = getStringArrayFromInput(
-                "rangeColor",
-                yaml?.bullet?.rangeColor,
-                numRange,
-                "",
-                validateColor,
-                true
-            );
-            if (typeof retRangeColor === "string") {
-                return retRangeColor; // errorMessage
-            }
-            renderInfo.bullet.rangeColor = retRangeColor;
-            // console.log(renderInfo.bullet.rangeColor);
-
-            // actual value, can possess template variable
-            if (typeof yaml.bullet.value === "string") {
-                renderInfo.bullet.value = yaml.bullet.value;
-            }
-            // console.log(renderInfo.bullet.value);
-
-            // value unit
-            if (typeof yaml.bullet.valueUnit === "string") {
-                renderInfo.bullet.valueUnit = yaml.bullet.valueUnit;
-            }
-            // console.log(renderInfo.bullet.valueUnit);
-
-            // value color
-            if (typeof yaml.bullet.valueColor === "string") {
-                renderInfo.bullet.valueColor = yaml.bullet.valueColor;
-            }
-            // console.log(renderInfo.bullet.valueColor);
-
-            // show mark
-            if (typeof yaml.bullet.showMarker === "boolean") {
-                renderInfo.bullet.showMarker = yaml.bullet.showMarker;
-            }
-            // console.log(renderInfo.bullet.showMark);
-
-            // mark value
-            if (typeof yaml.bullet.markerValue === "number") {
-                renderInfo.bullet.markerValue = yaml.bullet.markerValue;
-            }
-            // console.log(renderInfo.bullet.markValue);
-
-            // mark color
-            if (typeof yaml.bullet.markerColor === "string") {
-                renderInfo.bullet.markerColor = yaml.bullet.markerColor;
-            }
-            // console.log(renderInfo.bullet.markValue);
+        } else {
+            errorMessage = "Empty range is not allowed";
+            return errorMessage;
         }
+        bullet.range = range;
+        let numRange = range.length;
+        // console.log(renderInfo.bullet.range);
+
+        // range color
+        let retRangeColor = getStringArrayFromInput(
+            "rangeColor",
+            yamlBullet?.rangeColor,
+            numRange,
+            "",
+            validateColor,
+            true
+        );
+        if (typeof retRangeColor === "string") {
+            return retRangeColor; // errorMessage
+        }
+        bullet.rangeColor = retRangeColor;
+        // console.log(bullet.rangeColor);
+
+        // actual value, can possess template variable
+        if (typeof yamlBullet?.value === "string") {
+            bullet.value = yamlBullet.value;
+        }
+        // console.log(bullet.value);
+
+        // value unit
+        if (typeof yamlBullet?.valueUnit === "string") {
+            bullet.valueUnit = yamlBullet.valueUnit;
+        }
+        // console.log(bullet.valueUnit);
+
+        // value color
+        if (typeof yamlBullet?.valueColor === "string") {
+            bullet.valueColor = yamlBullet.valueColor;
+        }
+        // console.log(bullet.valueColor);
+
+        // show mark
+        if (typeof yamlBullet?.showMarker === "boolean") {
+            bullet.showMarker = yamlBullet.showMarker;
+        }
+        // console.log(bullet.showMark);
+
+        // mark value
+        if (typeof yamlBullet?.markerValue === "number") {
+            bullet.markerValue = yamlBullet.markerValue;
+        }
+        // console.log(bullet.markValue);
+
+        // mark color
+        if (typeof yamlBullet?.markerColor === "string") {
+            bullet.markerColor = yamlBullet.markerColor;
+        }
+        // console.log(bullet.markValue);
+
+        renderInfo.bullet.push(bullet);
     } // Bullet related parameters
+    // console.log(renderInfo.bullet);
 
     return renderInfo;
 }

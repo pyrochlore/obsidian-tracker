@@ -540,6 +540,7 @@ export function collectDataFromText(
 
 export function collectDataFromFileMeta(
     file: TFile,
+    content: string,
     query: Query,
     renderInfo: RenderInfo,
     dataMap: DataMap,
@@ -551,23 +552,33 @@ export function collectDataFromFileMeta(
         // console.log(file.stat);
 
         let target = query.getTarget();
+        let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
+
         if (target === "cDate") {
             let ctime = file.stat.ctime;
             query.valueType = ValueType.Date;
             query.addNumTargets();
-            let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
             addToDataMap(dataMap, xValue, query, ctime);
         } else if (target === "mDate") {
             let mtime = file.stat.mtime;
             query.valueType = ValueType.Date;
             query.addNumTargets();
-            let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
             addToDataMap(dataMap, xValue, query, mtime);
         } else if (target === "size") {
             let size = file.stat.size;
             query.addNumTargets();
-            let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
             addToDataMap(dataMap, xValue, query, size);
+        } else if (target === "numWords") {
+            let numWords = helper.getWordCount(content);
+            addToDataMap(dataMap, xValue, query, numWords);
+        } else if (target === "numChars") {
+            let numChars = helper.getCharacterCount(content);
+            query.addNumTargets();
+            addToDataMap(dataMap, xValue, query, numChars);
+        } else if (target === "numSentences") {
+            let numSentences = helper.getSentenceCount(content);
+            query.addNumTargets();
+            addToDataMap(dataMap, xValue, query, numSentences);
         }
     }
 }

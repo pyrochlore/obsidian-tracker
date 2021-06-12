@@ -1,19 +1,23 @@
 import * as d3 from "d3";
-import { RenderInfo } from "./data";
+import { RenderInfo, SummaryInfo } from "./data";
 import * as expr from "./expr";
 
 function checkSummaryTemplateValid(summaryTemplate: string): boolean {
     return true;
 }
 
-export function renderSummary(canvas: HTMLElement, renderInfo: RenderInfo) {
+export function renderSummary(
+    canvas: HTMLElement,
+    renderInfo: RenderInfo,
+    summaryInfo: SummaryInfo
+) {
     // console.log("renderSummary");
     // console.log(renderInfo);
-    if (renderInfo.summary === null) return;
+    if (!renderInfo || !summaryInfo) return;
 
     let outputSummary = "";
-    if (checkSummaryTemplateValid(renderInfo.summary.template)) {
-        outputSummary = renderInfo.summary.template;
+    if (checkSummaryTemplateValid(summaryInfo.template)) {
+        outputSummary = summaryInfo.template;
     } else {
         return "Invalid summary template";
     }
@@ -30,8 +34,8 @@ export function renderSummary(canvas: HTMLElement, renderInfo: RenderInfo) {
             textBlock.text(outputSummary);
         }
 
-        if (renderInfo.summary.style !== "") {
-            textBlock.attr("style", renderInfo.summary.style);
+        if (summaryInfo.style !== "") {
+            textBlock.attr("style", summaryInfo.style);
         }
     }
 }

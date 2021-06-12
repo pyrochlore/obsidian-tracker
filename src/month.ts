@@ -3,6 +3,7 @@ import {
     Datasets,
     DataPoint,
     RenderInfo,
+    MonthInfo,
     Dataset,
     Size,
     Transform,
@@ -22,7 +23,8 @@ interface DayInfo {
 
 function createAreas(
     canvas: HTMLElement,
-    renderInfo: RenderInfo
+    renderInfo: RenderInfo,
+    monthInfo: MonthInfo
 ): ChartElements {
     let chartElements: ChartElements = {};
     // whole area for plotting, includes margins
@@ -77,12 +79,14 @@ function createAreas(
 function renderMonthHeader(
     chartElements: ChartElements,
     renderInfo: RenderInfo,
+    monthInfo: MonthInfo,
     dataset: Dataset
 ) {}
 
 function renderMonthDays(
     chartElements: ChartElements,
     renderInfo: RenderInfo,
+    monthInfo: MonthInfo,
     dataset: Dataset
 ) {
     // console.log("renderMonthDays");
@@ -160,22 +164,28 @@ function renderMonthDays(
         .attr("class", "tracker-axis-label");
 }
 
-export function renderMonth(canvas: HTMLElement, renderInfo: RenderInfo) {
+export function renderMonth(
+    canvas: HTMLElement,
+    renderInfo: RenderInfo,
+    monthInfo: MonthInfo
+) {
     // console.log("renderMonth");
     // console.log(renderInfo);
     if (renderInfo.month === null) return;
 
-    let chartElements = createAreas(canvas, renderInfo);
+    let chartElements = createAreas(canvas, renderInfo, monthInfo);
 
     renderMonthHeader(
         chartElements,
         renderInfo,
+        monthInfo,
         renderInfo.datasets.getDatasetById(0)
     );
 
     renderMonthDays(
         chartElements,
         renderInfo,
+        monthInfo,
         renderInfo.datasets.getDatasetById(0)
     );
 }
