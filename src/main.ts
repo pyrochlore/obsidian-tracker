@@ -178,6 +178,7 @@ export default class Tracker extends Plugin {
             let fileCache: CachedMetadata = null;
             let needFileCache = renderInfo.queries.some((q) => {
                 let type = q.getType();
+                let target = q.getTarget();
                 if (
                     type === SearchType.Frontmatter ||
                     type === SearchType.Tag ||
@@ -194,12 +195,18 @@ export default class Tracker extends Plugin {
             let content: string = null;
             let needContent = renderInfo.queries.some((q) => {
                 let type = q.getType();
+                let target = q.getTarget();
                 if (
                     type === SearchType.Tag ||
                     type === SearchType.Text ||
                     type === SearchType.dvField
                 ) {
                     return true;
+                }
+                else if (type === SearchType.FileMeta) {
+                    if (target === "numWords" || target === "numChars" || target === "numSentences") {
+                        return true;
+                    }
                 }
                 return false;
             });
@@ -380,6 +387,7 @@ export default class Tracker extends Plugin {
                 if (query.getType() === SearchType.FileMeta) {
                     collecting.collectDataFromFileMeta(
                         file,
+                        content,
                         query,
                         renderInfo,
                         dataMap,
