@@ -110,5 +110,8 @@ With this search type, you can retrieve infomation of files. Currently, three ki
 - cDate: creation date of a file
 - mDate: last modification date of a file
 - size: file size in bytes
+- numWords: number of words in a file
+- numChars: number of characters in a file (including spaces)
+- numSentences: number of setences in a file
 
 `cData` and `mDate` can be used as X dataset and `size` can be used as Y dataset.

@@ -29,7 +29,7 @@ The following table lists use cases with information of target location (Locatio
 | content | myvalues 1/2/3 | searchType: text<br>searchTarget: 'myvalues\\s+(?\<value\>[0-9]+)/([0-9]+)/([0-9]+), myvalues\\s+([0-9]+)/(?\<value\>[0-9]+)/([0-9]+), myvalues\\s+([0-9]+)/([0-9]+)/(?\<value\>[0-9]+)' | V |
 | table content | { a table filled with dates and values }<br>[example table](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/data/Tables.md) | searchType: table<br>searchTarget: filePath[0][0], filePath[0][1] | V |
 | talbe content | { a table filled with dates and values }<br>[example table](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/data/Tables.md) | searchType: table<br>searchTarget: filePath[1][0], filePath[1][1][0], filePath[1][1][1] | V |
-| file meta | meta data from files (size, cDate, mDate) | searchType: fileMeta<br>searchTarget: size | V |
+| file meta | meta data from files <br>(size, cDate, mDate, numWords, numChars, numSentences) | searchType: fileMeta<br>searchTarget: size | V |
 
 ## Full examples
 
