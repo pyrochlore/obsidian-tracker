@@ -1469,6 +1469,20 @@ export function getRenderInfoFromYaml(
         if (typeof yamlMonth?.startWeekOn === "string") {
             month.startWeekOn = yamlMonth.startWeekOn;
         }
+
+        if (typeof yamlMonth?.valueColor === "string") {
+            month.valueColor = yamlMonth.valueColor;
+        }
+
+        if (typeof yamlMonth?.yMin === "number") {
+            month.yMin = yamlMonth.yMin;
+        }
+
+        if (typeof yamlMonth?.yMax === "number") {
+            month.yMax = yamlMonth.yMax;
+        }
+
+        renderInfo.month.push(month);
     } // Month related parameters
     // console.log(renderInfo.month);
 

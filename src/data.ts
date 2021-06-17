@@ -242,6 +242,14 @@ export class Dataset implements IterableIterator<DataPoint> {
         return this.numTargets;
     }
 
+    public getValue(date: Moment) {
+        let ind = this.parent.getIndexOfDate(date);
+        if (ind >= 0 && ind < this.values.length) {
+            return this.values[ind];
+        }
+        return null;
+    }
+
     public setValue(date: Moment, value: number) {
         let ind = this.parent.getIndexOfDate(date);
         // console.log(ind);
@@ -673,9 +681,15 @@ export class SummaryInfo extends OutputInfo {
 
 export class MonthInfo {
     startWeekOn: string;
+    valueColor: string;
+    yMin: number;
+    yMax: number;
 
     constructor() {
         this.startWeekOn = "Sun";
+        this.valueColor = "#69b3a2";
+        this.yMin = null;
+        this.yMax = null;
     }
 }
 
