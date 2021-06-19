@@ -6,7 +6,9 @@ searchTarget: exercise-pushup
 folder: diary
 month:
     startWeekOn:
-	valueColor: red
+    threshold: 40
+    dotColor: pink
+    dimDotsNotInMonth: false
 ```
 
 ``` tracker
@@ -15,7 +17,8 @@ searchTarget: meditation
 folder: diary
 month:
     startWeekOn: 
-	valueColor: steelblue
+    dotColor: steelblue
 ```
 
 Please also check those search targets in markdown files under folder 'diary'.
+

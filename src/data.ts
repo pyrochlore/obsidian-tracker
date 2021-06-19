@@ -242,8 +242,8 @@ export class Dataset implements IterableIterator<DataPoint> {
         return this.numTargets;
     }
 
-    public getValue(date: Moment) {
-        let ind = this.parent.getIndexOfDate(date);
+    public getValue(date: Moment, dayShift: number = 0) {
+        let ind = this.parent.getIndexOfDate(date) + Math.floor(dayShift);
         if (ind >= 0 && ind < this.values.length) {
             return this.values[ind];
         }
@@ -680,16 +680,22 @@ export class SummaryInfo extends OutputInfo {
 }
 
 export class MonthInfo {
+    dataset: string;
     startWeekOn: string;
-    valueColor: string;
-    yMin: number;
-    yMax: number;
+    showDot: boolean;
+    threshold: number;
+    dotColor: string;
+    dimDotsNotInMonth: boolean;
+    showStreak: boolean;
 
     constructor() {
+        this.dataset = "0";
         this.startWeekOn = "Sun";
-        this.valueColor = "#69b3a2";
-        this.yMin = null;
-        this.yMax = null;
+        this.showDot = true;
+        this.threshold = 0.0; // if value > threshold, will show dot
+        this.dotColor = "#69b3a2";
+        this.dimDotsNotInMonth = true;
+        this.showStreak = true; // a streak connects neigbor dots
     }
 }
 

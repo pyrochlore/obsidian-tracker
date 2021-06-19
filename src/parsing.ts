@@ -1466,21 +1466,47 @@ export function getRenderInfoFromYaml(
             }
         }
 
+        // dataset
+        if (typeof yamlMonth?.dataset === "string") {
+            month.dataset = yamlMonth.dataset;
+        }
+        // console.log(month.dataset);
+
+        // startWeekOn
         if (typeof yamlMonth?.startWeekOn === "string") {
             month.startWeekOn = yamlMonth.startWeekOn;
         }
+        // console.log(month.startWeekOn);
 
-        if (typeof yamlMonth?.valueColor === "string") {
-            month.valueColor = yamlMonth.valueColor;
+        // showDot
+        if (typeof yamlMonth?.showDot === "boolean") {
+            month.showDot = yamlMonth.showDot;
         }
+        // console.log(month.showDot);
 
-        if (typeof yamlMonth?.yMin === "number") {
-            month.yMin = yamlMonth.yMin;
+        // threshold
+        if (typeof yamlMonth?.threshold === "number") {
+            month.threshold = yamlMonth.threshold;
         }
+        // console.log(month.threshold);
 
-        if (typeof yamlMonth?.yMax === "number") {
-            month.yMax = yamlMonth.yMax;
+        // dotColor
+        if (typeof yamlMonth?.dotColor === "string") {
+            month.dotColor = yamlMonth.dotColor;
         }
+        // console.log(month.dotColor);
+
+        // dimDotsNotInMonth
+        if (typeof yamlMonth?.dimDotsNotInMonth === "boolean") {
+            month.dimDotsNotInMonth = yamlMonth.dimDotsNotInMonth;
+        }
+        // console.log(month.dotColor);
+
+        // showStreak
+        if (typeof yamlMonth?.showStreak === "boolean") {
+            month.showStreak = yamlMonth.showStreak;
+        }
+        // console.log(month.showStreak);
 
         renderInfo.month.push(month);
     } // Month related parameters
