@@ -15,6 +15,9 @@ import * as helper from "./helper";
 import * as d3 from "d3";
 
 let logToConsole = false;
+let ratioCellToText = 2.5;
+let ratioDotToText = 1.5;
+
 interface DayInfo {
     date: string;
     dayInMonth: number;
@@ -97,12 +100,12 @@ function renderMonthHeader(
     let curYear = curMonthDate.year();
 
     let maxDayTextSize = helper.measureTextSize("30", "tracker-axis-label");
-    let dotRadius = Math.max(maxDayTextSize.width, maxDayTextSize.height) * 1.2;
-    let dayCellSpacing = dotRadius * 0.1;
+    let cellSize =
+        Math.max(maxDayTextSize.width, maxDayTextSize.height) * ratioCellToText;
 
     let titleText = curMonthDate.format("YYYY MMM");
     let titleTextSize = helper.measureTextSize(titleText, "tracker-title");
-    let titleHeight = Math.max(titleTextSize.height, dotRadius * 2);
+    let titleHeight = Math.max(titleTextSize.height, cellSize);
 
     let headerHeight = 0;
 
@@ -114,7 +117,7 @@ function renderMonthHeader(
         .attr(
             "transform",
             "translate(" +
-                (dayCellSpacing + dotRadius / 2.0 + titleTextSize.width / 2.0) +
+                (0.5 * cellSize + titleTextSize.width / 2.0) +
                 "," +
                 titleHeight / 2.0 +
                 ")"
@@ -142,11 +145,7 @@ function renderMonthHeader(
         })
         .attr("transform", function (n: string, i: number) {
             let strTranslate =
-                "translate(" +
-                (i * (dayCellSpacing + 2 * dotRadius) + dotRadius / 2) +
-                "," +
-                headerHeight +
-                ")";
+                "translate(" + (i + 0.5) * cellSize + "," + headerHeight + ")";
 
             return strTranslate;
         })
@@ -188,8 +187,11 @@ function renderMonthDays(
     let curDaysInMonth = curMonthDate.daysInMonth(); // 28~31
 
     let maxDayTextSize = helper.measureTextSize("30", "tracker-axis-label");
-    let dotRadius = Math.max(maxDayTextSize.width, maxDayTextSize.height) * 1.5;
-    let dayCellSpacing = dotRadius * 0.1;
+    let cellSize =
+        Math.max(maxDayTextSize.width, maxDayTextSize.height) * ratioCellToText;
+    let dotRadius = ((cellSize / ratioCellToText) * ratioDotToText) / 2.0;
+    let streakWidth = (cellSize - dotRadius * 2.0) / 2.0;
+    let streakHeight = 3;
 
     // Prepare data for graph
     let daysInMonthView: Array<DayInfo> = [];
@@ -279,15 +281,15 @@ function renderMonthDays(
     //     return d.streakOut;
     // }));
 
-    let totalWidth = 2 * (indCol + 1) * dotRadius + indCol * dayCellSpacing;
-    let totalHeight = 2 * (indRow + 1) * dotRadius + indRow * dayCellSpacing;
-
     // scale
-    let scale = d3.scaleLinear().domain([-0.5, 8.5]).range([0, totalWidth]);
+    let totalDayBlockWidth = (indCol + 1) * cellSize;
+    let totalBlockHeight = (indRow + 1) * cellSize;
+    let scale = d3
+        .scaleLinear()
+        .domain([-0.5, 6.5])
+        .range([0, totalDayBlockWidth]);
 
     // streak lines
-    let streakWidth = 10;
-    let streakHeight = 3;
     if (monthInfo.showStreak) {
         chartElements.dataArea
             .selectAll("streakIn")
@@ -299,7 +301,7 @@ function renderMonthDays(
             .enter()
             .append("rect")
             .attr("x", function (d: DayInfo) {
-                let x = scale(d.col) - dotRadius / 2.0 - streakWidth;
+                let x = scale(d.col) - cellSize / 2.0 - streakWidth;
                 return x;
             })
             .attr("y", function (d: DayInfo) {
@@ -330,7 +332,7 @@ function renderMonthDays(
             .enter()
             .append("rect")
             .attr("x", function (d: DayInfo) {
-                let x = scale(d.col) + dotRadius / 2.0;
+                let x = scale(d.col) + cellSize / 2.0;
                 return x;
             })
             .attr("y", function (d: DayInfo) {
@@ -358,7 +360,7 @@ function renderMonthDays(
         .data(daysInMonthView)
         .enter()
         .append("circle")
-        .attr("r", dotRadius / 2.0)
+        .attr("r", dotRadius)
         .attr("cx", function (d: DayInfo) {
             return scale(d.col);
         })

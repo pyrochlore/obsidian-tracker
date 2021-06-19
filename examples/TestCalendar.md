@@ -7,7 +7,7 @@ folder: diary
 month:
     startWeekOn:
     threshold: 40
-    dotColor: pink
+    dotColor: tomato
     dimDotsNotInMonth: false
 ```
 
