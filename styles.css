@@ -123,3 +123,9 @@
 .tracker-month-dividing-line {
     fill: var(--color-bar-fill);
 }
+
+.tracker-month-title-arrow {
+    fill: var(--color-title);
+    text-anchor: middle;
+    font-size: 22px;
+}

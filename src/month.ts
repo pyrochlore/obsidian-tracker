@@ -184,8 +184,34 @@ function renderMonthHeader(
     }
 
     // arrow left
+    let arrowLeft = titleGroup
+        .append("text")
+        .text("<") // pivot at center
+        .attr("id", "arrowLeft")
+        .attr(
+            "transform",
+            "translate(" +
+                (5.5 * cellSize) +
+                "," +
+                titleMonthSize.height / 2.0 +
+                ")"
+        )
+        .attr("class", "tracker-month-title-arrow");
 
     // arrow right
+    let arrowRight = titleGroup
+        .append("text")
+        .text(">") // pivot at center
+        .attr("id", "arrowLeft")
+        .attr(
+            "transform",
+            "translate(" +
+                (6.5 * cellSize) +
+                "," +
+                titleMonthSize.height / 2.0 +
+                ")"
+        )
+        .attr("class", "tracker-month-title-arrow");
 
     chartElements["title"] = titleGroup;
     headerHeight += titleHeight;
