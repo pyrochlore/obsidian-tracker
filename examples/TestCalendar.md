@@ -7,7 +7,8 @@ folder: diary
 month:
     startWeekOn:
     threshold: 40
-    dotColor: tomato
+    color: tomato
+	titleMonthColor: orange
     dimDotsNotInMonth: false
 ```
 
@@ -17,7 +18,8 @@ searchTarget: meditation
 folder: diary
 month:
     startWeekOn: 
-    dotColor: steelblue
+    color: steelblue
+	titleMonthColor: green
 ```
 
 Please also check those search targets in markdown files under folder 'diary'.

@@ -102,37 +102,98 @@ function renderMonthHeader(
     let maxDayTextSize = helper.measureTextSize("30", "tracker-axis-label");
     let cellSize =
         Math.max(maxDayTextSize.width, maxDayTextSize.height) * ratioCellToText;
+    let dotRadius = ((cellSize / ratioCellToText) * ratioDotToText) / 2.0;
 
-    let titleText = curMonthDate.format("YYYY MMM");
-    let titleTextSize = helper.measureTextSize(titleText, "tracker-title");
-    let titleHeight = Math.max(titleTextSize.height, cellSize);
+    let titleYearText = curMonthDate.format("YYYY");
+    let titleMonthText = curMonthDate.format("MMM");
+    let titleYearSize = helper.measureTextSize(
+        titleYearText,
+        "tracker-month-title-year"
+    );
+    let titleMonthSize = helper.measureTextSize(
+        titleMonthText,
+        "tracker-month-title-month"
+    );
+
+    let titleHeight =
+        Math.max(titleYearSize.height, titleMonthSize.height) * 1.5;
+    let titleSpacing = 8;
 
     let headerHeight = 0;
 
     // Append title
-    let monthTitle = chartElements.graphArea
+    let titleGroup = chartElements.graphArea
+        .append("g")
+        .attr("height", titleHeight);
+
+    // title year
+    let titleYearColor = null;
+    if (monthInfo.titleYearColor) {
+        titleYearColor = monthInfo.titleYearColor;
+    } else {
+        if (monthInfo.color) {
+            titleYearColor = monthInfo.color;
+        }
+    }
+    let titleYear = titleGroup
         .append("text")
-        .text(titleText) // pivot at center
-        .attr("id", "title")
+        .text(titleYearText) // pivot at center
+        .attr("id", "titleYear")
         .attr(
             "transform",
             "translate(" +
-                (0.5 * cellSize + titleTextSize.width / 2.0) +
+                (titleYearSize.width / 2.0 + cellSize / 4.0) +
                 "," +
-                titleHeight / 2.0 +
+                titleYearSize.height / 2.0 +
                 ")"
         )
-        .attr("height", titleHeight) // for later use
-        .attr("class", "tracker-title");
-    chartElements["title"] = monthTitle;
-    headerHeight += titleHeight;
+        .attr("class", "tracker-month-title-year");
 
-    // Append two arrow buttons
+    if (titleYearColor) {
+        titleYear.style("fill", titleYearColor);
+    }
+
+    // title month
+    let titleMonthColor = null;
+    if (monthInfo.titleMonthColor) {
+        titleMonthColor = monthInfo.titleMonthColor;
+    } else {
+        if (monthInfo.color) {
+            titleMonthColor = monthInfo.color;
+        }
+    }
+    let titleMonth = titleGroup
+        .append("text")
+        .text(titleMonthText) // pivot at center
+        .attr("id", "titleMonth")
+        .attr(
+            "transform",
+            "translate(" +
+                (titleYearSize.width +
+                    titleMonthSize.width / 2.0 +
+                    cellSize / 4.0 +
+                    titleSpacing) +
+                "," +
+                titleMonthSize.height / 2.0 +
+                ")"
+        )
+        .attr("class", "tracker-month-title-month");
+
+    if (titleMonthColor) {
+        titleMonth.style("fill", titleMonthColor);
+    }
+
+    // arrow left
+
+    // arrow right
+
+    chartElements["title"] = titleGroup;
+    headerHeight += titleHeight;
 
     // week day names
     let weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     let weekdayNameSize = helper.measureTextSize(
-        titleText,
+        weekdayNames[0],
         "tracker-tick-label"
     );
     let weekDays = chartElements.graphArea
@@ -146,23 +207,36 @@ function renderMonthHeader(
         .attr("transform", function (n: string, i: number) {
             let strTranslate =
                 "translate(" + (i + 0.5) * cellSize + "," + headerHeight + ")";
-
             return strTranslate;
         })
-        .attr("class", "tracker-tick-label");
+        .attr("class", "tracker-tick-label")
+        .attr("text-anchor", "middle");
     chartElements["weekDays"] = weekDays;
     headerHeight += weekdayNameSize.height;
 
-    // Horizontal line
-    let horizontalLineHeight = 3;
-    chartElements.graphArea
+    // dividing line
+    let dividingLineHeight = 1;
+    let dividingLineColor = null;
+    if (monthInfo.dividingLineColor) {
+        dividingLineColor = monthInfo.dividingLineColor;
+    } else {
+        if (monthInfo.color) {
+            dividingLineColor = monthInfo.color;
+        }
+    }
+    let dividingLine = chartElements.graphArea
         .append("rect")
         .attr("x", 0)
         .attr("y", headerHeight)
-        .attr("width", renderInfo.dataAreaSize.width)
-        .attr("height", horizontalLineHeight)
-        .attr("class", "tracker-bar");
-    headerHeight += horizontalLineHeight;
+        .attr("width", 6.5 * cellSize + weekdayNameSize.width)
+        .attr("height", dividingLineHeight)
+        .attr("class", "tracker-month-dividing-line");
+
+    if (dividingLineColor) {
+        dividingLine.style("fill", dividingLineColor);
+    }
+
+    headerHeight += dividingLineHeight;
 
     // Expand parent areas
     helper.expandArea(chartElements.svg, 0, headerHeight);
@@ -311,7 +385,12 @@ function renderMonthDays(
             .attr("height", streakHeight)
             .style("fill", function (d: DayInfo) {
                 if (d.showDot) {
-                    return monthInfo.dotColor;
+                    if (monthInfo.dotColor) {
+                        return monthInfo.dotColor;
+                    } else if (monthInfo.color) {
+                        return monthInfo.color;
+                    }
+                    return "#69b3a2";
                 }
                 return "none";
             })
@@ -342,7 +421,12 @@ function renderMonthDays(
             .attr("height", streakHeight)
             .style("fill", function (d: DayInfo) {
                 if (d.showDot) {
-                    return monthInfo.dotColor;
+                    if (monthInfo.dotColor) {
+                        return monthInfo.dotColor;
+                    } else if (monthInfo.color) {
+                        return monthInfo.color;
+                    }
+                    return "#69b3a2";
                 }
                 return "none";
             })
@@ -369,7 +453,12 @@ function renderMonthDays(
         })
         .style("fill", function (d: DayInfo) {
             if (d.showDot) {
-                return monthInfo.dotColor;
+                if (monthInfo.dotColor) {
+                    return monthInfo.dotColor;
+                } else if (monthInfo.color) {
+                    return monthInfo.color;
+                }
+                return "#69b3a2";
             }
             return "none";
         })

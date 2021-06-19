@@ -107,3 +107,19 @@
 .tracker-bar {
     fill: var(--color-bar-fill);
 }
+
+.tracker-month-title-year {
+    fill: var(--color-title);
+    text-anchor: middle;
+    font-size: 22px;
+}
+
+.tracker-month-title-month {
+    fill: var(--color-title);
+    text-anchor: middle;
+    font-size: 22px;
+}
+
+.tracker-month-dividing-line {
+    fill: var(--color-bar-fill);
+}

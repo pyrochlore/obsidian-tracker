@@ -684,18 +684,26 @@ export class MonthInfo {
     startWeekOn: string;
     showDot: boolean;
     threshold: number;
-    dotColor: string;
+    color: string;
     dimDotsNotInMonth: boolean;
     showStreak: boolean;
+    dotColor: string;
+    titleYearColor: string;
+    titleMonthColor: string;
+    dividingLineColor: string;
 
     constructor() {
         this.dataset = "0";
         this.startWeekOn = "Sun";
         this.showDot = true;
         this.threshold = 0.0; // if value > threshold, will show dot
-        this.dotColor = "#69b3a2";
+        this.color = null;
         this.dimDotsNotInMonth = true;
         this.showStreak = true; // a streak connects neigbor dots
+        this.dotColor = null;
+        this.titleYearColor = null;
+        this.titleMonthColor = null;
+        this.dividingLineColor = null;
     }
 }
 

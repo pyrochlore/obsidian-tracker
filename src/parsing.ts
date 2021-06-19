@@ -1490,11 +1490,11 @@ export function getRenderInfoFromYaml(
         }
         // console.log(month.threshold);
 
-        // dotColor
-        if (typeof yamlMonth?.dotColor === "string") {
-            month.dotColor = yamlMonth.dotColor;
+        // color
+        if (typeof yamlMonth?.color === "string") {
+            month.color = yamlMonth.color;
         }
-        // console.log(month.dotColor);
+        // console.log(month.color);
 
         // dimDotsNotInMonth
         if (typeof yamlMonth?.dimDotsNotInMonth === "boolean") {
@@ -1507,6 +1507,30 @@ export function getRenderInfoFromYaml(
             month.showStreak = yamlMonth.showStreak;
         }
         // console.log(month.showStreak);
+
+        // dotColor
+        if (typeof yamlMonth?.dotColor === "string") {
+            month.dotColor = yamlMonth.dotColor;
+        }
+        // console.log(month.dotColor);
+
+        // titleYearColor
+        if (typeof yamlMonth?.titleYearColor === "string") {
+            month.titleYearColor = yamlMonth.titleYearColor;
+        }
+        // console.log(month.titleYearColor);
+
+        // titleMonthColor
+        if (typeof yamlMonth?.titleMonthColor === "string") {
+            month.titleMonthColor = yamlMonth.titleMonthColor;
+        }
+        // console.log(month.dotColor);
+
+        // dividingLineColor
+        if (typeof yamlMonth?.dividingLineColor === "string") {
+            month.dividingLineColor = yamlMonth.dividingLineColor;
+        }
+        // console.log(month.dividingLineColor);
 
         renderInfo.month.push(month);
     } // Month related parameters
