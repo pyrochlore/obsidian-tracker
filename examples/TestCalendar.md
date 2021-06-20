@@ -12,6 +12,7 @@ month:
     dimDotsNotInMonth: false
 	todayCircleColor: orange
 	selectedCircleColor: steelblue
+	showSelectedValue: true
 ```
 
 ``` tracker

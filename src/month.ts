@@ -697,17 +697,22 @@ function renderMonthDays(
                     .style("stroke", monthInfo.selectedCircleColor);
             }
             // show value on monitor
-            let strValue = d3.select(this).attr("value");
-            let valueType = d3.select(this).attr("valueType");
-            let valueText = "";
-            if (valueType === "Time") {
-                let dayStart = window.moment("00:00", "HH:mm", true);
-                let tickTime = dayStart.add(parseFloat(strValue), "seconds");
-                valueText = tickTime.format("HH:mm");
-            } else {
-                valueText = strValue;
+            if (monthInfo.showSelectedValue) {
+                let strValue = d3.select(this).attr("value");
+                let valueType = d3.select(this).attr("valueType");
+                let valueText = "";
+                if (valueType === "Time") {
+                    let dayStart = window.moment("00:00", "HH:mm", true);
+                    let tickTime = dayStart.add(
+                        parseFloat(strValue),
+                        "seconds"
+                    );
+                    valueText = tickTime.format("HH:mm");
+                } else {
+                    valueText = strValue;
+                }
+                chartElements.monitor.text(valueText);
             }
-            chartElements.monitor.text(valueText);
         })
         .style("cursor", "pointer");
 
