@@ -20,6 +20,7 @@ let ratioDotToText = 1.8;
 
 interface DayInfo {
     date: string;
+    value: number;
     dayInMonth: number;
     isInThisMonth: boolean;
     isOutOfDataRange: boolean;
@@ -105,6 +106,8 @@ function clearSelection(chartElements: ChartElements, monthInfo: MonthInfo) {
         }
     }
     monthInfo.selectedDate = "";
+
+    chartElements.monitor.text("");
 }
 function renderMonthHeader(
     canvas: HTMLElement,
@@ -211,6 +214,24 @@ function renderMonthHeader(
     if (titleMonthColor) {
         titleMonth.style("fill", titleMonthColor);
     }
+
+    // value monitor
+    let valueMonitor = headerGroup
+        .append("text")
+        .text("")
+        .attr("id", "valueMonitor")
+        .attr(
+            "transform",
+            "translate(" +
+                3.5 * cellSize +
+                "," +
+                titleMonthSize.height / 2.0 +
+                ")"
+        )
+        .attr("class", "tracker-month-title-monitor")
+        .style("cursor", "pointer")
+        .style("fill", monthInfo.selectedCircleColor);
+    chartElements["monitor"] = valueMonitor;
 
     // arrow left
     let arrowLeft = headerGroup
@@ -424,6 +445,7 @@ function renderMonthDays(
 
         daysInMonthView.push({
             date: curDate.format(renderInfo.dateFormat),
+            value: curValue,
             dayInMonth: curDate.date(),
             isInThisMonth: isInThisMonth,
             isOutOfDataRange: isOutOfDataRange,
@@ -656,18 +678,36 @@ function renderMonthDays(
         .attr("date", function (d: DayInfo) {
             return d.date;
         })
+        .attr("value", function (d: DayInfo) {
+            return d.value;
+        })
+        .attr("valueType", function (d: DayInfo) {
+            return ValueType[dataset.valueType];
+        })
         .attr("class", "tracker-axis-label")
         .on("click", function (event: any) {
+            // clear circles
             clearSelection(chartElements, monthInfo);
             // show new selected circle
             let date = d3.select(this).attr("date");
             monthInfo.selectedDate = date;
-
             if (monthInfo.showSelectedCircle) {
                 chartElements.dataArea
                     .select("#tracker-selected-circle-" + date)
                     .style("stroke", monthInfo.selectedCircleColor);
             }
+            // show value on monitor
+            let strValue = d3.select(this).attr("value");
+            let valueType = d3.select(this).attr("valueType");
+            let valueText = "";
+            if (valueType === "Time") {
+                let dayStart = window.moment("00:00", "HH:mm", true);
+                let tickTime = dayStart.add(parseFloat(strValue), "seconds");
+                valueText = tickTime.format("HH:mm");
+            } else {
+                valueText = strValue;
+            }
+            chartElements.monitor.text(valueText);
         })
         .style("cursor", "pointer");
 

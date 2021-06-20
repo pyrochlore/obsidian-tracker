@@ -130,14 +130,20 @@
     font-size: 22px;
 }
 
+.tracker-month-title-monitor {
+    fill: var(--color-title);
+    text-anchor: middle;
+    font-size: 22px;
+}
+
 .tracker-month-today-circle {
     fill: none;
     stroke: "white";
-    stroke-width: 3px;
+    stroke-width: 4px;
 }
 
 .tracker-month-selected-circle {
     fill: none;
     stroke: "red";
-    stroke-width: 1.5px;
+    stroke-width: 2px;
 }
