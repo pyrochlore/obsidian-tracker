@@ -215,7 +215,8 @@ function renderMonthHeader(
                 chartElements,
                 renderInfo,
                 monthInfo,
-                prevMonthDate);
+                prevMonthDate
+            );
         });
 
     // arrow right
@@ -240,7 +241,8 @@ function renderMonthHeader(
                 chartElements,
                 renderInfo,
                 monthInfo,
-                nextMonthDate);
+                nextMonthDate
+            );
         });
 
     chartElements["title"] = titleGroup;
@@ -365,7 +367,7 @@ function renderMonthDays(
             }
         }
 
-        // if (curDate.format("YYYY-MM-DD") === "2021-12-16") {
+        // if (curDate.format("YYYY-MM-DD") === "2021-11-02") {
         //     logToConsole = true;
         // }
 
@@ -431,8 +433,11 @@ function renderMonthDays(
             )
             .enter()
             .append("rect")
+            // .attr("id", function(d: DayInfo) {
+            //     return "in" + d.date.format("YYYY-MM-DD");
+            // })
             .attr("x", function (d: DayInfo) {
-                let x = scale(d.col) - cellSize / 2.0 - streakWidth;
+                let x = scale(d.col) - dotRadius - streakWidth;
                 return x;
             })
             .attr("y", function (d: DayInfo) {
@@ -467,8 +472,11 @@ function renderMonthDays(
             )
             .enter()
             .append("rect")
+            // .attr("id", function(d: DayInfo) {
+            //     return "out" + d.date.format("YYYY-MM-DD");
+            // })
             .attr("x", function (d: DayInfo) {
-                let x = scale(d.col) + cellSize / 2.0;
+                let x = scale(d.col) + dotRadius;
                 return x;
             })
             .attr("y", function (d: DayInfo) {
