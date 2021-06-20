@@ -1508,6 +1508,12 @@ export function getRenderInfoFromYaml(
         }
         // console.log(month.showStreak);
 
+        // showTodayCircle
+        if (typeof yamlMonth?.showTodayCircle === "boolean") {
+            month.showTodayCircle = yamlMonth.showTodayCircle;
+        }
+        // console.log(month.showTodayCircle);
+
         // dotColor
         if (typeof yamlMonth?.dotColor === "string") {
             month.dotColor = yamlMonth.dotColor;
@@ -1531,6 +1537,12 @@ export function getRenderInfoFromYaml(
             month.dividingLineColor = yamlMonth.dividingLineColor;
         }
         // console.log(month.dividingLineColor);
+
+        // todayCircleColor
+        if (typeof yamlMonth?.todayCircleColor === "string") {
+            month.todayCircleColor = yamlMonth.todayCircleColor;
+        }
+        // console.log(month.todayCircleColor);
 
         renderInfo.month.push(month);
     } // Month related parameters

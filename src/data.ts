@@ -687,10 +687,12 @@ export class MonthInfo {
     color: string;
     dimDotsNotInMonth: boolean;
     showStreak: boolean;
+    showTodayCircle: boolean;
     dotColor: string;
     titleYearColor: string;
     titleMonthColor: string;
     dividingLineColor: string;
+    todayCircleColor: string;
 
     constructor() {
         this.dataset = "0";
@@ -700,10 +702,12 @@ export class MonthInfo {
         this.color = null;
         this.dimDotsNotInMonth = true;
         this.showStreak = true; // a streak connects neigbor dots
+        this.showTodayCircle = true;
         this.dotColor = null;
         this.titleYearColor = null;
         this.titleMonthColor = null;
         this.dividingLineColor = null;
+        this.todayCircleColor = ""; // white in css tracker-month-today-circle
     }
 }
 

@@ -129,3 +129,9 @@
     text-anchor: middle;
     font-size: 22px;
 }
+
+.tracker-month-today-circle {
+    fill: none;
+    stroke: "white";
+    stroke-width: 1.5px;
+}

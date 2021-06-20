@@ -236,7 +236,7 @@ function renderMonthHeader(
         )
         .attr("class", "tracker-month-title-arrow")
         .on("click", function () {
-            console.log("right arrow clicked");
+            // console.log("right arrow clicked");
             let nextMonthDate = curMonthDate.clone().add(1, "month");
             refresh(
                 canvas,
@@ -550,6 +550,35 @@ function renderMonthDays(
             return 1.0;
         })
         .style("cursor", "default");
+
+    // today circles
+    let today = window.moment().format(renderInfo.dateFormat);
+    if (monthInfo.showTodayCircle) {
+        let todayCircles = chartElements.dataArea
+            .selectAll("todayCircle")
+            .data(
+                daysInMonthView.filter(function (d: DayInfo) {
+                    return d.date === today;
+                })
+            )
+            .enter()
+            .append("circle")
+            .attr("r", dotRadius)
+            .attr("cx", function (d: DayInfo) {
+                return scale(d.col);
+            })
+            .attr("cy", function (d: DayInfo) {
+                return scale(d.row);
+            })
+            .attr("class", "tracker-month-today-circle") // stroke not works??
+            .style("cursor", "default");
+
+        if (monthInfo.todayCircleColor !== "") {
+            todayCircles.style("stroke", monthInfo.todayCircleColor);
+        } else {
+            todayCircles.style("stroke", "white");
+        }
+    }
 
     // labels
     let dayLabals = chartElements.dataArea

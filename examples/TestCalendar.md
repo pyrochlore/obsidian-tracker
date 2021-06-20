@@ -8,8 +8,9 @@ month:
     startWeekOn:
     threshold: 40
     color: tomato
-	titleMonthColor: orange
+	titleMonthColor: tomato
     dimDotsNotInMonth: false
+	todayCircleColor: orange
 ```
 
 ``` tracker
