@@ -8,7 +8,7 @@ month:
     startWeekOn:
     threshold: 40
     color: tomato
-	titleMonthColor: tomato
+	titleMonthColor: orange
     dimDotsNotInMonth: false
 	todayCircleColor: orange
 ```

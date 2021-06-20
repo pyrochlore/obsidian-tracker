@@ -15,8 +15,8 @@ import * as helper from "./helper";
 import * as d3 from "d3";
 
 let logToConsole = false;
-let ratioCellToText = 2.5;
-let ratioDotToText = 1.5;
+let ratioCellToText = 2.8;
+let ratioDotToText = 1.8;
 
 interface DayInfo {
     date: string;
@@ -94,6 +94,18 @@ function createAreas(
     return chartElements;
 }
 
+function clearSelection(chartElements: ChartElements, monthInfo: MonthInfo) {
+    let circles = chartElements.svg.selectAll("circle");
+    // console.log(circles);
+    for (let circle of circles) {
+        // console.log(circle);
+        let id = d3.select(circle).attr("id");
+        if (id && id.startsWith("tracker-selected-circle-")) {
+            d3.select(circle).style("stroke", "none");
+        }
+    }
+    monthInfo.selectedDate = "";
+}
 function renderMonthHeader(
     canvas: HTMLElement,
     chartElements: ChartElements,
@@ -157,7 +169,10 @@ function renderMonthHeader(
                 ")"
         )
         .attr("class", "tracker-month-title-year")
-        .style("cursor", "default");
+        .style("cursor", "default")
+        .on("click", function (event: any) {
+            clearSelection(chartElements, monthInfo);
+        });
 
     if (titleYearColor) {
         titleYear.style("fill", titleYearColor);
@@ -188,7 +203,10 @@ function renderMonthHeader(
                 ")"
         )
         .attr("class", "tracker-month-title-month")
-        .style("cursor", "default");
+        .style("cursor", "default")
+        .on("click", function (event: any) {
+            clearSelection(chartElements, monthInfo);
+        });
 
     if (titleMonthColor) {
         titleMonth.style("fill", titleMonthColor);
@@ -208,8 +226,9 @@ function renderMonthHeader(
                 ")"
         )
         .attr("class", "tracker-month-title-arrow")
-        .on("click", function () {
+        .on("click", function (event: any) {
             // console.log("left arrow clicked");
+            clearSelection(chartElements, monthInfo);
             let prevMonthDate = curMonthDate.clone().add(-1, "month");
             refresh(
                 canvas,
@@ -235,8 +254,9 @@ function renderMonthHeader(
                 ")"
         )
         .attr("class", "tracker-month-title-arrow")
-        .on("click", function () {
+        .on("click", function (event: any) {
             // console.log("right arrow clicked");
+            clearSelection(chartElements, monthInfo);
             let nextMonthDate = curMonthDate.clone().add(1, "month");
             refresh(
                 canvas,
@@ -270,7 +290,10 @@ function renderMonthHeader(
         })
         .attr("class", "tracker-tick-label")
         .attr("text-anchor", "middle")
-        .style("cursor", "default");
+        .style("cursor", "default")
+        .on("click", function (event: any) {
+            clearSelection(chartElements, monthInfo);
+        });
     headerHeight += weekdayNameSize.height;
 
     // dividing line
@@ -563,7 +586,7 @@ function renderMonthDays(
             )
             .enter()
             .append("circle")
-            .attr("r", dotRadius)
+            .attr("r", dotRadius * 0.9)
             .attr("cx", function (d: DayInfo) {
                 return scale(d.col);
             })
@@ -578,6 +601,28 @@ function renderMonthDays(
         } else {
             todayCircles.style("stroke", "white");
         }
+    }
+
+    // selected circles
+    if (monthInfo.showSelectedCircle) {
+        let selectedCircles = chartElements.dataArea
+            .selectAll("selectedCircle")
+            .data(daysInMonthView)
+            .enter()
+            .append("circle")
+            .attr("r", dotRadius)
+            .attr("cx", function (d: DayInfo) {
+                return scale(d.col);
+            })
+            .attr("cy", function (d: DayInfo) {
+                return scale(d.row);
+            })
+            .attr("id", function (d: DayInfo) {
+                return "tracker-selected-circle-" + d.date;
+            })
+            .attr("class", "tracker-month-selected-circle") // stroke not works??
+            .style("cursor", "default")
+            .style("stroke", "none");
     }
 
     // labels
@@ -608,16 +653,37 @@ function renderMonthDays(
             }
             return 1.0;
         })
+        .attr("date", function (d: DayInfo) {
+            return d.date;
+        })
         .attr("class", "tracker-axis-label")
-        .style("cursor", "default");
+        .on("click", function (event: any) {
+            clearSelection(chartElements, monthInfo);
+            // show new selected circle
+            let date = d3.select(this).attr("date");
+            monthInfo.selectedDate = date;
+
+            if (monthInfo.showSelectedCircle) {
+                chartElements.dataArea
+                    .select("#tracker-selected-circle-" + date)
+                    .style("stroke", monthInfo.selectedCircleColor);
+            }
+        })
+        .style("cursor", "pointer");
 
     // Expand areas
+    let svgWidth = parseFloat(chartElements.svg.attr("width"));
     let svgHeight = parseFloat(chartElements.svg.attr("height"));
+    let graphAreaWidth = parseFloat(chartElements.graphArea.attr("width"));
     let graphAreaHeight = parseFloat(chartElements.graphArea.attr("height"));
     let totalHeight =
         7 * cellSize + parseFloat(chartElements.header.attr("height"));
+    let totalWidth = 7 * cellSize;
     if (totalHeight > svgHeight) {
         helper.expandArea(chartElements.svg, 0, totalHeight - svgHeight);
+    }
+    if (totalWidth > svgWidth) {
+        helper.expandArea(chartElements.svg, totalWidth - svgWidth, 0);
     }
     if (totalHeight > graphAreaHeight) {
         helper.expandArea(
@@ -625,6 +691,9 @@ function renderMonthDays(
             0,
             totalHeight - graphAreaHeight
         );
+    }
+    if (totalWidth > graphAreaWidth) {
+        helper.expandArea(chartElements.svg, totalWidth - graphAreaWidth, 0);
     }
 }
 

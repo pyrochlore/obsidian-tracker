@@ -133,5 +133,11 @@
 .tracker-month-today-circle {
     fill: none;
     stroke: "white";
+    stroke-width: 3px;
+}
+
+.tracker-month-selected-circle {
+    fill: none;
+    stroke: "red";
     stroke-width: 1.5px;
 }
