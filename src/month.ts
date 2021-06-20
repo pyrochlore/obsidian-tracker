@@ -126,16 +126,14 @@ function renderMonthHeader(
         "tracker-month-title-month"
     );
 
+    let headerHeight = 0;
+    // Append header group
+    let headerGroup = chartElements.graphArea.append("g");
+
+    // title
     let titleHeight =
         Math.max(titleYearSize.height, titleMonthSize.height) * 1.5;
     let titleSpacing = 8;
-
-    let headerHeight = 0;
-
-    // Append title
-    let titleGroup = chartElements.graphArea
-        .append("g")
-        .attr("height", titleHeight);
 
     // title year
     let titleYearColor = null;
@@ -146,7 +144,7 @@ function renderMonthHeader(
             titleYearColor = monthInfo.color;
         }
     }
-    let titleYear = titleGroup
+    let titleYear = headerGroup
         .append("text")
         .text(titleYearText) // pivot at center
         .attr("id", "titleYear")
@@ -174,7 +172,7 @@ function renderMonthHeader(
             titleMonthColor = monthInfo.color;
         }
     }
-    let titleMonth = titleGroup
+    let titleMonth = headerGroup
         .append("text")
         .text(titleMonthText) // pivot at center
         .attr("id", "titleMonth")
@@ -197,7 +195,7 @@ function renderMonthHeader(
     }
 
     // arrow left
-    let arrowLeft = titleGroup
+    let arrowLeft = headerGroup
         .append("text")
         .text("<") // pivot at center
         .attr("id", "arrowLeft")
@@ -224,7 +222,7 @@ function renderMonthHeader(
         .style("cursor", "pointer");
 
     // arrow right
-    let arrowRight = titleGroup
+    let arrowRight = headerGroup
         .append("text")
         .text(">") // pivot at center
         .attr("id", "arrowLeft")
@@ -249,8 +247,6 @@ function renderMonthHeader(
             );
         })
         .style("cursor", "pointer");
-
-    chartElements["title"] = titleGroup;
     headerHeight += titleHeight;
 
     // week day names
@@ -275,7 +271,6 @@ function renderMonthHeader(
         .attr("class", "tracker-tick-label")
         .attr("text-anchor", "middle")
         .style("cursor", "default");
-    chartElements["weekDays"] = weekDays;
     headerHeight += weekdayNameSize.height;
 
     // dividing line
@@ -299,12 +294,10 @@ function renderMonthHeader(
     if (dividingLineColor) {
         dividingLine.style("fill", dividingLineColor);
     }
-
     headerHeight += dividingLineHeight;
 
-    // Expand parent areas
-    helper.expandArea(chartElements.svg, 0, headerHeight);
-    helper.expandArea(chartElements.graphArea, 0, headerHeight);
+    headerGroup.attr("height", headerHeight);
+    chartElements["header"] = headerGroup;
 
     // Move sibling areas
     helper.moveArea(chartElements.dataArea, 0, headerHeight);
@@ -588,6 +581,22 @@ function renderMonthDays(
         })
         .attr("class", "tracker-axis-label")
         .style("cursor", "default");
+
+    // Expand areas
+    let svgHeight = parseFloat(chartElements.svg.attr("height"));
+    let graphAreaHeight = parseFloat(chartElements.graphArea.attr("height"));
+    let totalHeight =
+        7 * cellSize + parseFloat(chartElements.header.attr("height"));
+    if (totalHeight > svgHeight) {
+        helper.expandArea(chartElements.svg, 0, totalHeight - svgHeight);
+    }
+    if (totalHeight > graphAreaHeight) {
+        helper.expandArea(
+            chartElements.graphArea,
+            0,
+            totalHeight - graphAreaHeight
+        );
+    }
 }
 
 function refresh(
