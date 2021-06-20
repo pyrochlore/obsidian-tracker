@@ -30,11 +30,20 @@ interface DayInfo {
 }
 
 function createAreas(
+    chartElements: ChartElements,
     canvas: HTMLElement,
     renderInfo: RenderInfo,
     monthInfo: MonthInfo
 ): ChartElements {
-    let chartElements: ChartElements = {};
+    // clean areas
+    d3.select(canvas).select("#svg").remove();
+    var props = Object.getOwnPropertyNames(chartElements);
+    for (var i = 0; i < props.length; i++) {
+        // d3.select(chartElements[props[i]]).remove();
+        delete chartElements[props[i]];
+    }
+    // console.log(chartElements);
+
     // whole area for plotting, includes margins
     let svg = d3
         .select(canvas)
@@ -85,6 +94,7 @@ function createAreas(
 }
 
 function renderMonthHeader(
+    canvas: HTMLElement,
     chartElements: ChartElements,
     renderInfo: RenderInfo,
     monthInfo: MonthInfo,
@@ -191,12 +201,22 @@ function renderMonthHeader(
         .attr(
             "transform",
             "translate(" +
-                (5.5 * cellSize) +
+                5.5 * cellSize +
                 "," +
                 titleMonthSize.height / 2.0 +
                 ")"
         )
-        .attr("class", "tracker-month-title-arrow");
+        .attr("class", "tracker-month-title-arrow")
+        .on("click", function () {
+            // console.log("left arrow clicked");
+            let prevMonthDate = curMonthDate.clone().add(-1, "month");
+            refresh(
+                canvas,
+                chartElements,
+                renderInfo,
+                monthInfo,
+                prevMonthDate);
+        });
 
     // arrow right
     let arrowRight = titleGroup
@@ -206,12 +226,22 @@ function renderMonthHeader(
         .attr(
             "transform",
             "translate(" +
-                (6.5 * cellSize) +
+                6.5 * cellSize +
                 "," +
                 titleMonthSize.height / 2.0 +
                 ")"
         )
-        .attr("class", "tracker-month-title-arrow");
+        .attr("class", "tracker-month-title-arrow")
+        .on("click", function () {
+            console.log("right arrow clicked");
+            let nextMonthDate = curMonthDate.clone().add(1, "month");
+            refresh(
+                canvas,
+                chartElements,
+                renderInfo,
+                monthInfo,
+                nextMonthDate);
+        });
 
     chartElements["title"] = titleGroup;
     headerHeight += titleHeight;
@@ -273,6 +303,7 @@ function renderMonthHeader(
 }
 
 function renderMonthDays(
+    canvas: HTMLElement,
     chartElements: ChartElements,
     renderInfo: RenderInfo,
     monthInfo: MonthInfo,
@@ -523,6 +554,42 @@ function renderMonthDays(
         .attr("class", "tracker-axis-label");
 }
 
+function refresh(
+    canvas: HTMLElement,
+    chartElements: ChartElements,
+    renderInfo: RenderInfo,
+    monthInfo: MonthInfo,
+    curMonthDate: Moment
+) {
+    // console.log("refresh");
+    // console.log(renderInfo);
+    if (!renderInfo || !renderMonth) return;
+
+    chartElements = createAreas(chartElements, canvas, renderInfo, monthInfo);
+
+    let datasetId = parseFloat(monthInfo.dataset);
+    let dataset = renderInfo.datasets.getDatasetById(datasetId);
+
+    // render
+    renderMonthHeader(
+        canvas,
+        chartElements,
+        renderInfo,
+        monthInfo,
+        dataset,
+        curMonthDate
+    );
+
+    renderMonthDays(
+        canvas,
+        chartElements,
+        renderInfo,
+        monthInfo,
+        dataset,
+        curMonthDate
+    );
+}
+
 export function renderMonth(
     canvas: HTMLElement,
     renderInfo: RenderInfo,
@@ -532,7 +599,8 @@ export function renderMonth(
     // console.log(renderInfo);
     if (!renderInfo || !renderMonth) return;
 
-    let chartElements = createAreas(canvas, renderInfo, monthInfo);
+    let chartElements: ChartElements = {};
+    chartElements = createAreas(chartElements, canvas, renderInfo, monthInfo);
 
     let today = window.moment();
     let lastDataMonthDate = renderInfo.datasets.getDates().last();
@@ -541,6 +609,7 @@ export function renderMonth(
     let dataset = renderInfo.datasets.getDatasetById(datasetId);
 
     renderMonthHeader(
+        canvas,
         chartElements,
         renderInfo,
         monthInfo,
@@ -549,6 +618,7 @@ export function renderMonth(
     );
 
     renderMonthDays(
+        canvas,
         chartElements,
         renderInfo,
         monthInfo,
