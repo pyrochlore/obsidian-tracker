@@ -22,6 +22,7 @@ interface DayInfo {
     date: string;
     dayInMonth: number;
     isInThisMonth: boolean;
+    isOutOfDataRange: boolean;
     row: number;
     col: number;
     showDot: boolean;
@@ -158,7 +159,7 @@ function renderMonthHeader(
                 ")"
         )
         .attr("class", "tracker-month-title-year")
-        .style('cursor', 'default');
+        .style("cursor", "default");
 
     if (titleYearColor) {
         titleYear.style("fill", titleYearColor);
@@ -189,7 +190,7 @@ function renderMonthHeader(
                 ")"
         )
         .attr("class", "tracker-month-title-month")
-        .style('cursor', 'default');
+        .style("cursor", "default");
 
     if (titleMonthColor) {
         titleMonth.style("fill", titleMonthColor);
@@ -220,7 +221,7 @@ function renderMonthHeader(
                 prevMonthDate
             );
         })
-        .style('cursor', 'pointer');
+        .style("cursor", "pointer");
 
     // arrow right
     let arrowRight = titleGroup
@@ -247,7 +248,7 @@ function renderMonthHeader(
                 nextMonthDate
             );
         })
-        .style('cursor', 'pointer');
+        .style("cursor", "pointer");
 
     chartElements["title"] = titleGroup;
     headerHeight += titleHeight;
@@ -273,7 +274,7 @@ function renderMonthHeader(
         })
         .attr("class", "tracker-tick-label")
         .attr("text-anchor", "middle")
-        .style('cursor', 'default');
+        .style("cursor", "default");
     chartElements["weekDays"] = weekDays;
     headerHeight += weekdayNameSize.height;
 
@@ -341,6 +342,8 @@ function renderMonthDays(
     const endDate = monthEndDate
         .clone()
         .add(7 - monthEndDate.day() - 1, "days");
+    const dataStartDate = dataset.getStartDate().clone();
+    const dataEndDate = dataset.getEndDate().clone();
     // console.log(monthStartDate.format("YYYY-MM-DD"));
     // console.log(startDate.format("YYYY-MM-DD"));
     let indCol = 0;
@@ -361,6 +364,11 @@ function renderMonthDays(
             curDate.diff(monthEndDate) > 0
         ) {
             isInThisMonth = false;
+        }
+        // is this day out of data range
+        let isOutOfDataRange = false;
+        if (curDate.diff(dataStartDate) < 0 || curDate.diff(dataEndDate) > 0) {
+            isOutOfDataRange = true;
         }
 
         // scaledValue
@@ -402,6 +410,7 @@ function renderMonthDays(
             date: curDate.format(renderInfo.dateFormat),
             dayInMonth: curDate.date(),
             isInThisMonth: isInThisMonth,
+            isOutOfDataRange: isOutOfDataRange,
             row: indRow,
             col: indCol,
             showDot: showDot,
@@ -462,7 +471,10 @@ function renderMonthDays(
                 return "none";
             })
             .style("fill-opacity", function (d: DayInfo) {
-                if (monthInfo.dimDotsNotInMonth && !d.isInThisMonth) {
+                if (
+                    d.isOutOfDataRange ||
+                    (monthInfo.dimDotsNotInMonth && !d.isInThisMonth)
+                ) {
                     return 0.2;
                 }
                 return 1.0;
@@ -501,7 +513,10 @@ function renderMonthDays(
                 return "none";
             })
             .style("fill-opacity", function (d: DayInfo) {
-                if (monthInfo.dimDotsNotInMonth && !d.isInThisMonth) {
+                if (
+                    d.isOutOfDataRange ||
+                    (monthInfo.dimDotsNotInMonth && !d.isInThisMonth)
+                ) {
                     return 0.2;
                 }
                 return 1.0;
@@ -533,12 +548,15 @@ function renderMonthDays(
             return "none";
         })
         .style("fill-opacity", function (d: DayInfo) {
-            if (monthInfo.dimDotsNotInMonth && !d.isInThisMonth) {
+            if (
+                d.isOutOfDataRange ||
+                (monthInfo.dimDotsNotInMonth && !d.isInThisMonth)
+            ) {
                 return 0.2;
             }
             return 1.0;
         })
-        .style('cursor', 'default');
+        .style("cursor", "default");
 
     // labels
     let dayLabals = chartElements.dataArea
@@ -560,13 +578,16 @@ function renderMonthDays(
             return strTranslate;
         })
         .style("fill-opacity", function (d: DayInfo) {
-            if (monthInfo.dimDotsNotInMonth && !d.isInThisMonth) {
+            if (
+                d.isOutOfDataRange ||
+                (monthInfo.dimDotsNotInMonth && !d.isInThisMonth)
+            ) {
                 return 0.2;
             }
             return 1.0;
         })
         .attr("class", "tracker-axis-label")
-        .style('cursor', 'default');
+        .style("cursor", "default");
 }
 
 function refresh(
