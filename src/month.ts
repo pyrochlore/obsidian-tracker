@@ -157,7 +157,8 @@ function renderMonthHeader(
                 titleYearSize.height / 2.0 +
                 ")"
         )
-        .attr("class", "tracker-month-title-year");
+        .attr("class", "tracker-month-title-year")
+        .style('cursor', 'default');
 
     if (titleYearColor) {
         titleYear.style("fill", titleYearColor);
@@ -187,7 +188,8 @@ function renderMonthHeader(
                 titleMonthSize.height / 2.0 +
                 ")"
         )
-        .attr("class", "tracker-month-title-month");
+        .attr("class", "tracker-month-title-month")
+        .style('cursor', 'default');
 
     if (titleMonthColor) {
         titleMonth.style("fill", titleMonthColor);
@@ -217,7 +219,8 @@ function renderMonthHeader(
                 monthInfo,
                 prevMonthDate
             );
-        });
+        })
+        .style('cursor', 'pointer');
 
     // arrow right
     let arrowRight = titleGroup
@@ -243,7 +246,8 @@ function renderMonthHeader(
                 monthInfo,
                 nextMonthDate
             );
-        });
+        })
+        .style('cursor', 'pointer');
 
     chartElements["title"] = titleGroup;
     headerHeight += titleHeight;
@@ -268,7 +272,8 @@ function renderMonthHeader(
             return strTranslate;
         })
         .attr("class", "tracker-tick-label")
-        .attr("text-anchor", "middle");
+        .attr("text-anchor", "middle")
+        .style('cursor', 'default');
     chartElements["weekDays"] = weekDays;
     headerHeight += weekdayNameSize.height;
 
@@ -532,7 +537,8 @@ function renderMonthDays(
                 return 0.2;
             }
             return 1.0;
-        });
+        })
+        .style('cursor', 'default');
 
     // labels
     let dayLabals = chartElements.dataArea
@@ -559,7 +565,8 @@ function renderMonthDays(
             }
             return 1.0;
         })
-        .attr("class", "tracker-axis-label");
+        .attr("class", "tracker-axis-label")
+        .style('cursor', 'default');
 }
 
 function refresh(
