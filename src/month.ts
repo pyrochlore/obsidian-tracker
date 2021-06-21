@@ -130,14 +130,14 @@ function renderMonthHeader(
         Math.max(maxDayTextSize.width, maxDayTextSize.height) * ratioCellToText;
     let dotRadius = ((cellSize / ratioCellToText) * ratioDotToText) / 2.0;
 
-    let titleYearText = curMonthDate.format("YYYY");
-    let titleMonthText = curMonthDate.format("MMM");
-    let titleYearSize = helper.measureTextSize(
-        titleYearText,
+    let headerYearText = curMonthDate.format("YYYY");
+    let headerMonthText = curMonthDate.format("MMM");
+    let headerYearSize = helper.measureTextSize(
+        headerYearText,
         "tracker-month-title-year"
     );
-    let titleMonthSize = helper.measureTextSize(
-        titleMonthText,
+    let headerMonthSize = helper.measureTextSize(
+        headerMonthText,
         "tracker-month-title-month"
     );
 
@@ -147,28 +147,28 @@ function renderMonthHeader(
 
     // title
     let titleHeight =
-        Math.max(titleYearSize.height, titleMonthSize.height) * 1.5;
+        Math.max(headerYearSize.height, headerMonthSize.height) * 1.5;
     let titleSpacing = 8;
 
     // title year
-    let titleYearColor = null;
-    if (monthInfo.titleYearColor) {
-        titleYearColor = monthInfo.titleYearColor;
+    let headerYearColor = null;
+    if (monthInfo.headerYearColor) {
+        headerYearColor = monthInfo.headerYearColor;
     } else {
         if (monthInfo.color) {
-            titleYearColor = monthInfo.color;
+            headerYearColor = monthInfo.color;
         }
     }
     let titleYear = headerGroup
         .append("text")
-        .text(titleYearText) // pivot at center
+        .text(headerYearText) // pivot at center
         .attr("id", "titleYear")
         .attr(
             "transform",
             "translate(" +
-                (titleYearSize.width / 2.0 + cellSize / 4.0) +
+                (headerYearSize.width / 2.0 + cellSize / 4.0) +
                 "," +
-                titleYearSize.height / 2.0 +
+                headerYearSize.height / 2.0 +
                 ")"
         )
         .attr("class", "tracker-month-title-year")
@@ -177,14 +177,14 @@ function renderMonthHeader(
             clearSelection(chartElements, monthInfo);
         });
 
-    if (titleYearColor) {
-        titleYear.style("fill", titleYearColor);
+    if (headerYearColor) {
+        titleYear.style("fill", headerYearColor);
     }
 
     // title month
     let titleMonthColor = null;
-    if (monthInfo.titleMonthColor) {
-        titleMonthColor = monthInfo.titleMonthColor;
+    if (monthInfo.headerMonthColor) {
+        titleMonthColor = monthInfo.headerMonthColor;
     } else {
         if (monthInfo.color) {
             titleMonthColor = monthInfo.color;
@@ -192,17 +192,17 @@ function renderMonthHeader(
     }
     let titleMonth = headerGroup
         .append("text")
-        .text(titleMonthText) // pivot at center
+        .text(headerMonthText) // pivot at center
         .attr("id", "titleMonth")
         .attr(
             "transform",
             "translate(" +
-                (titleYearSize.width +
-                    titleMonthSize.width / 2.0 +
+                (headerYearSize.width +
+                    headerMonthSize.width / 2.0 +
                     cellSize / 4.0 +
                     titleSpacing) +
                 "," +
-                titleMonthSize.height / 2.0 +
+                headerMonthSize.height / 2.0 +
                 ")"
         )
         .attr("class", "tracker-month-title-month")
@@ -225,7 +225,7 @@ function renderMonthHeader(
             "translate(" +
                 3.5 * cellSize +
                 "," +
-                titleMonthSize.height / 2.0 +
+                headerMonthSize.height / 2.0 +
                 ")"
         )
         .attr("class", "tracker-month-title-monitor")
@@ -243,7 +243,7 @@ function renderMonthHeader(
             "translate(" +
                 5.5 * cellSize +
                 "," +
-                titleMonthSize.height / 2.0 +
+                headerMonthSize.height / 2.0 +
                 ")"
         )
         .attr("class", "tracker-month-title-arrow")
@@ -271,7 +271,7 @@ function renderMonthHeader(
             "translate(" +
                 6.5 * cellSize +
                 "," +
-                titleMonthSize.height / 2.0 +
+                headerMonthSize.height / 2.0 +
                 ")"
         )
         .attr("class", "tracker-month-title-arrow")

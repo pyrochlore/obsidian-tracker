@@ -691,8 +691,8 @@ export class MonthInfo {
     showSelectedValue: boolean;
     showSelectedRing: boolean;
     dotColor: string;
-    titleYearColor: string;
-    titleMonthColor: string;
+    headerYearColor: string;
+    headerMonthColor: string;
     dividingLineColor: string;
     todayRingColor: string;
     selectedRingColor: string;
@@ -711,8 +711,8 @@ export class MonthInfo {
         this.showSelectedValue = true;
         this.showSelectedRing = true;
         this.dotColor = null;
-        this.titleYearColor = null;
-        this.titleMonthColor = null;
+        this.headerYearColor = null;
+        this.headerMonthColor = null;
         this.dividingLineColor = null;
         this.todayRingColor = ""; // white
         this.selectedRingColor = "firebrick";

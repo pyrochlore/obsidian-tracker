@@ -8,7 +8,7 @@ month:
     startWeekOn:
     threshold: 40
     color: tomato
-	titleMonthColor: orange
+	headerMonthColor: orange
     dimDotsNotInMonth: false
 	todayRingColor: orange
 	selectedRingColor: steelblue
@@ -22,8 +22,17 @@ folder: diary
 month:
     startWeekOn: 
     color: steelblue
-	titleMonthColor: green
+	headerMonthColor: green
 	selectedRingColor: orange
+```
+
+``` tracker
+searchType: tag
+searchTarget: exercise-pushup
+folder: diary
+month:
+    startWeekOn:
+    threshold: 40
 ```
 
 Please also check those search targets in markdown files under folder 'diary'.

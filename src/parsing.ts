@@ -1533,14 +1533,14 @@ export function getRenderInfoFromYaml(
         // console.log(month.dotColor);
 
         // titleYearColor
-        if (typeof yamlMonth?.titleYearColor === "string") {
-            month.titleYearColor = yamlMonth.titleYearColor;
+        if (typeof yamlMonth?.headerYearColor === "string") {
+            month.headerYearColor = yamlMonth.headerYearColor;
         }
         // console.log(month.titleYearColor);
 
         // titleMonthColor
-        if (typeof yamlMonth?.titleMonthColor === "string") {
-            month.titleMonthColor = yamlMonth.titleMonthColor;
+        if (typeof yamlMonth?.headerMonthColor === "string") {
+            month.headerMonthColor = yamlMonth.headerMonthColor;
         }
         // console.log(month.dotColor);
 
