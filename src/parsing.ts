@@ -1478,11 +1478,11 @@ export function getRenderInfoFromYaml(
         }
         // console.log(month.startWeekOn);
 
-        // showDot
-        if (typeof yamlMonth?.showDot === "boolean") {
-            month.showDot = yamlMonth.showDot;
+        // showCircle
+        if (typeof yamlMonth?.showCircle === "boolean") {
+            month.showCircle = yamlMonth.showCircle;
         }
-        // console.log(month.showDot);
+        // console.log(month.showCircle);
 
         // threshold
         if (typeof yamlMonth?.threshold === "number") {
@@ -1496,11 +1496,11 @@ export function getRenderInfoFromYaml(
         }
         // console.log(month.color);
 
-        // dimDotsNotInMonth
-        if (typeof yamlMonth?.dimDotsNotInMonth === "boolean") {
-            month.dimDotsNotInMonth = yamlMonth.dimDotsNotInMonth;
+        // dimNotInMonth
+        if (typeof yamlMonth?.dimNotInMonth === "boolean") {
+            month.dimNotInMonth = yamlMonth.dimNotInMonth;
         }
-        // console.log(month.dotColor);
+        // console.log(month.dimNotInMonth);
 
         // showStreak
         if (typeof yamlMonth?.showStreak === "boolean") {
@@ -1526,23 +1526,23 @@ export function getRenderInfoFromYaml(
         }
         // console.log(month.showSelectedRing);
 
-        // dotColor
-        if (typeof yamlMonth?.dotColor === "string") {
-            month.dotColor = yamlMonth.dotColor;
+        // circleColor
+        if (typeof yamlMonth?.circleColor === "string") {
+            month.circleColor = yamlMonth.circleColor;
         }
-        // console.log(month.dotColor);
+        // console.log(month.circleColor);
 
-        // titleYearColor
+        // headerYearColor
         if (typeof yamlMonth?.headerYearColor === "string") {
             month.headerYearColor = yamlMonth.headerYearColor;
         }
-        // console.log(month.titleYearColor);
+        // console.log(month.headerYearColor);
 
-        // titleMonthColor
+        // headerMonthColor
         if (typeof yamlMonth?.headerMonthColor === "string") {
             month.headerMonthColor = yamlMonth.headerMonthColor;
         }
-        // console.log(month.dotColor);
+        // console.log(month.headerMonthColor);
 
         // dividingLineColor
         if (typeof yamlMonth?.dividingLineColor === "string") {

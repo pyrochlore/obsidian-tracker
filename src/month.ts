@@ -26,7 +26,7 @@ interface DayInfo {
     isOutOfDataRange: boolean;
     row: number;
     col: number;
-    showDot: boolean;
+    showCircle: boolean;
     streakIn: boolean;
     streakOut: boolean;
 }
@@ -425,10 +425,10 @@ function renderMonthDays(
 
         // scaledValue
         let curValue = dataset.getValue(curDate);
-        let showDot = false;
+        let showCircle = false;
         if (curValue !== null) {
             if (curValue > monthInfo.threshold) {
-                showDot = true;
+                showCircle = true;
             }
         }
 
@@ -466,7 +466,7 @@ function renderMonthDays(
             isOutOfDataRange: isOutOfDataRange,
             row: indRow,
             col: indCol,
-            showDot: showDot,
+            showCircle: showCircle,
             streakIn: streakIn,
             streakOut: streakOut,
         });
@@ -513,9 +513,9 @@ function renderMonthDays(
             .attr("width", streakWidth)
             .attr("height", streakHeight)
             .style("fill", function (d: DayInfo) {
-                if (d.showDot) {
-                    if (monthInfo.dotColor) {
-                        return monthInfo.dotColor;
+                if (d.showCircle) {
+                    if (monthInfo.circleColor) {
+                        return monthInfo.circleColor;
                     } else if (monthInfo.color) {
                         return monthInfo.color;
                     }
@@ -526,7 +526,7 @@ function renderMonthDays(
             .style("fill-opacity", function (d: DayInfo) {
                 if (
                     d.isOutOfDataRange ||
-                    (monthInfo.dimDotsNotInMonth && !d.isInThisMonth)
+                    (monthInfo.dimNotInMonth && !d.isInThisMonth)
                 ) {
                     return 0.2;
                 }
@@ -555,9 +555,9 @@ function renderMonthDays(
             .attr("width", streakWidth)
             .attr("height", streakHeight)
             .style("fill", function (d: DayInfo) {
-                if (d.showDot) {
-                    if (monthInfo.dotColor) {
-                        return monthInfo.dotColor;
+                if (d.showCircle) {
+                    if (monthInfo.circleColor) {
+                        return monthInfo.circleColor;
                     } else if (monthInfo.color) {
                         return monthInfo.color;
                     }
@@ -568,7 +568,7 @@ function renderMonthDays(
             .style("fill-opacity", function (d: DayInfo) {
                 if (
                     d.isOutOfDataRange ||
-                    (monthInfo.dimDotsNotInMonth && !d.isInThisMonth)
+                    (monthInfo.dimNotInMonth && !d.isInThisMonth)
                 ) {
                     return 0.2;
                 }
@@ -577,39 +577,41 @@ function renderMonthDays(
     }
 
     // dots
-    let dots = chartElements.dataArea
-        .selectAll("dot")
-        .data(daysInMonthView)
-        .enter()
-        .append("circle")
-        .attr("r", dotRadius)
-        .attr("cx", function (d: DayInfo) {
-            return scale(d.col);
-        })
-        .attr("cy", function (d: DayInfo) {
-            return scale(d.row);
-        })
-        .style("fill", function (d: DayInfo) {
-            if (d.showDot) {
-                if (monthInfo.dotColor) {
-                    return monthInfo.dotColor;
-                } else if (monthInfo.color) {
-                    return monthInfo.color;
+    if (monthInfo.showCircle) {
+        let dots = chartElements.dataArea
+            .selectAll("dot")
+            .data(daysInMonthView)
+            .enter()
+            .append("circle")
+            .attr("r", dotRadius)
+            .attr("cx", function (d: DayInfo) {
+                return scale(d.col);
+            })
+            .attr("cy", function (d: DayInfo) {
+                return scale(d.row);
+            })
+            .style("fill", function (d: DayInfo) {
+                if (d.showCircle) {
+                    if (monthInfo.circleColor) {
+                        return monthInfo.circleColor;
+                    } else if (monthInfo.color) {
+                        return monthInfo.color;
+                    }
+                    return "#69b3a2";
                 }
-                return "#69b3a2";
-            }
-            return "none";
-        })
-        .style("fill-opacity", function (d: DayInfo) {
-            if (
-                d.isOutOfDataRange ||
-                (monthInfo.dimDotsNotInMonth && !d.isInThisMonth)
-            ) {
-                return 0.2;
-            }
-            return 1.0;
-        })
-        .style("cursor", "default");
+                return "none";
+            })
+            .style("fill-opacity", function (d: DayInfo) {
+                if (
+                    d.isOutOfDataRange ||
+                    (monthInfo.dimNotInMonth && !d.isInThisMonth)
+                ) {
+                    return 0.2;
+                }
+                return 1.0;
+            })
+            .style("cursor", "default");
+    }
 
     // today circles
     let today = window.moment().format(renderInfo.dateFormat);
@@ -684,7 +686,7 @@ function renderMonthDays(
         .style("fill-opacity", function (d: DayInfo) {
             if (
                 d.isOutOfDataRange ||
-                (monthInfo.dimDotsNotInMonth && !d.isInThisMonth)
+                (monthInfo.dimNotInMonth && !d.isInThisMonth)
             ) {
                 return 0.2;
             }

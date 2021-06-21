@@ -683,14 +683,14 @@ export class MonthInfo {
     dataset: string;
     startWeekOn: string;
     threshold: number;
-    showDot: boolean;
+    showCircle: boolean;
     color: string;
-    dimDotsNotInMonth: boolean;
+    dimNotInMonth: boolean;
     showStreak: boolean;
     showTodayRing: boolean;
     showSelectedValue: boolean;
     showSelectedRing: boolean;
-    dotColor: string;
+    circleColor: string;
     headerYearColor: string;
     headerMonthColor: string;
     dividingLineColor: string;
@@ -703,14 +703,14 @@ export class MonthInfo {
         this.dataset = "0";
         this.startWeekOn = "Sun";
         this.threshold = 0.0; // if value > threshold, will show dot
-        this.showDot = true;
+        this.showCircle = true;
         this.color = null;
-        this.dimDotsNotInMonth = true;
+        this.dimNotInMonth = true;
         this.showStreak = true; // a streak connects neigbor dots
         this.showTodayRing = true;
         this.showSelectedValue = true;
         this.showSelectedRing = true;
-        this.dotColor = null;
+        this.circleColor = null;
         this.headerYearColor = null;
         this.headerMonthColor = null;
         this.dividingLineColor = null;

@@ -9,7 +9,7 @@ month:
     threshold: 40
     color: tomato
 	headerMonthColor: orange
-    dimDotsNotInMonth: false
+    dimNotInMonth: false
 	todayRingColor: orange
 	selectedRingColor: steelblue
 	showSelectedValue: true
@@ -26,6 +26,7 @@ month:
 	selectedRingColor: orange
 ```
 
+Use default colors
 ``` tracker
 searchType: tag
 searchTarget: exercise-pushup
