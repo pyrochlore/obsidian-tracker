@@ -292,6 +292,9 @@ function renderMonthHeader(
 
     // week day names
     let weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    if (monthInfo.startWeekOn.toLowerCase() === "mon") {
+        weekdayNames.push(weekdayNames.shift());
+    }
     let weekdayNameSize = helper.measureTextSize(
         weekdayNames[0],
         "tracker-tick-label"
@@ -372,13 +375,17 @@ function renderMonthDays(
     // Prepare data for graph
     let daysInMonthView: Array<DayInfo> = [];
     const monthStartDate = curMonthDate.clone().startOf("month");
-    const startDate = monthStartDate
+    let startDate = monthStartDate
         .clone()
         .subtract(monthStartDate.day(), "days");
+    if (monthInfo.startWeekOn.toLowerCase() === "mon") {
+        startDate = startDate.add(1, "days");
+    }
     const monthEndDate = curMonthDate.clone().endOf("month");
-    const endDate = monthEndDate
-        .clone()
-        .add(7 - monthEndDate.day() - 1, "days");
+    let endDate = monthEndDate.clone().add(7 - monthEndDate.day() - 1, "days");
+    if (monthInfo.startWeekOn.toLowerCase() === "mon") {
+        endDate = endDate.add(1, "days");
+    }
     const dataStartDate = dataset.getStartDate().clone();
     const dataEndDate = dataset.getEndDate().clone();
     // console.log(monthStartDate.format("YYYY-MM-DD"));
@@ -391,8 +398,16 @@ function renderMonthDays(
         curDate <= endDate;
         curDate.add(1, "days")
     ) {
-        indCol = curDate.day();
-        indRow = Math.floor(ind / 7);
+        if (monthInfo.startWeekOn.toLowerCase() === "mon") {
+            indCol = curDate.day() - 1;
+            if (indCol < 0) {
+                indCol = 6;
+            }
+            indRow = Math.floor(ind / 7);
+        } else {
+            indCol = curDate.day(); // 0~6
+            indRow = Math.floor(ind / 7);
+        }
 
         // is this day in this month
         let isInThisMonth = true;

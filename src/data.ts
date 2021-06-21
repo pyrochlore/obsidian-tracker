@@ -682,8 +682,8 @@ export class SummaryInfo extends OutputInfo {
 export class MonthInfo {
     dataset: string;
     startWeekOn: string;
-    showDot: boolean;
     threshold: number;
+    showDot: boolean;
     color: string;
     dimDotsNotInMonth: boolean;
     showStreak: boolean;
@@ -702,8 +702,8 @@ export class MonthInfo {
     constructor() {
         this.dataset = "0";
         this.startWeekOn = "Sun";
-        this.showDot = true;
         this.threshold = 0.0; // if value > threshold, will show dot
+        this.showDot = true;
         this.color = null;
         this.dimDotsNotInMonth = true;
         this.showStreak = true; // a streak connects neigbor dots
