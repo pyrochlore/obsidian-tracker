@@ -242,6 +242,14 @@ export class Dataset implements IterableIterator<DataPoint> {
         return this.numTargets;
     }
 
+    public getValue(date: Moment, dayShift: number = 0) {
+        let ind = this.parent.getIndexOfDate(date) + Math.floor(dayShift);
+        if (ind >= 0 && ind < this.values.length) {
+            return this.values[ind];
+        }
+        return null;
+    }
+
     public setValue(date: Moment, value: number) {
         let ind = this.parent.getIndexOfDate(date);
         // console.log(ind);
@@ -672,10 +680,44 @@ export class SummaryInfo extends OutputInfo {
 }
 
 export class MonthInfo {
+    dataset: string;
     startWeekOn: string;
+    threshold: number;
+    showCircle: boolean;
+    color: string;
+    dimNotInMonth: boolean;
+    showStreak: boolean;
+    showTodayRing: boolean;
+    showSelectedValue: boolean;
+    showSelectedRing: boolean;
+    circleColor: string;
+    headerYearColor: string;
+    headerMonthColor: string;
+    dividingLineColor: string;
+    todayRingColor: string;
+    selectedRingColor: string;
+
+    selectedDate: string;
 
     constructor() {
+        this.dataset = "0";
         this.startWeekOn = "Sun";
+        this.threshold = 0.0; // if value > threshold, will show dot
+        this.showCircle = true;
+        this.color = null;
+        this.dimNotInMonth = true;
+        this.showStreak = true; // a streak connects neigbor dots
+        this.showTodayRing = true;
+        this.showSelectedValue = true;
+        this.showSelectedRing = true;
+        this.circleColor = null;
+        this.headerYearColor = null;
+        this.headerMonthColor = null;
+        this.dividingLineColor = null;
+        this.todayRingColor = ""; // white
+        this.selectedRingColor = "firebrick";
+
+        this.selectedDate = "";
     }
 }
 

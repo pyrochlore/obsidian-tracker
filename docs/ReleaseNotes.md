@@ -1,16 +1,19 @@
 # Release Notes
 
+## v1.7.0
+- Add a new output type 'month', rendering a month view for a given dataset ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestCalendar.md))
+
 ## v1.6.1
-- Add new targets 'numWords', 'numChars', and 'numSentences' for input type 'fileMeta'
+- Add new targets 'numWords', 'numChars', and 'numSentences' for input type 'fileMeta' ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestWordCounting.md))
 
 ## v1.6.0
-- Add a new input type 'fileMeta', getting meta data from a file
-- Add a new output type 'bullet', rendering a bullet chart
+- Add a new input type 'fileMeta', getting meta data from a file ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestFileMeta.md))
+- Add a new output type 'bullet', rendering a bullet chart ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestBullet.md))
 - Enhancement
-    - Accept tracking time values
+    - Accept tracking time values ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestTimeValues.md))
     - Allow tracking nested values from front matter
-    - Allow using dataset with date values as xDataset
-    - Add more template variables
+    - Allow using dataset with date values as xDataset ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestXDataset.md))
+    - Add more template variables ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestTemplateVariables.md))
     - Allow parsing date in wiki brackets
 - Fixed bugs
 

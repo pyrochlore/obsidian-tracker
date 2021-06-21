@@ -33,4 +33,30 @@ The following table lists use cases with information of target location (Locatio
 
 ## Full examples
 
-Full tracker code blocks can be found [here](https://github.com/pyrochlore/obsidian-tracker/tree/master/examples) and the corresponding notes can be found under folder 'diary' and 'data'.
+Full tracker code blocks can be found in [this folder](https://github.com/pyrochlore/obsidian-tracker/tree/master/examples) and the corresponding notes can be found under folder 'diary' and 'data'.
+
+List of all examples
+- [Bloodpressure Tracker](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/BloodPressureTracker.md)
+- [Error Messages](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/ErrorMessages.md)
+- [Finance Tracker](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/FinanceTracker.md)
+- [Habit Trakcer](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/HabitTracker.md)
+- [Mood Tracker](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/MoodTracker.md)
+- [Star Tracker](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/StarTracker.md)
+- [Bar Chart](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestBarChart.md)
+- [Bullet Chart](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestBullet.md)
+- [Calendar](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestCalendar.md)
+- [Date Formats](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md)
+- [Dataview Inline Field](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDvField.md)
+- [File Meta](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestFileMeta.md)
+- [Legends](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestLegends.md)
+- [Multiple Targets / Multiple Values](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestMultipleTargetsMultipleValues.md)
+- [Scaling and Positioning](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestScalingAndPositioning.md)
+- [Table](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestTable.md)
+- [Template Variables](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestTemplateVariables.md)
+- [Time Values](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestTimeValues.md)
+- [Word Counting](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestWordCounting.md)
+- [X Dataset](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestXDataset.md)
+- [Regular Expression](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TrackUsingRegex.md)
+- [Weight Tracker](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/WeightTracker.md)
+- [Wiki](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/WikiTracker.md)
+

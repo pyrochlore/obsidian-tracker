@@ -1466,9 +1466,103 @@ export function getRenderInfoFromYaml(
             }
         }
 
+        // dataset
+        if (typeof yamlMonth?.dataset === "string") {
+            month.dataset = yamlMonth.dataset;
+        }
+        // console.log(month.dataset);
+
+        // startWeekOn
         if (typeof yamlMonth?.startWeekOn === "string") {
             month.startWeekOn = yamlMonth.startWeekOn;
         }
+        // console.log(month.startWeekOn);
+
+        // showCircle
+        if (typeof yamlMonth?.showCircle === "boolean") {
+            month.showCircle = yamlMonth.showCircle;
+        }
+        // console.log(month.showCircle);
+
+        // threshold
+        if (typeof yamlMonth?.threshold === "number") {
+            month.threshold = yamlMonth.threshold;
+        }
+        // console.log(month.threshold);
+
+        // color
+        if (typeof yamlMonth?.color === "string") {
+            month.color = yamlMonth.color;
+        }
+        // console.log(month.color);
+
+        // dimNotInMonth
+        if (typeof yamlMonth?.dimNotInMonth === "boolean") {
+            month.dimNotInMonth = yamlMonth.dimNotInMonth;
+        }
+        // console.log(month.dimNotInMonth);
+
+        // showStreak
+        if (typeof yamlMonth?.showStreak === "boolean") {
+            month.showStreak = yamlMonth.showStreak;
+        }
+        // console.log(month.showStreak);
+
+        // showTodayRing
+        if (typeof yamlMonth?.showTodayRing === "boolean") {
+            month.showTodayRing = yamlMonth.showTodayRing;
+        }
+        // console.log(month.showTodayRing);
+
+        // showSelectedValue
+        if (typeof yamlMonth?.showSelectedValue === "boolean") {
+            month.showSelectedValue = yamlMonth.showSelectedValue;
+        }
+        // console.log(month.showSelectedValue);
+
+        // showSelectedRing
+        if (typeof yamlMonth?.showSelectedRing === "boolean") {
+            month.showSelectedRing = yamlMonth.showSelectedRing;
+        }
+        // console.log(month.showSelectedRing);
+
+        // circleColor
+        if (typeof yamlMonth?.circleColor === "string") {
+            month.circleColor = yamlMonth.circleColor;
+        }
+        // console.log(month.circleColor);
+
+        // headerYearColor
+        if (typeof yamlMonth?.headerYearColor === "string") {
+            month.headerYearColor = yamlMonth.headerYearColor;
+        }
+        // console.log(month.headerYearColor);
+
+        // headerMonthColor
+        if (typeof yamlMonth?.headerMonthColor === "string") {
+            month.headerMonthColor = yamlMonth.headerMonthColor;
+        }
+        // console.log(month.headerMonthColor);
+
+        // dividingLineColor
+        if (typeof yamlMonth?.dividingLineColor === "string") {
+            month.dividingLineColor = yamlMonth.dividingLineColor;
+        }
+        // console.log(month.dividingLineColor);
+
+        // todayRingColor
+        if (typeof yamlMonth?.todayRingColor === "string") {
+            month.todayRingColor = yamlMonth.todayRingColor;
+        }
+        // console.log(month.todayRingColor);
+
+        // selectedRingColor
+        if (typeof yamlMonth?.selectedRingColor === "string") {
+            month.selectedRingColor = yamlMonth.selectedRingColor;
+        }
+        // console.log(month.selectedRingColor);
+
+        renderInfo.month.push(month);
     } // Month related parameters
     // console.log(renderInfo.month);
 
