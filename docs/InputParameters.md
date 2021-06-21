@@ -114,3 +114,25 @@ These key-value pairs should be placed under the key `bullet`.
 | `showMarker` | Show marker or not (true\|false) | 1 | true |
 | `markerValue` | The value of the markder | 1 | 0 |
 | `markerColor` | The color of the marker | 1 | 'black' |
+
+### Parameters for Month View
+These key-value pairs should be placed under the key `month`.
+
+| Key | Description | Number of Values | Default |
+|:--------|:-------|:-----------:|:------|
+| `dataset` | The index of the dataset of your interest | 1 | 0 |
+| `startWeekOn` | First day of a week ('Sun'\|'Mon') | 1 | 'Sun' |
+| `threshold` | The threshold to determine showing a circle on a day or not | 1 | 0 |
+| `showCircle` | Circle the day label if the collected value reach the threshold (value > threshold) | 1 | true |
+| `color` | Main color (can be override by other color parameters) | 1 | null |
+| `dimNotInMonth` | Dim the color for days not in current month | 1 | true |
+| `showStreak` | Show streaks between circles | 1 | true |
+| `showTodayRing` | Show a ring on the label today | 1 | true |
+| `showSelectedValue` | Show the value on the selected day | 1 | true |
+| `showSelectedRing` | Show a ring on the label of the selected day | 1 | true |
+| `circleColor` | The color of circles | 1 | '#69b3a2' |
+| `headerYearColor` | The color of year text in header | 1 | 'white' |
+| `headerMonthColor` | The color of the month text in header | 1 | 'white' |
+| `dividingLineColor` | The color of the dividing line | 1 | '#69b3a2' |
+| `todayRingColor` | The color of the ring on today | 1 | 'white' |
+| `selectedRingColor` | The color of the ring on the selected day | 1 | 'firebrick' |

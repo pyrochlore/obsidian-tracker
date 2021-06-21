@@ -3,7 +3,7 @@
 - Data Collecting
     - [x] Support tracking key-value pairs in frontmatter
     - [x] Support searching text using regular expression
-    - [x] Support multiple targets and multiple values.
+    - [x] Support multiple targets and multiple values
     - [x] Add a parameter xDataset to identify targets to be used as x values
     - [x] Allow tracking time values
     - [x] Get data from a table
@@ -13,11 +13,12 @@
     - [ ] Allow forced value types
     - [ ] Allow using non-date x values
 - Output Type and Graph
-    - [x] New output type 'summary', analyzes the input data and represents it using a user-defined text template.
-    - [x] New output type 'bar', rendering a bar chart.
+    - [x] New output type 'summary', analyzes the input data and represents it using a user-defined text template
+    - [x] New output type 'bar', rendering a bar chart
     - [x] New output type 'bullet', rendering
-    - [ ] New output type for calendar view, including a monthly view or a heatmap.
-    - [x] Add parameters for adjusting the size of the graph.
+    - [x] New output type 'month', rendering a month view
+    - [ ] New output type 'heatmap', rendering a heatmap like Github activity chart
+    - [x] Add parameters for adjusting the size of the graph
     - [ ] Multiple outputs from one code block
     - [ ] Support graphs showing the correlation between sets of data.
     - [ ] Allow a graph drawing selected dataset.
