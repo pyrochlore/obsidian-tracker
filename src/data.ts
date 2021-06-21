@@ -687,15 +687,15 @@ export class MonthInfo {
     color: string;
     dimDotsNotInMonth: boolean;
     showStreak: boolean;
-    showTodayCircle: boolean;
+    showTodayRing: boolean;
     showSelectedValue: boolean;
-    showSelectedCircle: boolean;
+    showSelectedRing: boolean;
     dotColor: string;
     titleYearColor: string;
     titleMonthColor: string;
     dividingLineColor: string;
-    todayCircleColor: string;
-    selectedCircleColor: string;
+    todayRingColor: string;
+    selectedRingColor: string;
 
     selectedDate: string;
 
@@ -707,15 +707,15 @@ export class MonthInfo {
         this.color = null;
         this.dimDotsNotInMonth = true;
         this.showStreak = true; // a streak connects neigbor dots
-        this.showTodayCircle = true;
+        this.showTodayRing = true;
         this.showSelectedValue = true;
-        this.showSelectedCircle = true;
+        this.showSelectedRing = true;
         this.dotColor = null;
         this.titleYearColor = null;
         this.titleMonthColor = null;
         this.dividingLineColor = null;
-        this.todayCircleColor = ""; // white
-        this.selectedCircleColor = "firebrick";
+        this.todayRingColor = ""; // white
+        this.selectedRingColor = "firebrick";
 
         this.selectedDate = "";
     }

@@ -230,7 +230,7 @@ function renderMonthHeader(
         )
         .attr("class", "tracker-month-title-monitor")
         .style("cursor", "pointer")
-        .style("fill", monthInfo.selectedCircleColor);
+        .style("fill", monthInfo.selectedRingColor);
     chartElements["monitor"] = valueMonitor;
 
     // arrow left
@@ -613,9 +613,9 @@ function renderMonthDays(
 
     // today circles
     let today = window.moment().format(renderInfo.dateFormat);
-    if (monthInfo.showTodayCircle) {
-        let todayCircles = chartElements.dataArea
-            .selectAll("todayCircle")
+    if (monthInfo.showTodayRing) {
+        let todayRings = chartElements.dataArea
+            .selectAll("todayRing")
             .data(
                 daysInMonthView.filter(function (d: DayInfo) {
                     return d.date === today;
@@ -633,17 +633,17 @@ function renderMonthDays(
             .attr("class", "tracker-month-today-circle") // stroke not works??
             .style("cursor", "default");
 
-        if (monthInfo.todayCircleColor !== "") {
-            todayCircles.style("stroke", monthInfo.todayCircleColor);
+        if (monthInfo.todayRingColor !== "") {
+            todayRings.style("stroke", monthInfo.todayRingColor);
         } else {
-            todayCircles.style("stroke", "white");
+            todayRings.style("stroke", "white");
         }
     }
 
     // selected circles
-    if (monthInfo.showSelectedCircle) {
-        let selectedCircles = chartElements.dataArea
-            .selectAll("selectedCircle")
+    if (monthInfo.showSelectedRing) {
+        let selectedRings = chartElements.dataArea
+            .selectAll("selectedRing")
             .data(daysInMonthView)
             .enter()
             .append("circle")
@@ -706,10 +706,10 @@ function renderMonthDays(
             // show new selected circle
             let date = d3.select(this).attr("date");
             monthInfo.selectedDate = date;
-            if (monthInfo.showSelectedCircle) {
+            if (monthInfo.showSelectedRing) {
                 chartElements.dataArea
                     .select("#tracker-selected-circle-" + date)
-                    .style("stroke", monthInfo.selectedCircleColor);
+                    .style("stroke", monthInfo.selectedRingColor);
             }
             // show value on monitor
             if (monthInfo.showSelectedValue) {

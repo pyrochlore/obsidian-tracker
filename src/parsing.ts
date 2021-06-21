@@ -1508,11 +1508,11 @@ export function getRenderInfoFromYaml(
         }
         // console.log(month.showStreak);
 
-        // showTodayCircle
-        if (typeof yamlMonth?.showTodayCircle === "boolean") {
-            month.showTodayCircle = yamlMonth.showTodayCircle;
+        // showTodayRing
+        if (typeof yamlMonth?.showTodayRing === "boolean") {
+            month.showTodayRing = yamlMonth.showTodayRing;
         }
-        // console.log(month.showTodayCircle);
+        // console.log(month.showTodayRing);
 
         // showSelectedValue
         if (typeof yamlMonth?.showSelectedValue === "boolean") {
@@ -1520,11 +1520,11 @@ export function getRenderInfoFromYaml(
         }
         // console.log(month.showSelectedValue);
 
-        // showSelectedCircle
-        if (typeof yamlMonth?.showSelectedCircle === "boolean") {
-            month.showSelectedCircle = yamlMonth.showSelectedCircle;
+        // showSelectedRing
+        if (typeof yamlMonth?.showSelectedRing === "boolean") {
+            month.showSelectedRing = yamlMonth.showSelectedRing;
         }
-        // console.log(month.showSelectedCircle);
+        // console.log(month.showSelectedRing);
 
         // dotColor
         if (typeof yamlMonth?.dotColor === "string") {
@@ -1550,17 +1550,17 @@ export function getRenderInfoFromYaml(
         }
         // console.log(month.dividingLineColor);
 
-        // todayCircleColor
-        if (typeof yamlMonth?.todayCircleColor === "string") {
-            month.todayCircleColor = yamlMonth.todayCircleColor;
+        // todayRingColor
+        if (typeof yamlMonth?.todayRingColor === "string") {
+            month.todayRingColor = yamlMonth.todayRingColor;
         }
-        // console.log(month.todayCircleColor);
+        // console.log(month.todayRingColor);
 
-        // selectedCircleColor
-        if (typeof yamlMonth?.selectedCircleColor === "string") {
-            month.selectedCircleColor = yamlMonth.selectedCircleColor;
+        // selectedRingColor
+        if (typeof yamlMonth?.selectedRingColor === "string") {
+            month.selectedRingColor = yamlMonth.selectedRingColor;
         }
-        // console.log(month.selectedCircleColor);
+        // console.log(month.selectedRingColor);
 
         renderInfo.month.push(month);
     } // Month related parameters

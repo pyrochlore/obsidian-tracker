@@ -10,8 +10,8 @@ month:
     color: tomato
 	titleMonthColor: orange
     dimDotsNotInMonth: false
-	todayCircleColor: orange
-	selectedCircleColor: steelblue
+	todayRingColor: orange
+	selectedRingColor: steelblue
 	showSelectedValue: true
 ```
 
@@ -23,7 +23,7 @@ month:
     startWeekOn: 
     color: steelblue
 	titleMonthColor: green
-	selectedCircleColor: orange
+	selectedRingColor: orange
 ```
 
 Please also check those search targets in markdown files under folder 'diary'.
