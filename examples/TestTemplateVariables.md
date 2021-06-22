@@ -10,6 +10,16 @@ summary:
     template: 'Minimum value: {{min}} <-- should be 27'
 ```
 
+### {{minDate}}
+``` tracker
+searchType: dvField
+searchTarget: dataviewTarget
+folder: /diary
+endDate: 2021-01-03
+summary:
+    template: 'Latest date of minimum value: {{minDate}} <-- should be 2021-01-02'
+```
+
 ### {{max}}
 ``` tracker
 searchType: dvField
@@ -18,6 +28,16 @@ folder: /diary
 endDate: 2021-01-03
 summary:
     template: 'Maximum value: {{max}} <-- should be 88'
+```
+
+### {{maxDate}}
+``` tracker
+searchType: dvField
+searchTarget: dataviewTarget
+folder: /diary
+endDate: 2021-01-03
+summary:
+    template: 'Latest date of maximum value: {{maxDate}} <-- should be 2021-01-03'
 ```
 
 ### {{startDate}}
