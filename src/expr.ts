@@ -8,10 +8,38 @@ let fnSet = {
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
         return d3.min(dataset.getValues());
     },
+    // the latest date with min value
+    minDate: function (renderInfo: RenderInfo, datasetId: number) {
+        let dataset = renderInfo.datasets.getDatasetById(datasetId);
+        let min = d3.min(dataset.getValues());
+        if (Number.isNumber(min)) {
+            let arrayDataset = Array.from(dataset);
+            for (let dataPoint of arrayDataset.reverse()) {
+                if (dataPoint.value !== null && dataPoint.value === min) {
+                    return dataPoint.date.format(renderInfo.dateFormat);
+                }
+            }
+        }
+        return "min not found";
+    },
     // max value of a dataset
     max: function (renderInfo: RenderInfo, datasetId: number) {
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
         return d3.max(dataset.getValues());
+    },
+    // the latest date with max value
+    maxDate: function (renderInfo: RenderInfo, datasetId: number) {
+        let dataset = renderInfo.datasets.getDatasetById(datasetId);
+        let max = d3.max(dataset.getValues());
+        if (Number.isNumber(max)) {
+            let arrayDataset = Array.from(dataset);
+            for (let dataPoint of arrayDataset.reverse()) {
+                if (dataPoint.value !== null && dataPoint.value === max) {
+                    return dataPoint.date.format(renderInfo.dateFormat);
+                }
+            }
+        }
+        return "max not found";
     },
     // start date of a dataset
     // if datasetId not found, return overall startDate
