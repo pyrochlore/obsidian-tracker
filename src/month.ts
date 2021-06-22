@@ -21,6 +21,7 @@ let ratioDotToText = 1.8;
 interface DayInfo {
     date: string;
     value: number;
+    scaledValue: number;
     dayInMonth: number;
     isInThisMonth: boolean;
     isOutOfDataRange: boolean;
@@ -372,6 +373,17 @@ function renderMonthDays(
     let streakWidth = (cellSize - dotRadius * 2.0) / 2.0;
     let streakHeight = 3;
 
+    // Get min and max, null values will be treated as zero here
+    let yMin = d3.min(dataset.getValues());
+    if (monthInfo.yMin !== null) {
+        yMin = monthInfo.yMin;
+    }
+    let yMax = d3.max(dataset.getValues());
+    if (monthInfo.yMax !== null) {
+        yMax = monthInfo.yMax;
+    }
+    // console.log(`yMin:${yMin}, yMax:${yMax}`);
+
     // Prepare data for graph
     let daysInMonthView: Array<DayInfo> = [];
     const monthStartDate = curMonthDate.clone().startOf("month");
@@ -423,13 +435,19 @@ function renderMonthDays(
             isOutOfDataRange = true;
         }
 
-        // scaledValue
+        // showCircle
         let curValue = dataset.getValue(curDate);
         let showCircle = false;
         if (curValue !== null) {
             if (curValue > monthInfo.threshold) {
                 showCircle = true;
             }
+        }
+
+        // scaledValue
+        let scaledValue = 0;
+        if (Number.isNumber(yMax) && Number.isNumber(yMin) && yMax - yMin > 0) {
+            scaledValue = (curValue - yMin) / (yMax - yMin);
         }
 
         // if (curDate.format("YYYY-MM-DD") === "2021-11-02") {
@@ -461,6 +479,7 @@ function renderMonthDays(
         daysInMonthView.push({
             date: curDate.format(renderInfo.dateFormat),
             value: curValue,
+            scaledValue: scaledValue,
             dayInMonth: curDate.date(),
             isInThisMonth: isInThisMonth,
             isOutOfDataRange: isOutOfDataRange,
@@ -491,6 +510,13 @@ function renderMonthDays(
 
     // streak lines
     if (monthInfo.showStreak) {
+        let streakColor = "#69b3a2";
+        if (monthInfo.circleColor) {
+            streakColor = monthInfo.circleColor;
+        } else if (monthInfo.color) {
+            streakColor = monthInfo.color;
+        }
+
         chartElements.dataArea
             .selectAll("streakIn")
             .data(
@@ -514,12 +540,13 @@ function renderMonthDays(
             .attr("height", streakHeight)
             .style("fill", function (d: DayInfo) {
                 if (d.showCircle) {
-                    if (monthInfo.circleColor) {
-                        return monthInfo.circleColor;
-                    } else if (monthInfo.color) {
-                        return monthInfo.color;
+                    if (!monthInfo.circleWithGradient) {
+                        return streakColor;
                     }
-                    return "#69b3a2";
+                    return d3.interpolateLab(
+                        "white",
+                        streakColor
+                    )(d.scaledValue);
                 }
                 return "none";
             })
@@ -556,12 +583,13 @@ function renderMonthDays(
             .attr("height", streakHeight)
             .style("fill", function (d: DayInfo) {
                 if (d.showCircle) {
-                    if (monthInfo.circleColor) {
-                        return monthInfo.circleColor;
-                    } else if (monthInfo.color) {
-                        return monthInfo.color;
+                    if (!monthInfo.circleWithGradient) {
+                        return streakColor;
                     }
-                    return "#69b3a2";
+                    return d3.interpolateLab(
+                        "white",
+                        streakColor
+                    )(d.scaledValue);
                 }
                 return "none";
             })
@@ -576,7 +604,13 @@ function renderMonthDays(
             });
     }
 
-    // dots
+    // circles
+    let circleColor = "#69b3a2";
+    if (monthInfo.circleColor) {
+        circleColor = monthInfo.circleColor;
+    } else if (monthInfo.color) {
+        circleColor = monthInfo.color;
+    }
     if (monthInfo.showCircle) {
         let dots = chartElements.dataArea
             .selectAll("dot")
@@ -592,12 +626,13 @@ function renderMonthDays(
             })
             .style("fill", function (d: DayInfo) {
                 if (d.showCircle) {
-                    if (monthInfo.circleColor) {
-                        return monthInfo.circleColor;
-                    } else if (monthInfo.color) {
-                        return monthInfo.color;
+                    if (!monthInfo.circleWithGradient) {
+                        return circleColor;
                     }
-                    return "#69b3a2";
+                    return d3.interpolateLab(
+                        "white",
+                        circleColor
+                    )(d.scaledValue);
                 }
                 return "none";
             })
@@ -613,7 +648,7 @@ function renderMonthDays(
             .style("cursor", "default");
     }
 
-    // today circles
+    // today rings
     let today = window.moment().format(renderInfo.dateFormat);
     if (monthInfo.showTodayRing) {
         let todayRings = chartElements.dataArea
@@ -642,7 +677,7 @@ function renderMonthDays(
         }
     }
 
-    // selected circles
+    // selected rings
     if (monthInfo.showSelectedRing) {
         let selectedRings = chartElements.dataArea
             .selectAll("selectedRing")

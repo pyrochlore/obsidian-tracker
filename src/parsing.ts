@@ -1490,6 +1490,18 @@ export function getRenderInfoFromYaml(
         }
         // console.log(month.threshold);
 
+        // yMin
+        if (typeof yamlMonth?.yMin === "number") {
+            month.yMin = yamlMonth.yMin;
+        }
+        // console.log(month.yMin);
+
+        // yMax
+        if (typeof yamlMonth?.yMax === "number") {
+            month.yMax = yamlMonth.yMax;
+        }
+        // console.log(month.yMax);
+
         // color
         if (typeof yamlMonth?.color === "string") {
             month.color = yamlMonth.color;
@@ -1531,6 +1543,12 @@ export function getRenderInfoFromYaml(
             month.circleColor = yamlMonth.circleColor;
         }
         // console.log(month.circleColor);
+
+        // circleWithGradient
+        if (typeof yamlMonth?.circleWithGradient === "boolean") {
+            month.circleWithGradient = yamlMonth.circleWithGradient;
+        }
+        // console.log(month.circleWithGradient);
 
         // headerYearColor
         if (typeof yamlMonth?.headerYearColor === "string") {

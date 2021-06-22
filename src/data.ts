@@ -683,6 +683,8 @@ export class MonthInfo {
     dataset: string;
     startWeekOn: string;
     threshold: number;
+    yMin: number;
+    yMax: number;
     showCircle: boolean;
     color: string;
     dimNotInMonth: boolean;
@@ -691,6 +693,7 @@ export class MonthInfo {
     showSelectedValue: boolean;
     showSelectedRing: boolean;
     circleColor: string;
+    circleWithGradient: boolean;
     headerYearColor: string;
     headerMonthColor: string;
     dividingLineColor: string;
@@ -703,6 +706,8 @@ export class MonthInfo {
         this.dataset = "0";
         this.startWeekOn = "Sun";
         this.threshold = 0.0; // if value > threshold, will show dot
+        this.yMin = null;
+        this.yMax = null;
         this.showCircle = true;
         this.color = null;
         this.dimNotInMonth = true;
@@ -711,6 +716,7 @@ export class MonthInfo {
         this.showSelectedValue = true;
         this.showSelectedRing = true;
         this.circleColor = null;
+        this.circleWithGradient = false;
         this.headerYearColor = null;
         this.headerMonthColor = null;
         this.dividingLineColor = null;

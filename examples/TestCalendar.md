@@ -36,5 +36,29 @@ month:
     threshold: 40
 ```
 
+Gradient circle
+``` tracker
+searchType: tag
+searchTarget: exercise-pushup
+folder: diary
+month:
+    startWeekOn:
+	useThreshold: false
+    threshold: 40
+    color: green
+	headerMonthColor: orange
+    dimNotInMonth: false
+	todayRingColor: orange
+	selectedRingColor: steelblue
+	showSelectedValue: true
+```
+
+``` tracker
+searchType: tag
+searchTarget: exercise-pushup
+summary:
+    template: "minDate: {{minDate}}\nminValue: {{min}}\nmaxDate: {{maxDate}}\nmaxValue: {{max}}"
+```
+
 Please also check those search targets in markdown files under folder 'diary'.
 
