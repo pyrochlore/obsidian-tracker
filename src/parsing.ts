@@ -10,6 +10,7 @@ import {
     OutputType,
     LineInfo,
     MonthInfo,
+    HeatmapInfo,
     BulletInfo,
 } from "./data";
 import { TFolder, normalizePath } from "obsidian";
@@ -886,6 +887,7 @@ export function getRenderInfoFromYaml(
     let yamlBarKeys = [];
     let yamlSummaryKeys = [];
     let yamlMonthKeys = [];
+    let yamlHeatmapKeys = [];
     let yamlBulletKeys = [];
     for (let key of keysFoundInYAML) {
         if (/line[0-9]*/.test(key)) {
@@ -908,6 +910,10 @@ export function getRenderInfoFromYaml(
             yamlMonthKeys.push(key);
             additionalAllowedKeys.push(key);
         }
+        if (/heatmap[0-9]*/.test(key)) {
+            yamlHeatmapKeys.push(key);
+            additionalAllowedKeys.push(key);
+        }
     }
     // console.log(additionalAllowedKeys);
     for (let key of keysFoundInYAML) {
@@ -924,8 +930,9 @@ export function getRenderInfoFromYaml(
         yamlLineKeys.length +
         yamlBarKeys.length +
         yamlSummaryKeys.length +
-        +yamlBulletKeys.length +
-        yamlMonthKeys.length;
+        yamlBulletKeys.length +
+        yamlMonthKeys.length +
+        yamlHeatmapKeys.length;
     if (totalNumOutputs === 0) {
         return "No output parameter provided, please place line, bar, month, bullet, or summary.";
     }
@@ -1583,6 +1590,26 @@ export function getRenderInfoFromYaml(
         renderInfo.month.push(month);
     } // Month related parameters
     // console.log(renderInfo.month);
+
+    // Heatmap related parameters
+    for (let heatmapKey of yamlHeatmapKeys) {
+        let heatmap = new HeatmapInfo();
+        let yamlHeatmap = yaml[heatmapKey];
+
+        let keysOfHeatmapInfo = getAvailableKeysOfClass(heatmap);
+        let keysFoundInYAML = getAvailableKeysOfClass(yamlHeatmap);
+        // console.log(keysOfHeatmapInfo);
+        // console.log(keysFoundInYAML);
+        for (let key of keysFoundInYAML) {
+            if (!keysOfHeatmapInfo.includes(key)) {
+                errorMessage = "'" + key + "' is not an available key";
+                return errorMessage;
+            }
+        }
+
+        renderInfo.heatmap.push(heatmap);
+    }
+    // console.log(renderInfo.heatmap);
 
     // Bullet related parameters
     for (let bulletKey of yamlBulletKeys) {

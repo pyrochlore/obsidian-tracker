@@ -16,9 +16,11 @@ import {
     SummaryInfo,
     BulletInfo,
     MonthInfo,
+    HeatmapInfo
 } from "./data";
 import * as summary from "./summary";
 import * as month from "./month";
+import * as heatmap from "./heatmap"
 import * as bullet from "./bullet";
 import * as helper from "./helper";
 
@@ -171,6 +173,12 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
     }
     for (let monthInfo of renderInfo.month) {
         let ret = month.renderMonth(canvas, renderInfo, monthInfo);
+        if (typeof ret === "string") {
+            return ret;
+        }
+    }
+    for (let heatmapInfo of renderInfo.heatmap) {
+        let ret = heatmap.renderHeatmap(canvas, renderInfo, heatmapInfo);
         if (typeof ret === "string") {
             return ret;
         }

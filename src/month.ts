@@ -110,6 +110,7 @@ function clearSelection(chartElements: ChartElements, monthInfo: MonthInfo) {
 
     chartElements.monitor.text("");
 }
+
 function renderMonthHeader(
     canvas: HTMLElement,
     chartElements: ChartElements,

@@ -17,6 +17,7 @@ export enum OutputType {
     Summary,
     Table,
     Month,
+    Heatmap,
     Bullet,
     Unknown,
 }
@@ -523,6 +524,7 @@ export class RenderInfo {
     bar: BarInfo[];
     summary: SummaryInfo[];
     month: MonthInfo[];
+    heatmap: HeatmapInfo[];
     bullet: BulletInfo[];
 
     public datasets: Datasets | null;
@@ -557,6 +559,7 @@ export class RenderInfo {
         this.summary = [];
         this.bar = [];
         this.month = [];
+        this.heatmap = [];
         this.bullet = [];
 
         this.datasets = null;
@@ -680,6 +683,7 @@ export class SummaryInfo extends OutputInfo {
 }
 
 export class MonthInfo {
+    mode: string;
     dataset: string;
     startWeekOn: string;
     threshold: number;
@@ -703,6 +707,7 @@ export class MonthInfo {
     selectedDate: string;
 
     constructor() {
+        this.mode = "";
         this.dataset = "0";
         this.startWeekOn = "Sun";
         this.threshold = 0.0; // if value > threshold, will show dot
@@ -726,6 +731,24 @@ export class MonthInfo {
         this.selectedDate = "";
     }
 }
+
+export class HeatmapInfo {
+    dataset: string;
+    startWeekOn: string;
+    orientation: string;
+    yMin: number;
+    yMax: number;
+    color: string;
+
+    constructor() {
+        this.dataset = "0";
+        this.startWeekOn = "Sun";
+        this.orientation = "vertical";
+        this.yMin = null;
+        this.yMax = null;
+        this.color = null;
+    }
+} 
 
 export class BulletInfo extends OutputInfo {
     title: string;
