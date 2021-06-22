@@ -1551,11 +1551,11 @@ export function getRenderInfoFromYaml(
         }
         // console.log(month.circleColor);
 
-        // circleWithGradient
-        if (typeof yamlMonth?.circleWithGradient === "boolean") {
-            month.circleWithGradient = yamlMonth.circleWithGradient;
+        // circleColorByValue
+        if (typeof yamlMonth?.circleColorByValue === "boolean") {
+            month.circleColorByValue = yamlMonth.circleColorByValue;
         }
-        // console.log(month.circleWithGradient);
+        // console.log(month.circleColorByValue);
 
         // headerYearColor
         if (typeof yamlMonth?.headerYearColor === "string") {

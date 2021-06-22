@@ -697,7 +697,7 @@ export class MonthInfo {
     showSelectedValue: boolean;
     showSelectedRing: boolean;
     circleColor: string;
-    circleWithGradient: boolean;
+    circleColorByValue: boolean;
     headerYearColor: string;
     headerMonthColor: string;
     dividingLineColor: string;
@@ -721,7 +721,7 @@ export class MonthInfo {
         this.showSelectedValue = true;
         this.showSelectedRing = true;
         this.circleColor = null;
-        this.circleWithGradient = false;
+        this.circleColorByValue = false;
         this.headerYearColor = null;
         this.headerMonthColor = null;
         this.dividingLineColor = null;
@@ -748,7 +748,7 @@ export class HeatmapInfo {
         this.yMax = null;
         this.color = null;
     }
-} 
+}
 
 export class BulletInfo extends OutputInfo {
     title: string;

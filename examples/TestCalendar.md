@@ -8,11 +8,11 @@ month:
     startWeekOn:
     threshold: 40
     color: tomato
-	headerMonthColor: orange
+    headerMonthColor: orange
     dimNotInMonth: false
-	todayRingColor: orange
-	selectedRingColor: steelblue
-	showSelectedValue: true
+    todayRingColor: orange
+    selectedRingColor: steelblue
+    showSelectedValue: true
 ```
 
 ``` tracker
@@ -22,8 +22,8 @@ folder: diary
 month:
     startWeekOn: 
     color: steelblue
-	headerMonthColor: green
-	selectedRingColor: orange
+    headerMonthColor: green
+    selectedRingColor: orange
 ```
 
 Use default colors
@@ -43,14 +43,14 @@ searchTarget: exercise-pushup
 folder: diary
 month:
     startWeekOn:
-	useThreshold: false
     threshold: 40
     color: green
-	headerMonthColor: orange
+    headerMonthColor: orange
     dimNotInMonth: false
-	todayRingColor: orange
-	selectedRingColor: steelblue
-	showSelectedValue: true
+    todayRingColor: orange
+    selectedRingColor: steelblue
+    circleColorByValue: true
+    showSelectedValue: true
 ```
 
 ``` tracker

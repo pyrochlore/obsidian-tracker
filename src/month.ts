@@ -541,7 +541,7 @@ function renderMonthDays(
             .attr("height", streakHeight)
             .style("fill", function (d: DayInfo) {
                 if (d.showCircle) {
-                    if (!monthInfo.circleWithGradient) {
+                    if (!monthInfo.circleColorByValue) {
                         return streakColor;
                     }
                     return d3.interpolateLab(
@@ -584,7 +584,7 @@ function renderMonthDays(
             .attr("height", streakHeight)
             .style("fill", function (d: DayInfo) {
                 if (d.showCircle) {
-                    if (!monthInfo.circleWithGradient) {
+                    if (!monthInfo.circleColorByValue) {
                         return streakColor;
                     }
                     return d3.interpolateLab(
@@ -627,7 +627,7 @@ function renderMonthDays(
             })
             .style("fill", function (d: DayInfo) {
                 if (d.showCircle) {
-                    if (!monthInfo.circleWithGradient) {
+                    if (!monthInfo.circleColorByValue) {
                         return circleColor;
                     }
                     return d3.interpolateLab(
