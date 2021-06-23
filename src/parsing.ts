@@ -943,27 +943,28 @@ export function getRenderInfoFromYaml(
     let yamlHeatmapKeys = [];
     let yamlBulletKeys = [];
     for (let key of keysFoundInYAML) {
-        if (/line[0-9]*/.test(key)) {
+        if (/^line[0-9]*$/.test(key)) {
             yamlLineKeys.push(key);
             additionalAllowedKeys.push(key);
+            console.log("aaaaaa");
         }
-        if (/bar[0-9]*/.test(key)) {
+        if (/^bar[0-9]*$/.test(key)) {
             yamlBarKeys.push(key);
             additionalAllowedKeys.push(key);
         }
-        if (/summary[0-9]*/.test(key)) {
+        if (/^summary[0-9]*$/.test(key)) {
             yamlSummaryKeys.push(key);
             additionalAllowedKeys.push(key);
         }
-        if (/bullet[0-9]*/.test(key)) {
+        if (/^bullet[0-9]*$/.test(key)) {
             yamlBulletKeys.push(key);
             additionalAllowedKeys.push(key);
         }
-        if (/month[0-9]*/.test(key)) {
+        if (/^month[0-9]*$/.test(key)) {
             yamlMonthKeys.push(key);
             additionalAllowedKeys.push(key);
         }
-        if (/heatmap[0-9]*/.test(key)) {
+        if (/^heatmap[0-9]*$/.test(key)) {
             yamlHeatmapKeys.push(key);
             additionalAllowedKeys.push(key);
         }
