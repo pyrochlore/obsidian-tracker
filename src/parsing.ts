@@ -12,6 +12,7 @@ import {
     MonthInfo,
     HeatmapInfo,
     BulletInfo,
+    Dataset,
 } from "./data";
 import { TFolder, normalizePath } from "obsidian";
 import { parseYaml } from "obsidian";
@@ -503,6 +504,58 @@ function getStringArrayFromInput(
     }
 
     return array;
+}
+
+function getNumberArray(name: string, input: any): Array<number> | string {
+    let numArray: Array<number> = [];
+
+    if (typeof input === "undefined" || input === null) return numArray;
+
+    if (typeof input === "object") {
+        if (Array.isArray(input)) {
+            for (let elem of input) {
+                if (typeof elem === "string") {
+                    let v = parseFloat(elem);
+                    if (Number.isNumber(v)) {
+                        numArray.push(v);
+                    } else {
+                        let errorMessage = `Parameter '${name}' accepts only numbers`;
+                        return errorMessage;
+                    }
+                }
+            }
+        }
+    } else if (typeof input === "string") {
+        let splitted = input.split(",");
+        if (splitted.length > 1) {
+            for (let piece of splitted) {
+                let v = parseFloat(piece.trim());
+                if (!Number.isNaN(v)) {
+                    // Number.isNumber(NaN) --> true
+                    numArray.push(v);
+                } else {
+                    let errorMessage = `Parameter '${name}' accepts only numbers`;
+                    return errorMessage;
+                }
+            }
+        } else if (input === "") {
+            let errorMessage = `Empty ${name} is not allowed.`;
+            return errorMessage;
+        } else {
+            let v = parseFloat(input);
+            if (Number.isNumber(v)) {
+                numArray.push(v);
+            } else {
+                let errorMessage = `Parameter '${name}' accepts only numbers`;
+                return errorMessage;
+            }
+        }
+    } else {
+        let errorMessage = `Invalid ${name}`;
+        return errorMessage;
+    }
+
+    return numArray;
 }
 
 function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
@@ -1474,9 +1527,14 @@ export function getRenderInfoFromYaml(
         }
 
         // dataset
-        if (typeof yamlMonth?.dataset === "string") {
-            month.dataset = yamlMonth.dataset;
+        let retDataset = getNumberArray("dataset", yamlMonth?.dataset);
+        if (typeof retDataset === "string") {
+            return retDataset;
         }
+        if (retDataset.length === 0) {
+            retDataset.push(0);
+        }
+        month.dataset = retDataset;
         // console.log(month.dataset);
 
         // startWeekOn
@@ -1646,53 +1704,11 @@ export function getRenderInfoFromYaml(
         // console.log(bullet.orientation);
 
         // range
-        let range: Array<number> = [];
-        if (
-            typeof yamlBullet?.range === "object" &&
-            yamlBullet?.range !== null
-        ) {
-            if (Array.isArray(yamlBullet.range)) {
-                for (let r of yamlBullet.range) {
-                    if (typeof r === "string") {
-                        let v = parseFloat(r);
-                        if (Number.isNumber(v)) {
-                            range.push(v);
-                        } else {
-                            errorMessage =
-                                "Parameter 'range' accepts only numbers";
-                            return errorMessage;
-                        }
-                    }
-                }
-            }
-        } else if (typeof yamlBullet?.range === "string") {
-            let splitted = yamlBullet?.range.split(",");
-            if (splitted.length > 1) {
-                for (let piece of splitted) {
-                    let v = parseFloat(piece.trim());
-                    if (!Number.isNaN(v)) {
-                        // Number.isNumber(NaN) --> true
-                        range.push(v);
-                    } else {
-                        errorMessage = "Parameter 'range' accepts only numbers";
-                        return errorMessage;
-                    }
-                }
-            } else if (yamlBullet?.range === "") {
-                errorMessage = "Empty range is not allowed.";
-            } else {
-                let v = parseFloat(yamlBullet?.range);
-                if (Number.isNumber(v)) {
-                    range.push(v);
-                } else {
-                    errorMessage = "Parameter 'range' accepts only numbers";
-                    return errorMessage;
-                }
-            }
-        } else {
-            errorMessage = "Invalid range";
-            return errorMessage;
+        let retRange = getNumberArray("range", yamlBullet?.range);
+        if (typeof retRange === "string") {
+            return retRange;
         }
+        let range = retRange as Array<number>;
         // Check the value is monotonically increasing
         // Check the value is not negative
         if (range.length === 1) {

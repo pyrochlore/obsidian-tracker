@@ -684,7 +684,7 @@ export class SummaryInfo extends OutputInfo {
 
 export class MonthInfo {
     mode: string;
-    dataset: string;
+    dataset: number[];
     startWeekOn: string;
     threshold: number;
     yMin: number;
@@ -707,8 +707,8 @@ export class MonthInfo {
     selectedDate: string;
 
     constructor() {
-        this.mode = "";
-        this.dataset = "0";
+        this.mode = "circle"; // circle, symbol
+        this.dataset = [];
         this.startWeekOn = "Sun";
         this.threshold = 0.0; // if value > threshold, will show dot
         this.yMin = null;

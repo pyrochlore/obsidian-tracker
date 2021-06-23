@@ -116,7 +116,6 @@ function renderMonthHeader(
     chartElements: ChartElements,
     renderInfo: RenderInfo,
     monthInfo: MonthInfo,
-    dataset: Dataset,
     curMonthDate: Moment
 ) {
     // console.log("renderMonthHeader")
@@ -357,12 +356,14 @@ function renderMonthDays(
     chartElements: ChartElements,
     renderInfo: RenderInfo,
     monthInfo: MonthInfo,
-    dataset: Dataset,
     curMonthDate: Moment
 ) {
     // console.log("renderMonthDays");
 
     if (!renderInfo || !monthInfo) return;
+
+    let datasetIds = monthInfo.dataset;
+    if (datasetIds.length === 0) return;
 
     let curMonth = curMonthDate.month(); // 0~11
     let curDaysInMonth = curMonthDate.daysInMonth(); // 28~31
@@ -373,6 +374,8 @@ function renderMonthDays(
     let dotRadius = ((cellSize / ratioCellToText) * ratioDotToText) / 2.0;
     let streakWidth = (cellSize - dotRadius * 2.0) / 2.0;
     let streakHeight = 3;
+
+    let dataset = renderInfo.datasets.getDatasetById(datasetIds[0]);
 
     // Get min and max, null values will be treated as zero here
     let yMin = d3.min(dataset.getValues());
@@ -808,27 +811,16 @@ function refresh(
 
     chartElements = createAreas(chartElements, canvas, renderInfo, monthInfo);
 
-    let datasetId = parseFloat(monthInfo.dataset);
-    let dataset = renderInfo.datasets.getDatasetById(datasetId);
-
     // render
     renderMonthHeader(
         canvas,
         chartElements,
         renderInfo,
         monthInfo,
-        dataset,
         curMonthDate
     );
 
-    renderMonthDays(
-        canvas,
-        chartElements,
-        renderInfo,
-        monthInfo,
-        dataset,
-        curMonthDate
-    );
+    renderMonthDays(canvas, chartElements, renderInfo, monthInfo, curMonthDate);
 }
 
 export function renderMonth(
@@ -846,15 +838,11 @@ export function renderMonth(
     let today = window.moment();
     let lastDataMonthDate = renderInfo.datasets.getDates().last();
 
-    let datasetId = parseFloat(monthInfo.dataset);
-    let dataset = renderInfo.datasets.getDatasetById(datasetId);
-
     renderMonthHeader(
         canvas,
         chartElements,
         renderInfo,
         monthInfo,
-        dataset,
         lastDataMonthDate
     );
 
@@ -863,7 +851,6 @@ export function renderMonth(
         chartElements,
         renderInfo,
         monthInfo,
-        dataset,
         lastDataMonthDate
     );
 }
