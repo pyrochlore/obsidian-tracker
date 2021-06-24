@@ -550,6 +550,8 @@ function getNumberArray(name: string, input: any): Array<number> | string {
                 return errorMessage;
             }
         }
+    } else if (typeof input === "number") {
+        numArray.push(input);
     } else {
         let errorMessage = `Invalid ${name}`;
         return errorMessage;
@@ -1533,10 +1535,16 @@ export function getRenderInfoFromYaml(
             return retDataset;
         }
         if (retDataset.length === 0) {
-            retDataset.push(0);
+            // insert y dataset given
+            for (let q of queries) {
+                if (!q.usedAsXDataset) {
+                    retDataset.push(q.getId());
+                }
+            }
         }
         month.dataset = retDataset;
         // console.log(month.dataset);
+        let numDataset = month.dataset.length;
 
         // startWeekOn
         if (typeof yamlMonth?.startWeekOn === "string") {
@@ -1551,8 +1559,22 @@ export function getRenderInfoFromYaml(
         // console.log(month.showCircle);
 
         // threshold
-        if (typeof yamlMonth?.threshold === "number") {
-            month.threshold = yamlMonth.threshold;
+        let retThreshold = getNumberArray("threshold", yamlMonth?.threshold);
+        if (typeof retThreshold === "string") {
+            return retThreshold;
+        }
+        month.threshold = retThreshold;
+        if (month.threshold.length === 0) {
+            for (let indDataset = 0; indDataset < numDataset; indDataset++) {
+                month.threshold.push(0);
+            }
+        }
+        if (month.threshold.length !== month.dataset.length) {
+            console.log(month.threshold);
+            console.log(month.dataset);
+            const errorMessage =
+                "The number of inputs of threshold and dataset not matched";
+            return errorMessage;
         }
         // console.log(month.threshold);
 

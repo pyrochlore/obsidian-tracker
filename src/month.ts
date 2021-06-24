@@ -106,6 +106,7 @@ function clearSelection(chartElements: ChartElements, monthInfo: MonthInfo) {
             d3.select(circle).style("stroke", "none");
         }
     }
+
     monthInfo.selectedDate = "";
 
     chartElements.monitor.text("");
@@ -121,6 +122,12 @@ function renderMonthHeader(
     // console.log("renderMonthHeader")
 
     if (!renderInfo || !monthInfo) return;
+
+    let curDatasetId = monthInfo.selectedDataset;
+    let datasetIds = monthInfo.dataset;
+    if (datasetIds.length === 0) return;
+    let dataset = renderInfo.datasets.getDatasetById(curDatasetId);
+    let datasetName = dataset.getName();
 
     let curMonth = curMonthDate.month(); // 0~11
     let curDaysInMonth = curMonthDate.daysInMonth(); // 28~31
@@ -216,11 +223,10 @@ function renderMonthHeader(
         titleMonth.style("fill", titleMonthColor);
     }
 
-    // value monitor
-    let valueMonitor = headerGroup
+    // dataset rotator
+    let datasetRotator = headerGroup
         .append("text")
-        .text("")
-        .attr("id", "valueMonitor")
+        .text(datasetName)
         .attr(
             "transform",
             "translate(" +
@@ -231,8 +237,21 @@ function renderMonthHeader(
         )
         .attr("class", "tracker-month-title-monitor")
         .style("cursor", "pointer")
-        .style("fill", monthInfo.selectedRingColor);
-    chartElements["monitor"] = valueMonitor;
+        .on("click", function (event: any) {
+            if (monthInfo.dataset.length <= 1) return;
+            // clear circles
+            clearSelection(chartElements, monthInfo);
+            // show next target
+            let curDataset = monthInfo.selectedDataset + 1;
+            if (curDataset >= monthInfo.dataset.length) {
+                curDataset = 0;
+            }
+            monthInfo.selectedDataset = curDataset;
+            // console.log(monthInfo.selectedDataset);
+
+            refresh(canvas, chartElements, renderInfo, monthInfo, curMonthDate);
+        });
+    chartElements["rotator"] = datasetRotator;
 
     // arrow left
     let arrowLeft = headerGroup
@@ -251,6 +270,7 @@ function renderMonthHeader(
         .on("click", function (event: any) {
             // console.log("left arrow clicked");
             clearSelection(chartElements, monthInfo);
+            monthInfo.selectedDate = "";
             let prevMonthDate = curMonthDate.clone().add(-1, "month");
             refresh(
                 canvas,
@@ -279,6 +299,7 @@ function renderMonthHeader(
         .on("click", function (event: any) {
             // console.log("right arrow clicked");
             clearSelection(chartElements, monthInfo);
+
             let nextMonthDate = curMonthDate.clone().add(1, "month");
             refresh(
                 canvas,
@@ -362,8 +383,12 @@ function renderMonthDays(
 
     if (!renderInfo || !monthInfo) return;
 
+    let curDatasetId = monthInfo.selectedDataset;
     let datasetIds = monthInfo.dataset;
     if (datasetIds.length === 0) return;
+    let dataset = renderInfo.datasets.getDatasetById(curDatasetId);
+
+    let threshold = monthInfo.threshold[curDatasetId];
 
     let curMonth = curMonthDate.month(); // 0~11
     let curDaysInMonth = curMonthDate.daysInMonth(); // 28~31
@@ -374,8 +399,6 @@ function renderMonthDays(
     let dotRadius = ((cellSize / ratioCellToText) * ratioDotToText) / 2.0;
     let streakWidth = (cellSize - dotRadius * 2.0) / 2.0;
     let streakHeight = 3;
-
-    let dataset = renderInfo.datasets.getDatasetById(datasetIds[0]);
 
     // Get min and max, null values will be treated as zero here
     let yMin = d3.min(dataset.getValues());
@@ -388,8 +411,7 @@ function renderMonthDays(
     }
     // console.log(`yMin:${yMin}, yMax:${yMax}`);
 
-    // Prepare data for graph
-    let daysInMonthView: Array<DayInfo> = [];
+    // Start and end
     const monthStartDate = curMonthDate.clone().startOf("month");
     let startDate = monthStartDate
         .clone()
@@ -406,6 +428,9 @@ function renderMonthDays(
     const dataEndDate = dataset.getEndDate().clone();
     // console.log(monthStartDate.format("YYYY-MM-DD"));
     // console.log(startDate.format("YYYY-MM-DD"));
+
+    // Prepare data for graph
+    let daysInMonthView: Array<DayInfo> = [];
     let indCol = 0;
     let indRow = 0;
     let ind = 0;
@@ -443,7 +468,7 @@ function renderMonthDays(
         let curValue = dataset.getValue(curDate);
         let showCircle = false;
         if (curValue !== null) {
-            if (curValue > monthInfo.threshold) {
+            if (curValue > threshold) {
                 showCircle = true;
             }
         }
@@ -462,14 +487,14 @@ function renderMonthDays(
         let nextValue = dataset.getValue(curDate, 1);
         let prevValue = dataset.getValue(curDate, -1);
         let streakIn = false;
-        if (curValue !== null && curValue > monthInfo.threshold) {
-            if (prevValue !== null && prevValue > monthInfo.threshold) {
+        if (curValue !== null && curValue > threshold) {
+            if (prevValue !== null && prevValue > threshold) {
                 streakIn = true;
             }
         }
         let streakOut = false;
-        if (curValue !== null && curValue > monthInfo.threshold) {
-            if (nextValue !== null && nextValue > monthInfo.threshold) {
+        if (curValue !== null && curValue > threshold) {
+            if (nextValue !== null && nextValue > threshold) {
                 streakOut = true;
             }
         }
@@ -702,6 +727,16 @@ function renderMonthDays(
             .style("cursor", "default")
             .style("stroke", "none");
     }
+
+    // value monitor
+    let valueMonitor = chartElements.dataArea
+        .append("text")
+        .text("")
+        .attr("id", "valueBox")
+        .attr("class", "tracker-month-title-monitor")
+        .style("cursor", "pointer")
+        .style("fill", monthInfo.selectedRingColor);
+    chartElements["monitor"] = valueMonitor;
 
     // labels
     let dayLabals = chartElements.dataArea

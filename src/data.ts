@@ -686,7 +686,7 @@ export class MonthInfo {
     mode: string;
     dataset: number[];
     startWeekOn: string;
-    threshold: number;
+    threshold: number[];
     yMin: number;
     yMax: number;
     showCircle: boolean;
@@ -705,12 +705,13 @@ export class MonthInfo {
     selectedRingColor: string;
 
     selectedDate: string;
+    selectedDataset: number;
 
     constructor() {
         this.mode = "circle"; // circle, symbol
         this.dataset = [];
         this.startWeekOn = "Sun";
-        this.threshold = 0.0; // if value > threshold, will show dot
+        this.threshold = []; // if value > threshold, will show dot
         this.yMin = null;
         this.yMax = null;
         this.showCircle = true;
@@ -728,7 +729,8 @@ export class MonthInfo {
         this.todayRingColor = ""; // white
         this.selectedRingColor = "firebrick";
 
-        this.selectedDate = "";
+        this.selectedDate = ""; // selected date
+        this.selectedDataset = 0; // selected index of dataset
     }
 }
 
