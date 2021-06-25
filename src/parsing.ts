@@ -1668,6 +1668,12 @@ export function getRenderInfoFromYaml(
         }
         // console.log(month.selectedRingColor);
 
+        // initMonth
+        if (typeof yamlMonth?.initMonth === "string") {
+            month.initMonth = yamlMonth.initMonth;
+        }
+        // console.log(month.initMonth);
+
         renderInfo.month.push(month);
     } // Month related parameters
     // console.log(renderInfo.month);

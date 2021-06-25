@@ -703,6 +703,7 @@ export class MonthInfo {
     dividingLineColor: string;
     todayRingColor: string;
     selectedRingColor: string;
+    initMonth: string; // YYYY-MM
 
     selectedDate: string;
     selectedDataset: number;
@@ -728,6 +729,7 @@ export class MonthInfo {
         this.dividingLineColor = null;
         this.todayRingColor = ""; // white
         this.selectedRingColor = "firebrick";
+        this.initMonth = "";
 
         this.selectedDate = ""; // selected date
         this.selectedDataset = 0; // selected index of dataset

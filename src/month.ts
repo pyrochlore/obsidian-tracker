@@ -400,7 +400,7 @@ function renderMonthDays(
     let streakWidth = (cellSize - dotRadius * 2.0) / 2.0;
     let streakHeight = 3;
 
-    // Get min and max, null values will be treated as zero here
+    // Get min and max
     let yMin = d3.min(dataset.getValues());
     if (monthInfo.yMin !== null) {
         yMin = monthInfo.yMin;
@@ -410,6 +410,12 @@ function renderMonthDays(
         yMax = monthInfo.yMax;
     }
     // console.log(`yMin:${yMin}, yMax:${yMax}`);
+    let allowScaledValue = true;
+    if (yMax === null || yMin === null || yMax <= yMin) {
+        // scaledValue can not be calculated, do not use gradient color
+        allowScaledValue = false;
+        // console.log("scaledValue not allowed");
+    }
 
     // Start and end
     const monthStartDate = curMonthDate.clone().startOf("month");
@@ -464,19 +470,36 @@ function renderMonthDays(
             isOutOfDataRange = true;
         }
 
-        // showCircle
+        // curValue
         let curValue = dataset.getValue(curDate);
+
+        // showCircle
         let showCircle = false;
-        if (curValue !== null) {
-            if (curValue > threshold) {
+        if (!monthInfo.circleColorByValue) {
+            // shown or not shown
+            if (curValue !== null) {
+                if (curValue > threshold) {
+                    showCircle = true;
+                }
+            }
+        } else {
+            if (!allowScaledValue) {
+                if (curValue !== null) {
+                    if (curValue > threshold) {
+                        showCircle = true;
+                    }
+                }
+            } else {
                 showCircle = true;
             }
         }
 
         // scaledValue
-        let scaledValue = 0;
-        if (Number.isNumber(yMax) && Number.isNumber(yMin) && yMax - yMin > 0) {
-            scaledValue = (curValue - yMin) / (yMax - yMin);
+        let scaledValue = null;
+        if (monthInfo.circleColorByValue) {
+            if (allowScaledValue && curValue !== null) {
+                scaledValue = (curValue - yMin) / (yMax - yMin);
+            }
         }
 
         // if (curDate.format("YYYY-MM-DD") === "2021-11-02") {
@@ -545,6 +568,7 @@ function renderMonthDays(
         } else if (monthInfo.color) {
             streakColor = monthInfo.color;
         }
+        // console.log(streakColor);
 
         chartElements.dataArea
             .selectAll("streakIn")
@@ -572,14 +596,18 @@ function renderMonthDays(
                     if (!monthInfo.circleColorByValue) {
                         return streakColor;
                     }
-                    return d3.interpolateLab(
-                        "white",
-                        streakColor
-                    )(d.scaledValue);
+                    if (d.scaledValue !== null) {
+                        return d3.interpolateLab(
+                            "white",
+                            streakColor
+                        )(d.scaledValue * 0.8 + 0.2);
+                    } else {
+                        return streakColor;
+                    }
                 }
                 return "none";
             })
-            .style("fill-opacity", function (d: DayInfo) {
+            .style("opacity", function (d: DayInfo) {
                 if (
                     d.isOutOfDataRange ||
                     (monthInfo.dimNotInMonth && !d.isInThisMonth)
@@ -615,14 +643,18 @@ function renderMonthDays(
                     if (!monthInfo.circleColorByValue) {
                         return streakColor;
                     }
-                    return d3.interpolateLab(
-                        "white",
-                        streakColor
-                    )(d.scaledValue);
+                    if (d.scaledValue !== null) {
+                        return d3.interpolateLab(
+                            "white",
+                            streakColor
+                        )(d.scaledValue * 0.8 + 0.2);
+                    } else {
+                        return streakColor;
+                    }
                 }
                 return "none";
             })
-            .style("fill-opacity", function (d: DayInfo) {
+            .style("opacity", function (d: DayInfo) {
                 if (
                     d.isOutOfDataRange ||
                     (monthInfo.dimNotInMonth && !d.isInThisMonth)
@@ -658,14 +690,18 @@ function renderMonthDays(
                     if (!monthInfo.circleColorByValue) {
                         return circleColor;
                     }
-                    return d3.interpolateLab(
-                        "white",
-                        circleColor
-                    )(d.scaledValue);
+                    if (d.scaledValue !== null) {
+                        return d3.interpolateLab(
+                            "white",
+                            circleColor
+                        )(d.scaledValue * 0.8 + 0.2);
+                    } else {
+                        return circleColor;
+                    }
                 }
                 return "none";
             })
-            .style("fill-opacity", function (d: DayInfo) {
+            .style("opacity", function (d: DayInfo) {
                 if (
                     d.isOutOfDataRange ||
                     (monthInfo.dimNotInMonth && !d.isInThisMonth)
@@ -870,22 +906,22 @@ export function renderMonth(
     let chartElements: ChartElements = {};
     chartElements = createAreas(chartElements, canvas, renderInfo, monthInfo);
 
-    let today = window.moment();
-    let lastDataMonthDate = renderInfo.datasets.getDates().last();
+    let monthDate: Moment = null;
+    if (monthInfo.initMonth) {
+        let initMonth = window.moment(monthInfo.initMonth, "YYYY-MM", true);
+        // console.log(initMonth);
+        if (initMonth.isValid()) {
+            monthDate = initMonth;
+        } else {
+            return "Invalid initMonth";
+        }
+    } else {
+        let today = window.moment();
+        monthDate = renderInfo.datasets.getDates().last();
+    }
+    if (!monthDate) return;
 
-    renderMonthHeader(
-        canvas,
-        chartElements,
-        renderInfo,
-        monthInfo,
-        lastDataMonthDate
-    );
+    renderMonthHeader(canvas, chartElements, renderInfo, monthInfo, monthDate);
 
-    renderMonthDays(
-        canvas,
-        chartElements,
-        renderInfo,
-        monthInfo,
-        lastDataMonthDate
-    );
+    renderMonthDays(canvas, chartElements, renderInfo, monthInfo, monthDate);
 }
