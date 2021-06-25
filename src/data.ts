@@ -13,6 +13,7 @@ export enum SearchType {
 export enum OutputType {
     Line,
     Bar,
+    Pie,
     Radar,
     Summary,
     Table,
@@ -522,6 +523,7 @@ export class RenderInfo {
     output: any[];
     line: LineInfo[];
     bar: BarInfo[];
+    pie: PieInfo[];
     summary: SummaryInfo[];
     month: MonthInfo[];
     heatmap: HeatmapInfo[];
@@ -556,8 +558,9 @@ export class RenderInfo {
 
         this.output = [];
         this.line = [];
-        this.summary = [];
         this.bar = [];
+        this.pie = [];
+        this.summary = [];
         this.month = [];
         this.heatmap = [];
         this.bullet = [];
@@ -669,6 +672,10 @@ export class BarInfo extends CommonChartInfo {
     public GetChartType() {
         return OutputType.Bar;
     }
+}
+
+export class PieInfo {
+    constructor() {}
 }
 
 export class SummaryInfo extends OutputInfo {

@@ -13,14 +13,16 @@ import {
     CommonChartInfo,
     LineInfo,
     BarInfo,
+    PieInfo,
     SummaryInfo,
     BulletInfo,
     MonthInfo,
-    HeatmapInfo
+    HeatmapInfo,
 } from "./data";
+import * as pie from "./pie";
 import * as summary from "./summary";
 import * as month from "./month";
-import * as heatmap from "./heatmap"
+import * as heatmap from "./heatmap";
 import * as bullet from "./bullet";
 import * as helper from "./helper";
 
@@ -155,6 +157,12 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
     }
     for (let barInfo of renderInfo.bar) {
         let ret = renderBarChart(canvas, renderInfo, barInfo);
+        if (typeof ret === "string") {
+            return ret;
+        }
+    }
+    for (let pieInfo of renderInfo.pie) {
+        let ret = pie.renderPieChart(canvas, renderInfo, pieInfo);
         if (typeof ret === "string") {
             return ret;
         }

@@ -9,6 +9,7 @@ import {
     Margin,
     OutputType,
     LineInfo,
+    PieInfo,
     MonthInfo,
     HeatmapInfo,
     BulletInfo,
@@ -940,6 +941,7 @@ export function getRenderInfoFromYaml(
     // console.log(keysOfRenderInfo);
     let yamlLineKeys = [];
     let yamlBarKeys = [];
+    let yamlPieKeys = [];
     let yamlSummaryKeys = [];
     let yamlMonthKeys = [];
     let yamlHeatmapKeys = [];
@@ -952,6 +954,10 @@ export function getRenderInfoFromYaml(
         }
         if (/^bar[0-9]*$/.test(key)) {
             yamlBarKeys.push(key);
+            additionalAllowedKeys.push(key);
+        }
+        if (/^pie[0-9]*$/.test(key)) {
+            yamlPieKeys.push(key);
             additionalAllowedKeys.push(key);
         }
         if (/^summary[0-9]*$/.test(key)) {
@@ -985,12 +991,13 @@ export function getRenderInfoFromYaml(
     let totalNumOutputs =
         yamlLineKeys.length +
         yamlBarKeys.length +
+        yamlPieKeys.length +
         yamlSummaryKeys.length +
         yamlBulletKeys.length +
         yamlMonthKeys.length +
         yamlHeatmapKeys.length;
     if (totalNumOutputs === 0) {
-        return "No output parameter provided, please place line, bar, month, bullet, or summary.";
+        return "No output parameter provided, please place line, bar, pie, month, bullet, or summary.";
     }
 
     // Get daily notes settings using obsidian-daily-notes-interface
@@ -1485,6 +1492,26 @@ export function getRenderInfoFromYaml(
         renderInfo.bar.push(bar);
     } // bar related parameters
     // console.log(renderInfo.bar);
+
+    // pie related parameters
+    for (let pieKey of yamlPieKeys) {
+        let pie = new PieInfo();
+        let yamlPie = yaml[pieKey];
+
+        let keysOfPieInfo = getAvailableKeysOfClass(pie);
+        let keysFoundInYAML = getAvailableKeysOfClass(yamlPie);
+        // console.log(keysOfPieInfo);
+        // console.log(keysFoundInYAML);
+        for (let key of keysFoundInYAML) {
+            if (!keysOfPieInfo.includes(key)) {
+                errorMessage = "'" + key + "' is not an available key";
+                return errorMessage;
+            }
+        }
+
+        renderInfo.pie.push(pie);
+    } // pie related parameters
+    // console.log(renderInfo.pi);
 
     // summary related parameters
     for (let summaryKey of yamlSummaryKeys) {
