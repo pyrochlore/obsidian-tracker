@@ -561,6 +561,40 @@ function getNumberArray(name: string, input: any): Array<number> | string {
     return numArray;
 }
 
+function getStringArray(name: string, input: any): Array<string> | string {
+    let strArray: Array<string> = [];
+
+    if (typeof input === "undefined" || input === null) return strArray;
+
+    if (typeof input === "object") {
+        if (Array.isArray(input)) {
+            for (let elem of input) {
+                if (typeof elem === "string") {
+                    strArray.push(elem);
+                }
+            }
+        }
+    } else if (typeof input === "string") {
+        let splitted = input.split(",");
+        // console.log(splitted);
+        if (splitted.length > 1) {
+            for (let piece of splitted) {
+                strArray.push(piece);
+            }
+        } else if (input === "") {
+            let errorMessage = `Empty ${name} is not allowed.`;
+            return errorMessage;
+        } else {
+            strArray.push(input);
+        }
+    } else {
+        let errorMessage = `Invalid ${name}`;
+        return errorMessage;
+    }
+
+    return strArray;
+}
+
 function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
     // console.log("parseCommonChartInfo");
 
@@ -1508,6 +1542,42 @@ export function getRenderInfoFromYaml(
                 return errorMessage;
             }
         }
+
+        // title
+        if (typeof yamlPie?.title === "string") {
+            pie.title = yamlPie.title;
+        }
+        // console.log(pie.title);
+
+        // data
+        let retData = getStringArray("data", yamlPie?.data);
+        if (typeof retData === "string") {
+            return retData;
+        }
+        pie.data = retData;
+        console.log(pie.data);
+        let numData = pie.data.length;
+
+        // dataColor
+        let retDataColor = getStringArrayFromInput(
+            "dataColor",
+            yamlPie?.dataColor,
+            numData,
+            "none",
+            validateColor,
+            true
+        );
+        if (typeof retDataColor === "string") {
+            return retDataColor; // errorMessage
+        }
+        pie.dataColor = retDataColor;
+        // console.log(pie.dataColor);
+
+        // ratioInnerRadius
+        if (typeof yamlPie?.ratioInnerRadius === "number") {
+            pie.ratioInnerRadius = yamlPie.ratioInnerRadius;
+        }
+        // console.log(pie.ratioInnerRadius);
 
         renderInfo.pie.push(pie);
     } // pie related parameters

@@ -674,8 +674,19 @@ export class BarInfo extends CommonChartInfo {
     }
 }
 
-export class PieInfo {
-    constructor() {}
+export class PieInfo extends OutputInfo {
+    title: string;
+    data: string[];
+    dataColor: string[];
+    ratioInnerRadius: number;
+
+    constructor() {
+        super();
+        this.title = "";
+        this.data = [];
+        this.dataColor = [];
+        this.ratioInnerRadius = 0.0;
+    }
 }
 
 export class SummaryInfo extends OutputInfo {
@@ -689,7 +700,7 @@ export class SummaryInfo extends OutputInfo {
     }
 }
 
-export class MonthInfo {
+export class MonthInfo extends OutputInfo {
     mode: string;
     dataset: number[];
     startWeekOn: string;
@@ -716,6 +727,7 @@ export class MonthInfo {
     selectedDataset: number;
 
     constructor() {
+        super();
         this.mode = "circle"; // circle, symbol
         this.dataset = [];
         this.startWeekOn = "Sun";
