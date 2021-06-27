@@ -984,7 +984,6 @@ export function getRenderInfoFromYaml(
         if (/^line[0-9]*$/.test(key)) {
             yamlLineKeys.push(key);
             additionalAllowedKeys.push(key);
-            console.log("aaaaaa");
         }
         if (/^bar[0-9]*$/.test(key)) {
             yamlBarKeys.push(key);
@@ -1102,19 +1101,59 @@ export function getRenderInfoFromYaml(
                 strStartDate.length - renderInfo.dateFormatSuffix.length
             );
         }
-        let startDate = window.moment(
-            strStartDate,
-            renderInfo.dateFormat,
-            true
-        );
-        if (startDate.isValid()) {
-            renderInfo.startDate = startDate;
-        } else {
+        
+        let startDate = null;
+        let isStartDateValid = false;
+        const relDateRegex = /^(?<value>[\-\+]?[0-9]+)(?<unit>[dwmy])$/;
+        if (relDateRegex.test(strStartDate)) {
+            let match = relDateRegex.exec(strStartDate);
+            if (
+                typeof match.groups !== "undefined" &&
+                typeof match.groups.value !== "undefined" &&
+                typeof match.groups.unit !== "undefined"
+            ) {
+                let value = parseFloat(match.groups.value);
+                let unit = match.groups.unit;
+                startDate = window.moment(
+                    window.moment().format(dateFormat),
+                    dateFormat,
+                    true
+                );
+                if (unit === "d") {
+                    startDate = startDate.add(value, "days");
+                }
+                else if (unit === "w") {
+                    startDate = startDate.add(value, "weeks");
+                }
+                else if (unit === "m") {
+                    startDate = startDate.add(value, "months");
+                }
+                else if (unit === "y") {
+                    startDate = startDate.add(value, "years");
+                }
+                if (startDate.isValid()) {
+                    isStartDateValid = true;
+                }
+            }
+        }
+        else {
+            startDate = window.moment(
+                strStartDate,
+                renderInfo.dateFormat,
+                true
+            );
+            if (startDate.isValid()) {
+                isStartDateValid = true;
+            }
+        }
+
+        if (!isStartDateValid || startDate === null) {
             let errorMessage =
                 "Invalid startDate, the format of startDate may not match your dateFormat " +
                 renderInfo.dateFormat;
             return errorMessage;
         }
+        renderInfo.startDate = startDate;
     }
     if (typeof yaml.endDate === "string") {
         let strEndDate = yaml.endDate;
@@ -1133,15 +1172,60 @@ export function getRenderInfoFromYaml(
                 strEndDate.length - renderInfo.dateFormatSuffix.length
             );
         }
-        let endDate = window.moment(strEndDate, renderInfo.dateFormat, true);
-        if (endDate.isValid()) {
-            renderInfo.endDate = endDate;
-        } else {
+
+        let endDate = null;
+        let isEndDateValid = false;
+        const relDateRegex = /^(?<value>[\-\+]?[0-9]+)(?<unit>[dwmy])$/;
+        if (relDateRegex.test(strEndDate)) {
+            let match = relDateRegex.exec(strEndDate);
+            if (
+                typeof match.groups !== "undefined" &&
+                typeof match.groups.value !== "undefined" &&
+                typeof match.groups.unit !== "undefined"
+            ) {
+                let value = parseFloat(match.groups.value);
+                let unit = match.groups.unit;
+                endDate = window.moment(
+                    window.moment().format(dateFormat),
+                    dateFormat,
+                    true
+                );
+                if (unit === "d") {
+                    endDate = endDate.add(value, "days");
+                }
+                else if (unit === "w") {
+                    endDate = endDate.add(value, "weeks");
+                }
+                else if (unit === "m") {
+                    endDate = endDate.add(value, "months");
+                }
+                else if (unit === "y") {
+                    endDate = endDate.add(value, "years");
+                }
+                if (endDate.isValid()) {
+                    isEndDateValid = true;
+                }
+            }
+        }
+        else {
+            endDate = window.moment(
+                strEndDate,
+                renderInfo.dateFormat,
+                true
+            );
+            if (endDate.isValid()) {
+                isEndDateValid = true;
+            }
+        }
+        // console.log(endDate);
+
+        if (!isEndDateValid || endDate === null) {
             let errorMessage =
                 "Invalid endDate, the format of endDate may not match your dateFormat " +
                 renderInfo.dateFormat;
             return errorMessage;
         }
+        renderInfo.endDate = endDate;
     }
     if (
         renderInfo.startDate !== null &&
@@ -1555,7 +1639,7 @@ export function getRenderInfoFromYaml(
             return retData;
         }
         pie.data = retData;
-        console.log(pie.data);
+        // console.log(pie.data);
         let numData = pie.data.length;
 
         // dataColor
