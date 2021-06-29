@@ -1,6 +1,7 @@
 import { RenderInfo } from "./data";
 import * as d3 from "d3";
 import { Moment } from "moment";
+import * as helper from "./helper";
 
 let fnSet = {
     // min value of a dataset
@@ -16,7 +17,10 @@ let fnSet = {
             let arrayDataset = Array.from(dataset);
             for (let dataPoint of arrayDataset.reverse()) {
                 if (dataPoint.value !== null && dataPoint.value === min) {
-                    return dataPoint.date.format(renderInfo.dateFormat);
+                    return helper.dateToStr(
+                        dataPoint.date,
+                        renderInfo.dateFormat
+                    );
                 }
             }
         }
@@ -35,7 +39,10 @@ let fnSet = {
             let arrayDataset = Array.from(dataset);
             for (let dataPoint of arrayDataset.reverse()) {
                 if (dataPoint.value !== null && dataPoint.value === max) {
-                    return dataPoint.date.format(renderInfo.dateFormat);
+                    return helper.dateToStr(
+                        dataPoint.date,
+                        renderInfo.dateFormat
+                    );
                 }
             }
         }
@@ -48,10 +55,10 @@ let fnSet = {
         if (dataset) {
             let startDate = dataset.getStartDate();
             if (startDate && startDate.isValid()) {
-                return startDate.format(renderInfo.dateFormat);
+                return helper.dateToStr(startDate, renderInfo.dateFormat);
             }
         }
-        return renderInfo.startDate.format(renderInfo.dateFormat);
+        return helper.dateToStr(renderInfo.startDate, renderInfo.dateFormat);
     },
     // end date of a dataset
     // if datasetId not found, return overall endDate
@@ -60,10 +67,10 @@ let fnSet = {
         if (dataset) {
             let endDate = dataset.getEndDate();
             if (endDate && endDate.isValid()) {
-                return endDate.format(renderInfo.dateFormat);
+                return helper.dateToStr(endDate, renderInfo.dateFormat);
             }
         }
-        return renderInfo.endDate.format(renderInfo.dateFormat);
+        return helper.dateToStr(renderInfo.endDate, renderInfo.dateFormat);
     },
     // sum of all values in a dataset
     sum: function (renderInfo: RenderInfo, datasetId: number) {
@@ -127,7 +134,7 @@ let fnSet = {
                 }
             }
         }
-        return maxStreakStart?.format(renderInfo.dateFormat);
+        return helper.dateToStr(maxStreakStart, renderInfo.dateFormat);
     },
     maxStreakEnd: function (renderInfo: RenderInfo, datasetId: number) {
         let streak = 0;
@@ -159,7 +166,7 @@ let fnSet = {
                 }
             }
         }
-        return maxStreakEnd?.format(renderInfo.dateFormat);
+        return helper.dateToStr(maxStreakEnd, renderInfo.dateFormat);
     },
     maxBreaks: function (renderInfo: RenderInfo, datasetId: number) {
         let breaks = 0;
@@ -200,7 +207,7 @@ let fnSet = {
                 }
             }
         }
-        return maxBreaksStart?.format(renderInfo.dateFormat);
+        return helper.dateToStr(maxBreaksStart, renderInfo.dateFormat);
     },
     maxBreaksEnd: function (renderInfo: RenderInfo, datasetId: number) {
         let breaks = 0;
@@ -230,7 +237,7 @@ let fnSet = {
                 }
             }
         }
-        return maxBreaksEnd?.format(renderInfo.dateFormat);
+        return helper.dateToStr(maxBreaksEnd, renderInfo.dateFormat);
     },
     lastStreak: function (renderInfo: RenderInfo, datasetId: number) {
         return "deprecated template variable 'lastStreak'";
@@ -273,7 +280,7 @@ let fnSet = {
         if (currentStreakStart === null) {
             return "absense";
         }
-        return currentStreakStart?.format(renderInfo.dateFormat);
+        return helper.dateToStr(currentStreakStart, renderInfo.dateFormat);
     },
     currentStreakEnd: function (renderInfo: RenderInfo, datasetId: number) {
         let currentStreak = 0;
@@ -297,7 +304,7 @@ let fnSet = {
         if (currentStreakEnd === null) {
             return "absense";
         }
-        return currentStreakEnd?.format(renderInfo.dateFormat);
+        return helper.dateToStr(currentStreakEnd, renderInfo.dateFormat);
     },
     currentBreaks: function (renderInfo: RenderInfo, datasetId: number) {
         let currentBreaks = 0;
@@ -337,7 +344,7 @@ let fnSet = {
         if (currentBreaksStart === null) {
             return "absense";
         }
-        return currentBreaksStart?.format(renderInfo.dateFormat);
+        return helper.dateToStr(currentBreaksStart, renderInfo.dateFormat);
     },
     currentBreaksEnd: function (renderInfo: RenderInfo, datasetId: number) {
         let currentBreaks = 0;
@@ -361,7 +368,7 @@ let fnSet = {
         if (currentBreaksEnd === null) {
             return "absense";
         }
-        return currentBreaksEnd?.format(renderInfo.dateFormat);
+        return helper.dateToStr(currentBreaksEnd, renderInfo.dateFormat);
     },
     average: function (renderInfo: RenderInfo, datasetId: number) {
         let dataset = renderInfo.datasets.getDatasetById(datasetId);

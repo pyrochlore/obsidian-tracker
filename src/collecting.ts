@@ -11,18 +11,6 @@ import {
 } from "./data";
 import * as helper from "./helper";
 
-export function strToDate(strDate: string, dateFormat: string) {
-    if (
-        strDate.length > 4 &&
-        strDate.startsWith("[[") &&
-        strDate.endsWith("]]")
-    ) {
-        strDate = strDate.substring(2, strDate.length - 2);
-    }
-
-    return window.moment(strDate, dateFormat, true);
-}
-
 export function getDateFromFilename(file: TFile, renderInfo: RenderInfo) {
     let fileBaseName = file.basename;
 
@@ -43,7 +31,7 @@ export function getDateFromFilename(file: TFile, renderInfo: RenderInfo) {
     }
     // console.log(fileBaseName);
 
-    let fileDate = window.moment(fileBaseName, renderInfo.dateFormat, true);
+    let fileDate = helper.strToDate(fileBaseName, renderInfo.dateFormat);
     // console.log(fileDate);
 
     return fileDate;
@@ -65,7 +53,7 @@ export function getDateFromFrontmatter(
         if (helper.deepValue(frontMatter, query.getTarget())) {
             let strDate = helper.deepValue(frontMatter, query.getTarget());
 
-            date = strToDate(strDate, renderInfo.dateFormat);
+            date = helper.strToDate(strDate, renderInfo.dateFormat);
             // console.log(date);
         }
     }
@@ -104,7 +92,7 @@ export function getDateFromTag(
             typeof match.groups.values !== "undefined"
         ) {
             let strDate = match.groups.values;
-            date = strToDate(strDate, renderInfo.dateFormat);
+            date = helper.strToDate(strDate, renderInfo.dateFormat);
             if (date.isValid()) {
                 break;
             }
@@ -140,7 +128,7 @@ export function getDateFromText(
             let strDate = match.groups.value.trim();
             // console.log(strDate);
 
-            date = strToDate(strDate, renderInfo.dateFormat);
+            date = helper.strToDate(strDate, renderInfo.dateFormat);
             if (date.isValid()) {
                 break;
             }
@@ -185,7 +173,7 @@ export function getDateFromDvField(
             typeof match.groups.values !== "undefined"
         ) {
             let strDate = match.groups.values.trim();
-            date = strToDate(strDate, renderInfo.dateFormat);
+            date = helper.strToDate(strDate, renderInfo.dateFormat);
             if (date.isValid()) {
                 break;
             }
@@ -212,18 +200,10 @@ export function getDateFromFileMeta(
         let target = query.getTarget();
         if (target === "cDate") {
             let ctime = file.stat.ctime;
-            date = window.moment(
-                window.moment(ctime).format(renderInfo.dateFormat),
-                renderInfo.dateFormat,
-                true
-            );
+            date = helper.getDateFromUnixTime(ctime, renderInfo.dateFormat);
         } else if (target === "mDate") {
             let mtime = file.stat.mtime;
-            date = window.moment(
-                window.moment(mtime).format(renderInfo.dateFormat),
-                renderInfo.dateFormat,
-                true
-            );
+            date = helper.getDateFromUnixTime(mtime, renderInfo.dateFormat);
         } else if (target === "size") {
         }
     }

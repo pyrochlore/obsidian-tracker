@@ -169,7 +169,7 @@ function renderHeatmapDays(
         }
 
         daysInHeatmapView.push({
-            date: curDate.format(renderInfo.dateFormat),
+            date: helper.dateToStr(curDate, renderInfo.dateFormat),
             value: curValue,
             scaledValue: scaledValue,
             row: indRow,

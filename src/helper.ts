@@ -2,7 +2,9 @@ import { RenderInfo, Size, Transform } from "./data";
 import { TFile, TFolder, normalizePath } from "obsidian";
 import { ValueType } from "./data";
 import * as d3 from "d3";
+import { Moment } from "moment";
 
+// date and time
 const timeFormat = [
     "HH:mm",
     "HH:m",
@@ -17,6 +19,48 @@ const timeFormat = [
     "h:m A",
     "h:m a",
 ];
+
+export function strToDate(strDate: string, dateFormat: string): Moment {
+    let format: any = dateFormat;
+
+    if (
+        strDate.length > 4 &&
+        strDate.startsWith("[[") &&
+        strDate.endsWith("]]")
+    ) {
+        strDate = strDate.substring(2, strDate.length - 2);
+    }
+
+    if (dateFormat.toLowerCase() === "iso-8601") {
+        format = window.moment.ISO_8601;
+    }
+
+    return window.moment(strDate, format, true);
+}
+
+export function dateToStr(date: Moment, dateFormat: string): string {
+    if (typeof date === "undefined" || date === null) return null;
+
+    if (dateFormat.toLowerCase() === "iso-8601") {
+        return date.format();
+    }
+    return date.format(dateFormat);
+}
+
+export function getDateFromUnixTime(
+    unixTime: number,
+    dateFormat: string
+): Moment {
+    let date = window.moment(unixTime);
+    let strDate = dateToStr(date, dateFormat);
+    return strToDate(strDate, dateFormat);
+}
+
+export function getDateToday(dateFormat: string) {
+    let today = window.moment();
+    let strToday = dateToStr(today, dateFormat);
+    return strToDate(strToday, dateFormat);
+}
 
 // http://jsfiddle.net/alnitak/hEsys/
 export function deepValue(obj: any, str: string) {

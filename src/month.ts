@@ -529,7 +529,7 @@ function renderMonthDays(
         // }
 
         daysInMonthView.push({
-            date: curDate.format(renderInfo.dateFormat),
+            date: helper.dateToStr(curDate, renderInfo.dateFormat),
             value: curValue,
             scaledValue: scaledValue,
             dayInMonth: curDate.date(),
@@ -714,7 +714,7 @@ function renderMonthDays(
     }
 
     // today rings
-    let today = window.moment().format(renderInfo.dateFormat);
+    let today = helper.dateToStr(window.moment(), renderInfo.dateFormat);
     if (monthInfo.showTodayRing) {
         let todayRings = chartElements.dataArea
             .selectAll("todayRing")

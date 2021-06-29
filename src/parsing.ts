@@ -1101,7 +1101,7 @@ export function getRenderInfoFromYaml(
                 strStartDate.length - renderInfo.dateFormatSuffix.length
             );
         }
-        
+
         let startDate = null;
         let isStartDateValid = false;
         const relDateRegex = /^(?<value>[\-\+]?[0-9]+)(?<unit>[dwmy])$/;
@@ -1114,29 +1114,21 @@ export function getRenderInfoFromYaml(
             ) {
                 let value = parseFloat(match.groups.value);
                 let unit = match.groups.unit;
-                startDate = window.moment(
-                    window.moment().format(dateFormat),
-                    dateFormat,
-                    true
-                );
+                startDate = helper.getDateToday(dateFormat);
                 if (unit === "d") {
                     startDate = startDate.add(value, "days");
-                }
-                else if (unit === "w") {
+                } else if (unit === "w") {
                     startDate = startDate.add(value, "weeks");
-                }
-                else if (unit === "m") {
+                } else if (unit === "m") {
                     startDate = startDate.add(value, "months");
-                }
-                else if (unit === "y") {
+                } else if (unit === "y") {
                     startDate = startDate.add(value, "years");
                 }
                 if (startDate.isValid()) {
                     isStartDateValid = true;
                 }
             }
-        }
-        else {
+        } else {
             startDate = window.moment(
                 strStartDate,
                 renderInfo.dateFormat,
@@ -1185,34 +1177,22 @@ export function getRenderInfoFromYaml(
             ) {
                 let value = parseFloat(match.groups.value);
                 let unit = match.groups.unit;
-                endDate = window.moment(
-                    window.moment().format(dateFormat),
-                    dateFormat,
-                    true
-                );
+                endDate = helper.getDateToday(dateFormat);
                 if (unit === "d") {
                     endDate = endDate.add(value, "days");
-                }
-                else if (unit === "w") {
+                } else if (unit === "w") {
                     endDate = endDate.add(value, "weeks");
-                }
-                else if (unit === "m") {
+                } else if (unit === "m") {
                     endDate = endDate.add(value, "months");
-                }
-                else if (unit === "y") {
+                } else if (unit === "y") {
                     endDate = endDate.add(value, "years");
                 }
                 if (endDate.isValid()) {
                     isEndDateValid = true;
                 }
             }
-        }
-        else {
-            endDate = window.moment(
-                strEndDate,
-                renderInfo.dateFormat,
-                true
-            );
+        } else {
+            endDate = window.moment(strEndDate, renderInfo.dateFormat, true);
             if (endDate.isValid()) {
                 isEndDateValid = true;
             }
