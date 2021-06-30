@@ -117,8 +117,6 @@ export function getDateFromText(
     // console.log(strTextRegex);
     let textRegex = new RegExp(strTextRegex, "gm");
     let match;
-    let textMeasure = 0.0;
-    let textExist = false;
     while ((match = textRegex.exec(content))) {
         // console.log(match);
         if (
@@ -208,6 +206,41 @@ export function getDateFromFileMeta(
         }
     }
 
+    // console.log(date);
+    return date;
+}
+
+// Not support multiple targets
+// May merge with colllectDataFromTask
+export function getDateFromTask(
+    content: string,
+    query: Query,
+    renderInfo: RenderInfo
+) {
+    // console.log("getDateFromTask");
+
+    let date = window.moment("");
+
+    let subType = query.getSubType();
+    let strTextRegex = query.getTarget();
+    // console.log(strTextRegex);
+    let textRegex = new RegExp(strTextRegex, "gm");
+    let match;
+    while ((match = textRegex.exec(content))) {
+        // console.log(match);
+        if (
+            typeof match.groups !== "undefined" &&
+            typeof match.groups.value !== "undefined"
+        ) {
+            let strDate = match.groups.value.trim();
+            // console.log(strDate);
+
+            date = helper.strToDate(strDate, renderInfo.dateFormat);
+            if (date.isValid()) {
+                break;
+            }
+        }
+    }
     // console.log(date);
     return date;
 }
@@ -657,4 +690,67 @@ export function collectDataFromDvField(
     }
     let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
     addToDataMap(dataMap, xValue, query, value);
+}
+
+export function collectDataFromTask(
+    content: string,
+    query: Query,
+    renderInfo: RenderInfo,
+    dataMap: DataMap,
+    xValueMap: XValueMap
+) {
+    let subType = query.getSubType();
+    // console.log(subType);
+
+    let strTextRegex = query.getTarget();
+    if (subType === "all") {
+        strTextRegex = "\\[[\\sx]\\]\\s" + strTextRegex;
+    } else if (subType === "done") {
+        strTextRegex = "\\[x\\]\\s" + strTextRegex;
+    } else if (subType === "notdone") {
+        strTextRegex = "\\[\\s\\]\\s" + strTextRegex;
+    } else {
+        // all
+        strTextRegex = "\\[[\\sx]\\]\\s" + strTextRegex;
+    }
+    // console.log(strTextRegex);
+    let textRegex = new RegExp(strTextRegex, "gm");
+    let match;
+    let textMeasure = 0.0;
+    let textExist = false;
+    while ((match = textRegex.exec(content))) {
+        // console.log(match);
+        if (
+            !renderInfo.ignoreAttachedValue[query.getId()] &&
+            typeof match.groups !== "undefined"
+        ) {
+            // match[0] whole match
+            console.log("valued-text");
+            if (typeof match.groups.value !== "undefined") {
+                // set as null for missing value if it is valued-tag
+                let value = parseFloat(match.groups.value);
+                // console.log(value);
+                if (!Number.isNaN(value)) {
+                    if (
+                        !renderInfo.ignoreZeroValue[query.getId()] ||
+                        value !== 0
+                    ) {
+                        textMeasure += value;
+                        textExist = true;
+                        query.addNumTargets();
+                    }
+                }
+            }
+        } else {
+            // console.log("simple-text");
+            textMeasure = textMeasure + renderInfo.constValue[query.getId()];
+            textExist = true;
+            query.addNumTargets();
+        }
+    }
+
+    if (textExist) {
+        let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
+        addToDataMap(dataMap, xValue, query, textMeasure);
+    }
 }

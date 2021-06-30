@@ -39,13 +39,17 @@ function strToBool(str: string): boolean | null {
 
 function validateSearchType(searchType: string): boolean {
     if (
-        searchType === "tag" ||
-        searchType === "text" ||
-        searchType === "frontmatter" ||
-        searchType === "wiki" ||
-        searchType === "dvField" ||
-        searchType === "table" ||
-        searchType === "fileMeta"
+        searchType.toLowerCase() === "tag" ||
+        searchType.toLowerCase() === "text" ||
+        searchType.toLowerCase() === "frontmatter" ||
+        searchType.toLowerCase() === "wiki" ||
+        searchType.toLowerCase() === "dvField" ||
+        searchType.toLowerCase() === "table" ||
+        searchType.toLowerCase() === "fileMeta" ||
+        searchType.toLowerCase() === "task" ||
+        searchType.toLowerCase() === "task.all" ||
+        searchType.toLowerCase() === "task.done" ||
+        searchType.toLowerCase() === "task.notdone"
     ) {
         return true;
     }
@@ -867,6 +871,7 @@ export function getRenderInfoFromYaml(
         return errorMessage;
     }
     let searchType: Array<SearchType> = [];
+    let searchSubType: Array<string> = [];
     let retSearchType = getStringArrayFromInput(
         "searchType",
         yaml.searchType,
@@ -882,24 +887,47 @@ export function getRenderInfoFromYaml(
         switch (strType) {
             case "tag":
                 searchType.push(SearchType.Tag);
+                searchSubType.push("");
                 break;
             case "frontmatter":
                 searchType.push(SearchType.Frontmatter);
+                searchSubType.push("");
                 break;
             case "wiki":
                 searchType.push(SearchType.Wiki);
+                searchSubType.push("");
                 break;
             case "text":
                 searchType.push(SearchType.Text);
+                searchSubType.push("");
                 break;
             case "dvField":
                 searchType.push(SearchType.dvField);
+                searchSubType.push("");
                 break;
             case "table":
                 searchType.push(SearchType.Table);
+                searchSubType.push("");
                 break;
             case "fileMeta":
                 searchType.push(SearchType.FileMeta);
+                searchSubType.push("");
+                break;
+            case "task":
+                searchType.push(SearchType.Task);
+                searchSubType.push("all");
+                break;
+            case "task.all":
+                searchType.push(SearchType.Task);
+                searchSubType.push("all");
+                break;
+            case "task.done":
+                searchType.push(SearchType.Task);
+                searchSubType.push("done");
+                break;
+            case "task.notdone":
+                searchType.push(SearchType.Task);
+                searchSubType.push("notdone");
                 break;
         }
     }
@@ -963,6 +991,9 @@ export function getRenderInfoFromYaml(
             searchTarget[ind]
         );
         query.setSeparator(multipleValueSparator[ind]);
+        if (searchSubType[ind] !== "") {
+            query.setSubType(searchSubType[ind]);
+        }
         if (xDataset.includes(ind)) query.usedAsXDataset = true;
         queries.push(query);
     }

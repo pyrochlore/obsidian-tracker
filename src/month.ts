@@ -380,7 +380,7 @@ function renderMonthDays(
     curMonthDate: Moment
 ) {
     // console.log("renderMonthDays");
-
+    // console.log(renderInfo);
     if (!renderInfo || !monthInfo) return;
 
     let curDatasetId = monthInfo.selectedDataset;
@@ -430,8 +430,8 @@ function renderMonthDays(
     if (monthInfo.startWeekOn.toLowerCase() === "mon") {
         endDate = endDate.add(1, "days");
     }
-    const dataStartDate = dataset.getStartDate().clone();
-    const dataEndDate = dataset.getEndDate().clone();
+    const dataStartDate = dataset.getStartDate();
+    const dataEndDate = dataset.getEndDate();
     // console.log(monthStartDate.format("YYYY-MM-DD"));
     // console.log(startDate.format("YYYY-MM-DD"));
 
@@ -465,9 +465,14 @@ function renderMonthDays(
             isInThisMonth = false;
         }
         // is this day out of data range
-        let isOutOfDataRange = false;
-        if (curDate.diff(dataStartDate) < 0 || curDate.diff(dataEndDate) > 0) {
-            isOutOfDataRange = true;
+        let isOutOfDataRange = true;
+        if (
+            dataStartDate &&
+            dataEndDate &&
+            curDate.diff(dataStartDate) >= 0 &&
+            curDate.diff(dataEndDate) <= 0
+        ) {
+            isOutOfDataRange = false;
         }
 
         // curValue

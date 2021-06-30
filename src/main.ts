@@ -199,7 +199,8 @@ export default class Tracker extends Plugin {
                 if (
                     type === SearchType.Tag ||
                     type === SearchType.Text ||
-                    type === SearchType.dvField
+                    type === SearchType.dvField ||
+                    type === SearchType.Task
                 ) {
                     return true;
                 } else if (type === SearchType.FileMeta) {
@@ -266,6 +267,13 @@ export default class Tracker extends Plugin {
                             case SearchType.FileMeta:
                                 xDate = collecting.getDateFromFileMeta(
                                     file,
+                                    xDatasetQuery,
+                                    renderInfo
+                                );
+                                break;
+                            case SearchType.Task:
+                                xDate = collecting.getDateFromTask(
+                                    content,
                                     xDatasetQuery,
                                     renderInfo
                                 );
@@ -375,7 +383,7 @@ export default class Tracker extends Plugin {
                     );
                 } // Search inline tags
 
-                // console.log("Search text");
+                // console.log("Search Text");
                 if (content && query.getType() === SearchType.Text) {
                     collecting.collectDataFromText(
                         content,
@@ -408,6 +416,17 @@ export default class Tracker extends Plugin {
                         xValueMap
                     );
                 } // search dvField
+
+                // console.log("Search Task");
+                if (content && query.getType() === SearchType.Task) {
+                    collecting.collectDataFromTask(
+                        content,
+                        query,
+                        renderInfo,
+                        dataMap,
+                        xValueMap
+                    );
+                } // search Task
             });
             await Promise.all(loopQueryPromises);
         });
