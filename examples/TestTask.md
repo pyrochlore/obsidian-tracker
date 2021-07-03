@@ -1,7 +1,8 @@
 # Test Task
 
 ## Summary
-All Tasks
+### All Tasks
+Collect all tasks matched `searchTarget`
 ``` tracker
 searchType: task
 searchTarget: Say I love you
@@ -10,7 +11,8 @@ summary:
     template: "Total count: {{sum}}"
 ```
 
-All tasks
+### All Tasks
+Collect all tasks matched `searchTarget`
 ``` tracker
 searchType: task.all
 searchTarget: Say I love you
@@ -19,7 +21,8 @@ summary:
     template: "Total count: {{sum}}"
 ```
 
-Task done
+### Task Done
+Collect all tasks done matched `searchTarget`
 ``` tracker
 searchType: task.done
 searchTarget: Say I love you
@@ -28,7 +31,8 @@ summary:
     template: "How many days I said: {{sum}}"
 ```
 
-Task not done
+### Task Not Done
+Collect all tasks not-done matched `searchTarget`
 ``` tracker
 searchType: task.notdone
 searchTarget: Say I love you
@@ -38,10 +42,16 @@ summary:
 ```
 
 ## Month View
+See tasks done in month view
 ``` tracker
-searchType: task.notdone
+searchType: task.done
 searchTarget: Say I love you
 folder: diary
 datasetName: Love
 month:
+    color: tomato
+    headerMonthColor: orange
+    todayRingColor: orange
+    selectedRingColor: steelblue
+    showSelectedValue: false
 ```
