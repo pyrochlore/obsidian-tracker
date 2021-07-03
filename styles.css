@@ -108,16 +108,17 @@
     fill: var(--color-bar-fill);
 }
 
-.tracker-month-title-year {
+.tracker-month-header-year {
     fill: var(--color-title);
-    text-anchor: middle;
+    text-anchor: start;
     font-size: 22px;
+    
 }
 
-.tracker-month-title-month {
+.tracker-month-header-month {
     fill: var(--color-title);
-    text-anchor: middle;
-    font-size: 22px;
+    text-anchor: start;
+    font-size: 18px;
 }
 
 .tracker-month-dividing-line {
@@ -130,10 +131,22 @@
     font-size: 22px;
 }
 
+.tracker-month-title-rotator {
+    fill: var(--color-title);
+    text-anchor: middle;
+    font-size: 20px;
+}
+
 .tracker-month-title-monitor {
     fill: var(--color-title);
     text-anchor: middle;
-    font-size: 22px;
+    font-size: 18px;
+}
+
+.tracker-month-weekday {
+    fill: var(--color-tick-label);
+    stroke: none;
+    font-size: 12px;
 }
 
 .tracker-month-today-circle {

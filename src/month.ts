@@ -142,23 +142,48 @@ function renderMonthHeader(
     let headerMonthText = curMonthDate.format("MMM");
     let headerYearSize = helper.measureTextSize(
         headerYearText,
-        "tracker-month-title-year"
+        "tracker-month-header-year"
     );
     let headerMonthSize = helper.measureTextSize(
         headerMonthText,
-        "tracker-month-title-month"
+        "tracker-month-header-month"
     );
 
     let headerHeight = 0;
+    let ySpacing = 8;
+
     // Append header group
     let headerGroup = chartElements.graphArea.append("g");
 
-    // title
-    let titleHeight =
-        Math.max(headerYearSize.height, headerMonthSize.height) * 1.5;
-    let titleSpacing = 8;
+    // haeder month
+    let headerMonthColor = null;
+    if (monthInfo.headerMonthColor) {
+        headerMonthColor = monthInfo.headerMonthColor;
+    } else {
+        if (monthInfo.color) {
+            headerMonthColor = monthInfo.color;
+        }
+    }
+    let headerMonth = headerGroup
+        .append("text")
+        .text(headerMonthText) // pivot at center
+        .attr("id", "titleMonth")
+        .attr(
+            "transform",
+            "translate(" + cellSize / 4.0 + "," + headerMonthSize.height + ")"
+        )
+        .attr("class", "tracker-month-header-month")
+        .style("cursor", "default")
+        .on("click", function (event: any) {
+            clearSelection(chartElements, monthInfo);
+        });
 
-    // title year
+    if (headerMonthColor) {
+        headerMonth.style("fill", headerMonthColor);
+    }
+    headerHeight += headerMonthSize.height;
+
+    // header year
     let headerYearColor = null;
     if (monthInfo.headerYearColor) {
         headerYearColor = monthInfo.headerYearColor;
@@ -167,75 +192,44 @@ function renderMonthHeader(
             headerYearColor = monthInfo.color;
         }
     }
-    let titleYear = headerGroup
+    let headerYear = headerGroup
         .append("text")
         .text(headerYearText) // pivot at center
         .attr("id", "titleYear")
         .attr(
             "transform",
             "translate(" +
-                (headerYearSize.width / 2.0 + cellSize / 4.0) +
+                cellSize / 4.0 +
                 "," +
-                headerYearSize.height / 2.0 +
+                (headerHeight + headerYearSize.height) +
                 ")"
         )
-        .attr("class", "tracker-month-title-year")
+        .attr("class", "tracker-month-header-year")
         .style("cursor", "default")
+        .attr("font-weight", "bold")
         .on("click", function (event: any) {
             clearSelection(chartElements, monthInfo);
         });
 
     if (headerYearColor) {
-        titleYear.style("fill", headerYearColor);
+        headerYear.style("fill", headerYearColor);
     }
 
-    // title month
-    let titleMonthColor = null;
-    if (monthInfo.headerMonthColor) {
-        titleMonthColor = monthInfo.headerMonthColor;
-    } else {
-        if (monthInfo.color) {
-            titleMonthColor = monthInfo.color;
-        }
-    }
-    let titleMonth = headerGroup
-        .append("text")
-        .text(headerMonthText) // pivot at center
-        .attr("id", "titleMonth")
-        .attr(
-            "transform",
-            "translate(" +
-                (headerYearSize.width +
-                    headerMonthSize.width / 2.0 +
-                    cellSize / 4.0 +
-                    titleSpacing) +
-                "," +
-                headerMonthSize.height / 2.0 +
-                ")"
-        )
-        .attr("class", "tracker-month-title-month")
-        .style("cursor", "default")
-        .on("click", function (event: any) {
-            clearSelection(chartElements, monthInfo);
-        });
-
-    if (titleMonthColor) {
-        titleMonth.style("fill", titleMonthColor);
-    }
+    headerHeight += headerYearSize.height;
 
     // dataset rotator
+    let datasetNameSize = helper.measureTextSize(
+        datasetName,
+        "tracker-month-title-rotator"
+    );
     let datasetRotator = headerGroup
         .append("text")
         .text(datasetName)
         .attr(
             "transform",
-            "translate(" +
-                3.5 * cellSize +
-                "," +
-                headerMonthSize.height / 2.0 +
-                ")"
+            "translate(" + 3.5 * cellSize + "," + datasetNameSize.height + ")"
         )
-        .attr("class", "tracker-month-title-monitor")
+        .attr("class", "tracker-month-title-rotator")
         .style("cursor", "pointer")
         .on("click", function (event: any) {
             if (monthInfo.dataset.length <= 1) return;
@@ -253,7 +247,30 @@ function renderMonthHeader(
         });
     chartElements["rotator"] = datasetRotator;
 
+    // value monitor
+    let monitorTextSize = helper.measureTextSize(
+        "0.0000",
+        "tracker-month-title-monitor"
+    );
+    let monitor = headerGroup
+        .append("text")
+        .text("")
+        .attr("id", "monitor")
+        .attr("class", "tracker-month-title-monitor")
+        .attr(
+            "transform",
+            "translate(" +
+                3.5 * cellSize +
+                "," +
+                (datasetNameSize.height + monitorTextSize.height) +
+                ")"
+        )
+        .style("cursor", "pointer")
+        .style("fill", monthInfo.selectedRingColor);
+    chartElements["monitor"] = monitor;
+
     // arrow left
+    let arrowSize = helper.measureTextSize("<", "tracker-month-title-arrow");
     let arrowLeft = headerGroup
         .append("text")
         .text("<") // pivot at center
@@ -263,7 +280,7 @@ function renderMonthHeader(
             "translate(" +
                 5.5 * cellSize +
                 "," +
-                headerMonthSize.height / 2.0 +
+                (headerHeight / 2 + arrowSize.height / 2) +
                 ")"
         )
         .attr("class", "tracker-month-title-arrow")
@@ -292,7 +309,7 @@ function renderMonthHeader(
             "translate(" +
                 6.5 * cellSize +
                 "," +
-                headerMonthSize.height / 2.0 +
+                (headerHeight / 2 + arrowSize.height / 2) +
                 ")"
         )
         .attr("class", "tracker-month-title-arrow")
@@ -310,7 +327,31 @@ function renderMonthHeader(
             );
         })
         .style("cursor", "pointer");
-    headerHeight += titleHeight;
+
+    // arrow today
+    let arrowToday = headerGroup
+        .append("text")
+        .text("◦") // pivot at center
+        .attr("id", "arrowToday")
+        .attr(
+            "transform",
+            "translate(" +
+                6 * cellSize +
+                "," +
+                (headerHeight / 2 + arrowSize.height / 2) +
+                ")"
+        )
+        .attr("class", "tracker-month-title-arrow")
+        .on("click", function (event: any) {
+            // console.log("today arrow clicked");
+            clearSelection(chartElements, monthInfo);
+
+            let todayDate = helper.getDateToday(renderInfo.dateFormat);
+            refresh(canvas, chartElements, renderInfo, monthInfo, todayDate);
+        })
+        .style("cursor", "pointer");
+
+    headerHeight += ySpacing;
 
     // week day names
     let weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -319,7 +360,7 @@ function renderMonthHeader(
     }
     let weekdayNameSize = helper.measureTextSize(
         weekdayNames[0],
-        "tracker-tick-label"
+        "tracker-month-weekday"
     );
     let weekDays = chartElements.graphArea
         .selectAll("weekDays")
@@ -331,16 +372,20 @@ function renderMonthHeader(
         })
         .attr("transform", function (n: string, i: number) {
             let strTranslate =
-                "translate(" + (i + 0.5) * cellSize + "," + headerHeight + ")";
+                "translate(" +
+                (i + 0.5) * cellSize +
+                "," +
+                (headerHeight + weekdayNameSize.height) +
+                ")";
             return strTranslate;
         })
-        .attr("class", "tracker-tick-label")
+        .attr("class", "tracker-month-weekday")
         .attr("text-anchor", "middle")
         .style("cursor", "default")
         .on("click", function (event: any) {
             clearSelection(chartElements, monthInfo);
         });
-    headerHeight += weekdayNameSize.height;
+    headerHeight += weekdayNameSize.height + ySpacing;
 
     // dividing line
     let dividingLineHeight = 1;
@@ -768,16 +813,6 @@ function renderMonthDays(
             .style("cursor", "default")
             .style("stroke", "none");
     }
-
-    // value monitor
-    let valueMonitor = chartElements.dataArea
-        .append("text")
-        .text("")
-        .attr("id", "valueBox")
-        .attr("class", "tracker-month-title-monitor")
-        .style("cursor", "pointer")
-        .style("fill", monthInfo.selectedRingColor);
-    chartElements["monitor"] = valueMonitor;
 
     // labels
     let dayLabals = chartElements.dataArea
