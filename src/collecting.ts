@@ -219,11 +219,24 @@ export function getDateFromTask(
 ) {
     // console.log("getDateFromTask");
 
+    let subType = query.getSubType();
+    // console.log(subType);
+
     let date = window.moment("");
 
-    let subType = query.getSubType();
     let strTextRegex = query.getTarget();
+    if (subType === "all") {
+        strTextRegex = "\\[[\\sx]\\]\\s" + strTextRegex;
+    } else if (subType === "done") {
+        strTextRegex = "\\[x\\]\\s" + strTextRegex;
+    } else if (subType === "notdone") {
+        strTextRegex = "\\[\\s\\]\\s" + strTextRegex;
+    } else {
+        // all
+        strTextRegex = "\\[[\\sx]\\]\\s" + strTextRegex;
+    }
     // console.log(strTextRegex);
+
     let textRegex = new RegExp(strTextRegex, "gm");
     let match;
     while ((match = textRegex.exec(content))) {
@@ -714,6 +727,7 @@ export function collectDataFromTask(
         strTextRegex = "\\[[\\sx]\\]\\s" + strTextRegex;
     }
     // console.log(strTextRegex);
+
     let textRegex = new RegExp(strTextRegex, "gm");
     let match;
     let textMeasure = 0.0;
@@ -725,7 +739,7 @@ export function collectDataFromTask(
             typeof match.groups !== "undefined"
         ) {
             // match[0] whole match
-            console.log("valued-text");
+            // console.log("valued-text");
             if (typeof match.groups.value !== "undefined") {
                 // set as null for missing value if it is valued-tag
                 let value = parseFloat(match.groups.value);
