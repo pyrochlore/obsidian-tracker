@@ -9,6 +9,7 @@
     - [x] Get data from a table
     - [x] Collect data from dataview plugin's inline fields
     - [x] Collect meta information from file
+    - [x] Support tracking tasks
     - [ ] Allow manual data input (x and y values)
     - [ ] Allow forced value types
     - [ ] Allow using non-date x values

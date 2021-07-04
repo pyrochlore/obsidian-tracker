@@ -1,6 +1,6 @@
 # Target Evaluation
 
-From the [input parameters](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/InputParameters.md) you provided, the search targets dispersed in the notes will be counted or evaluated as a value. Tracker plugin supports seven kinds of `searchType`: `tag`, `frontmatter`, `wiki`, `text`, `table`, `dvField`, and `fileMeta`, dealing with different types of searching condition.
+From the [input parameters](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/InputParameters.md) you provided, the search targets dispersed in the notes will be counted or evaluated as a value. Tracker plugin supports eight kinds of `searchType`: `tag`, `frontmatter`, `wiki`, `text`, `table`, `dvField`, `task`, and `fileMeta`, dealing with different types of searching condition.
 
 ## Multiple Targets
 You can provide multiple search targets in code block by entering an array of targets separated by a comma under parameter `searchType` and `searchTarget`. Each of the targets will be identified in order and then the  values in notes will be evaluated and form a dataset indexed by that order in the array (zero-based indexing).
@@ -117,3 +117,11 @@ With this search type, you can retrieve infomation of files. Currently, three ki
 - numSentences: number of setences in a file
 
 `cData` and `mDate` can be used as X dataset and `size` can be used as Y dataset.
+
+### searchType: task
+
+You can retrieve infomation from tasks by using `searchType` `tasks`.
+The provided `searchTarget` will limit the result with task's contents match the input.
+
+Using type `task` or `task.all` will get you all tasks no matter it is done or not.
+To get task done, use `task.done`. By contrast, use `task.notdone`.

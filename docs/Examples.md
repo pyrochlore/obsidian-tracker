@@ -30,6 +30,9 @@ The following table lists use cases with information of target location (Locatio
 | table content | { a table filled with dates and values }<br>[example table](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/data/Tables.md) | searchType: table<br>searchTarget: filePath[0][0], filePath[0][1] | V |
 | talbe content | { a table filled with dates and values }<br>[example table](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/data/Tables.md) | searchType: table<br>searchTarget: filePath[1][0], filePath[1][1][0], filePath[1][1][1] | V |
 | file meta | meta data from files <br>(size, cDate, mDate, numWords, numChars, numSentences) | searchType: fileMeta<br>searchTarget: size | V |
+| content | - [x] Say love<br>- [ ] Say love | searchType:task<br>searchTarget: Say love | O |
+| content | - [x] Say love | searchType:task.done<br>searchTarget: Say love | O |
+| content | - [ ] Say love | searchType: task.notdone<br>searchTarget: Say love | O |
 
 ## Full examples
 
@@ -52,6 +55,7 @@ List of all examples
 - [Multiple Targets / Multiple Values](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestMultipleTargetsMultipleValues.md)
 - [Scaling and Positioning](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestScalingAndPositioning.md)
 - [Table](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestTable.md)
+- [Task](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestTask.md)
 - [Template Variables](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestTemplateVariables.md)
 - [Time Values](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestTimeValues.md)
 - [Word Counting](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestWordCounting.md)
