@@ -447,12 +447,12 @@ function renderMonthDays(
 
     // Get min and max
     let yMin = d3.min(dataset.getValues());
-    if (monthInfo.yMin !== null) {
-        yMin = monthInfo.yMin;
+    if (monthInfo.yMin[curDatasetId] !== null) {
+        yMin = monthInfo.yMin[curDatasetId];
     }
     let yMax = d3.max(dataset.getValues());
-    if (monthInfo.yMax !== null) {
-        yMax = monthInfo.yMax;
+    if (monthInfo.yMax[curDatasetId] !== null) {
+        yMax = monthInfo.yMax[curDatasetId];
     }
     // console.log(`yMin:${yMin}, yMax:${yMax}`);
     let allowScaledValue = true;

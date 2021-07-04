@@ -716,8 +716,8 @@ export class MonthInfo extends OutputInfo {
     dataset: number[];
     startWeekOn: string;
     threshold: number[];
-    yMin: number;
-    yMax: number;
+    yMin: number[];
+    yMax: number[];
     showCircle: boolean;
     color: string;
     dimNotInMonth: boolean;
@@ -743,8 +743,8 @@ export class MonthInfo extends OutputInfo {
         this.dataset = [];
         this.startWeekOn = "Sun";
         this.threshold = []; // if value > threshold, will show dot
-        this.yMin = null;
-        this.yMax = null;
+        this.yMin = [];
+        this.yMax = [];
         this.showCircle = true;
         this.color = null;
         this.dimNotInMonth = true;

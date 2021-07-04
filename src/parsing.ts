@@ -1731,14 +1731,38 @@ export function getRenderInfoFromYaml(
         // console.log(month.threshold);
 
         // yMin
-        if (typeof yamlMonth?.yMin === "number") {
-            month.yMin = yamlMonth.yMin;
+        let retYMin = getNumberArray("yMin", yamlMonth?.yMin);
+        if (typeof retYMin === "string") {
+            return retYMin;
+        }
+        month.yMin = retYMin;
+        if (month.yMin.length === 0) {
+            for (let indDataset = 0; indDataset < numDataset; indDataset++) {
+                month.yMin.push(null);
+            }
+        }
+        if (month.yMin.length !== month.dataset.length) {
+            const errorMessage =
+                "The number of inputs of yMin and dataset not matched";
+            return errorMessage;
         }
         // console.log(month.yMin);
 
         // yMax
-        if (typeof yamlMonth?.yMax === "number") {
-            month.yMax = yamlMonth.yMax;
+        let retYMax = getNumberArray("yMax", yamlMonth?.yMax);
+        if (typeof retYMax === "string") {
+            return retYMax;
+        }
+        month.yMax = retYMax;
+        if (month.yMax.length === 0) {
+            for (let indDataset = 0; indDataset < numDataset; indDataset++) {
+                month.yMax.push(null);
+            }
+        }
+        if (month.yMax.length !== month.dataset.length) {
+            const errorMessage =
+                "The number of inputs of yMin and dataset not matched";
+            return errorMessage;
         }
         // console.log(month.yMax);
 
