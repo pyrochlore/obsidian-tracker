@@ -43,9 +43,9 @@ function validateSearchType(searchType: string): boolean {
         searchType.toLowerCase() === "text" ||
         searchType.toLowerCase() === "frontmatter" ||
         searchType.toLowerCase() === "wiki" ||
-        searchType.toLowerCase() === "dvField" ||
+        searchType.toLowerCase() === "dvfield" ||
         searchType.toLowerCase() === "table" ||
-        searchType.toLowerCase() === "fileMeta" ||
+        searchType.toLowerCase() === "filemeta" ||
         searchType.toLowerCase() === "task" ||
         searchType.toLowerCase() === "task.all" ||
         searchType.toLowerCase() === "task.done" ||
