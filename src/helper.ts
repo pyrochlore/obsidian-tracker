@@ -38,9 +38,44 @@ export function strToDate(strDate: string, dateFormat: string): Moment {
     let date = window.moment(strDate, format, true);
 
     // stip time
-    date = date.startOf('day');
+    date = date.startOf("day");
 
     return date;
+}
+
+export function relDateStringToDate(
+    relDateString: string,
+    dateFormat: string
+): Moment {
+    let date = null;
+    const relDateRegex = /^(?<value>[\-\+]?[0-9]+)(?<unit>[dwmy])$/;
+    if (relDateRegex.test(relDateString)) {
+        let match = relDateRegex.exec(relDateString);
+        if (
+            typeof match.groups !== "undefined" &&
+            typeof match.groups.value !== "undefined" &&
+            typeof match.groups.unit !== "undefined"
+        ) {
+            let value = parseFloat(match.groups.value);
+            let unit = match.groups.unit;
+            date = getDateToday(dateFormat);
+            if (unit === "d") {
+                date = date.add(value, "days");
+            } else if (unit === "w") {
+                date = date.add(value, "weeks");
+            } else if (unit === "m") {
+                date = date.add(value, "months");
+            } else if (unit === "y") {
+                date = date.add(value, "years");
+            }
+        }
+    }
+
+    if (date && date.isValid()) {
+        return date;
+    }
+
+    return null;
 }
 
 export function dateToStr(date: Moment, dateFormat: string): string {

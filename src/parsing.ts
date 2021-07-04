@@ -1113,6 +1113,7 @@ export function getRenderInfoFromYaml(
     }
 
     // startDate, endDate
+    // console.log("Parsing startDate");
     if (typeof yaml.startDate === "string") {
         let strStartDate = yaml.startDate;
         if (
@@ -1135,30 +1136,12 @@ export function getRenderInfoFromYaml(
 
         let startDate = null;
         let isStartDateValid = false;
-        const relDateRegex = /^(?<value>[\-\+]?[0-9]+)(?<unit>[dwmy])$/;
-        if (relDateRegex.test(strStartDate)) {
-            let match = relDateRegex.exec(strStartDate);
-            if (
-                typeof match.groups !== "undefined" &&
-                typeof match.groups.value !== "undefined" &&
-                typeof match.groups.unit !== "undefined"
-            ) {
-                let value = parseFloat(match.groups.value);
-                let unit = match.groups.unit;
-                startDate = helper.getDateToday(dateFormat);
-                if (unit === "d") {
-                    startDate = startDate.add(value, "days");
-                } else if (unit === "w") {
-                    startDate = startDate.add(value, "weeks");
-                } else if (unit === "m") {
-                    startDate = startDate.add(value, "months");
-                } else if (unit === "y") {
-                    startDate = startDate.add(value, "years");
-                }
-                if (startDate.isValid()) {
-                    isStartDateValid = true;
-                }
-            }
+        startDate = helper.relDateStringToDate(
+            strStartDate,
+            renderInfo.dateFormat
+        );
+        if (startDate) {
+            isStartDateValid = true;
         } else {
             startDate = helper.strToDate(strStartDate, renderInfo.dateFormat);
             if (startDate.isValid()) {
@@ -1174,6 +1157,8 @@ export function getRenderInfoFromYaml(
         }
         renderInfo.startDate = startDate;
     }
+
+    // console.log("Parsing endDate");
     if (typeof yaml.endDate === "string") {
         let strEndDate = yaml.endDate;
         if (
@@ -1194,30 +1179,9 @@ export function getRenderInfoFromYaml(
 
         let endDate = null;
         let isEndDateValid = false;
-        const relDateRegex = /^(?<value>[\-\+]?[0-9]+)(?<unit>[dwmy])$/;
-        if (relDateRegex.test(strEndDate)) {
-            let match = relDateRegex.exec(strEndDate);
-            if (
-                typeof match.groups !== "undefined" &&
-                typeof match.groups.value !== "undefined" &&
-                typeof match.groups.unit !== "undefined"
-            ) {
-                let value = parseFloat(match.groups.value);
-                let unit = match.groups.unit;
-                endDate = helper.getDateToday(dateFormat);
-                if (unit === "d") {
-                    endDate = endDate.add(value, "days");
-                } else if (unit === "w") {
-                    endDate = endDate.add(value, "weeks");
-                } else if (unit === "m") {
-                    endDate = endDate.add(value, "months");
-                } else if (unit === "y") {
-                    endDate = endDate.add(value, "years");
-                }
-                if (endDate.isValid()) {
-                    isEndDateValid = true;
-                }
-            }
+        endDate = helper.relDateStringToDate(strEndDate, renderInfo.dateFormat);
+        if (endDate) {
+            isEndDateValid = true;
         } else {
             endDate = helper.strToDate(strEndDate, renderInfo.dateFormat);
             if (endDate.isValid()) {
