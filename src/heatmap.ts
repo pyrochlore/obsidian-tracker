@@ -250,6 +250,8 @@ export function renderHeatmap(
     // console.log(renderInfo);
     if (!renderInfo || !renderHeatmap) return;
 
+    return "Under construction";
+
     let chartElements: ChartElements = {};
     chartElements = createAreas(chartElements, canvas, renderInfo, heatmapInfo);
 

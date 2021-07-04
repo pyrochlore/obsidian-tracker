@@ -149,7 +149,7 @@ export function renderPieChart(
     // console.log(renderInfo);
     if (!renderInfo || !pieInfo) return;
 
-    // return "Under construction";
+    return "Under construction";
 
     let chartElements: ChartElements = {};
     chartElements = createAreas(chartElements, canvas, renderInfo, pieInfo);
