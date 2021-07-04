@@ -1722,8 +1722,8 @@ export function getRenderInfoFromYaml(
             }
         }
         if (month.threshold.length !== month.dataset.length) {
-            console.log(month.threshold);
-            console.log(month.dataset);
+            // console.log(month.threshold);
+            // console.log(month.dataset);
             const errorMessage =
                 "The number of inputs of threshold and dataset not matched";
             return errorMessage;
