@@ -7,7 +7,17 @@ searchTarget: dataviewTarget
 folder: /diary
 endDate: 2021-01-03
 summary:
-    template: 'Minimum value: {{min}} <-- should be 27'
+    template: 'Minimum value: {{min}} <-- should be 12'
+```
+
+### {{minDate}}
+``` tracker
+searchType: dvField
+searchTarget: dataviewTarget
+folder: /diary
+endDate: 2021-01-03
+summary:
+    template: 'Latest date of minimum value: {{minDate}} <-- should be 2021-01-03'
 ```
 
 ### {{max}}
@@ -17,7 +27,17 @@ searchTarget: dataviewTarget
 folder: /diary
 endDate: 2021-01-03
 summary:
-    template: 'Maximum value: {{max}} <-- should be 88'
+    template: 'Maximum value: {{max}} <-- should be 48'
+```
+
+### {{maxDate}}
+``` tracker
+searchType: dvField
+searchTarget: dataviewTarget
+folder: /diary
+endDate: 2021-01-03
+summary:
+    template: 'Latest date of maximum value: {{maxDate}} <-- should be 2021-01-01'
 ```
 
 ### {{startDate}}
@@ -47,7 +67,7 @@ searchTarget: meditation
 folder: /diary
 endDate: 2021-01-04
 summary:
-    template: 'Sum: {{sum}} <-- should be 2'
+    template: 'Sum: {{sum}} <-- should be 3'
 ```
 
 ### {{numTargets}}
@@ -77,7 +97,7 @@ searchTarget: meditation
 folder: /diary
 endDate: 2021-01-04
 summary:
-    template: 'Number of days having data: {{numDaysHavingData}} <-- should be 2'
+    template: 'Number of days having data: {{numDaysHavingData}} <-- should be 3'
 ```
 
 ### {{maxStreak}}
@@ -87,7 +107,7 @@ searchTarget: meditation
 folder: /diary
 endDate: 2021-01-09
 summary:
-    template: 'Maximum streak: {{maxStreak}} <-- should be 3'
+    template: 'Maximum streak: {{maxStreak}} <-- should be 5'
 ```
 
 ### {{maxStreakStart}}
@@ -97,7 +117,7 @@ searchTarget: meditation
 folder: /diary
 endDate: 2021-01-09
 summary:
-    template: 'The start date of maximum streak: {{maxStreakStart}} <-- should be 2021-01-04'
+    template: 'The start date of maximum streak: {{maxStreakStart}} <-- should be 2021-01-02'
 ```
 
 ### {{maxStreakEnd}}
@@ -117,7 +137,7 @@ searchTarget: meditation
 folder: /diary
 endDate: 2021-01-09
 summary:
-    template: 'Maximum breaks: {{maxBreaks}} <-- should be 1'
+    template: 'Maximum breaks: {{maxBreaks}} <-- should be 2'
 ```
 
 ### {{maxBreaksStart}}
@@ -137,7 +157,7 @@ searchTarget: meditation
 folder: /diary
 endDate: 2021-01-09
 summary:
-    template: 'The end date of maximum breaks: {{maxBreaksEnd}} <-- should be 2021-01-07'
+    template: 'The end date of maximum breaks: {{maxBreaksEnd}} <-- should be 2021-01-08'
 ```
 
 ### {{currentStreak}}
@@ -147,7 +167,7 @@ searchTarget: meditation
 folder: /diary
 endDate: 2021-01-24
 summary:
-    template: 'Latest streak: {{currentStreak}} <-- should be 2'
+    template: 'Latest streak: {{currentStreak}} <-- should be 1'
 ```
 
 ### {{currentStreakStart}}
@@ -157,7 +177,7 @@ searchTarget: meditation
 folder: /diary
 endDate: 2021-01-24
 summary:
-    template: 'The start date of current streak: {{currentStreakStart}} <-- should be 2021-01-23'
+    template: 'The start date of current streak: {{currentStreakStart}} <-- should be 2021-01-24'
 ```
 
 ### {{currentStreakEnd}}
@@ -177,7 +197,7 @@ searchTarget: meditation
 folder: /diary
 endDate: 2021-01-22
 summary:
-    template: 'Current breaks: {{currentBreaks}} <-- should be 8'
+    template: 'Current breaks: {{currentBreaks}} <-- should be 1'
 ```
 
 ### {{currentBreaksStart}}
@@ -187,7 +207,7 @@ searchTarget: meditation
 folder: /diary
 endDate: 2021-01-22
 summary:
-    template: 'The start date of current breaks: {{currentBreaksStart}} <-- should be 2021-01-15'
+    template: 'The start date of current breaks: {{currentBreaksStart}} <-- should be 2021-01-22'
 ```
 
 ### {{currentBreaksEnd}}
@@ -201,14 +221,14 @@ summary:
 ```
 
 ### {{average}}
-(48+27+88)/3 = 54.33
+(48+25+12)/3 = 28.33
 ``` tracker
 searchType: dvField
 searchTarget: dataviewTarget
 folder: /diary
 endDate: 2021-01-03
 summary:
-    template: 'Average value: {{average}} <-- should be 54.33'
+    template: 'Average value: {{average}} <-- should be 28.33'
 ```
 
 ### {{median}}
@@ -218,7 +238,7 @@ searchTarget: dataviewTarget
 folder: /diary
 endDate: 2021-01-03
 summary:
-    template: 'Median value: {{median}} <-- should be 48'
+    template: 'Median value: {{median}} <-- should be 25'
 ```
 
 ### {{variance}}
@@ -229,5 +249,5 @@ searchTarget: dataviewTarget
 folder: /diary
 endDate: 2021-01-03
 summary:
-    template: 'Variance value: {{variance}} <-- should be 960.33'
+    template: 'Variance value: {{variance}} <-- should be 332.33'
 ```

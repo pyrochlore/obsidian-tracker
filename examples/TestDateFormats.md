@@ -1,6 +1,5 @@
 # Test Date Formats
 
-
 ## Test Default Date Formats
 
 Change the default dateFomat on Tracker settings panel and then check the following trackers in the preview mode. Only the one fit dateFomat settings will get rendered.
@@ -94,7 +93,25 @@ line:
     lineColor: yellow
 ```
 
+## ISO-8601 Date Format
+
+``` tracker
+searchType: tag
+searchTarget: weight
+folder: diary
+dateFormat: iso-8601
+startDate: 2021-01-01T14:53:25+00:00
+endDate: 2021-01-05T14:53:25+00:00
+line:
+    title: Weight Log
+    yAxisLabel: Weight
+    yAxisUnit: kg
+    lineColor: yellow
+```
+
 ## Test Date Format Prefix and Suffix
+
+The string provided in dateFormatPrefix and dateFormatSuffix will be removed before parsing dates.
 
 ### dateFormat: YYYYMMDD with prefix D-
 
@@ -121,6 +138,28 @@ folder: diary
 dateFormatSuffix: -D
 startDate: 20210101-D
 endDate: 20210105-D
+line:
+    title: Weight Log
+    yAxisLabel: Weight
+    yAxisUnit: kg
+    lineColor: yellow
+```
+
+## Relative Date Input for startDate and endDate
+
+The reference date of the relative date input is 'today' (The current date of your computer), So
+0d ==> today
+-1d ==> yesterday
+-1w ==> last week
+-1m ==> last month
+-1y ==> last year
+
+``` tracker
+searchType: tag
+searchTarget: weight
+folder: diary
+startDate: -1m
+endDate: 0d
 line:
     title: Weight Log
     yAxisLabel: Weight

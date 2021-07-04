@@ -21,6 +21,7 @@ let ratioDotToText = 1.8;
 interface DayInfo {
     date: string;
     value: number;
+    scaledValue: number;
     dayInMonth: number;
     isInThisMonth: boolean;
     isOutOfDataRange: boolean;
@@ -105,21 +106,28 @@ function clearSelection(chartElements: ChartElements, monthInfo: MonthInfo) {
             d3.select(circle).style("stroke", "none");
         }
     }
+
     monthInfo.selectedDate = "";
 
     chartElements.monitor.text("");
 }
+
 function renderMonthHeader(
     canvas: HTMLElement,
     chartElements: ChartElements,
     renderInfo: RenderInfo,
     monthInfo: MonthInfo,
-    dataset: Dataset,
     curMonthDate: Moment
 ) {
     // console.log("renderMonthHeader")
 
     if (!renderInfo || !monthInfo) return;
+
+    let curDatasetId = monthInfo.selectedDataset;
+    let datasetIds = monthInfo.dataset;
+    if (datasetIds.length === 0) return;
+    let dataset = renderInfo.datasets.getDatasetById(curDatasetId);
+    let datasetName = dataset.getName();
 
     let curMonth = curMonthDate.month(); // 0~11
     let curDaysInMonth = curMonthDate.daysInMonth(); // 28~31
@@ -134,23 +142,48 @@ function renderMonthHeader(
     let headerMonthText = curMonthDate.format("MMM");
     let headerYearSize = helper.measureTextSize(
         headerYearText,
-        "tracker-month-title-year"
+        "tracker-month-header-year"
     );
     let headerMonthSize = helper.measureTextSize(
         headerMonthText,
-        "tracker-month-title-month"
+        "tracker-month-header-month"
     );
 
     let headerHeight = 0;
+    let ySpacing = 8;
+
     // Append header group
     let headerGroup = chartElements.graphArea.append("g");
 
-    // title
-    let titleHeight =
-        Math.max(headerYearSize.height, headerMonthSize.height) * 1.5;
-    let titleSpacing = 8;
+    // haeder month
+    let headerMonthColor = null;
+    if (monthInfo.headerMonthColor) {
+        headerMonthColor = monthInfo.headerMonthColor;
+    } else {
+        if (monthInfo.color) {
+            headerMonthColor = monthInfo.color;
+        }
+    }
+    let headerMonth = headerGroup
+        .append("text")
+        .text(headerMonthText) // pivot at center
+        .attr("id", "titleMonth")
+        .attr(
+            "transform",
+            "translate(" + cellSize / 4.0 + "," + headerMonthSize.height + ")"
+        )
+        .attr("class", "tracker-month-header-month")
+        .style("cursor", "default")
+        .on("click", function (event: any) {
+            clearSelection(chartElements, monthInfo);
+        });
 
-    // title year
+    if (headerMonthColor) {
+        headerMonth.style("fill", headerMonthColor);
+    }
+    headerHeight += headerMonthSize.height;
+
+    // header year
     let headerYearColor = null;
     if (monthInfo.headerYearColor) {
         headerYearColor = monthInfo.headerYearColor;
@@ -159,81 +192,85 @@ function renderMonthHeader(
             headerYearColor = monthInfo.color;
         }
     }
-    let titleYear = headerGroup
+    let headerYear = headerGroup
         .append("text")
         .text(headerYearText) // pivot at center
         .attr("id", "titleYear")
         .attr(
             "transform",
             "translate(" +
-                (headerYearSize.width / 2.0 + cellSize / 4.0) +
+                cellSize / 4.0 +
                 "," +
-                headerYearSize.height / 2.0 +
+                (headerHeight + headerYearSize.height) +
                 ")"
         )
-        .attr("class", "tracker-month-title-year")
+        .attr("class", "tracker-month-header-year")
         .style("cursor", "default")
+        .attr("font-weight", "bold")
         .on("click", function (event: any) {
             clearSelection(chartElements, monthInfo);
         });
 
     if (headerYearColor) {
-        titleYear.style("fill", headerYearColor);
+        headerYear.style("fill", headerYearColor);
     }
 
-    // title month
-    let titleMonthColor = null;
-    if (monthInfo.headerMonthColor) {
-        titleMonthColor = monthInfo.headerMonthColor;
-    } else {
-        if (monthInfo.color) {
-            titleMonthColor = monthInfo.color;
-        }
-    }
-    let titleMonth = headerGroup
+    headerHeight += headerYearSize.height;
+
+    // dataset rotator
+    let datasetNameSize = helper.measureTextSize(
+        datasetName,
+        "tracker-month-title-rotator"
+    );
+    let datasetRotator = headerGroup
         .append("text")
-        .text(headerMonthText) // pivot at center
-        .attr("id", "titleMonth")
+        .text(datasetName)
         .attr(
             "transform",
-            "translate(" +
-                (headerYearSize.width +
-                    headerMonthSize.width / 2.0 +
-                    cellSize / 4.0 +
-                    titleSpacing) +
-                "," +
-                headerMonthSize.height / 2.0 +
-                ")"
+            "translate(" + 3.5 * cellSize + "," + datasetNameSize.height + ")"
         )
-        .attr("class", "tracker-month-title-month")
-        .style("cursor", "default")
+        .attr("class", "tracker-month-title-rotator")
+        .style("cursor", "pointer")
         .on("click", function (event: any) {
+            if (monthInfo.dataset.length <= 1) return;
+            // clear circles
             clearSelection(chartElements, monthInfo);
-        });
+            // show next target
+            let curDataset = monthInfo.selectedDataset + 1;
+            if (curDataset >= monthInfo.dataset.length) {
+                curDataset = 0;
+            }
+            monthInfo.selectedDataset = curDataset;
+            // console.log(monthInfo.selectedDataset);
 
-    if (titleMonthColor) {
-        titleMonth.style("fill", titleMonthColor);
-    }
+            refresh(canvas, chartElements, renderInfo, monthInfo, curMonthDate);
+        });
+    chartElements["rotator"] = datasetRotator;
 
     // value monitor
-    let valueMonitor = headerGroup
+    let monitorTextSize = helper.measureTextSize(
+        "0.0000",
+        "tracker-month-title-monitor"
+    );
+    let monitor = headerGroup
         .append("text")
         .text("")
-        .attr("id", "valueMonitor")
+        .attr("id", "monitor")
+        .attr("class", "tracker-month-title-monitor")
         .attr(
             "transform",
             "translate(" +
                 3.5 * cellSize +
                 "," +
-                headerMonthSize.height / 2.0 +
+                (datasetNameSize.height + monitorTextSize.height) +
                 ")"
         )
-        .attr("class", "tracker-month-title-monitor")
         .style("cursor", "pointer")
         .style("fill", monthInfo.selectedRingColor);
-    chartElements["monitor"] = valueMonitor;
+    chartElements["monitor"] = monitor;
 
     // arrow left
+    let arrowSize = helper.measureTextSize("<", "tracker-month-title-arrow");
     let arrowLeft = headerGroup
         .append("text")
         .text("<") // pivot at center
@@ -243,13 +280,14 @@ function renderMonthHeader(
             "translate(" +
                 5.5 * cellSize +
                 "," +
-                headerMonthSize.height / 2.0 +
+                (headerHeight / 2 + arrowSize.height / 2) +
                 ")"
         )
         .attr("class", "tracker-month-title-arrow")
         .on("click", function (event: any) {
             // console.log("left arrow clicked");
             clearSelection(chartElements, monthInfo);
+            monthInfo.selectedDate = "";
             let prevMonthDate = curMonthDate.clone().add(-1, "month");
             refresh(
                 canvas,
@@ -271,13 +309,14 @@ function renderMonthHeader(
             "translate(" +
                 6.5 * cellSize +
                 "," +
-                headerMonthSize.height / 2.0 +
+                (headerHeight / 2 + arrowSize.height / 2) +
                 ")"
         )
         .attr("class", "tracker-month-title-arrow")
         .on("click", function (event: any) {
             // console.log("right arrow clicked");
             clearSelection(chartElements, monthInfo);
+
             let nextMonthDate = curMonthDate.clone().add(1, "month");
             refresh(
                 canvas,
@@ -288,7 +327,31 @@ function renderMonthHeader(
             );
         })
         .style("cursor", "pointer");
-    headerHeight += titleHeight;
+
+    // arrow today
+    let arrowToday = headerGroup
+        .append("text")
+        .text("◦") // pivot at center
+        .attr("id", "arrowToday")
+        .attr(
+            "transform",
+            "translate(" +
+                6 * cellSize +
+                "," +
+                (headerHeight / 2 + arrowSize.height / 2) +
+                ")"
+        )
+        .attr("class", "tracker-month-title-arrow")
+        .on("click", function (event: any) {
+            // console.log("today arrow clicked");
+            clearSelection(chartElements, monthInfo);
+
+            let todayDate = helper.getDateToday(renderInfo.dateFormat);
+            refresh(canvas, chartElements, renderInfo, monthInfo, todayDate);
+        })
+        .style("cursor", "pointer");
+
+    headerHeight += ySpacing;
 
     // week day names
     let weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -297,7 +360,7 @@ function renderMonthHeader(
     }
     let weekdayNameSize = helper.measureTextSize(
         weekdayNames[0],
-        "tracker-tick-label"
+        "tracker-month-weekday"
     );
     let weekDays = chartElements.graphArea
         .selectAll("weekDays")
@@ -309,16 +372,20 @@ function renderMonthHeader(
         })
         .attr("transform", function (n: string, i: number) {
             let strTranslate =
-                "translate(" + (i + 0.5) * cellSize + "," + headerHeight + ")";
+                "translate(" +
+                (i + 0.5) * cellSize +
+                "," +
+                (headerHeight + weekdayNameSize.height) +
+                ")";
             return strTranslate;
         })
-        .attr("class", "tracker-tick-label")
+        .attr("class", "tracker-month-weekday")
         .attr("text-anchor", "middle")
         .style("cursor", "default")
         .on("click", function (event: any) {
             clearSelection(chartElements, monthInfo);
         });
-    headerHeight += weekdayNameSize.height;
+    headerHeight += weekdayNameSize.height + ySpacing;
 
     // dividing line
     let dividingLineHeight = 1;
@@ -355,12 +422,18 @@ function renderMonthDays(
     chartElements: ChartElements,
     renderInfo: RenderInfo,
     monthInfo: MonthInfo,
-    dataset: Dataset,
     curMonthDate: Moment
 ) {
     // console.log("renderMonthDays");
-
+    // console.log(renderInfo);
     if (!renderInfo || !monthInfo) return;
+
+    let curDatasetId = monthInfo.selectedDataset;
+    let datasetIds = monthInfo.dataset;
+    if (datasetIds.length === 0) return;
+    let dataset = renderInfo.datasets.getDatasetById(curDatasetId);
+
+    let threshold = monthInfo.threshold[curDatasetId];
 
     let curMonth = curMonthDate.month(); // 0~11
     let curDaysInMonth = curMonthDate.daysInMonth(); // 28~31
@@ -372,8 +445,24 @@ function renderMonthDays(
     let streakWidth = (cellSize - dotRadius * 2.0) / 2.0;
     let streakHeight = 3;
 
-    // Prepare data for graph
-    let daysInMonthView: Array<DayInfo> = [];
+    // Get min and max
+    let yMin = d3.min(dataset.getValues());
+    if (monthInfo.yMin[curDatasetId] !== null) {
+        yMin = monthInfo.yMin[curDatasetId];
+    }
+    let yMax = d3.max(dataset.getValues());
+    if (monthInfo.yMax[curDatasetId] !== null) {
+        yMax = monthInfo.yMax[curDatasetId];
+    }
+    // console.log(`yMin:${yMin}, yMax:${yMax}`);
+    let allowScaledValue = true;
+    if (yMax === null || yMin === null || yMax <= yMin) {
+        // scaledValue can not be calculated, do not use gradient color
+        allowScaledValue = false;
+        // console.log("scaledValue not allowed");
+    }
+
+    // Start and end
     const monthStartDate = curMonthDate.clone().startOf("month");
     let startDate = monthStartDate
         .clone()
@@ -386,10 +475,13 @@ function renderMonthDays(
     if (monthInfo.startWeekOn.toLowerCase() === "mon") {
         endDate = endDate.add(1, "days");
     }
-    const dataStartDate = dataset.getStartDate().clone();
-    const dataEndDate = dataset.getEndDate().clone();
+    const dataStartDate = dataset.getStartDate();
+    const dataEndDate = dataset.getEndDate();
     // console.log(monthStartDate.format("YYYY-MM-DD"));
     // console.log(startDate.format("YYYY-MM-DD"));
+
+    // Prepare data for graph
+    let daysInMonthView: Array<DayInfo> = [];
     let indCol = 0;
     let indRow = 0;
     let ind = 0;
@@ -418,17 +510,45 @@ function renderMonthDays(
             isInThisMonth = false;
         }
         // is this day out of data range
-        let isOutOfDataRange = false;
-        if (curDate.diff(dataStartDate) < 0 || curDate.diff(dataEndDate) > 0) {
-            isOutOfDataRange = true;
+        let isOutOfDataRange = true;
+        if (
+            dataStartDate &&
+            dataEndDate &&
+            curDate.diff(dataStartDate) >= 0 &&
+            curDate.diff(dataEndDate) <= 0
+        ) {
+            isOutOfDataRange = false;
+        }
+
+        // curValue
+        let curValue = dataset.getValue(curDate);
+
+        // showCircle
+        let showCircle = false;
+        if (!monthInfo.circleColorByValue) {
+            // shown or not shown
+            if (curValue !== null) {
+                if (curValue > threshold) {
+                    showCircle = true;
+                }
+            }
+        } else {
+            if (!allowScaledValue) {
+                if (curValue !== null) {
+                    if (curValue > threshold) {
+                        showCircle = true;
+                    }
+                }
+            } else {
+                showCircle = true;
+            }
         }
 
         // scaledValue
-        let curValue = dataset.getValue(curDate);
-        let showCircle = false;
-        if (curValue !== null) {
-            if (curValue > monthInfo.threshold) {
-                showCircle = true;
+        let scaledValue = null;
+        if (monthInfo.circleColorByValue) {
+            if (allowScaledValue && curValue !== null) {
+                scaledValue = (curValue - yMin) / (yMax - yMin);
             }
         }
 
@@ -440,14 +560,14 @@ function renderMonthDays(
         let nextValue = dataset.getValue(curDate, 1);
         let prevValue = dataset.getValue(curDate, -1);
         let streakIn = false;
-        if (curValue !== null && curValue > monthInfo.threshold) {
-            if (prevValue !== null && prevValue > monthInfo.threshold) {
+        if (curValue !== null && curValue > threshold) {
+            if (prevValue !== null && prevValue > threshold) {
                 streakIn = true;
             }
         }
         let streakOut = false;
-        if (curValue !== null && curValue > monthInfo.threshold) {
-            if (nextValue !== null && nextValue > monthInfo.threshold) {
+        if (curValue !== null && curValue > threshold) {
+            if (nextValue !== null && nextValue > threshold) {
                 streakOut = true;
             }
         }
@@ -459,8 +579,9 @@ function renderMonthDays(
         // }
 
         daysInMonthView.push({
-            date: curDate.format(renderInfo.dateFormat),
+            date: helper.dateToStr(curDate, renderInfo.dateFormat),
             value: curValue,
+            scaledValue: scaledValue,
             dayInMonth: curDate.date(),
             isInThisMonth: isInThisMonth,
             isOutOfDataRange: isOutOfDataRange,
@@ -491,6 +612,14 @@ function renderMonthDays(
 
     // streak lines
     if (monthInfo.showStreak) {
+        let streakColor = "#69b3a2";
+        if (monthInfo.circleColor) {
+            streakColor = monthInfo.circleColor;
+        } else if (monthInfo.color) {
+            streakColor = monthInfo.color;
+        }
+        // console.log(streakColor);
+
         chartElements.dataArea
             .selectAll("streakIn")
             .data(
@@ -514,16 +643,21 @@ function renderMonthDays(
             .attr("height", streakHeight)
             .style("fill", function (d: DayInfo) {
                 if (d.showCircle) {
-                    if (monthInfo.circleColor) {
-                        return monthInfo.circleColor;
-                    } else if (monthInfo.color) {
-                        return monthInfo.color;
+                    if (!monthInfo.circleColorByValue) {
+                        return streakColor;
                     }
-                    return "#69b3a2";
+                    if (d.scaledValue !== null) {
+                        return d3.interpolateLab(
+                            "white",
+                            streakColor
+                        )(d.scaledValue * 0.8 + 0.2);
+                    } else {
+                        return streakColor;
+                    }
                 }
                 return "none";
             })
-            .style("fill-opacity", function (d: DayInfo) {
+            .style("opacity", function (d: DayInfo) {
                 if (
                     d.isOutOfDataRange ||
                     (monthInfo.dimNotInMonth && !d.isInThisMonth)
@@ -556,16 +690,21 @@ function renderMonthDays(
             .attr("height", streakHeight)
             .style("fill", function (d: DayInfo) {
                 if (d.showCircle) {
-                    if (monthInfo.circleColor) {
-                        return monthInfo.circleColor;
-                    } else if (monthInfo.color) {
-                        return monthInfo.color;
+                    if (!monthInfo.circleColorByValue) {
+                        return streakColor;
                     }
-                    return "#69b3a2";
+                    if (d.scaledValue !== null) {
+                        return d3.interpolateLab(
+                            "white",
+                            streakColor
+                        )(d.scaledValue * 0.8 + 0.2);
+                    } else {
+                        return streakColor;
+                    }
                 }
                 return "none";
             })
-            .style("fill-opacity", function (d: DayInfo) {
+            .style("opacity", function (d: DayInfo) {
                 if (
                     d.isOutOfDataRange ||
                     (monthInfo.dimNotInMonth && !d.isInThisMonth)
@@ -576,7 +715,13 @@ function renderMonthDays(
             });
     }
 
-    // dots
+    // circles
+    let circleColor = "#69b3a2";
+    if (monthInfo.circleColor) {
+        circleColor = monthInfo.circleColor;
+    } else if (monthInfo.color) {
+        circleColor = monthInfo.color;
+    }
     if (monthInfo.showCircle) {
         let dots = chartElements.dataArea
             .selectAll("dot")
@@ -592,16 +737,21 @@ function renderMonthDays(
             })
             .style("fill", function (d: DayInfo) {
                 if (d.showCircle) {
-                    if (monthInfo.circleColor) {
-                        return monthInfo.circleColor;
-                    } else if (monthInfo.color) {
-                        return monthInfo.color;
+                    if (!monthInfo.circleColorByValue) {
+                        return circleColor;
                     }
-                    return "#69b3a2";
+                    if (d.scaledValue !== null) {
+                        return d3.interpolateLab(
+                            "white",
+                            circleColor
+                        )(d.scaledValue * 0.8 + 0.2);
+                    } else {
+                        return circleColor;
+                    }
                 }
                 return "none";
             })
-            .style("fill-opacity", function (d: DayInfo) {
+            .style("opacity", function (d: DayInfo) {
                 if (
                     d.isOutOfDataRange ||
                     (monthInfo.dimNotInMonth && !d.isInThisMonth)
@@ -613,8 +763,8 @@ function renderMonthDays(
             .style("cursor", "default");
     }
 
-    // today circles
-    let today = window.moment().format(renderInfo.dateFormat);
+    // today rings
+    let today = helper.dateToStr(window.moment(), renderInfo.dateFormat);
     if (monthInfo.showTodayRing) {
         let todayRings = chartElements.dataArea
             .selectAll("todayRing")
@@ -642,7 +792,7 @@ function renderMonthDays(
         }
     }
 
-    // selected circles
+    // selected rings
     if (monthInfo.showSelectedRing) {
         let selectedRings = chartElements.dataArea
             .selectAll("selectedRing")
@@ -772,27 +922,16 @@ function refresh(
 
     chartElements = createAreas(chartElements, canvas, renderInfo, monthInfo);
 
-    let datasetId = parseFloat(monthInfo.dataset);
-    let dataset = renderInfo.datasets.getDatasetById(datasetId);
-
     // render
     renderMonthHeader(
         canvas,
         chartElements,
         renderInfo,
         monthInfo,
-        dataset,
         curMonthDate
     );
 
-    renderMonthDays(
-        canvas,
-        chartElements,
-        renderInfo,
-        monthInfo,
-        dataset,
-        curMonthDate
-    );
+    renderMonthDays(canvas, chartElements, renderInfo, monthInfo, curMonthDate);
 }
 
 export function renderMonth(
@@ -807,27 +946,22 @@ export function renderMonth(
     let chartElements: ChartElements = {};
     chartElements = createAreas(chartElements, canvas, renderInfo, monthInfo);
 
-    let today = window.moment();
-    let lastDataMonthDate = renderInfo.datasets.getDates().last();
+    let monthDate: Moment = null;
+    if (monthInfo.initMonth) {
+        let initMonth = window.moment(monthInfo.initMonth, "YYYY-MM", true);
+        // console.log(initMonth);
+        if (initMonth.isValid()) {
+            monthDate = initMonth;
+        } else {
+            return "Invalid initMonth";
+        }
+    } else {
+        let today = window.moment();
+        monthDate = renderInfo.datasets.getDates().last();
+    }
+    if (!monthDate) return;
 
-    let datasetId = parseFloat(monthInfo.dataset);
-    let dataset = renderInfo.datasets.getDatasetById(datasetId);
+    renderMonthHeader(canvas, chartElements, renderInfo, monthInfo, monthDate);
 
-    renderMonthHeader(
-        canvas,
-        chartElements,
-        renderInfo,
-        monthInfo,
-        dataset,
-        lastDataMonthDate
-    );
-
-    renderMonthDays(
-        canvas,
-        chartElements,
-        renderInfo,
-        monthInfo,
-        dataset,
-        lastDataMonthDate
-    );
+    renderMonthDays(canvas, chartElements, renderInfo, monthInfo, monthDate);
 }

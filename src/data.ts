@@ -8,15 +8,18 @@ export enum SearchType {
     dvField,
     Table,
     FileMeta,
+    Task,
 }
 
 export enum OutputType {
     Line,
     Bar,
+    Pie,
     Radar,
     Summary,
     Table,
     Month,
+    Heatmap,
     Bullet,
     Unknown,
 }
@@ -42,6 +45,7 @@ export class DataPoint {
 
 export class Query {
     private type: SearchType | null;
+    private subType: string;
     private target: string;
     private parentTarget: string | null;
     private separator: string; // multiple value separator
@@ -56,6 +60,7 @@ export class Query {
 
     constructor(id: number, searchType: SearchType, searchTarget: string) {
         this.type = searchType;
+        this.subType = "";
         this.target = searchTarget;
         this.separator = "/";
         this.id = id;
@@ -130,6 +135,14 @@ export class Query {
 
     public getType() {
         return this.type;
+    }
+
+    public getSubType() {
+        return this.subType;
+    }
+
+    public setSubType(subType: string) {
+        this.subType = subType;
     }
 
     public getTarget() {
@@ -521,8 +534,10 @@ export class RenderInfo {
     output: any[];
     line: LineInfo[];
     bar: BarInfo[];
+    pie: PieInfo[];
     summary: SummaryInfo[];
     month: MonthInfo[];
+    heatmap: HeatmapInfo[];
     bullet: BulletInfo[];
 
     public datasets: Datasets | null;
@@ -554,9 +569,11 @@ export class RenderInfo {
 
         this.output = [];
         this.line = [];
-        this.summary = [];
         this.bar = [];
+        this.pie = [];
+        this.summary = [];
         this.month = [];
+        this.heatmap = [];
         this.bullet = [];
 
         this.datasets = null;
@@ -668,6 +685,21 @@ export class BarInfo extends CommonChartInfo {
     }
 }
 
+export class PieInfo extends OutputInfo {
+    title: string;
+    data: string[];
+    dataColor: string[];
+    ratioInnerRadius: number;
+
+    constructor() {
+        super();
+        this.title = "";
+        this.data = [];
+        this.dataColor = [];
+        this.ratioInnerRadius = 0.0;
+    }
+}
+
 export class SummaryInfo extends OutputInfo {
     template: string;
     style: string;
@@ -679,10 +711,13 @@ export class SummaryInfo extends OutputInfo {
     }
 }
 
-export class MonthInfo {
-    dataset: string;
+export class MonthInfo extends OutputInfo {
+    mode: string;
+    dataset: number[];
     startWeekOn: string;
-    threshold: number;
+    threshold: number[];
+    yMin: number[];
+    yMax: number[];
     showCircle: boolean;
     color: string;
     dimNotInMonth: boolean;
@@ -691,18 +726,25 @@ export class MonthInfo {
     showSelectedValue: boolean;
     showSelectedRing: boolean;
     circleColor: string;
+    circleColorByValue: boolean;
     headerYearColor: string;
     headerMonthColor: string;
     dividingLineColor: string;
     todayRingColor: string;
     selectedRingColor: string;
+    initMonth: string; // YYYY-MM
 
     selectedDate: string;
+    selectedDataset: number;
 
     constructor() {
-        this.dataset = "0";
+        super();
+        this.mode = "circle"; // circle, symbol
+        this.dataset = [];
         this.startWeekOn = "Sun";
-        this.threshold = 0.0; // if value > threshold, will show dot
+        this.threshold = []; // if value > threshold, will show dot
+        this.yMin = [];
+        this.yMax = [];
         this.showCircle = true;
         this.color = null;
         this.dimNotInMonth = true;
@@ -711,13 +753,34 @@ export class MonthInfo {
         this.showSelectedValue = true;
         this.showSelectedRing = true;
         this.circleColor = null;
+        this.circleColorByValue = false;
         this.headerYearColor = null;
         this.headerMonthColor = null;
         this.dividingLineColor = null;
         this.todayRingColor = ""; // white
         this.selectedRingColor = "firebrick";
+        this.initMonth = "";
 
-        this.selectedDate = "";
+        this.selectedDate = ""; // selected date
+        this.selectedDataset = 0; // selected index of dataset
+    }
+}
+
+export class HeatmapInfo {
+    dataset: string;
+    startWeekOn: string;
+    orientation: string;
+    yMin: number;
+    yMax: number;
+    color: string;
+
+    constructor() {
+        this.dataset = "0";
+        this.startWeekOn = "Sun";
+        this.orientation = "vertical";
+        this.yMin = null;
+        this.yMax = null;
+        this.color = null;
     }
 }
 

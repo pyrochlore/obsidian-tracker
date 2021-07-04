@@ -1,5 +1,16 @@
 # Release Notes
 
+## v1.8.0
+- Add a new `searchType` `task`, retrieving data from tasks ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestTask.md))
+- Enhancement
+    - Month view ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestCalendar.md))
+        - Add parameter `circleColorByValue` to show color based on the value
+        - Support multiple targets (dataset), change the dataset by clicking the header 
+        - Add a button (◦) to show current month
+    - Accept ISO-8601 date as `dateFormat` ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md#iso-8601-date-format))
+    - Relative date input for `startDate` and `endDate` ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md#relative-date-input-for-startdate-and-enddate))
+- Fixed missing dvField values at the last line of files
+
 ## v1.7.0
 - Add a new output type 'month', rendering a month view for a given dataset ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestCalendar.md))
 

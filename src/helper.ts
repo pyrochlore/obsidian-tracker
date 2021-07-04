@@ -2,7 +2,9 @@ import { RenderInfo, Size, Transform } from "./data";
 import { TFile, TFolder, normalizePath } from "obsidian";
 import { ValueType } from "./data";
 import * as d3 from "d3";
+import { Moment } from "moment";
 
+// date and time
 const timeFormat = [
     "HH:mm",
     "HH:m",
@@ -17,6 +19,88 @@ const timeFormat = [
     "h:m A",
     "h:m a",
 ];
+
+export function strToDate(strDate: string, dateFormat: string): Moment {
+    let format: any = dateFormat;
+
+    if (
+        strDate.length > 4 &&
+        strDate.startsWith("[[") &&
+        strDate.endsWith("]]")
+    ) {
+        strDate = strDate.substring(2, strDate.length - 2);
+    }
+
+    if (dateFormat.toLowerCase() === "iso-8601") {
+        format = window.moment.ISO_8601;
+    }
+
+    let date = window.moment(strDate, format, true);
+
+    // stip time
+    date = date.startOf("day");
+
+    return date;
+}
+
+export function relDateStringToDate(
+    relDateString: string,
+    dateFormat: string
+): Moment {
+    let date = null;
+    const relDateRegex = /^(?<value>[\-\+]?[0-9]+)(?<unit>[dwmy])$/;
+    if (relDateRegex.test(relDateString)) {
+        let match = relDateRegex.exec(relDateString);
+        if (
+            typeof match.groups !== "undefined" &&
+            typeof match.groups.value !== "undefined" &&
+            typeof match.groups.unit !== "undefined"
+        ) {
+            let value = parseFloat(match.groups.value);
+            let unit = match.groups.unit;
+            date = getDateToday(dateFormat);
+            if (unit === "d") {
+                date = date.add(value, "days");
+            } else if (unit === "w") {
+                date = date.add(value, "weeks");
+            } else if (unit === "m") {
+                date = date.add(value, "months");
+            } else if (unit === "y") {
+                date = date.add(value, "years");
+            }
+        }
+    }
+
+    if (date && date.isValid()) {
+        return date;
+    }
+
+    return null;
+}
+
+export function dateToStr(date: Moment, dateFormat: string): string {
+    if (typeof date === "undefined" || date === null) return null;
+
+    if (dateFormat.toLowerCase() === "iso-8601") {
+        return date.format();
+    }
+    return date.format(dateFormat);
+}
+
+export function getDateFromUnixTime(
+    unixTime: number,
+    dateFormat: string
+): Moment {
+    let date = window.moment(unixTime);
+    let strDate = dateToStr(date, dateFormat);
+    return strToDate(strDate, dateFormat);
+}
+
+export function getDateToday(dateFormat: string) {
+    let today = window.moment();
+    let strToday = dateToStr(today, dateFormat);
+    return strToDate(strToday, dateFormat);
+}
 
 // http://jsfiddle.net/alnitak/hEsys/
 export function deepValue(obj: any, str: string) {

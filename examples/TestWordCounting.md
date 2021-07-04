@@ -1,5 +1,6 @@
 # Test Word Counting
 
+
 ## Word counts of daily notes
 ``` tracker
 searchType: fileMeta
@@ -38,11 +39,12 @@ summary:
 
 ## Word counts of any notes
 Use file creation dates as x values then sum the counts up
-```
+``` tracker
 searchType: fileMeta
-searchTargtet: cDate, numWords
+searchTarget: cDate, numWords
 xDataset: 0
 folder: /
 summary:
-    template: "Total word count: {{sum}}"
+    template: "Total word count: {{sum(Dataset(1))}}"
 ```
+

@@ -1,5 +1,5 @@
 # Input Parameters
-Obsidian-tracker parses key-value pairs in your code block in YAML format and uses them as input parameters. The minimum requirements for parameters are `searchType`, `searchTarget` and one output parameter (`line`, `bar`, `frontmatter`, `fileMeta`, `wiki`, `table`, or `text`).
+Obsidian-tracker parses key-value pairs in your code block in YAML format and uses them as input parameters. The minimum requirements for parameters are `searchType`, `searchTarget` and one output parameter (`line`, `bar`, `frontmatter`, `fileMeta`, `wiki`, `table`, `task`, or `text`).
 
 ## Array Input
 
@@ -17,14 +17,14 @@ These key-value pairs are placed under the code block root.
 
 | Key | Description | Number of Values | Default |
 |:--------|:-------|:-----------:|:------|
-| `searchType` | The type of `searchTarget` (tag\|frontmatter\|wiki\|text\|dvField\|table\|filemeta) | 1~NT | Must be provided |
+| `searchType` | The type of `searchTarget` (tag\|frontmatter\|wiki\|text\|dvField\|table\|filemeta\|task) | 1~NT | Must be provided |
 | `searchTarget` | The target to search<br>[[detail](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md)] | NT (Number of Targets) | Must be provided |
 | `folder` | The root path of notes to search | 1 | Root of this vault |
-| `dateFormat` | The date format you are using | 1  | 'YYYY-MM-DD' |
+| `dateFormat` | The date format you are using<br> or use [iso-8601](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md#iso-8601-date-format) | 1  | 'YYYY-MM-DD' |
 | `dateFormatPrefix` | The prefix before your dateFormat | 1 | '' |
 | `dateFormatSuffix` | The suffix after your dateFormat | 1 | '' |
-| `startDate` | The start date to collect data | 1 | Min date found |
-| `endDate` | The end date of to collect data | 1 | Max date found |
+| `startDate` | The start date to collect data<br>accept [relative date](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md#relative-date-input-for-startdate-and-enddate) | 1 | Min date found |
+| `endDate` | The end date of to collect data<br>accept [relative date](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md#relative-date-input-for-startdate-and-enddate) | 1 | Max date found |
 | `datasetName` | The name of the dataset for a search target` | 1~NT | untitled |
 | `separator` | The character to separate multiple values appearing in the search target | 1~NT | '/' |
 | `xDataset` | The `searchTarget` of this index will be used as xDataset | 1~NT | -1 (use filename as xDataset) |
@@ -120,9 +120,11 @@ These key-value pairs should be placed under the key `month`.
 
 | Key | Description | Number of Values | Default |
 |:--------|:-------|:-----------:|:------|
-| `dataset` | The index of the dataset of your interest | 1 | 0 |
+| `dataset` | The index of the dataset of your interest | 1~NT | all indices of non-x searchTarget |
 | `startWeekOn` | First day of a week ('Sun'\|'Mon') | 1 | 'Sun' |
-| `threshold` | The threshold to determine showing a circle on a day or not | 1 | 0 |
+| `threshold` | The threshold to determine showing a circle on a day or not | 1~NT | 0 |
+| `yMin` | Minimum value | 1~NT | Minimum value of the dataset |
+| `yMax` | Maximum value | 1~NT | Maximum value of the dataset |
 | `showCircle` | Circle the day label if the collected value reach the threshold (value > threshold) | 1 | true |
 | `color` | Main color (can be override by other color parameters) | 1 | null |
 | `dimNotInMonth` | Dim the color for days not in current month | 1 | true |
@@ -131,8 +133,10 @@ These key-value pairs should be placed under the key `month`.
 | `showSelectedValue` | Show the value on the selected day | 1 | true |
 | `showSelectedRing` | Show a ring on the label of the selected day | 1 | true |
 | `circleColor` | The color of circles | 1 | '#69b3a2' |
+| `circleColorByValue` | Display colors based on the value | 1 | 1 |
 | `headerYearColor` | The color of year text in header | 1 | 'white' |
 | `headerMonthColor` | The color of the month text in header | 1 | 'white' |
 | `dividingLineColor` | The color of the dividing line | 1 | '#69b3a2' |
 | `todayRingColor` | The color of the ring on today | 1 | 'white' |
 | `selectedRingColor` | The color of the ring on the selected day | 1 | 'firebrick' |
+| `initMonth` | Initial month to show (0~11) | 1 | last month found |

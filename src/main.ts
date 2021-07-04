@@ -117,18 +117,6 @@ export default class Tracker extends Plugin {
         return files;
     }
 
-    // To be moved to collecting.ts
-    addToDataMap(dataMap: DataMap, date: string, query: Query, value: number) {
-        if (!dataMap.has(date)) {
-            let queryValuePairs = new Array<QueryValuePair>();
-            queryValuePairs.push({ query: query, value: value });
-            dataMap.set(date, queryValuePairs);
-        } else {
-            let targetValuePairs = dataMap.get(date);
-            targetValuePairs.push({ query: query, value: value });
-        }
-    }
-
     async postprocessor(
         source: string,
         el: HTMLElement,
@@ -199,12 +187,16 @@ export default class Tracker extends Plugin {
                 if (
                     type === SearchType.Tag ||
                     type === SearchType.Text ||
-                    type === SearchType.dvField
+                    type === SearchType.dvField ||
+                    type === SearchType.Task
                 ) {
                     return true;
-                }
-                else if (type === SearchType.FileMeta) {
-                    if (target === "numWords" || target === "numChars" || target === "numSentences") {
+                } else if (type === SearchType.FileMeta) {
+                    if (
+                        target === "numWords" ||
+                        target === "numChars" ||
+                        target === "numSentences"
+                    ) {
                         return true;
                     }
                 }
@@ -267,6 +259,13 @@ export default class Tracker extends Plugin {
                                     renderInfo
                                 );
                                 break;
+                            case SearchType.Task:
+                                xDate = collecting.getDateFromTask(
+                                    content,
+                                    xDatasetQuery,
+                                    renderInfo
+                                );
+                                break;
                         }
                     }
 
@@ -290,7 +289,7 @@ export default class Tracker extends Plugin {
                     if (!skipThisFile) {
                         xValueMap.set(
                             xDatasetId,
-                            xDate.format(renderInfo.dateFormat)
+                            helper.dateToStr(xDate, renderInfo.dateFormat)
                         );
                         fileCounter++;
 
@@ -372,7 +371,7 @@ export default class Tracker extends Plugin {
                     );
                 } // Search inline tags
 
-                // console.log("Search text");
+                // console.log("Search Text");
                 if (content && query.getType() === SearchType.Text) {
                     collecting.collectDataFromText(
                         content,
@@ -405,6 +404,17 @@ export default class Tracker extends Plugin {
                         xValueMap
                     );
                 } // search dvField
+
+                // console.log("Search Task");
+                if (content && query.getType() === SearchType.Task) {
+                    collecting.collectDataFromTask(
+                        content,
+                        query,
+                        renderInfo,
+                        dataMap,
+                        xValueMap
+                    );
+                } // search Task
             });
             await Promise.all(loopQueryPromises);
         });
@@ -526,10 +536,7 @@ export default class Tracker extends Plugin {
                 let dataRowSplitted = dataRow.split("|");
                 if (columnXDataset < dataRowSplitted.length) {
                     let data = dataRowSplitted[columnXDataset].trim();
-                    let date = collecting.strToDate(
-                        data,
-                        renderInfo.dateFormat
-                    );
+                    let date = helper.strToDate(data, renderInfo.dateFormat);
 
                     if (date.isValid()) {
                         xValues.push(date);
@@ -583,9 +590,10 @@ export default class Tracker extends Plugin {
                                     indLine < xValues.length &&
                                     xValues[indLine]
                                 ) {
-                                    this.addToDataMap(
+                                    collecting.addToDataMap(
                                         dataMap,
-                                        xValues[indLine].format(
+                                        helper.dateToStr(
+                                            xValues[indLine],
                                             renderInfo.dateFormat
                                         ),
                                         yDatasetQuery,
@@ -606,9 +614,10 @@ export default class Tracker extends Plugin {
                                     indLine < xValues.length &&
                                     xValues[indLine]
                                 ) {
-                                    this.addToDataMap(
+                                    collecting.addToDataMap(
                                         dataMap,
-                                        xValues[indLine].format(
+                                        helper.dateToStr(
+                                            xValues[indLine],
                                             renderInfo.dateFormat
                                         ),
                                         yDatasetQuery,
@@ -703,9 +712,13 @@ export default class Tracker extends Plugin {
                 // console.log(curDate);
 
                 // dataMap --> {date: [query: value, ...]}
-                if (dataMap.has(curDate.format(renderInfo.dateFormat))) {
+                if (
+                    dataMap.has(
+                        helper.dateToStr(curDate, renderInfo.dateFormat)
+                    )
+                ) {
                     let queryValuePairs = dataMap
-                        .get(curDate.format(renderInfo.dateFormat))
+                        .get(helper.dateToStr(curDate, renderInfo.dateFormat))
                         .filter(function (pair) {
                             return pair.query.equalTo(query);
                         });
@@ -718,7 +731,10 @@ export default class Tracker extends Plugin {
                             indPair++
                         ) {
                             let collected = queryValuePairs[indPair].value;
-                            if (Number.isNumber(collected) && !Number.isNaN(collected)) {
+                            if (
+                                Number.isNumber(collected) &&
+                                !Number.isNaN(collected)
+                            ) {
                                 if (value === null) {
                                     value = collected;
                                 } else {

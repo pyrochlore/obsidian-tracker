@@ -13,12 +13,16 @@ import {
     CommonChartInfo,
     LineInfo,
     BarInfo,
+    PieInfo,
     SummaryInfo,
     BulletInfo,
     MonthInfo,
+    HeatmapInfo,
 } from "./data";
+import * as pie from "./pie";
 import * as summary from "./summary";
 import * as month from "./month";
+import * as heatmap from "./heatmap";
 import * as bullet from "./bullet";
 import * as helper from "./helper";
 
@@ -157,6 +161,12 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
             return ret;
         }
     }
+    for (let pieInfo of renderInfo.pie) {
+        let ret = pie.renderPieChart(canvas, renderInfo, pieInfo);
+        if (typeof ret === "string") {
+            return ret;
+        }
+    }
     for (let summaryInfo of renderInfo.summary) {
         let ret = summary.renderSummary(canvas, renderInfo, summaryInfo);
         if (typeof ret === "string") {
@@ -171,6 +181,12 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
     }
     for (let monthInfo of renderInfo.month) {
         let ret = month.renderMonth(canvas, renderInfo, monthInfo);
+        if (typeof ret === "string") {
+            return ret;
+        }
+    }
+    for (let heatmapInfo of renderInfo.heatmap) {
+        let ret = heatmap.renderHeatmap(canvas, renderInfo, heatmapInfo);
         if (typeof ret === "string") {
             return ret;
         }

@@ -10,29 +10,31 @@ Examples using template variables could be found [here](https://github.com/pyroc
 
 | Template variable | Description |
 |:------------------|:-----------|
-| {{min}}<br>{{min(Dataset(N))}} | Minimum value of first dataset |
-| {{max}}<br>{{max(Dataset(N))}} | Maximum value of first dataset |
-| {{startDate}}<br>{{startDate(Dataset(N))}} | |
-| {{endDate}}<br>{{endDate(Dataset(N))}} | |
-| {{sum}}<br>{{sum(Dataset(N))}} | Summation of values of first dataset |
-| {{numTargets}}<br>{{numTargets(Dataset(N))}} | Total counts of not-null values of specified dataset|
-| {{numDays}}<br>{{numDays(Dataset(N))}} | Days from startDate to endDate of first dataset |
-| {{numDaysHavingData}}<br>{{numDaysHavingData(Dataset(N))}} | |
-| {{maxStreak}}<br>{{maxStreak(Dataset(N))}} | Maximum streak between missing data of first dataset |
-| {{maxStreakStart}}<br>{{maxStreakStart(Dataset(N))}} |  |
-| {{maxStreakEnd}}<br>{{maxStreakEnd(Dataset(N))}} |  |
-| {{maxBreaks}}<br>{{maxBreaks(Dataset(N))}} | Maximum break from missing data of first dataset |
-| {{maxBreaksStart}}<br>{{maxBreaksStart(Dataset(N))}} | Maximum break from missing data of specified dataset |
-| {{maxBreaksEnd}}<br>{{maxBreaksEnd(Dataset(N))}} | Maximum break from missing data of specified dataset |
-| {{currentStreak}}<br>{{currentStreak(Dataset(N))}} | Last streak of first dataset |
-| {{currentStreakStart}}<br>{{currentStreakStart(Dataset(N))}} | Last streak of first dataset |
-| {{currentStreakEnd}}<br>{{currentStreakEnd(Dataset(N))}} | Last streak of first dataset |
-| {{currentBreaks}}<br>{{currentBreaks(Dataset(N))}} | Last breaks of first dataset |
-| {{currentBreaksStart}}<br>{{currentBreaksStart(Dataset(N))}} | Last breaks of first dataset |
-| {{currentBreaksEnd}}<br>{{currentBreaksEnd(Dataset(N))}} | Last breaks of first dataset |
-| {{average}}<br>{{average(Dataset(N))}} | Average value of first dataset |
-| {{median}}<br>{{median(Dataset(N))}} | Median value of first dataset |
-| {{variance}}<br>{{variance(Dataset(N))}} | Variance value of first dataset |
+| {{min}}<br>{{min(Dataset(N))}} | Minimum value of the dataset |
+| {{minDate}}<br>{{minDate(Dataset(N))}} | Latest date of minimum value |
+| {{max}}<br>{{max(Dataset(N))}} | Maximum value of the dataset |
+| {{maxDate}}<br>{{maxDate(Dataset(N))}} | Latest date of maximum value |
+| {{startDate}}<br>{{startDate(Dataset(N))}} | Start date of the dataset |
+| {{endDate}}<br>{{endDate(Dataset(N))}} | End date of the dataset |
+| {{sum}}<br>{{sum(Dataset(N))}} | Summation of values of the dataset |
+| {{numTargets}}<br>{{numTargets(Dataset(N))}} | Total counts of targets |
+| {{numDays}}<br>{{numDays(Dataset(N))}} | Days from startDate to endDate |
+| {{numDaysHavingData}}<br>{{numDaysHavingData(Dataset(N))}} | Number of days having data |
+| {{maxStreak}}<br>{{maxStreak(Dataset(N))}} | Maximum continuous days without breaks |
+| {{maxStreakStart}}<br>{{maxStreakStart(Dataset(N))}} | Start date of the max streak |
+| {{maxStreakEnd}}<br>{{maxStreakEnd(Dataset(N))}} | End date of the max streak |
+| {{maxBreaks}}<br>{{maxBreaks(Dataset(N))}} | Maximum break days |
+| {{maxBreaksStart}}<br>{{maxBreaksStart(Dataset(N))}} | Start date of the maximum break days |
+| {{maxBreaksEnd}}<br>{{maxBreaksEnd(Dataset(N))}} | End date of the maximum break days |
+| {{currentStreak}}<br>{{currentStreak(Dataset(N))}} | Current continuous days |
+| {{currentStreakStart}}<br>{{currentStreakStart(Dataset(N))}} | Start date of current streak |
+| {{currentStreakEnd}}<br>{{currentStreakEnd(Dataset(N))}} | End date of current streak |
+| {{currentBreaks}}<br>{{currentBreaks(Dataset(N))}} | Current break days |
+| {{currentBreaksStart}}<br>{{currentBreaksStart(Dataset(N))}} | Start date of current breaks |
+| {{currentBreaksEnd}}<br>{{currentBreaksEnd(Dataset(N))}} | End date of current breaks |
+| {{average}}<br>{{average(Dataset(N))}} | Average value of the dataset |
+| {{median}}<br>{{median(Dataset(N))}} | Median value of the dataset |
+| {{variance}}<br>{{variance(Dataset(N))}} | Variance value of the dataset |
 
 ## List of Deprecated Template Variables
 | Template variable | Description |

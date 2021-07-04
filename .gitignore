@@ -14,3 +14,6 @@ examples/*.js
 
 # .obsidian
 .obsidian
+
+# examples for users
+examples/case

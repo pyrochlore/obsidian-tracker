@@ -9,8 +9,11 @@ import {
     Margin,
     OutputType,
     LineInfo,
+    PieInfo,
     MonthInfo,
+    HeatmapInfo,
     BulletInfo,
+    Dataset,
 } from "./data";
 import { TFolder, normalizePath } from "obsidian";
 import { parseYaml } from "obsidian";
@@ -36,13 +39,17 @@ function strToBool(str: string): boolean | null {
 
 function validateSearchType(searchType: string): boolean {
     if (
-        searchType === "tag" ||
-        searchType === "text" ||
-        searchType === "frontmatter" ||
-        searchType === "wiki" ||
-        searchType === "dvField" ||
-        searchType === "table" ||
-        searchType === "fileMeta"
+        searchType.toLowerCase() === "tag" ||
+        searchType.toLowerCase() === "text" ||
+        searchType.toLowerCase() === "frontmatter" ||
+        searchType.toLowerCase() === "wiki" ||
+        searchType.toLowerCase() === "dvfield" ||
+        searchType.toLowerCase() === "table" ||
+        searchType.toLowerCase() === "filemeta" ||
+        searchType.toLowerCase() === "task" ||
+        searchType.toLowerCase() === "task.all" ||
+        searchType.toLowerCase() === "task.done" ||
+        searchType.toLowerCase() === "task.notdone"
     ) {
         return true;
     }
@@ -504,6 +511,94 @@ function getStringArrayFromInput(
     return array;
 }
 
+function getNumberArray(name: string, input: any): Array<number> | string {
+    let numArray: Array<number> = [];
+
+    if (typeof input === "undefined" || input === null) return numArray;
+
+    if (typeof input === "object") {
+        if (Array.isArray(input)) {
+            for (let elem of input) {
+                if (typeof elem === "string") {
+                    let v = parseFloat(elem);
+                    if (Number.isNumber(v)) {
+                        numArray.push(v);
+                    } else {
+                        let errorMessage = `Parameter '${name}' accepts only numbers`;
+                        return errorMessage;
+                    }
+                }
+            }
+        }
+    } else if (typeof input === "string") {
+        let splitted = input.split(",");
+        if (splitted.length > 1) {
+            for (let piece of splitted) {
+                let v = parseFloat(piece.trim());
+                if (!Number.isNaN(v)) {
+                    // Number.isNumber(NaN) --> true
+                    numArray.push(v);
+                } else {
+                    let errorMessage = `Parameter '${name}' accepts only numbers`;
+                    return errorMessage;
+                }
+            }
+        } else if (input === "") {
+            let errorMessage = `Empty ${name} is not allowed.`;
+            return errorMessage;
+        } else {
+            let v = parseFloat(input);
+            if (Number.isNumber(v)) {
+                numArray.push(v);
+            } else {
+                let errorMessage = `Parameter '${name}' accepts only numbers`;
+                return errorMessage;
+            }
+        }
+    } else if (typeof input === "number") {
+        numArray.push(input);
+    } else {
+        let errorMessage = `Invalid ${name}`;
+        return errorMessage;
+    }
+
+    return numArray;
+}
+
+function getStringArray(name: string, input: any): Array<string> | string {
+    let strArray: Array<string> = [];
+
+    if (typeof input === "undefined" || input === null) return strArray;
+
+    if (typeof input === "object") {
+        if (Array.isArray(input)) {
+            for (let elem of input) {
+                if (typeof elem === "string") {
+                    strArray.push(elem);
+                }
+            }
+        }
+    } else if (typeof input === "string") {
+        let splitted = input.split(",");
+        // console.log(splitted);
+        if (splitted.length > 1) {
+            for (let piece of splitted) {
+                strArray.push(piece);
+            }
+        } else if (input === "") {
+            let errorMessage = `Empty ${name} is not allowed.`;
+            return errorMessage;
+        } else {
+            strArray.push(input);
+        }
+    } else {
+        let errorMessage = `Invalid ${name}`;
+        return errorMessage;
+    }
+
+    return strArray;
+}
+
 function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
     // console.log("parseCommonChartInfo");
 
@@ -776,6 +871,7 @@ export function getRenderInfoFromYaml(
         return errorMessage;
     }
     let searchType: Array<SearchType> = [];
+    let searchSubType: Array<string> = [];
     let retSearchType = getStringArrayFromInput(
         "searchType",
         yaml.searchType,
@@ -791,24 +887,47 @@ export function getRenderInfoFromYaml(
         switch (strType) {
             case "tag":
                 searchType.push(SearchType.Tag);
+                searchSubType.push("");
                 break;
             case "frontmatter":
                 searchType.push(SearchType.Frontmatter);
+                searchSubType.push("");
                 break;
             case "wiki":
                 searchType.push(SearchType.Wiki);
+                searchSubType.push("");
                 break;
             case "text":
                 searchType.push(SearchType.Text);
+                searchSubType.push("");
                 break;
             case "dvField":
                 searchType.push(SearchType.dvField);
+                searchSubType.push("");
                 break;
             case "table":
                 searchType.push(SearchType.Table);
+                searchSubType.push("");
                 break;
             case "fileMeta":
                 searchType.push(SearchType.FileMeta);
+                searchSubType.push("");
+                break;
+            case "task":
+                searchType.push(SearchType.Task);
+                searchSubType.push("all");
+                break;
+            case "task.all":
+                searchType.push(SearchType.Task);
+                searchSubType.push("all");
+                break;
+            case "task.done":
+                searchType.push(SearchType.Task);
+                searchSubType.push("done");
+                break;
+            case "task.notdone":
+                searchType.push(SearchType.Task);
+                searchSubType.push("notdone");
                 break;
         }
     }
@@ -872,6 +991,9 @@ export function getRenderInfoFromYaml(
             searchTarget[ind]
         );
         query.setSeparator(multipleValueSparator[ind]);
+        if (searchSubType[ind] !== "") {
+            query.setSubType(searchSubType[ind]);
+        }
         if (xDataset.includes(ind)) query.usedAsXDataset = true;
         queries.push(query);
     }
@@ -884,28 +1006,38 @@ export function getRenderInfoFromYaml(
     // console.log(keysOfRenderInfo);
     let yamlLineKeys = [];
     let yamlBarKeys = [];
+    let yamlPieKeys = [];
     let yamlSummaryKeys = [];
     let yamlMonthKeys = [];
+    let yamlHeatmapKeys = [];
     let yamlBulletKeys = [];
     for (let key of keysFoundInYAML) {
-        if (/line[0-9]*/.test(key)) {
+        if (/^line[0-9]*$/.test(key)) {
             yamlLineKeys.push(key);
             additionalAllowedKeys.push(key);
         }
-        if (/bar[0-9]*/.test(key)) {
+        if (/^bar[0-9]*$/.test(key)) {
             yamlBarKeys.push(key);
             additionalAllowedKeys.push(key);
         }
-        if (/summary[0-9]*/.test(key)) {
+        if (/^pie[0-9]*$/.test(key)) {
+            yamlPieKeys.push(key);
+            additionalAllowedKeys.push(key);
+        }
+        if (/^summary[0-9]*$/.test(key)) {
             yamlSummaryKeys.push(key);
             additionalAllowedKeys.push(key);
         }
-        if (/bullet[0-9]*/.test(key)) {
+        if (/^bullet[0-9]*$/.test(key)) {
             yamlBulletKeys.push(key);
             additionalAllowedKeys.push(key);
         }
-        if (/month[0-9]*/.test(key)) {
+        if (/^month[0-9]*$/.test(key)) {
             yamlMonthKeys.push(key);
+            additionalAllowedKeys.push(key);
+        }
+        if (/^heatmap[0-9]*$/.test(key)) {
+            yamlHeatmapKeys.push(key);
             additionalAllowedKeys.push(key);
         }
     }
@@ -923,11 +1055,13 @@ export function getRenderInfoFromYaml(
     let totalNumOutputs =
         yamlLineKeys.length +
         yamlBarKeys.length +
+        yamlPieKeys.length +
         yamlSummaryKeys.length +
-        +yamlBulletKeys.length +
-        yamlMonthKeys.length;
+        yamlBulletKeys.length +
+        yamlMonthKeys.length +
+        yamlHeatmapKeys.length;
     if (totalNumOutputs === 0) {
-        return "No output parameter provided, please place line, bar, month, bullet, or summary.";
+        return "No output parameter provided, please place line, bar, pie, month, bullet, or summary.";
     }
 
     // Get daily notes settings using obsidian-daily-notes-interface
@@ -979,6 +1113,7 @@ export function getRenderInfoFromYaml(
     }
 
     // startDate, endDate
+    // console.log("Parsing startDate");
     if (typeof yaml.startDate === "string") {
         let strStartDate = yaml.startDate;
         if (
@@ -998,20 +1133,32 @@ export function getRenderInfoFromYaml(
                 strStartDate.length - renderInfo.dateFormatSuffix.length
             );
         }
-        let startDate = window.moment(
+
+        let startDate = null;
+        let isStartDateValid = false;
+        startDate = helper.relDateStringToDate(
             strStartDate,
-            renderInfo.dateFormat,
-            true
+            renderInfo.dateFormat
         );
-        if (startDate.isValid()) {
-            renderInfo.startDate = startDate;
+        if (startDate) {
+            isStartDateValid = true;
         } else {
+            startDate = helper.strToDate(strStartDate, renderInfo.dateFormat);
+            if (startDate.isValid()) {
+                isStartDateValid = true;
+            }
+        }
+
+        if (!isStartDateValid || startDate === null) {
             let errorMessage =
                 "Invalid startDate, the format of startDate may not match your dateFormat " +
                 renderInfo.dateFormat;
             return errorMessage;
         }
+        renderInfo.startDate = startDate;
     }
+
+    // console.log("Parsing endDate");
     if (typeof yaml.endDate === "string") {
         let strEndDate = yaml.endDate;
         if (
@@ -1029,15 +1176,27 @@ export function getRenderInfoFromYaml(
                 strEndDate.length - renderInfo.dateFormatSuffix.length
             );
         }
-        let endDate = window.moment(strEndDate, renderInfo.dateFormat, true);
-        if (endDate.isValid()) {
-            renderInfo.endDate = endDate;
+
+        let endDate = null;
+        let isEndDateValid = false;
+        endDate = helper.relDateStringToDate(strEndDate, renderInfo.dateFormat);
+        if (endDate) {
+            isEndDateValid = true;
         } else {
+            endDate = helper.strToDate(strEndDate, renderInfo.dateFormat);
+            if (endDate.isValid()) {
+                isEndDateValid = true;
+            }
+        }
+        // console.log(endDate);
+
+        if (!isEndDateValid || endDate === null) {
             let errorMessage =
                 "Invalid endDate, the format of endDate may not match your dateFormat " +
                 renderInfo.dateFormat;
             return errorMessage;
         }
+        renderInfo.endDate = endDate;
     }
     if (
         renderInfo.startDate !== null &&
@@ -1423,6 +1582,62 @@ export function getRenderInfoFromYaml(
     } // bar related parameters
     // console.log(renderInfo.bar);
 
+    // pie related parameters
+    for (let pieKey of yamlPieKeys) {
+        let pie = new PieInfo();
+        let yamlPie = yaml[pieKey];
+
+        let keysOfPieInfo = getAvailableKeysOfClass(pie);
+        let keysFoundInYAML = getAvailableKeysOfClass(yamlPie);
+        // console.log(keysOfPieInfo);
+        // console.log(keysFoundInYAML);
+        for (let key of keysFoundInYAML) {
+            if (!keysOfPieInfo.includes(key)) {
+                errorMessage = "'" + key + "' is not an available key";
+                return errorMessage;
+            }
+        }
+
+        // title
+        if (typeof yamlPie?.title === "string") {
+            pie.title = yamlPie.title;
+        }
+        // console.log(pie.title);
+
+        // data
+        let retData = getStringArray("data", yamlPie?.data);
+        if (typeof retData === "string") {
+            return retData;
+        }
+        pie.data = retData;
+        // console.log(pie.data);
+        let numData = pie.data.length;
+
+        // dataColor
+        let retDataColor = getStringArrayFromInput(
+            "dataColor",
+            yamlPie?.dataColor,
+            numData,
+            "none",
+            validateColor,
+            true
+        );
+        if (typeof retDataColor === "string") {
+            return retDataColor; // errorMessage
+        }
+        pie.dataColor = retDataColor;
+        // console.log(pie.dataColor);
+
+        // ratioInnerRadius
+        if (typeof yamlPie?.ratioInnerRadius === "number") {
+            pie.ratioInnerRadius = yamlPie.ratioInnerRadius;
+        }
+        // console.log(pie.ratioInnerRadius);
+
+        renderInfo.pie.push(pie);
+    } // pie related parameters
+    // console.log(renderInfo.pi);
+
     // summary related parameters
     for (let summaryKey of yamlSummaryKeys) {
         let summary = new SummaryInfo();
@@ -1467,10 +1682,21 @@ export function getRenderInfoFromYaml(
         }
 
         // dataset
-        if (typeof yamlMonth?.dataset === "string") {
-            month.dataset = yamlMonth.dataset;
+        let retDataset = getNumberArray("dataset", yamlMonth?.dataset);
+        if (typeof retDataset === "string") {
+            return retDataset;
         }
+        if (retDataset.length === 0) {
+            // insert y dataset given
+            for (let q of queries) {
+                if (!q.usedAsXDataset) {
+                    retDataset.push(q.getId());
+                }
+            }
+        }
+        month.dataset = retDataset;
         // console.log(month.dataset);
+        let numDataset = month.dataset.length;
 
         // startWeekOn
         if (typeof yamlMonth?.startWeekOn === "string") {
@@ -1485,10 +1711,60 @@ export function getRenderInfoFromYaml(
         // console.log(month.showCircle);
 
         // threshold
-        if (typeof yamlMonth?.threshold === "number") {
-            month.threshold = yamlMonth.threshold;
+        let retThreshold = getNumberArray("threshold", yamlMonth?.threshold);
+        if (typeof retThreshold === "string") {
+            return retThreshold;
+        }
+        month.threshold = retThreshold;
+        if (month.threshold.length === 0) {
+            for (let indDataset = 0; indDataset < numDataset; indDataset++) {
+                month.threshold.push(0);
+            }
+        }
+        if (month.threshold.length !== month.dataset.length) {
+            // console.log(month.threshold);
+            // console.log(month.dataset);
+            const errorMessage =
+                "The number of inputs of threshold and dataset not matched";
+            return errorMessage;
         }
         // console.log(month.threshold);
+
+        // yMin
+        let retYMin = getNumberArray("yMin", yamlMonth?.yMin);
+        if (typeof retYMin === "string") {
+            return retYMin;
+        }
+        month.yMin = retYMin;
+        if (month.yMin.length === 0) {
+            for (let indDataset = 0; indDataset < numDataset; indDataset++) {
+                month.yMin.push(null);
+            }
+        }
+        if (month.yMin.length !== month.dataset.length) {
+            const errorMessage =
+                "The number of inputs of yMin and dataset not matched";
+            return errorMessage;
+        }
+        // console.log(month.yMin);
+
+        // yMax
+        let retYMax = getNumberArray("yMax", yamlMonth?.yMax);
+        if (typeof retYMax === "string") {
+            return retYMax;
+        }
+        month.yMax = retYMax;
+        if (month.yMax.length === 0) {
+            for (let indDataset = 0; indDataset < numDataset; indDataset++) {
+                month.yMax.push(null);
+            }
+        }
+        if (month.yMax.length !== month.dataset.length) {
+            const errorMessage =
+                "The number of inputs of yMin and dataset not matched";
+            return errorMessage;
+        }
+        // console.log(month.yMax);
 
         // color
         if (typeof yamlMonth?.color === "string") {
@@ -1532,6 +1808,12 @@ export function getRenderInfoFromYaml(
         }
         // console.log(month.circleColor);
 
+        // circleColorByValue
+        if (typeof yamlMonth?.circleColorByValue === "boolean") {
+            month.circleColorByValue = yamlMonth.circleColorByValue;
+        }
+        // console.log(month.circleColorByValue);
+
         // headerYearColor
         if (typeof yamlMonth?.headerYearColor === "string") {
             month.headerYearColor = yamlMonth.headerYearColor;
@@ -1562,9 +1844,35 @@ export function getRenderInfoFromYaml(
         }
         // console.log(month.selectedRingColor);
 
+        // initMonth
+        if (typeof yamlMonth?.initMonth === "string") {
+            month.initMonth = yamlMonth.initMonth;
+        }
+        // console.log(month.initMonth);
+
         renderInfo.month.push(month);
     } // Month related parameters
     // console.log(renderInfo.month);
+
+    // Heatmap related parameters
+    for (let heatmapKey of yamlHeatmapKeys) {
+        let heatmap = new HeatmapInfo();
+        let yamlHeatmap = yaml[heatmapKey];
+
+        let keysOfHeatmapInfo = getAvailableKeysOfClass(heatmap);
+        let keysFoundInYAML = getAvailableKeysOfClass(yamlHeatmap);
+        // console.log(keysOfHeatmapInfo);
+        // console.log(keysFoundInYAML);
+        for (let key of keysFoundInYAML) {
+            if (!keysOfHeatmapInfo.includes(key)) {
+                errorMessage = "'" + key + "' is not an available key";
+                return errorMessage;
+            }
+        }
+
+        renderInfo.heatmap.push(heatmap);
+    }
+    // console.log(renderInfo.heatmap);
 
     // Bullet related parameters
     for (let bulletKey of yamlBulletKeys) {
@@ -1601,53 +1909,11 @@ export function getRenderInfoFromYaml(
         // console.log(bullet.orientation);
 
         // range
-        let range: Array<number> = [];
-        if (
-            typeof yamlBullet?.range === "object" &&
-            yamlBullet?.range !== null
-        ) {
-            if (Array.isArray(yamlBullet.range)) {
-                for (let r of yamlBullet.range) {
-                    if (typeof r === "string") {
-                        let v = parseFloat(r);
-                        if (Number.isNumber(v)) {
-                            range.push(v);
-                        } else {
-                            errorMessage =
-                                "Parameter 'range' accepts only numbers";
-                            return errorMessage;
-                        }
-                    }
-                }
-            }
-        } else if (typeof yamlBullet?.range === "string") {
-            let splitted = yamlBullet?.range.split(",");
-            if (splitted.length > 1) {
-                for (let piece of splitted) {
-                    let v = parseFloat(piece.trim());
-                    if (!Number.isNaN(v)) {
-                        // Number.isNumber(NaN) --> true
-                        range.push(v);
-                    } else {
-                        errorMessage = "Parameter 'range' accepts only numbers";
-                        return errorMessage;
-                    }
-                }
-            } else if (yamlBullet?.range === "") {
-                errorMessage = "Empty range is not allowed.";
-            } else {
-                let v = parseFloat(yamlBullet?.range);
-                if (Number.isNumber(v)) {
-                    range.push(v);
-                } else {
-                    errorMessage = "Parameter 'range' accepts only numbers";
-                    return errorMessage;
-                }
-            }
-        } else {
-            errorMessage = "Invalid range";
-            return errorMessage;
+        let retRange = getNumberArray("range", yamlBullet?.range);
+        if (typeof retRange === "string") {
+            return retRange;
         }
+        let range = retRange as Array<number>;
         // Check the value is monotonically increasing
         // Check the value is not negative
         if (range.length === 1) {

@@ -1,6 +1,6 @@
 {
   "name": "obsidian-tracker",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "A plugin tracks occurrences and numbers in your notes",
   "main": "main.js",
   "scripts": {
@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "d3": "^6.5.0",
+    "d3-interpolate": "^3.0.1",
     "obsidian-daily-notes-interface": "^0.9.1"
   }
 }

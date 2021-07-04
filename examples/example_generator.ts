@@ -262,6 +262,18 @@ for (
 
     content += "\n";
 
+    // Tasks
+    let taskSayLove = "Say I love you";
+    let missedSayLove = randomIntFromInterval(0, 1);
+    if (!missedSayLove) {
+        content += "- [x] " + taskSayLove + "\n";
+    }
+    else {
+        content += "- [ ] " + taskSayLove + "\n";
+    }
+
+    content += "\n";
+
     fs.writeFileSync(fh, content);
     fs.closeSync(fh);
 }
