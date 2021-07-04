@@ -148,11 +148,11 @@ line:
 ## Relative Date Input for startDate and endDate
 
 The reference date of the relative date input is 'today' (The current date of your computer), So
-0d ==> today
--1d ==> yesterday
--1w ==> last week
--1m ==> last month
--1y ==> last year
+- 0d ==> today
+- -1d ==> yesterday
+- -1w ==> last week
+- -1m ==> last month
+- -1y ==> last year
 
 ``` tracker
 searchType: tag
