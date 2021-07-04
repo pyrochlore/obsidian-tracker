@@ -1160,11 +1160,7 @@ export function getRenderInfoFromYaml(
                 }
             }
         } else {
-            startDate = window.moment(
-                strStartDate,
-                renderInfo.dateFormat,
-                true
-            );
+            startDate = helper.strToDate(strStartDate, renderInfo.dateFormat);
             if (startDate.isValid()) {
                 isStartDateValid = true;
             }
@@ -1223,7 +1219,7 @@ export function getRenderInfoFromYaml(
                 }
             }
         } else {
-            endDate = window.moment(strEndDate, renderInfo.dateFormat, true);
+            endDate = helper.strToDate(strEndDate, renderInfo.dateFormat);
             if (endDate.isValid()) {
                 isEndDateValid = true;
             }

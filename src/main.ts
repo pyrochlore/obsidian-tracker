@@ -117,18 +117,6 @@ export default class Tracker extends Plugin {
         return files;
     }
 
-    // To be moved to collecting.ts
-    addToDataMap(dataMap: DataMap, date: string, query: Query, value: number) {
-        if (!dataMap.has(date)) {
-            let queryValuePairs = new Array<QueryValuePair>();
-            queryValuePairs.push({ query: query, value: value });
-            dataMap.set(date, queryValuePairs);
-        } else {
-            let targetValuePairs = dataMap.get(date);
-            targetValuePairs.push({ query: query, value: value });
-        }
-    }
-
     async postprocessor(
         source: string,
         el: HTMLElement,
@@ -602,7 +590,7 @@ export default class Tracker extends Plugin {
                                     indLine < xValues.length &&
                                     xValues[indLine]
                                 ) {
-                                    this.addToDataMap(
+                                    collecting.addToDataMap(
                                         dataMap,
                                         helper.dateToStr(
                                             xValues[indLine],
@@ -626,7 +614,7 @@ export default class Tracker extends Plugin {
                                     indLine < xValues.length &&
                                     xValues[indLine]
                                 ) {
-                                    this.addToDataMap(
+                                    collecting.addToDataMap(
                                         dataMap,
                                         helper.dateToStr(
                                             xValues[indLine],

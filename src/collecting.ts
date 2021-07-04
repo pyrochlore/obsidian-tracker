@@ -258,7 +258,7 @@ export function getDateFromTask(
     return date;
 }
 
-function addToDataMap(
+export function addToDataMap(
     dataMap: DataMap,
     date: string,
     query: Query,

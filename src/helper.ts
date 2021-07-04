@@ -35,7 +35,12 @@ export function strToDate(strDate: string, dateFormat: string): Moment {
         format = window.moment.ISO_8601;
     }
 
-    return window.moment(strDate, format, true);
+    let date = window.moment(strDate, format, true);
+
+    // stip time
+    date = date.startOf('day');
+
+    return date;
 }
 
 export function dateToStr(date: Moment, dateFormat: string): string {
