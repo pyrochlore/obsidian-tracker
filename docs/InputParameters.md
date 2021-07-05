@@ -139,4 +139,4 @@ These key-value pairs should be placed under the key `month`.
 | `dividingLineColor` | The color of the dividing line | 1 | '#69b3a2' |
 | `todayRingColor` | The color of the ring on today | 1 | 'white' |
 | `selectedRingColor` | The color of the ring on the selected day | 1 | 'firebrick' |
-| `initMonth` | Initial month to show (0~11) | 1 | last month found |
+| `initMonth` | Initial month to show (YYYY-MM) | 1 | last month found |

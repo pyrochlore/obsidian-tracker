@@ -762,7 +762,7 @@ export class MonthInfo extends OutputInfo {
         this.initMonth = "";
 
         this.selectedDate = ""; // selected date
-        this.selectedDataset = 0; // selected index of dataset
+        this.selectedDataset = null; // selected index of dataset
     }
 }
 
