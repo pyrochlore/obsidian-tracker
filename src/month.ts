@@ -175,6 +175,7 @@ function renderMonthHeader(
     let curDatasetId = monthInfo.selectedDataset;
     if (curDatasetId === null) return;
     let dataset = renderInfo.datasets.getDatasetById(curDatasetId);
+    if (!dataset) return;
     let datasetName = dataset.getName();
 
     let curMonth = curMonthDate.month(); // 0~11
@@ -480,8 +481,12 @@ function renderMonthDays(
     let curDatasetId = monthInfo.selectedDataset;
     if (curDatasetId === null) return;
     let dataset = renderInfo.datasets.getDatasetById(curDatasetId);
+    if (!dataset) return;
 
-    let threshold = monthInfo.threshold[curDatasetId];
+    let curDatasetIndex = monthInfo.dataset.findIndex((id) => {
+        return id === curDatasetId;
+    });
+    let threshold = monthInfo.threshold[curDatasetIndex];
 
     let curMonth = curMonthDate.month(); // 0~11
     let curDaysInMonth = curMonthDate.daysInMonth(); // 28~31
@@ -495,12 +500,12 @@ function renderMonthDays(
 
     // Get min and max
     let yMin = d3.min(dataset.getValues());
-    if (monthInfo.yMin[curDatasetId] !== null) {
-        yMin = monthInfo.yMin[curDatasetId];
+    if (monthInfo.yMin[curDatasetIndex] !== null) {
+        yMin = monthInfo.yMin[curDatasetIndex];
     }
     let yMax = d3.max(dataset.getValues());
-    if (monthInfo.yMax[curDatasetId] !== null) {
-        yMax = monthInfo.yMax[curDatasetId];
+    if (monthInfo.yMax[curDatasetIndex] !== null) {
+        yMax = monthInfo.yMax[curDatasetIndex];
     }
     // console.log(`yMin:${yMin}, yMax:${yMax}`);
     let allowScaledValue = true;
@@ -599,6 +604,9 @@ function renderMonthDays(
                 scaledValue = (curValue - yMin) / (yMax - yMin);
             }
         }
+        // console.log(yMin);
+        // console.log(yMax);
+        // console.log(scaledValue);
 
         // if (curDate.format("YYYY-MM-DD") === "2021-11-02") {
         //     logToConsole = true;
@@ -789,10 +797,13 @@ function renderMonthDays(
                         return circleColor;
                     }
                     if (d.scaledValue !== null) {
-                        return d3.interpolateLab(
+                        let scaledColor = d3.interpolateLab(
                             "white",
                             circleColor
                         )(d.scaledValue * 0.8 + 0.2);
+                        // console.log(d.scaledValue);
+                        // console.log(scaledColor);
+                        return scaledColor;
                     } else {
                         return circleColor;
                     }
