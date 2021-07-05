@@ -1689,9 +1689,7 @@ export function getRenderInfoFromYaml(
         if (retDataset.length === 0) {
             // insert y dataset given
             for (let q of queries) {
-                if (!q.usedAsXDataset) {
-                    retDataset.push(q.getId());
-                }
+                retDataset.push(q.getId());
             }
         }
         month.dataset = retDataset;

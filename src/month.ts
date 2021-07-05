@@ -32,6 +32,55 @@ interface DayInfo {
     streakOut: boolean;
 }
 
+function toNextDataset(renderInfo: RenderInfo, monthInfo: MonthInfo): boolean {
+    let datasetIds = monthInfo.dataset;
+    if (datasetIds.length === 0) return false; // false if selected dataset not changed
+
+    let dataset = null;
+    if (monthInfo.selectedDataset === null) {
+        for (let datasetId of datasetIds) {
+            dataset = renderInfo.datasets.getDatasetById(datasetId);
+            if (dataset && !dataset.getQuery().usedAsXDataset) break;
+        }
+        if (dataset) {
+            monthInfo.selectedDataset = dataset.getId();
+            return true; // true if selectec dataset changed
+        }
+    } else {
+        let curDatasetId = monthInfo.selectedDataset;
+        let curIndex = datasetIds.findIndex((id) => {
+            return id === curDatasetId;
+        });
+        if (curIndex >= 0) {
+            if (curIndex === monthInfo.dataset.length - 1) {
+                // search from start
+                for (let datasetId of datasetIds) {
+                    dataset = renderInfo.datasets.getDatasetById(datasetId);
+                    if (dataset && !dataset.getQuery().usedAsXDataset) break;
+                }
+                if (dataset) {
+                    monthInfo.selectedDataset = dataset.getId();
+                    return true; // true if selectec dataset changed
+                } else {
+                    return false;
+                }
+            } else {
+                curIndex++;
+                let datasetId = datasetIds[curIndex];
+                dataset = renderInfo.datasets.getDatasetById(datasetId);
+                monthInfo.selectedDataset = datasetId;
+                if (dataset && !dataset.getQuery().usedAsXDataset) {
+                    return true;
+                } else {
+                    toNextDataset(renderInfo, monthInfo);
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 function createAreas(
     chartElements: ChartElements,
     canvas: HTMLElement,
@@ -124,9 +173,9 @@ function renderMonthHeader(
     if (!renderInfo || !monthInfo) return;
 
     let curDatasetId = monthInfo.selectedDataset;
-    let datasetIds = monthInfo.dataset;
-    if (datasetIds.length === 0) return;
+    if (curDatasetId === null) return;
     let dataset = renderInfo.datasets.getDatasetById(curDatasetId);
+    if (!dataset) return;
     let datasetName = dataset.getName();
 
     let curMonth = curMonthDate.month(); // 0~11
@@ -232,18 +281,19 @@ function renderMonthHeader(
         .attr("class", "tracker-month-title-rotator")
         .style("cursor", "pointer")
         .on("click", function (event: any) {
-            if (monthInfo.dataset.length <= 1) return;
-            // clear circles
-            clearSelection(chartElements, monthInfo);
             // show next target
-            let curDataset = monthInfo.selectedDataset + 1;
-            if (curDataset >= monthInfo.dataset.length) {
-                curDataset = 0;
-            }
-            monthInfo.selectedDataset = curDataset;
-            // console.log(monthInfo.selectedDataset);
+            if (toNextDataset(renderInfo, monthInfo)) {
+                // clear circles
+                clearSelection(chartElements, monthInfo);
 
-            refresh(canvas, chartElements, renderInfo, monthInfo, curMonthDate);
+                refresh(
+                    canvas,
+                    chartElements,
+                    renderInfo,
+                    monthInfo,
+                    curMonthDate
+                );
+            }
         });
     chartElements["rotator"] = datasetRotator;
 
@@ -429,11 +479,14 @@ function renderMonthDays(
     if (!renderInfo || !monthInfo) return;
 
     let curDatasetId = monthInfo.selectedDataset;
-    let datasetIds = monthInfo.dataset;
-    if (datasetIds.length === 0) return;
+    if (curDatasetId === null) return;
     let dataset = renderInfo.datasets.getDatasetById(curDatasetId);
+    if (!dataset) return;
 
-    let threshold = monthInfo.threshold[curDatasetId];
+    let curDatasetIndex = monthInfo.dataset.findIndex((id) => {
+        return id === curDatasetId;
+    });
+    let threshold = monthInfo.threshold[curDatasetIndex];
 
     let curMonth = curMonthDate.month(); // 0~11
     let curDaysInMonth = curMonthDate.daysInMonth(); // 28~31
@@ -447,12 +500,12 @@ function renderMonthDays(
 
     // Get min and max
     let yMin = d3.min(dataset.getValues());
-    if (monthInfo.yMin[curDatasetId] !== null) {
-        yMin = monthInfo.yMin[curDatasetId];
+    if (monthInfo.yMin[curDatasetIndex] !== null) {
+        yMin = monthInfo.yMin[curDatasetIndex];
     }
     let yMax = d3.max(dataset.getValues());
-    if (monthInfo.yMax[curDatasetId] !== null) {
-        yMax = monthInfo.yMax[curDatasetId];
+    if (monthInfo.yMax[curDatasetIndex] !== null) {
+        yMax = monthInfo.yMax[curDatasetIndex];
     }
     // console.log(`yMin:${yMin}, yMax:${yMax}`);
     let allowScaledValue = true;
@@ -551,6 +604,9 @@ function renderMonthDays(
                 scaledValue = (curValue - yMin) / (yMax - yMin);
             }
         }
+        // console.log(yMin);
+        // console.log(yMax);
+        // console.log(scaledValue);
 
         // if (curDate.format("YYYY-MM-DD") === "2021-11-02") {
         //     logToConsole = true;
@@ -741,10 +797,13 @@ function renderMonthDays(
                         return circleColor;
                     }
                     if (d.scaledValue !== null) {
-                        return d3.interpolateLab(
+                        let scaledColor = d3.interpolateLab(
                             "white",
                             circleColor
                         )(d.scaledValue * 0.8 + 0.2);
+                        // console.log(d.scaledValue);
+                        // console.log(scaledColor);
+                        return scaledColor;
                     } else {
                         return circleColor;
                     }
@@ -941,7 +1000,24 @@ export function renderMonth(
 ) {
     // console.log("renderMonth");
     // console.log(renderInfo);
+    // console.log(monthInfo);
     if (!renderInfo || !renderMonth) return;
+
+    // dataset
+    let datasetIds = monthInfo.dataset;
+    let numAvailableDataset = 0;
+    for (let dataset of renderInfo.datasets) {
+        if (!dataset.getQuery().usedAsXDataset) {
+            numAvailableDataset++;
+        }
+    }
+    if (numAvailableDataset === 0) {
+        return "No available dataset found";
+    }
+    toNextDataset(renderInfo, monthInfo);
+    if (monthInfo.selectedDataset === null) {
+        return "No available dataset found";
+    }
 
     let chartElements: ChartElements = {};
     chartElements = createAreas(chartElements, canvas, renderInfo, monthInfo);
