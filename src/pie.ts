@@ -14,6 +14,7 @@ import {
 } from "./data";
 import * as helper from "./helper";
 import * as d3 from "d3";
+import * as expr from "./expr";
 
 function createAreas(
     chartElements: ChartElements,
@@ -85,7 +86,7 @@ function renderTitle(
     renderInfo: RenderInfo,
     pieInfo: PieInfo
 ) {
-    // console.log("renderTitle")
+    // console.log("renderTitle");
     // under graphArea
 
     if (!renderInfo || !pieInfo) return;
@@ -100,10 +101,18 @@ function renderPie(
     renderInfo: RenderInfo,
     pieInfo: PieInfo
 ) {
+    // console.log("renderPie");
+    // console.log(renderInfo);
+
     let radius = renderInfo.dataAreaSize.width * 0.5 * 0.8;
-    let data = pieInfo.data.map(function (v) {
-        return parseFloat(v);
+
+    // data
+    let data = pieInfo.data.map(function (s) {
+        let value = expr.resolve(s, renderInfo);
+        return value;
     });
+
+    // scale
     let colorScale = d3.scaleOrdinal().range(pieInfo.dataColor);
 
     let sectorsGroup = chartElements.dataArea.append("g");
@@ -148,8 +157,6 @@ export function renderPieChart(
     // console.log("renderPieChart");
     // console.log(renderInfo);
     if (!renderInfo || !pieInfo) return;
-
-    return "Under construction";
 
     let chartElements: ChartElements = {};
     chartElements = createAreas(chartElements, canvas, renderInfo, pieInfo);

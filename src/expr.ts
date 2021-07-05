@@ -2,6 +2,7 @@ import { RenderInfo } from "./data";
 import * as d3 from "d3";
 import { Moment } from "moment";
 import * as helper from "./helper";
+import { parse, eval as evaluate } from "expression-eval";
 
 let fnSet = {
     // min value of a dataset
@@ -519,4 +520,13 @@ export function resolveTemplate(template: string, renderInfo: RenderInfo) {
     }
 
     return template;
+}
+
+export function resolve(s: string, renderInfo: RenderInfo) {
+    console.log(s);
+    s = resolveTemplate(s, renderInfo);
+    console.log(s);
+    const ast = parse(s);
+    const value = evaluate(ast, {});
+    return value;
 }
