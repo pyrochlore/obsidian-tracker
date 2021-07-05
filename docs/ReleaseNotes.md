@@ -1,5 +1,8 @@
 # Release Notes
 
+## v1.8.1
+- Fixed bugs while using month view with parameter `xDataset`
+
 ## v1.8.0
 - Add a new `searchType` `task`, retrieving data from tasks ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestTask.md))
 - Enhancement

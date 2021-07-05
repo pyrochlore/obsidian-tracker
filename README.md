@@ -19,6 +19,9 @@ Version 1.8.0
     - Relative date input for `startDate` and `endDate` ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md#relative-date-input-for-startdate-and-enddate))
 - Fixed missing dvField values at the last line of files
 
+Version 1.8.1
+- Fixed bugs while using month view with parameter `xDataset`
+
 ## Usage
 1. Have some targets you want to track in daily notes.
 2. Add a new note for displaying the tracker.
