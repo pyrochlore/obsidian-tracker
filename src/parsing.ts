@@ -871,7 +871,6 @@ export function getRenderInfoFromYaml(
         return errorMessage;
     }
     let searchType: Array<SearchType> = [];
-    let searchSubType: Array<string> = [];
     let retSearchType = getStringArrayFromInput(
         "searchType",
         yaml.searchType,
@@ -884,50 +883,39 @@ export function getRenderInfoFromYaml(
         return retSearchType; // errorMessage
     }
     for (let strType of retSearchType) {
-        switch (strType) {
+        switch (strType.toLowerCase()) {
             case "tag":
                 searchType.push(SearchType.Tag);
-                searchSubType.push("");
                 break;
             case "frontmatter":
                 searchType.push(SearchType.Frontmatter);
-                searchSubType.push("");
                 break;
             case "wiki":
                 searchType.push(SearchType.Wiki);
-                searchSubType.push("");
                 break;
             case "text":
                 searchType.push(SearchType.Text);
-                searchSubType.push("");
                 break;
-            case "dvField":
+            case "dvfield":
                 searchType.push(SearchType.dvField);
-                searchSubType.push("");
                 break;
             case "table":
                 searchType.push(SearchType.Table);
-                searchSubType.push("");
                 break;
-            case "fileMeta":
+            case "filemeta":
                 searchType.push(SearchType.FileMeta);
-                searchSubType.push("");
                 break;
             case "task":
                 searchType.push(SearchType.Task);
-                searchSubType.push("all");
                 break;
             case "task.all":
                 searchType.push(SearchType.Task);
-                searchSubType.push("all");
                 break;
             case "task.done":
-                searchType.push(SearchType.Task);
-                searchSubType.push("done");
+                searchType.push(SearchType.TaskDone);
                 break;
             case "task.notdone":
-                searchType.push(SearchType.Task);
-                searchSubType.push("notdone");
+                searchType.push(SearchType.TaskNotDone);
                 break;
         }
     }
@@ -991,9 +979,6 @@ export function getRenderInfoFromYaml(
             searchTarget[ind]
         );
         query.setSeparator(multipleValueSparator[ind]);
-        if (searchSubType[ind] !== "") {
-            query.setSubType(searchSubType[ind]);
-        }
         if (xDataset.includes(ind)) query.usedAsXDataset = true;
         queries.push(query);
     }
