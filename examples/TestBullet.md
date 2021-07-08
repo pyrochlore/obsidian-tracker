@@ -12,7 +12,7 @@ bullet:
     orientation: horizontal
 	range: 10, 20, 40
 	rangeColor: darkgray, silver, lightgray
-	value: "{{currentBreaks}}"
+	value: "{{currentBreaks()}}"
 	valueUnit: times
 	valueColor: '#69b3a2'
 	showMarker: true
@@ -32,7 +32,7 @@ bullet:
     orientation: vertical
 	range: 30, 60, 100
 	rangeColor: darkgray, silver, lightgray
-	value: "{{sum}}"
+	value: "{{sum()}}"
 	valueUnit: times
 	valueColor: steelblue
 	showMarker: true

@@ -1,226 +1,226 @@
 # Test Template Variables
 
-### {{min}}
+### {{min()}}
 ``` tracker
 searchType: dvField
 searchTarget: dataviewTarget
 folder: /diary
 endDate: 2021-01-03
 summary:
-    template: 'Minimum value: {{min}} <-- should be 12'
+    template: 'Minimum value: {{min()}} <-- should be 12'
 ```
 
-### {{minDate}}
+### {{minDate()}}
 ``` tracker
 searchType: dvField
 searchTarget: dataviewTarget
 folder: /diary
 endDate: 2021-01-03
 summary:
-    template: 'Latest date of minimum value: {{minDate}} <-- should be 2021-01-03'
+    template: 'Latest date of minimum value: {{minDate()}} <-- should be 2021-01-03'
 ```
 
-### {{max}}
+### {{max()}}
 ``` tracker
 searchType: dvField
 searchTarget: dataviewTarget
 folder: /diary
 endDate: 2021-01-03
 summary:
-    template: 'Maximum value: {{max}} <-- should be 48'
+    template: 'Maximum value: {{max()}} <-- should be 48'
 ```
 
-### {{maxDate}}
+### {{maxDate()}}
 ``` tracker
 searchType: dvField
 searchTarget: dataviewTarget
 folder: /diary
 endDate: 2021-01-03
 summary:
-    template: 'Latest date of maximum value: {{maxDate}} <-- should be 2021-01-01'
+    template: 'Latest date of maximum value: {{maxDate()}} <-- should be 2021-01-01'
 ```
 
-### {{startDate}}
+### {{startDate()}}
 ``` tracker
 searchType: dvField
 searchTarget: dataviewTarget
 folder: /diary
 endDate: 2021-01-03
 summary:
-    template: 'Start date: {{startDate}} <-- should be 2021-01-01'
+    template: 'Start date: {{startDate()}} <-- should be 2021-01-01'
 ```
 
-### {{endDate}}
+### {{endDate()}}
 ``` tracker
 searchType: dvField
 searchTarget: dataviewTarget
 folder: /diary
 endDate: 2021-01-03
 summary:
-    template: 'End date: {{endDate}} <-- should be 2021-01-03'
+    template: 'End date: {{endDate()}} <-- should be 2021-01-03'
 ```
 
-### {{sum}}
+### {{sum()}}
 ``` tracker
 searchType: tag
 searchTarget: meditation
 folder: /diary
 endDate: 2021-01-04
 summary:
-    template: 'Sum: {{sum}} <-- should be 3'
+    template: 'Sum: {{sum()}} <-- should be 3'
 ```
 
-### {{numTargets}}
+### {{numTargets()}}
 ``` tracker
 searchType: tag
 searchTarget: meditation
 folder: /diary
 endDate: 2021-01-04
 summary:
-    template: 'Number of targets: {{numTargets}} <-- should be 3'
+    template: 'Number of targets: {{numTargets()}} <-- should be 3'
 ```
 
-### {{numDays}}
+### {{numDays()}}
 ``` tracker
 searchType: tag
 searchTarget: meditation
 folder: /diary
 endDate: 2021-01-04
 summary:
-    template: 'Number of days: {{numDays}} <-- should be 4'
+    template: 'Number of days: {{numDays()}} <-- should be 4'
 ```
 
-### {{numDaysHavingData}}
+### {{numDaysHavingData()}}
 ``` tracker
 searchType: tag
 searchTarget: meditation
 folder: /diary
 endDate: 2021-01-04
 summary:
-    template: 'Number of days having data: {{numDaysHavingData}} <-- should be 3'
+    template: 'Number of days having data: {{numDaysHavingData()}} <-- should be 3'
 ```
 
-### {{maxStreak}}
+### {{maxStreak()}}
 ``` tracker
 searchType: tag
 searchTarget: meditation
 folder: /diary
 endDate: 2021-01-09
 summary:
-    template: 'Maximum streak: {{maxStreak}} <-- should be 5'
+    template: 'Maximum streak: {{maxStreak()}} <-- should be 5'
 ```
 
-### {{maxStreakStart}}
+### {{maxStreakStart()}}
 ``` tracker
 searchType: tag
 searchTarget: meditation
 folder: /diary
 endDate: 2021-01-09
 summary:
-    template: 'The start date of maximum streak: {{maxStreakStart}} <-- should be 2021-01-02'
+    template: 'The start date of maximum streak: {{maxStreakStart()}} <-- should be 2021-01-02'
 ```
 
-### {{maxStreakEnd}}
+### {{maxStreakEnd()}}
 ``` tracker
 searchType: tag
 searchTarget: meditation
 folder: /diary
 endDate: 2021-01-09
 summary:
-    template: 'The end date of maximum streak: {{maxStreakEnd}} <-- should be 2021-01-06'
+    template: 'The end date of maximum streak: {{maxStreakEnd()}} <-- should be 2021-01-06'
 ```
 
-### {{maxBreaks}}
+### {{maxBreaks()}}
 ``` tracker
 searchType: tag
 searchTarget: meditation
 folder: /diary
 endDate: 2021-01-09
 summary:
-    template: 'Maximum breaks: {{maxBreaks}} <-- should be 2'
+    template: 'Maximum breaks: {{maxBreaks()}} <-- should be 2'
 ```
 
-### {{maxBreaksStart}}
+### {{maxBreaksStart()}}
 ``` tracker
 searchType: tag
 searchTarget: meditation
 folder: /diary
 endDate: 2021-01-09
 summary:
-    template: 'The start date of maximum breaks: {{maxBreaksStart}} <-- should be 2021-01-07'
+    template: 'The start date of maximum breaks: {{maxBreaksStart()}} <-- should be 2021-01-07'
 ```
 
-### {{maxBreaksEnd}}
+### {{maxBreaksEnd()}}
 ``` tracker
 searchType: tag
 searchTarget: meditation
 folder: /diary
 endDate: 2021-01-09
 summary:
-    template: 'The end date of maximum breaks: {{maxBreaksEnd}} <-- should be 2021-01-08'
+    template: 'The end date of maximum breaks: {{maxBreaksEnd()}} <-- should be 2021-01-08'
 ```
 
-### {{currentStreak}}
+### {{currentStreak()}}
 ``` tracker
 searchType: tag
 searchTarget: meditation
 folder: /diary
 endDate: 2021-01-24
 summary:
-    template: 'Latest streak: {{currentStreak}} <-- should be 1'
+    template: 'Latest streak: {{currentStreak()}} <-- should be 1'
 ```
 
-### {{currentStreakStart}}
+### {{currentStreakStart()}}
 ``` tracker
 searchType: tag
 searchTarget: meditation
 folder: /diary
 endDate: 2021-01-24
 summary:
-    template: 'The start date of current streak: {{currentStreakStart}} <-- should be 2021-01-24'
+    template: 'The start date of current streak: {{currentStreakStart()}} <-- should be 2021-01-24'
 ```
 
-### {{currentStreakEnd}}
+### {{currentStreakEnd()}}
 ``` tracker
 searchType: tag
 searchTarget: meditation
 folder: /diary
 endDate: 2021-01-24
 summary:
-    template: 'The end date of current streak: {{currentStreakEnd}} <-- should be 2021-01-24'
+    template: 'The end date of current streak: {{currentStreakEnd()}} <-- should be 2021-01-24'
 ```
 
-### {{currentBreaks}}
+### {{currentBreaks()}}
 ``` tracker
 searchType: tag
 searchTarget: meditation
 folder: /diary
 endDate: 2021-01-22
 summary:
-    template: 'Current breaks: {{currentBreaks}} <-- should be 1'
+    template: 'Current breaks: {{currentBreaks()}} <-- should be 1'
 ```
 
-### {{currentBreaksStart}}
+### {{currentBreaksStart()}}
 ``` tracker
 searchType: tag
 searchTarget: meditation
 folder: /diary
 endDate: 2021-01-22
 summary:
-    template: 'The start date of current breaks: {{currentBreaksStart}} <-- should be 2021-01-22'
+    template: 'The start date of current breaks: {{currentBreaksStart()}} <-- should be 2021-01-22'
 ```
 
-### {{currentBreaksEnd}}
+### {{currentBreaksEnd()}}
 ``` tracker
 searchType: tag
 searchTarget: meditation
 folder: /diary
 endDate: 2021-01-22
 summary:
-    template: 'The end date of current breaks: {{currentBreaksEnd}} <-- should be 2021-01-22'
+    template: 'The end date of current breaks: {{currentBreaksEnd()}} <-- should be 2021-01-22'
 ```
 
-### {{average}}
+### {{average()}}
 (48+25+12)/3 = 28.33
 ``` tracker
 searchType: dvField
@@ -228,20 +228,20 @@ searchTarget: dataviewTarget
 folder: /diary
 endDate: 2021-01-03
 summary:
-    template: 'Average value: {{average}} <-- should be 28.33'
+    template: 'Average value: {{average()}} <-- should be 28.33'
 ```
 
-### {{median}}
+### {{median()}}
 ``` tracker
 searchType: dvField
 searchTarget: dataviewTarget
 folder: /diary
 endDate: 2021-01-03
 summary:
-    template: 'Median value: {{median}} <-- should be 25'
+    template: 'Median value: {{median()}} <-- should be 25'
 ```
 
-### {{variance}}
+### {{variance()}}
 https://mathworld.wolfram.com/SampleVariance.html
 ``` tracker
 searchType: dvField
@@ -249,5 +249,5 @@ searchTarget: dataviewTarget
 folder: /diary
 endDate: 2021-01-03
 summary:
-    template: 'Variance value: {{variance}} <-- should be 332.33'
+    template: 'Variance value: {{variance()}} <-- should be 332.33'
 ```

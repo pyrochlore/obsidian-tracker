@@ -450,9 +450,12 @@ function renderBar(
 
     if (!renderInfo || !bulletInfo) return;
 
-    let retActualValue = bulletInfo.value;
-    retActualValue = expr.resolveTemplate(retActualValue, renderInfo);
-    let actualValue = parseFloat(retActualValue);
+    let retActualValue = expr.resolveValue(bulletInfo.value, renderInfo);
+    // console.log(retActualValue);
+    if (typeof retActualValue === "string") {
+        return retActualValue;
+    }
+    let actualValue = retActualValue;
     if (Number.isNaN(actualValue)) {
         errorMessage = "Invalid input value: " + retActualValue;
         return errorMessage;

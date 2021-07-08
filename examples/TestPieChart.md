@@ -1,12 +1,65 @@
 # Test Pie Chart
 
+## Manual Input Data
+### Numbers
+To be fixed,
+If numeric data not wrapped by single quotes
 ``` tracker
-searchType: tag
-searchTarget: meditation
+searchType: task.done, task.notdone
+searchTarget: Say I love you, Say I love you
 pie:
     title: Pie
-    data: '{{sum}}*1,{{sum}}*2,{{sum}}*3,{{sum}}*4,{{sum}}*5'
+    data: '2, 4, 6, 8, 10'
     dataColor: '#4daf4a,#377eb8,#ff7f00,#984ea3,#e41a1c'
     ratioInnerRadius: 0.5
 ```
+
+### Expression
+To be fixed,
+If numeric data not wrapped by single quotes
+2,4,6,8,10
+????? errro?????
+``` tracker
+searchType: task.done, task.notdone
+searchTarget: Say I love you, Say I love you
+pie:
+    title: Pie
+    data: '{{1 + 1}}, {{2 * 2}}, {{12/ 2}}, {{1+(2+3*2)-1}}, {{27%17}}'
+    dataColor: '#4daf4a,#377eb8,#ff7f00,#984ea3,#e41a1c'
+    ratioInnerRadius: 0.5
+```
+
+## Data from Notes
+``` tracker
+searchType: task.done, task.notdone
+searchTarget: Say I love you, Say I love you
+folder: diary
+pie:
+    title: Pie
+    data: '{{sum(0)}},{{sum(1)}}'
+    dataColor: '#4daf4a,#377eb8'
+    ratioInnerRadius: 0.5
+```
+
+
+``` tracker
+searchType: task.done, task.notdone
+searchTarget: Say I love you, Say I love you
+folder: diary
+summary:
+    template: "How many days I said love: {{sum(0)}}\nHow many days I didn't say love: {{sum(1)}}"
+```
+
+
+<!--
+``` tracker
+searchType: tag
+searchTarget: meditation, exercise-pushup, exercise-plank
+pie:
+    title: Pie
+    data: '{{sum(0)}},{{sum(1)}},{{sum()}}*3,{{sum()}}*4,{{sum()}}*5'
+    dataColor: '#4daf4a,#377eb8,#ff7f00,#984ea3,#e41a1c'
+    ratioInnerRadius: 0.5
+```
+
 

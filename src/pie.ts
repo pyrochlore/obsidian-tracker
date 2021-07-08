@@ -103,14 +103,23 @@ function renderPie(
 ) {
     // console.log("renderPie");
     // console.log(renderInfo);
+    let errorMessage = "";
 
     let radius = renderInfo.dataAreaSize.width * 0.5 * 0.8;
 
     // data
-    let data = pieInfo.data.map(function (s) {
-        let value = expr.resolve(s, renderInfo);
-        return value;
-    });
+    let values: Array<number> = [];
+    for (let strExpr of pieInfo.data) {
+        let retValue = expr.resolveValue(strExpr, renderInfo);
+        if (typeof retValue === "string") {
+            errorMessage = retValue;
+            break;
+        }
+        values.push(retValue);
+    }
+    if (errorMessage !== "") {
+        return errorMessage;
+    }
 
     // scale
     let colorScale = d3.scaleOrdinal().range(pieInfo.dataColor);
@@ -131,7 +140,7 @@ function renderPie(
 
     let sectors = sectorsGroup
         .selectAll("sector")
-        .data(pie(data))
+        .data(pie(values))
         .enter()
         .append("g")
         .attr("class", "sector");
@@ -158,8 +167,8 @@ export function renderPieChart(
     // console.log(renderInfo);
     if (!renderInfo || !pieInfo) return;
 
-    return "Under construction";
-    
+    // return "Under construction";
+
     let chartElements: ChartElements = {};
     chartElements = createAreas(chartElements, canvas, renderInfo, pieInfo);
 

@@ -69,7 +69,7 @@ month:
 searchType: tag
 searchTarget: exercise-pushup
 summary:
-    template: "minDate: {{minDate}}\nminValue: {{min}}\nmaxDate: {{maxDate}}\nmaxValue: {{max}}"
+    template: "minDate: {{minDate()}}\nminValue: {{min()}}\nmaxDate: {{maxDate()}}\nmaxValue: {{max()}}"
 ```
 
 ## Multiple targets

@@ -23,6 +23,7 @@ export function renderSummary(
     }
 
     outputSummary = expr.resolveTemplate(outputSummary, renderInfo);
+    // console.log(outputSummary);
     if (outputSummary !== "") {
         let textBlock = d3.select(canvas).append("div");
         if (outputSummary.includes("\n")) {

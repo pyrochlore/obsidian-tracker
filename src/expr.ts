@@ -1,17 +1,32 @@
-import { RenderInfo } from "./data";
+import { RenderInfo, Dataset } from "./data";
 import * as d3 from "d3";
 import { Moment } from "moment";
 import * as helper from "./helper";
-import { parse, eval as evaluate } from "expression-eval";
+import jsep from "jsep";
 
-let fnSet = {
+// Function accept datasetId as first argument
+type FnDatasetId = (
+    datasetId: number,
+    renderInfo: RenderInfo
+) => number | string;
+type FnBinaryOp = (a: number, b: number) => number;
+
+interface FnMapDatasetId {
+    [key: string]: FnDatasetId;
+}
+
+interface FnMapBinaryOp {
+    [key: string]: FnBinaryOp;
+}
+
+const fnMapDatasetId: FnMapDatasetId = {
     // min value of a dataset
-    min: function (renderInfo: RenderInfo, datasetId: number) {
+    min: function (datasetId: number, renderInfo: RenderInfo) {
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
         return d3.min(dataset.getValues());
     },
     // the latest date with min value
-    minDate: function (renderInfo: RenderInfo, datasetId: number) {
+    minDate: function (datasetId: number, renderInfo: RenderInfo) {
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
         let min = d3.min(dataset.getValues());
         if (Number.isNumber(min)) {
@@ -28,12 +43,12 @@ let fnSet = {
         return "min not found";
     },
     // max value of a dataset
-    max: function (renderInfo: RenderInfo, datasetId: number) {
+    max: function (datasetId: number, renderInfo: RenderInfo) {
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
         return d3.max(dataset.getValues());
     },
     // the latest date with max value
-    maxDate: function (renderInfo: RenderInfo, datasetId: number) {
+    maxDate: function (datasetId: number, renderInfo: RenderInfo) {
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
         let max = d3.max(dataset.getValues());
         if (Number.isNumber(max)) {
@@ -51,7 +66,7 @@ let fnSet = {
     },
     // start date of a dataset
     // if datasetId not found, return overall startDate
-    startDate: function (renderInfo: RenderInfo, datasetId: number) {
+    startDate: function (datasetId: number, renderInfo: RenderInfo) {
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
         if (dataset) {
             let startDate = dataset.getStartDate();
@@ -63,7 +78,7 @@ let fnSet = {
     },
     // end date of a dataset
     // if datasetId not found, return overall endDate
-    endDate: function (renderInfo: RenderInfo, datasetId: number) {
+    endDate: function (datasetId: number, renderInfo: RenderInfo) {
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
         if (dataset) {
             let endDate = dataset.getEndDate();
@@ -74,30 +89,30 @@ let fnSet = {
         return helper.dateToStr(renderInfo.endDate, renderInfo.dateFormat);
     },
     // sum of all values in a dataset
-    sum: function (renderInfo: RenderInfo, datasetId: number) {
+    sum: function (datasetId: number, renderInfo: RenderInfo) {
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
         return d3.sum(dataset.getValues());
     },
-    count: function (renderInfo: RenderInfo, datasetId: number) {
+    count: function (datasetId: number, renderInfo: RenderInfo) {
         return "deprecated template variable 'count'";
     },
     // number of occurrences of a target in a dataset
-    numTargets: function (renderInfo: RenderInfo, datasetId: number) {
+    numTargets: function (datasetId: number, renderInfo: RenderInfo) {
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
         return dataset.getNumTargets();
     },
-    days: function (renderInfo: RenderInfo, datasetId: number) {
+    days: function (datasetId: number, renderInfo: RenderInfo) {
         return "deprecated template variable 'days'";
     },
-    numDays: function (renderInfo: RenderInfo, datasetId: number) {
+    numDays: function (datasetId: number, renderInfo: RenderInfo) {
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
         return dataset.getLength();
     },
-    numDaysHavingData: function (renderInfo: RenderInfo, datasetId: number) {
+    numDaysHavingData: function (datasetId: number, renderInfo: RenderInfo) {
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
         return dataset.getLengthNotNull();
     },
-    maxStreak: function (renderInfo: RenderInfo, datasetId: number) {
+    maxStreak: function (datasetId: number, renderInfo: RenderInfo) {
         let streak = 0;
         let maxStreak = 0;
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
@@ -113,7 +128,7 @@ let fnSet = {
         }
         return maxStreak;
     },
-    maxStreakStart: function (renderInfo: RenderInfo, datasetId: number) {
+    maxStreakStart: function (datasetId: number, renderInfo: RenderInfo) {
         let streak = 0;
         let maxStreak = 0;
         let streakStart: Moment = null;
@@ -137,7 +152,7 @@ let fnSet = {
         }
         return helper.dateToStr(maxStreakStart, renderInfo.dateFormat);
     },
-    maxStreakEnd: function (renderInfo: RenderInfo, datasetId: number) {
+    maxStreakEnd: function (datasetId: number, renderInfo: RenderInfo) {
         let streak = 0;
         let maxStreak = 0;
         let streakEnd: Moment = null;
@@ -169,7 +184,7 @@ let fnSet = {
         }
         return helper.dateToStr(maxStreakEnd, renderInfo.dateFormat);
     },
-    maxBreaks: function (renderInfo: RenderInfo, datasetId: number) {
+    maxBreaks: function (datasetId: number, renderInfo: RenderInfo) {
         let breaks = 0;
         let maxBreaks = 0;
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
@@ -186,7 +201,7 @@ let fnSet = {
         }
         return maxBreaks;
     },
-    maxBreaksStart: function (renderInfo: RenderInfo, datasetId: number) {
+    maxBreaksStart: function (datasetId: number, renderInfo: RenderInfo) {
         let breaks = 0;
         let maxBreaks = 0;
         let breaksStart: Moment = null;
@@ -210,7 +225,7 @@ let fnSet = {
         }
         return helper.dateToStr(maxBreaksStart, renderInfo.dateFormat);
     },
-    maxBreaksEnd: function (renderInfo: RenderInfo, datasetId: number) {
+    maxBreaksEnd: function (datasetId: number, renderInfo: RenderInfo) {
         let breaks = 0;
         let maxBreaks = 0;
         let breaksEnd: Moment = null;
@@ -240,10 +255,10 @@ let fnSet = {
         }
         return helper.dateToStr(maxBreaksEnd, renderInfo.dateFormat);
     },
-    lastStreak: function (renderInfo: RenderInfo, datasetId: number) {
+    lastStreak: function (datasetId: number, renderInfo: RenderInfo) {
         return "deprecated template variable 'lastStreak'";
     },
-    currentStreak: function (renderInfo: RenderInfo, datasetId: number) {
+    currentStreak: function (datasetId: number, renderInfo: RenderInfo) {
         let currentStreak = 0;
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
         if (dataset) {
@@ -259,7 +274,7 @@ let fnSet = {
         }
         return currentStreak;
     },
-    currentStreakStart: function (renderInfo: RenderInfo, datasetId: number) {
+    currentStreakStart: function (datasetId: number, renderInfo: RenderInfo) {
         let currentStreak = 0;
         let currentStreakStart: Moment = null;
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
@@ -283,7 +298,7 @@ let fnSet = {
         }
         return helper.dateToStr(currentStreakStart, renderInfo.dateFormat);
     },
-    currentStreakEnd: function (renderInfo: RenderInfo, datasetId: number) {
+    currentStreakEnd: function (datasetId: number, renderInfo: RenderInfo) {
         let currentStreak = 0;
         let currentStreakEnd: Moment = null;
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
@@ -307,7 +322,7 @@ let fnSet = {
         }
         return helper.dateToStr(currentStreakEnd, renderInfo.dateFormat);
     },
-    currentBreaks: function (renderInfo: RenderInfo, datasetId: number) {
+    currentBreaks: function (datasetId: number, renderInfo: RenderInfo) {
         let currentBreaks = 0;
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
         if (dataset) {
@@ -323,7 +338,7 @@ let fnSet = {
         }
         return currentBreaks;
     },
-    currentBreaksStart: function (renderInfo: RenderInfo, datasetId: number) {
+    currentBreaksStart: function (datasetId: number, renderInfo: RenderInfo) {
         let currentBreaks = 0;
         let currentBreaksStart: Moment = null;
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
@@ -347,7 +362,7 @@ let fnSet = {
         }
         return helper.dateToStr(currentBreaksStart, renderInfo.dateFormat);
     },
-    currentBreaksEnd: function (renderInfo: RenderInfo, datasetId: number) {
+    currentBreaksEnd: function (datasetId: number, renderInfo: RenderInfo) {
         let currentBreaks = 0;
         let currentBreaksEnd: Moment = null;
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
@@ -371,7 +386,7 @@ let fnSet = {
         }
         return helper.dateToStr(currentBreaksEnd, renderInfo.dateFormat);
     },
-    average: function (renderInfo: RenderInfo, datasetId: number) {
+    average: function (datasetId: number, renderInfo: RenderInfo) {
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
         let countNotNull = dataset.getLengthNotNull();
         if (countNotNull > 0) {
@@ -380,153 +395,128 @@ let fnSet = {
         }
         return null;
     },
-    median: function (renderInfo: RenderInfo, datasetId: number) {
+    median: function (datasetId: number, renderInfo: RenderInfo) {
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
         return d3.median(dataset.getValues());
     },
-    variance: function (renderInfo: RenderInfo, datasetId: number) {
+    variance: function (datasetId: number, renderInfo: RenderInfo) {
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
         return d3.variance(dataset.getValues());
     },
 };
 
-export function resolveTemplate(template: string, renderInfo: RenderInfo) {
-    //console.log("resolveTemplate");
-    let replaceMap: { [key: string]: string } = {};
-    // Loop over fnSet, prepare replaceMap
-    Object.entries(fnSet).forEach(([fnName, fn]) => {
-        // {{\s*max(\(\s*Dataset\(\s*(?<datasetId>\d+)\s*\)\s*\))?\s*}}
-        let strRegex =
-            "{{\\s*" +
-            fnName +
-            "(\\(\\s*Dataset\\(\\s*((?<datasetId>\\d+)|(?<datasetName>\\w+))\\s*\\)\\s*\\))?\\s*}}";
-        // console.log(strRegex);
-        let regex = new RegExp(strRegex, "gm");
-        let match;
-        while ((match = regex.exec(template))) {
-            // console.log(match);
-            if (typeof match.groups !== "undefined") {
-                if (typeof match.groups.datasetId !== "undefined") {
-                    let datasetId = parseInt(match.groups.datasetId);
-                    // console.log(datasetId);
-                    if (Number.isInteger(datasetId)) {
-                        let strReplaceRegex =
-                            "{{\\s*" +
-                            fnName +
-                            "(\\(\\s*Dataset\\(\\s*" +
-                            datasetId.toString() +
-                            "\\s*\\)\\s*\\))?\\s*}}";
+const fnMapBinaryOp: FnMapBinaryOp = {
+    "+": function (a: number, b: number) {
+        return a + b;
+    },
+    "-": function (a: number, b: number) {
+        return a - b;
+    },
+    "*": function (a: number, b: number) {
+        return a * b;
+    },
+    "/": function (a: number, b: number) {
+        return a / b;
+    },
+    "%": function (a: number, b: number) {
+        return a % b;
+    },
+};
 
-                        if (!(strReplaceRegex in replaceMap)) {
-                            let result = fn(renderInfo, datasetId); // calculate result
-                            let strResult = "{{NA}}";
-                            if (
-                                typeof result !== "undefined" &&
-                                result !== null
-                            ) {
-                                if (Number.isInteger(result)) {
-                                    strResult = result.toFixed(0);
-                                } else {
-                                    strResult = result.toFixed(2);
-                                }
-                            }
+function evaluate(expr: jsep.Expression, renderInfo: RenderInfo): any {
+    // console.log(expr);
 
-                            replaceMap[strReplaceRegex] = strResult;
-                        }
-                    }
-                } else if (typeof match.groups.datasetName !== "undefined") {
-                    let datasetName = match.groups.datasetName;
-                    // console.log(datasetName);
-                    let strReplaceRegex =
-                        "{{\\s*" +
-                        fnName +
-                        "(\\(\\s*Dataset\\(\\s*" +
-                        datasetName +
-                        "\\s*\\)\\s*\\))?\\s*}}";
+    switch (expr.type) {
+        // case 'ArrayExpression':
+        //     return evaluateArray(node.elements, context);
 
-                    let datasetId = renderInfo.datasetName.indexOf(datasetName);
-                    // console.log(datasetName);
-                    // console.log(renderInfo.datasetName);
-                    // console.log(datasetId);
-                    if (!(strReplaceRegex in replaceMap)) {
-                        let strResult = "{{NA}}";
-                        if (datasetId >= 0) {
-                            let result = fn(renderInfo, datasetId); // calculate result
-                            if (
-                                typeof result !== "undefined" &&
-                                result !== null
-                            ) {
-                                if (Number.isInteger(result)) {
-                                    strResult = result.toFixed(0);
-                                } else {
-                                    strResult = result.toFixed(2);
-                                }
-                            }
-                        }
-                        replaceMap[strReplaceRegex] = strResult;
-                    }
-                } else {
-                    // no datasetId assigned use id 0
-                    // console.log("{{" + fnName + "}}")
-                    let strReplaceRegex = "{{\\s*" + fnName + "\\s*}}";
-                    if (!(strReplaceRegex in replaceMap)) {
-                        let result = fn(renderInfo, 0); // calculate result
-                        let strResult = "{{NA}}";
-                        if (typeof result !== "undefined" && result !== null) {
-                            if (typeof result === "number") {
-                                if (Number.isInteger(result)) {
-                                    strResult = result.toFixed(0);
-                                } else {
-                                    strResult = result.toFixed(2);
-                                }
-                            } else if (typeof result === "string") {
-                                strResult = result;
-                            }
-                        }
+        case "BinaryExpression":
+            let binaryExpr = expr as jsep.BinaryExpression;
+            return fnMapBinaryOp[binaryExpr.operator](
+                evaluate(binaryExpr.left, renderInfo),
+                evaluate(binaryExpr.right, renderInfo)
+            );
 
-                        replaceMap[strReplaceRegex] = strResult;
-                    }
-                }
-            } else {
-                // groups undefined
-                // no datasetId assigned use id 0
-                // console.log("{{" + fnName + "}}")
-                let strReplaceRegex = "{{\\s*" + fnName + "\\s*}}";
-                if (!(strReplaceRegex in replaceMap)) {
-                    let result = fn(renderInfo, 0); // calculate result
-                    let strResult = "{{NA}}";
-                    if (typeof result !== "undefined" && result !== null) {
-                        if (Number.isInteger(result)) {
-                            strResult = result.toFixed(0);
-                        } else {
-                            strResult = result.toFixed(2);
-                        }
-                    } else if (typeof result === "string") {
-                        strResult = result;
-                    }
+        case "CallExpression":
+            let callExpr = expr as jsep.CallExpression;
+            let fnName: string = (callExpr.callee as jsep.Identifier).name;
+            let args = callExpr.arguments;
 
-                    replaceMap[strReplaceRegex] = strResult;
+            if (args.length === 1) {
+                let arg = args[0];
+                if (arg.type === "Literal") {
+                    let datasetId = (arg as jsep.Literal).value as number;
+                    let fnDatasetId = fnMapDatasetId[fnName];
+                    return fnDatasetId(datasetId, renderInfo);
+                } else if (arg.type === "CallExpression") {
                 }
             }
-        }
-    });
 
-    // console.log(replaceMap);
-    // Do replace
-    for (let strReplaceRegex in replaceMap) {
-        let strResult = replaceMap[strReplaceRegex];
-        let regex = new RegExp(strReplaceRegex, "gi");
-        template = template.replace(regex, strResult);
+            return null;
+
+        case "Literal":
+            return (expr as jsep.Literal).value;
     }
-
-    return template;
+    return "Error evaluating expression";
 }
 
-export function resolve(s: string, renderInfo: RenderInfo) {
-    console.log(s);
-    s = resolveTemplate(s, renderInfo);
-    console.log(s);
-    const ast = parse(s);
-    const value = evaluate(ast, {});
-    return value;
+export function resolve(str: string, renderInfo: RenderInfo) {
+    // console.log(s);
+
+    let exprMap: { [key: string]: string } = {};
+
+    // {{[\w+\-*\/0-9\s()\[\]]+}}
+    let strExprRegex = "{{[\\w+\\-*\\/0-9\\s()\\[\\]%]+}}";
+    let exprRegex = new RegExp(strExprRegex, "gm");
+    let match;
+    while ((match = exprRegex.exec(str))) {
+        let fullmatch = match[0];
+        // console.log(match);
+        let strExpr = fullmatch.substring(2, fullmatch.length - 2);
+        // console.log(strExpr);
+
+        if (!(fullmatch in exprMap)) {
+            const ast = jsep(strExpr);
+            // console.log(ast);
+
+            const value = evaluate(ast, renderInfo);
+            if (typeof value === "string") {
+                exprMap[fullmatch] = value;
+            } else if (typeof value === "number") {
+                exprMap[fullmatch] = value.toString();
+            }
+        }
+    }
+
+    for (let fullmatch in exprMap) {
+        let strValue = exprMap[fullmatch];
+        str = str.replace(fullmatch, strValue);
+    }
+
+    return str;
+}
+
+export function resolveTemplate(str: string, renderInfo: RenderInfo): string {
+    // console.log(str);
+    let retResolve = resolve(str, renderInfo);
+    return retResolve;
+}
+
+export function resolveValue(
+    str: string,
+    renderInfo: RenderInfo
+): number | string {
+    // console.log(str);
+    str = str.trim();
+    let value = null;
+    if (str.startsWith("{{") && str.endsWith("}}")) {
+        let retResolve = resolve(str, renderInfo);
+        value = parseFloat(retResolve);
+    } else {
+        value = parseFloat(str);
+    }
+    if (Number.isNumber(value) && !Number.isNaN(value)) {
+        return value;
+    }
+    return "Error resolving values";
 }

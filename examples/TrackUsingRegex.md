@@ -27,7 +27,7 @@ folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 summary:
-    template: "Total number of emails found: {{sum}}"
+    template: "Total number of emails found: {{sum()}}"
     style: "font-size:20px;color:red;margin-left: 50px;margin-top:00px;"
 ```
 

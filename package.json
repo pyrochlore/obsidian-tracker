@@ -31,7 +31,7 @@
   "dependencies": {
     "d3": "^6.5.0",
     "d3-interpolate": "^3.0.1",
-    "expression-eval": "^5.0.0",
+    "jsep": "^0.4.0",
     "obsidian-daily-notes-interface": "^0.9.1"
   }
 }
