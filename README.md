@@ -22,6 +22,9 @@ Version 1.8.0
 Version 1.8.1
 - Fixed bugs while using month view with parameter `xDataset`
 
+Version 1.8.2
+- Fixed tasks searching not working for multiple targets
+
 ## Usage
 1. Have some targets you want to track in daily notes.
 2. Add a new note for displaying the tracker.
