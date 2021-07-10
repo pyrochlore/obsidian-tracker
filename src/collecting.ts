@@ -219,20 +219,18 @@ export function getDateFromTask(
 ) {
     // console.log("getDateFromTask");
 
-    let subType = query.getSubType();
-    // console.log(subType);
-
     let date = window.moment("");
+    let searchType = query.getType();
+    // console.log(searchType);
 
     let strTextRegex = query.getTarget();
-    if (subType === "all") {
+    if (searchType === SearchType.Task) {
         strTextRegex = "\\[[\\sx]\\]\\s" + strTextRegex;
-    } else if (subType === "done") {
+    } else if (searchType === SearchType.TaskDone) {
         strTextRegex = "\\[x\\]\\s" + strTextRegex;
-    } else if (subType === "notdone") {
+    } else if (searchType === SearchType.TaskNotDone) {
         strTextRegex = "\\[\\s\\]\\s" + strTextRegex;
     } else {
-        // all
         strTextRegex = "\\[[\\sx]\\]\\s" + strTextRegex;
     }
     // console.log(strTextRegex);
@@ -712,15 +710,15 @@ export function collectDataFromTask(
     dataMap: DataMap,
     xValueMap: XValueMap
 ) {
-    let subType = query.getSubType();
-    // console.log(subType);
+    let searchType = query.getType();
+    // console.log(searchType);
 
     let strTextRegex = query.getTarget();
-    if (subType === "all") {
+    if (searchType === SearchType.Task) {
         strTextRegex = "\\[[\\sx]\\]\\s" + strTextRegex;
-    } else if (subType === "done") {
+    } else if (searchType === SearchType.TaskDone) {
         strTextRegex = "\\[x\\]\\s" + strTextRegex;
-    } else if (subType === "notdone") {
+    } else if (searchType === SearchType.TaskNotDone) {
         strTextRegex = "\\[\\s\\]\\s" + strTextRegex;
     } else {
         // all

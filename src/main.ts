@@ -188,7 +188,9 @@ export default class Tracker extends Plugin {
                     type === SearchType.Tag ||
                     type === SearchType.Text ||
                     type === SearchType.dvField ||
-                    type === SearchType.Task
+                    type === SearchType.Task ||
+                    type === SearchType.TaskDone ||
+                    type === SearchType.TaskNotDone
                 ) {
                     return true;
                 } else if (type === SearchType.FileMeta) {
@@ -260,6 +262,8 @@ export default class Tracker extends Plugin {
                                 );
                                 break;
                             case SearchType.Task:
+                            case SearchType.TaskDone:
+                            case SearchType.TaskNotDone:
                                 xDate = collecting.getDateFromTask(
                                     content,
                                     xDatasetQuery,
@@ -406,7 +410,12 @@ export default class Tracker extends Plugin {
                 } // search dvField
 
                 // console.log("Search Task");
-                if (content && query.getType() === SearchType.Task) {
+                if (
+                    content &&
+                    (query.getType() === SearchType.Task ||
+                        query.getType() === SearchType.TaskDone ||
+                        query.getType() === SearchType.TaskNotDone)
+                ) {
                     collecting.collectDataFromTask(
                         content,
                         query,

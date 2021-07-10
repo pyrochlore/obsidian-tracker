@@ -1,5 +1,8 @@
 # Release Notes
 
+## v1.8.2
+- Fixed tasks searching not working for multiple targets
+
 ## v1.8.1
 - Fixed bugs while using month view with parameter `xDataset`
 

@@ -9,6 +9,8 @@ export enum SearchType {
     Table,
     FileMeta,
     Task,
+    TaskDone,
+    TaskNotDone,
 }
 
 export enum OutputType {
@@ -45,7 +47,6 @@ export class DataPoint {
 
 export class Query {
     private type: SearchType | null;
-    private subType: string;
     private target: string;
     private parentTarget: string | null;
     private separator: string; // multiple value separator
@@ -60,7 +61,6 @@ export class Query {
 
     constructor(id: number, searchType: SearchType, searchTarget: string) {
         this.type = searchType;
-        this.subType = "";
         this.target = searchTarget;
         this.separator = "/";
         this.id = id;
@@ -135,14 +135,6 @@ export class Query {
 
     public getType() {
         return this.type;
-    }
-
-    public getSubType() {
-        return this.subType;
-    }
-
-    public setSubType(subType: string) {
-        this.subType = subType;
     }
 
     public getTarget() {
