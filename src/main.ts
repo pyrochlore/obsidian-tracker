@@ -434,10 +434,20 @@ export default class Tracker extends Plugin {
         let tableQueries = renderInfo.queries.filter(
             (q) => q.getType() === SearchType.Table
         );
+        // console.log(tableQueries);
         // Separate queries by tables and xDatasets/yDatasets
         let tables: Array<TableData> = [];
+        let tableFileNotFound = false;
         for (let query of tableQueries) {
             let filePath = query.getParentTarget();
+            let file = this.app.vault.getAbstractFileByPath(
+                normalizePath(filePath + ".md")
+            );
+            if (!file || !(file instanceof TFile)) {
+                tableFileNotFound = true;
+                break;
+            }
+
             let tableIndex = query.getAccessor();
             let isX = query.usedAsXDataset;
 
@@ -462,9 +472,19 @@ export default class Tracker extends Plugin {
         }
         // console.log(tables);
 
+        if (tableFileNotFound) {
+            let errorMessage = "File containing tables not found";
+            renderErrorMessage(canvas, errorMessage);
+            el.appendChild(canvas);
+            return;
+        }
+
         for (let tableData of tables) {
             //extract xDataset from query
             let xDatasetQuery = tableData.xDataset;
+            if (!xDatasetQuery) {// missing xDataset
+                continue;
+            }
             let yDatasetQueries = tableData.yDatasets;
             let filePath = xDatasetQuery.getParentTarget();
             let tableIndex = xDatasetQuery.getAccessor();
