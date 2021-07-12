@@ -1,5 +1,14 @@
 # Test Pie Chart
 
+``` tracker
+searchType: task.done, task.notdone
+searchTarget: Say I love you, Say I love you
+folder: diary
+summary:
+    template: "How many days I said love: {{sum(dataset(0))}}\nHow many days I didn't say love: {{sum(dataset(0) + dataset(0))}}"
+```
+
+<!--
 ## Manual Input Data
 ### Numbers
 To be fixed,
@@ -50,16 +59,5 @@ summary:
     template: "How many days I said love: {{sum(0)}}\nHow many days I didn't say love: {{sum(1)}}"
 ```
 
-
-<!--
-``` tracker
-searchType: tag
-searchTarget: meditation, exercise-pushup, exercise-plank
-pie:
-    title: Pie
-    data: '{{sum(0)}},{{sum(1)}},{{sum()}}*3,{{sum()}}*4,{{sum()}}*5'
-    dataColor: '#4daf4a,#377eb8,#ff7f00,#984ea3,#e41a1c'
-    ratioInnerRadius: 0.5
-```
 
 

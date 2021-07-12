@@ -5,21 +5,24 @@ import * as helper from "./helper";
 import jsep from "jsep";
 
 // Function accept datasetId as first argument
-type FnDatasetId = (
-    datasetId: number,
+type FnDataset = (
+    dataset: number | Dataset,
     renderInfo: RenderInfo
 ) => number | string;
-type FnBinaryOp = (a: number, b: number) => number;
+type FnBinaryOp = (
+    a: number | boolean | Dataset | Array<number>,
+    b: number | boolean | Dataset | Array<number>
+) => number | boolean | Dataset | Array<number>;
 
-interface FnMapDatasetId {
-    [key: string]: FnDatasetId;
+interface FnMapDataset {
+    [key: string]: FnDataset;
 }
 
 interface FnMapBinaryOp {
     [key: string]: FnBinaryOp;
 }
 
-const fnMapDatasetId: FnMapDatasetId = {
+const fnMapDataset: FnMapDataset = {
     // min value of a dataset
     min: function (datasetId: number, renderInfo: RenderInfo) {
         let dataset = renderInfo.datasets.getDatasetById(datasetId);
@@ -89,9 +92,13 @@ const fnMapDatasetId: FnMapDatasetId = {
         return helper.dateToStr(renderInfo.endDate, renderInfo.dateFormat);
     },
     // sum of all values in a dataset
-    sum: function (datasetId: number, renderInfo: RenderInfo) {
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
-        return d3.sum(dataset.getValues());
+    sum: function (_dataset: number | Dataset, renderInfo: RenderInfo) {
+        // console.log(_dataset);
+        if (typeof _dataset === "number") {
+            let dataset = renderInfo.datasets.getDatasetById(_dataset);
+            return d3.sum(dataset.getValues());
+        }
+        return d3.sum(_dataset.getValues());
     },
     count: function (datasetId: number, renderInfo: RenderInfo) {
         return "deprecated template variable 'count'";
@@ -406,56 +413,124 @@ const fnMapDatasetId: FnMapDatasetId = {
 };
 
 const fnMapBinaryOp: FnMapBinaryOp = {
-    "+": function (a: number, b: number) {
-        return a + b;
+    "+": function (l, r) {
+        if (typeof l === "number" && typeof r === "number") {
+            return l + r;
+        } else if (typeof l === "number" && Array.isArray(r)) {
+            return (r as Array<number>).map(function (v) {
+                return v + l;
+            });
+        }
+        else if (Array.isArray(l) && typeof r === "number") {
+            return (l as Array<number>).map(function (v) {
+                return v + r;
+            });
+        }
     },
-    "-": function (a: number, b: number) {
-        return a - b;
+    "-": function (l, r) {
+        if (typeof l === "number" && typeof r === "number") {
+            return l - r;
+        } else if (typeof l === "number" && typeof Array.isArray(r)) {
+            return (r as Array<number>).map(function (v) {
+                return l - v;
+            });
+        }
+        else if (Array.isArray(l) && typeof r === "number") {
+            return (l as Array<number>).map(function (v) {
+                return v - r;
+            });
+        }
     },
-    "*": function (a: number, b: number) {
-        return a * b;
+    "*": function (l, r) {
+        if (typeof l === "number" && typeof r === "number") {
+            return l * r;
+        } else if (typeof l === "number" && typeof Array.isArray(r)) {
+            return (r as Array<number>).map(function (v) {
+                return l * v;
+            });
+        }
+        else if (Array.isArray(l) && typeof r === "number") {
+            return (l as Array<number>).map(function (v) {
+                return v * r;
+            });
+        }
     },
-    "/": function (a: number, b: number) {
-        return a / b;
+    "/": function (l, r) {
+        if (typeof l === "number" && typeof r === "number") {
+            return l / r;
+        } else if (typeof l === "number" && typeof Array.isArray(r)) {
+            return (r as Array<number>).map(function (v) {
+                return l / v;
+            });
+        }
+        else if (Array.isArray(l) && typeof r === "number") {
+            return (l as Array<number>).map(function (v) {
+                return v / r;
+            });
+        }
     },
-    "%": function (a: number, b: number) {
-        return a % b;
+    "%": function (l, r) {
+        if (typeof l === "number" && typeof r === "number") {
+            return l % r;
+        } else if (typeof l === "number" && typeof Array.isArray(r)) {
+            return (r as Array<number>).map(function (v) {
+                return l % v;
+            });
+        }
+        else if (Array.isArray(l) && typeof r === "number") {
+            return (l as Array<number>).map(function (v) {
+                return v % r;
+            });
+        }
     },
 };
+
+function getDatasetById(datasetId: number, renderInfo: RenderInfo) {
+    return renderInfo.datasets.getDatasetById(datasetId);
+}
+
+function evaluateArray(arr: any, renderInfo: RenderInfo) {
+    return arr.map(function (expr: jsep.Expression) {
+        return evaluate(expr, renderInfo);
+    });
+}
 
 function evaluate(expr: jsep.Expression, renderInfo: RenderInfo): any {
     // console.log(expr);
 
     switch (expr.type) {
-        // case 'ArrayExpression':
-        //     return evaluateArray(node.elements, context);
+        case "Literal":
+            let literalExpr = expr as jsep.Literal;
+            return literalExpr.value; // string, number, boolean
 
         case "BinaryExpression":
             let binaryExpr = expr as jsep.BinaryExpression;
+            let left = binaryExpr.left; // number, Array<number>, Dataset
+            let right = binaryExpr.right; // number, Array<number>, Dataset
             return fnMapBinaryOp[binaryExpr.operator](
-                evaluate(binaryExpr.left, renderInfo),
-                evaluate(binaryExpr.right, renderInfo)
+                evaluate(left, renderInfo),
+                evaluate(right, renderInfo)
             );
 
         case "CallExpression":
             let callExpr = expr as jsep.CallExpression;
-            let fnName: string = (callExpr.callee as jsep.Identifier).name;
-            let args = callExpr.arguments;
 
-            if (args.length === 1) {
-                let arg = args[0];
-                if (arg.type === "Literal") {
-                    let datasetId = (arg as jsep.Literal).value as number;
-                    let fnDatasetId = fnMapDatasetId[fnName];
-                    return fnDatasetId(datasetId, renderInfo);
-                } else if (arg.type === "CallExpression") {
-                }
+            let calleeIdentifier = callExpr.callee as jsep.Identifier;
+            let fnName = calleeIdentifier.name;
+            let args = callExpr.arguments;
+            // console.log(fnName);
+            // console.log(args);
+            let evaluatedArgs = evaluateArray(args, renderInfo);
+
+            if (fnName === "dataset") {
+                return getDatasetById(evaluatedArgs[0], renderInfo);
+            }
+
+            if (fnName in fnMapDataset) {
+                return fnMapDataset[fnName](evaluatedArgs[0], renderInfo);
             }
 
             return null;
-
-        case "Literal":
-            return (expr as jsep.Literal).value;
     }
     return "Error evaluating expression";
 }
@@ -477,7 +552,7 @@ export function resolve(str: string, renderInfo: RenderInfo) {
 
         if (!(fullmatch in exprMap)) {
             const ast = jsep(strExpr);
-            // console.log(ast);
+            console.log(ast);
 
             const value = evaluate(ast, renderInfo);
             if (typeof value === "string") {
