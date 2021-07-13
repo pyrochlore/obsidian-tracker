@@ -216,11 +216,24 @@ export class Dataset implements IterableIterator<DataPoint> {
         this.numTargets = 0;
         this.lineInfo = null;
         this.barInfo = null;
-        this.valueType = query.valueType;
+        this.valueType = query?.valueType;
 
         for (let ind = 0; ind < parent.getDates().length; ind++) {
             this.values.push(null);
         }
+    }
+
+    public cloneToTmpDataset() {
+        let tmpDataset = new Dataset(this.parent, null);
+        tmpDataset.name = "tmp";
+        tmpDataset.values = [...this.values];
+        tmpDataset.yMin = this.yMin;
+        tmpDataset.yMax = this.yMax;
+        tmpDataset.startDate = this.startDate.clone();
+        tmpDataset.endDate = this.endDate.clone();
+        tmpDataset.numTargets = this.numTargets;
+        tmpDataset.valueType = this.valueType;
+        return tmpDataset;
     }
 
     public getName() {

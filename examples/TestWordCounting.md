@@ -45,6 +45,6 @@ searchTarget: cDate, numWords
 xDataset: 0
 folder: /
 summary:
-    template: "Total word count: {{sum(1)}}"
+    template: "Total word count: {{sum(dataset(1))}}"
 ```
 

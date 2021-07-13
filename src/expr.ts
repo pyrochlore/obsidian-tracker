@@ -5,14 +5,11 @@ import * as helper from "./helper";
 import jsep from "jsep";
 
 // Function accept datasetId as first argument
-type FnDataset = (
-    dataset: number | Dataset,
-    renderInfo: RenderInfo
-) => number | string;
+type FnDataset = (dataset: Dataset, renderInfo: RenderInfo) => number | string;
 type FnBinaryOp = (
-    a: number | boolean | Dataset | Array<number>,
-    b: number | boolean | Dataset | Array<number>
-) => number | boolean | Dataset | Array<number>;
+    l: number | Dataset,
+    r: number | Dataset
+) => number | Dataset;
 
 interface FnMapDataset {
     [key: string]: FnDataset;
@@ -24,13 +21,11 @@ interface FnMapBinaryOp {
 
 const fnMapDataset: FnMapDataset = {
     // min value of a dataset
-    min: function (datasetId: number, renderInfo: RenderInfo) {
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
+    min: function (dataset, renderInfo) {
         return d3.min(dataset.getValues());
     },
     // the latest date with min value
-    minDate: function (datasetId: number, renderInfo: RenderInfo) {
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
+    minDate: function (dataset, renderInfo) {
         let min = d3.min(dataset.getValues());
         if (Number.isNumber(min)) {
             let arrayDataset = Array.from(dataset);
@@ -46,13 +41,11 @@ const fnMapDataset: FnMapDataset = {
         return "min not found";
     },
     // max value of a dataset
-    max: function (datasetId: number, renderInfo: RenderInfo) {
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
+    max: function (dataset, renderInfo) {
         return d3.max(dataset.getValues());
     },
     // the latest date with max value
-    maxDate: function (datasetId: number, renderInfo: RenderInfo) {
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
+    maxDate: function (dataset, renderInfo) {
         let max = d3.max(dataset.getValues());
         if (Number.isNumber(max)) {
             let arrayDataset = Array.from(dataset);
@@ -69,8 +62,7 @@ const fnMapDataset: FnMapDataset = {
     },
     // start date of a dataset
     // if datasetId not found, return overall startDate
-    startDate: function (datasetId: number, renderInfo: RenderInfo) {
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
+    startDate: function (dataset, renderInfo) {
         if (dataset) {
             let startDate = dataset.getStartDate();
             if (startDate && startDate.isValid()) {
@@ -81,8 +73,7 @@ const fnMapDataset: FnMapDataset = {
     },
     // end date of a dataset
     // if datasetId not found, return overall endDate
-    endDate: function (datasetId: number, renderInfo: RenderInfo) {
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
+    endDate: function (dataset, renderInfo) {
         if (dataset) {
             let endDate = dataset.getEndDate();
             if (endDate && endDate.isValid()) {
@@ -92,37 +83,28 @@ const fnMapDataset: FnMapDataset = {
         return helper.dateToStr(renderInfo.endDate, renderInfo.dateFormat);
     },
     // sum of all values in a dataset
-    sum: function (_dataset: number | Dataset, renderInfo: RenderInfo) {
-        // console.log(_dataset);
-        if (typeof _dataset === "number") {
-            let dataset = renderInfo.datasets.getDatasetById(_dataset);
-            return d3.sum(dataset.getValues());
-        }
-        return d3.sum(_dataset.getValues());
+    sum: function (dataset, renderInfo) {
+        return d3.sum(dataset.getValues());
     },
-    count: function (datasetId: number, renderInfo: RenderInfo) {
+    count: function (dataset, renderInfo) {
         return "deprecated template variable 'count'";
     },
     // number of occurrences of a target in a dataset
-    numTargets: function (datasetId: number, renderInfo: RenderInfo) {
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
+    numTargets: function (dataset, renderInfo) {
         return dataset.getNumTargets();
     },
-    days: function (datasetId: number, renderInfo: RenderInfo) {
+    days: function (dataset, renderInfo) {
         return "deprecated template variable 'days'";
     },
-    numDays: function (datasetId: number, renderInfo: RenderInfo) {
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
+    numDays: function (dataset, renderInfo) {
         return dataset.getLength();
     },
-    numDaysHavingData: function (datasetId: number, renderInfo: RenderInfo) {
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
+    numDaysHavingData: function (dataset, renderInfo) {
         return dataset.getLengthNotNull();
     },
-    maxStreak: function (datasetId: number, renderInfo: RenderInfo) {
+    maxStreak: function (dataset, renderInfo) {
         let streak = 0;
         let maxStreak = 0;
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
         for (let dataPoint of dataset) {
             if (dataPoint.value !== null) {
                 streak++;
@@ -135,12 +117,11 @@ const fnMapDataset: FnMapDataset = {
         }
         return maxStreak;
     },
-    maxStreakStart: function (datasetId: number, renderInfo: RenderInfo) {
+    maxStreakStart: function (dataset, renderInfo) {
         let streak = 0;
         let maxStreak = 0;
         let streakStart: Moment = null;
         let maxStreakStart: Moment = null;
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
         if (dataset) {
             for (let dataPoint of dataset) {
                 if (dataPoint.value !== null) {
@@ -159,12 +140,11 @@ const fnMapDataset: FnMapDataset = {
         }
         return helper.dateToStr(maxStreakStart, renderInfo.dateFormat);
     },
-    maxStreakEnd: function (datasetId: number, renderInfo: RenderInfo) {
+    maxStreakEnd: function (dataset, renderInfo) {
         let streak = 0;
         let maxStreak = 0;
         let streakEnd: Moment = null;
         let maxStreakEnd: Moment = null;
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
         if (dataset) {
             let arrayDataset = Array.from(dataset);
             for (let ind = 0; ind < arrayDataset.length; ind++) {
@@ -191,11 +171,9 @@ const fnMapDataset: FnMapDataset = {
         }
         return helper.dateToStr(maxStreakEnd, renderInfo.dateFormat);
     },
-    maxBreaks: function (datasetId: number, renderInfo: RenderInfo) {
+    maxBreaks: function (dataset, renderInfo) {
         let breaks = 0;
         let maxBreaks = 0;
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
-
         for (let dataPoint of dataset) {
             if (dataPoint.value === null) {
                 breaks++;
@@ -208,12 +186,11 @@ const fnMapDataset: FnMapDataset = {
         }
         return maxBreaks;
     },
-    maxBreaksStart: function (datasetId: number, renderInfo: RenderInfo) {
+    maxBreaksStart: function (dataset, renderInfo) {
         let breaks = 0;
         let maxBreaks = 0;
         let breaksStart: Moment = null;
         let maxBreaksStart: Moment = null;
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
         if (dataset) {
             for (let dataPoint of dataset) {
                 if (dataPoint.value === null) {
@@ -232,12 +209,11 @@ const fnMapDataset: FnMapDataset = {
         }
         return helper.dateToStr(maxBreaksStart, renderInfo.dateFormat);
     },
-    maxBreaksEnd: function (datasetId: number, renderInfo: RenderInfo) {
+    maxBreaksEnd: function (dataset, renderInfo) {
         let breaks = 0;
         let maxBreaks = 0;
         let breaksEnd: Moment = null;
         let maxBreaksEnd: Moment = null;
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
         if (dataset) {
             let arrayDataset = Array.from(dataset);
             for (let ind = 0; ind < arrayDataset.length; ind++) {
@@ -262,12 +238,11 @@ const fnMapDataset: FnMapDataset = {
         }
         return helper.dateToStr(maxBreaksEnd, renderInfo.dateFormat);
     },
-    lastStreak: function (datasetId: number, renderInfo: RenderInfo) {
+    lastStreak: function (dataset, renderInfo) {
         return "deprecated template variable 'lastStreak'";
     },
-    currentStreak: function (datasetId: number, renderInfo: RenderInfo) {
+    currentStreak: function (dataset, renderInfo) {
         let currentStreak = 0;
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
         if (dataset) {
             let arrayDataset = Array.from(dataset);
             for (let ind = arrayDataset.length - 1; ind >= 0; ind--) {
@@ -281,10 +256,9 @@ const fnMapDataset: FnMapDataset = {
         }
         return currentStreak;
     },
-    currentStreakStart: function (datasetId: number, renderInfo: RenderInfo) {
+    currentStreakStart: function (dataset, renderInfo) {
         let currentStreak = 0;
         let currentStreakStart: Moment = null;
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
         if (dataset) {
             let arrayDataset = Array.from(dataset);
             for (let ind = arrayDataset.length - 1; ind >= 0; ind--) {
@@ -305,10 +279,9 @@ const fnMapDataset: FnMapDataset = {
         }
         return helper.dateToStr(currentStreakStart, renderInfo.dateFormat);
     },
-    currentStreakEnd: function (datasetId: number, renderInfo: RenderInfo) {
+    currentStreakEnd: function (dataset, renderInfo) {
         let currentStreak = 0;
         let currentStreakEnd: Moment = null;
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
         if (dataset) {
             let arrayDataset = Array.from(dataset);
             for (let ind = arrayDataset.length - 1; ind >= 0; ind--) {
@@ -329,9 +302,8 @@ const fnMapDataset: FnMapDataset = {
         }
         return helper.dateToStr(currentStreakEnd, renderInfo.dateFormat);
     },
-    currentBreaks: function (datasetId: number, renderInfo: RenderInfo) {
+    currentBreaks: function (dataset, renderInfo) {
         let currentBreaks = 0;
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
         if (dataset) {
             let arrayDataset = Array.from(dataset);
             for (let ind = arrayDataset.length - 1; ind >= 0; ind--) {
@@ -345,10 +317,9 @@ const fnMapDataset: FnMapDataset = {
         }
         return currentBreaks;
     },
-    currentBreaksStart: function (datasetId: number, renderInfo: RenderInfo) {
+    currentBreaksStart: function (dataset, renderInfo) {
         let currentBreaks = 0;
         let currentBreaksStart: Moment = null;
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
         if (dataset) {
             let arrayDataset = Array.from(dataset);
             for (let ind = arrayDataset.length - 1; ind >= 0; ind--) {
@@ -369,10 +340,9 @@ const fnMapDataset: FnMapDataset = {
         }
         return helper.dateToStr(currentBreaksStart, renderInfo.dateFormat);
     },
-    currentBreaksEnd: function (datasetId: number, renderInfo: RenderInfo) {
+    currentBreaksEnd: function (dataset, renderInfo) {
         let currentBreaks = 0;
         let currentBreaksEnd: Moment = null;
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
         if (dataset) {
             let arrayDataset = Array.from(dataset);
             for (let ind = arrayDataset.length - 1; ind >= 0; ind--) {
@@ -393,8 +363,7 @@ const fnMapDataset: FnMapDataset = {
         }
         return helper.dateToStr(currentBreaksEnd, renderInfo.dateFormat);
     },
-    average: function (datasetId: number, renderInfo: RenderInfo) {
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
+    average: function (dataset, renderInfo) {
         let countNotNull = dataset.getLengthNotNull();
         if (countNotNull > 0) {
             let sum = d3.sum(dataset.getValues());
@@ -402,12 +371,10 @@ const fnMapDataset: FnMapDataset = {
         }
         return null;
     },
-    median: function (datasetId: number, renderInfo: RenderInfo) {
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
+    median: function (dataset, renderInfo) {
         return d3.median(dataset.getValues());
     },
-    variance: function (datasetId: number, renderInfo: RenderInfo) {
-        let dataset = renderInfo.datasets.getDatasetById(datasetId);
+    variance: function (dataset, renderInfo) {
         return d3.variance(dataset.getValues());
     },
 };
@@ -415,73 +382,144 @@ const fnMapDataset: FnMapDataset = {
 const fnMapBinaryOp: FnMapBinaryOp = {
     "+": function (l, r) {
         if (typeof l === "number" && typeof r === "number") {
+            // return number
+
             return l + r;
-        } else if (typeof l === "number" && Array.isArray(r)) {
-            return (r as Array<number>).map(function (v) {
-                return v + l;
+        } else if (typeof l === "number" && r instanceof Dataset) {
+            // return Dataset
+            let tmpDataset = r.cloneToTmpDataset();
+            tmpDataset.getValues().forEach(function (value, index, array) {
+                array[index] = l + value;
             });
-        }
-        else if (Array.isArray(l) && typeof r === "number") {
-            return (l as Array<number>).map(function (v) {
-                return v + r;
+            return tmpDataset;
+        } else if (l instanceof Dataset && typeof r === "number") {
+            // return Dataset
+            let tmpDataset = l.cloneToTmpDataset();
+            tmpDataset.getValues().forEach(function (value, index, array) {
+                array[index] = value + r;
             });
+            return tmpDataset;
+        } else if (l instanceof Dataset && r instanceof Dataset) {
+            // return Dataset
+            let tmpDataset = l.cloneToTmpDataset();
+            tmpDataset.getValues().forEach(function (value, index, array) {
+                array[index] = value + r.getValues()[index];
+            });
+            return tmpDataset;
         }
+        return null;
     },
     "-": function (l, r) {
         if (typeof l === "number" && typeof r === "number") {
+            // return number
             return l - r;
-        } else if (typeof l === "number" && typeof Array.isArray(r)) {
-            return (r as Array<number>).map(function (v) {
-                return l - v;
+        } else if (typeof l === "number" && r instanceof Dataset) {
+            // return Dataset
+            let tmpDataset = r.cloneToTmpDataset();
+            tmpDataset.getValues().forEach(function (value, index, array) {
+                array[index] = l - value;
             });
-        }
-        else if (Array.isArray(l) && typeof r === "number") {
-            return (l as Array<number>).map(function (v) {
-                return v - r;
+            return tmpDataset;
+        } else if (l instanceof Dataset && typeof r === "number") {
+            // return Dataset
+            let tmpDataset = l.cloneToTmpDataset();
+            tmpDataset.getValues().forEach(function (value, index, array) {
+                array[index] = value - r;
             });
+            return tmpDataset;
+        } else if (l instanceof Dataset && r instanceof Dataset) {
+            // return Dataset
+            let tmpDataset = l.cloneToTmpDataset();
+            tmpDataset.getValues().forEach(function (value, index, array) {
+                array[index] = value - r.getValues()[index];
+            });
+            return tmpDataset;
         }
+        return null;
     },
     "*": function (l, r) {
         if (typeof l === "number" && typeof r === "number") {
+            // return number
             return l * r;
-        } else if (typeof l === "number" && typeof Array.isArray(r)) {
-            return (r as Array<number>).map(function (v) {
-                return l * v;
+        } else if (typeof l === "number" && r instanceof Dataset) {
+            // return Dataset
+            let tmpDataset = r.cloneToTmpDataset();
+            tmpDataset.getValues().forEach(function (value, index, array) {
+                array[index] = l * value;
             });
-        }
-        else if (Array.isArray(l) && typeof r === "number") {
-            return (l as Array<number>).map(function (v) {
-                return v * r;
+            return tmpDataset;
+        } else if (l instanceof Dataset && typeof r === "number") {
+            // return Dataset
+            let tmpDataset = l.cloneToTmpDataset();
+            tmpDataset.getValues().forEach(function (value, index, array) {
+                array[index] = value * r;
             });
+            return tmpDataset;
+        } else if (l instanceof Dataset && r instanceof Dataset) {
+            // return Dataset
+            let tmpDataset = l.cloneToTmpDataset();
+            tmpDataset.getValues().forEach(function (value, index, array) {
+                array[index] = value * r.getValues()[index];
+            });
+            return tmpDataset;
         }
+        return null;
     },
     "/": function (l, r) {
         if (typeof l === "number" && typeof r === "number") {
+            // return number
             return l / r;
-        } else if (typeof l === "number" && typeof Array.isArray(r)) {
-            return (r as Array<number>).map(function (v) {
-                return l / v;
+        } else if (typeof l === "number" && r instanceof Dataset) {
+            // return Dataset
+            let tmpDataset = r.cloneToTmpDataset();
+            tmpDataset.getValues().forEach(function (value, index, array) {
+                array[index] = l / value;
             });
-        }
-        else if (Array.isArray(l) && typeof r === "number") {
-            return (l as Array<number>).map(function (v) {
-                return v / r;
+            return tmpDataset;
+        } else if (l instanceof Dataset && typeof r === "number") {
+            // return Dataset
+            let tmpDataset = l.cloneToTmpDataset();
+            tmpDataset.getValues().forEach(function (value, index, array) {
+                array[index] = value / r;
             });
+            return tmpDataset;
+        } else if (l instanceof Dataset && r instanceof Dataset) {
+            // return Dataset
+            let tmpDataset = l.cloneToTmpDataset();
+            tmpDataset.getValues().forEach(function (value, index, array) {
+                array[index] = value / r.getValues()[index];
+            });
+            return tmpDataset;
         }
+        return null;
     },
     "%": function (l, r) {
         if (typeof l === "number" && typeof r === "number") {
+            // return number
             return l % r;
-        } else if (typeof l === "number" && typeof Array.isArray(r)) {
-            return (r as Array<number>).map(function (v) {
-                return l % v;
+        } else if (typeof l === "number" && r instanceof Dataset) {
+            // return Dataset
+            let tmpDataset = r.cloneToTmpDataset();
+            tmpDataset.getValues().forEach(function (value, index, array) {
+                array[index] = l % value;
             });
-        }
-        else if (Array.isArray(l) && typeof r === "number") {
-            return (l as Array<number>).map(function (v) {
-                return v % r;
+            return tmpDataset;
+        } else if (l instanceof Dataset && typeof r === "number") {
+            // return Dataset
+            let tmpDataset = l.cloneToTmpDataset();
+            tmpDataset.getValues().forEach(function (value, index, array) {
+                array[index] = value % r;
             });
+            return tmpDataset;
+        } else if (l instanceof Dataset && r instanceof Dataset) {
+            // return Dataset
+            let tmpDataset = l.cloneToTmpDataset();
+            tmpDataset.getValues().forEach(function (value, index, array) {
+                array[index] = value % r.getValues()[index];
+            });
+            return tmpDataset;
         }
+        return null;
     },
 };
 
@@ -505,12 +543,9 @@ function evaluate(expr: jsep.Expression, renderInfo: RenderInfo): any {
 
         case "BinaryExpression":
             let binaryExpr = expr as jsep.BinaryExpression;
-            let left = binaryExpr.left; // number, Array<number>, Dataset
-            let right = binaryExpr.right; // number, Array<number>, Dataset
-            return fnMapBinaryOp[binaryExpr.operator](
-                evaluate(left, renderInfo),
-                evaluate(right, renderInfo)
-            );
+            let leftValue = evaluate(binaryExpr.left, renderInfo);
+            let rightValue = evaluate(binaryExpr.right, renderInfo);
+            return fnMapBinaryOp[binaryExpr.operator](leftValue, rightValue);
 
         case "CallExpression":
             let callExpr = expr as jsep.CallExpression;
@@ -522,12 +557,32 @@ function evaluate(expr: jsep.Expression, renderInfo: RenderInfo): any {
             // console.log(args);
             let evaluatedArgs = evaluateArray(args, renderInfo);
 
+            // function dataset accept only one arg in number
             if (fnName === "dataset") {
-                return getDatasetById(evaluatedArgs[0], renderInfo);
+                if (evaluatedArgs.length === 1) {
+                    return getDatasetById(evaluatedArgs[0], renderInfo);
+                }
             }
 
+            // fnDataset accept only one arg in number or Dataset
             if (fnName in fnMapDataset) {
-                return fnMapDataset[fnName](evaluatedArgs[0], renderInfo);
+                if (evaluatedArgs.length === 0) {
+                    // Use first non-X dataset
+                    let dataset = null;
+                    for (let ds of renderInfo.datasets) {
+                        if (!dataset && !ds.getQuery().usedAsXDataset) {
+                            dataset = ds;
+                            // if breaks here, the index of Datasets not reset???
+                        }
+                    }
+                    if (dataset) {
+                        return fnMapDataset[fnName](dataset, renderInfo);
+                    }
+                }
+                if (evaluatedArgs.length === 1) {
+                    return fnMapDataset[fnName](evaluatedArgs[0], renderInfo);
+                }
+                return null;
             }
 
             return null;
@@ -552,7 +607,7 @@ export function resolve(str: string, renderInfo: RenderInfo) {
 
         if (!(fullmatch in exprMap)) {
             const ast = jsep(strExpr);
-            console.log(ast);
+            // console.log(ast);
 
             const value = evaluate(ast, renderInfo);
             if (typeof value === "string") {
