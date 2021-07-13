@@ -5,21 +5,29 @@ import * as helper from "./helper";
 import jsep from "jsep";
 
 // Function accept datasetId as first argument
-type FnDataset = (dataset: Dataset, renderInfo: RenderInfo) => number | string;
+type FnDatasetToValue = (
+    dataset: Dataset,
+    renderInfo: RenderInfo
+) => number | string;
+type FnDatasetToDataset = (dataset: Dataset, renderInfo: RenderInfo) => Dataset;
 type FnBinaryOp = (
     l: number | Dataset,
     r: number | Dataset
 ) => number | Dataset;
 
-interface FnMapDataset {
-    [key: string]: FnDataset;
+interface FnMapDatasetToValue {
+    [key: string]: FnDatasetToValue;
+}
+
+interface FnMapDatasetToDataset {
+    [key: string]: FnDatasetToDataset;
 }
 
 interface FnMapBinaryOp {
     [key: string]: FnBinaryOp;
 }
 
-const fnMapDataset: FnMapDataset = {
+const fnMapDatasetToValue: FnMapDatasetToValue = {
     // min value of a dataset
     min: function (dataset, renderInfo) {
         return d3.min(dataset.getValues());
@@ -523,6 +531,21 @@ const fnMapBinaryOp: FnMapBinaryOp = {
     },
 };
 
+const fnMapDatasetToDataset: FnMapDatasetToDataset = {
+    // min value of a dataset
+    normalize: function (dataset, renderInfo) {
+        let yMin = dataset.getYMin();
+        let yMax = dataset.getYMax();
+        if (yMax > yMin) {
+            let normalized = dataset.cloneToTmpDataset();
+            normalized.getValues().forEach(function (value, index, array) {
+                array[index] = (value - yMin) / (yMax - yMin);
+            });
+        }
+        return dataset;
+    },
+};
+
 function getDatasetById(datasetId: number, renderInfo: RenderInfo) {
     return renderInfo.datasets.getDatasetById(datasetId);
 }
@@ -565,7 +588,7 @@ function evaluate(expr: jsep.Expression, renderInfo: RenderInfo): any {
             }
 
             // fnDataset accept only one arg in number or Dataset
-            if (fnName in fnMapDataset) {
+            if (fnName in fnMapDatasetToValue) {
                 if (evaluatedArgs.length === 0) {
                     // Use first non-X dataset
                     let dataset = null;
@@ -576,13 +599,25 @@ function evaluate(expr: jsep.Expression, renderInfo: RenderInfo): any {
                         }
                     }
                     if (dataset) {
-                        return fnMapDataset[fnName](dataset, renderInfo);
+                        return fnMapDatasetToValue[fnName](dataset, renderInfo);
                     }
                 }
                 if (evaluatedArgs.length === 1) {
-                    return fnMapDataset[fnName](evaluatedArgs[0], renderInfo);
+                    return fnMapDatasetToValue[fnName](
+                        evaluatedArgs[0],
+                        renderInfo
+                    );
                 }
                 return null;
+            }
+
+            if (fnName in fnMapDatasetToDataset) {
+                if (evaluatedArgs.length === 1) {
+                    return fnMapDatasetToDataset[fnName](
+                        evaluatedArgs[0],
+                        renderInfo
+                    );
+                }
             }
 
             return null;
