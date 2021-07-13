@@ -26,9 +26,8 @@ folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 summary:
-    template: "Average: {{average(dataset(0))}}/{{average(dataset(1))}}\nAverage: {{average(dataset(systolic))}}/{{average(dataset(diastolic))}}"
+    template: "Average: {{average(dataset(0))}}/{{average(dataset(1))}}"
 ```
-
 
 ``` tracker
 searchType: frontmatter

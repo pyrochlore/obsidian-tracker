@@ -620,7 +620,7 @@ export function resolve(str: string, renderInfo: RenderInfo) {
 
     for (let fullmatch in exprMap) {
         let strValue = exprMap[fullmatch];
-        str = str.replace(fullmatch, strValue);
+        str = str.replaceAll(fullmatch, strValue);
     }
 
     return str;
