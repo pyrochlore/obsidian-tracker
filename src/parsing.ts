@@ -17,7 +17,6 @@ import {
 } from "./data";
 import { TFolder, normalizePath } from "obsidian";
 import { parseYaml } from "obsidian";
-import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
 import * as helper from "./helper";
 
 function strToBool(str: string): boolean | null {
@@ -1048,9 +1047,6 @@ export function getRenderInfoFromYaml(
     if (totalNumOutputs === 0) {
         return "No output parameter provided, please place line, bar, pie, month, bullet, or summary.";
     }
-
-    // Get daily notes settings using obsidian-daily-notes-interface
-    let dailyNotesSettings = getDailyNoteSettings();
 
     // Root folder to search
     if (typeof yaml.folder === "string") {
