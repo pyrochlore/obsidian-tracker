@@ -105,9 +105,11 @@ function renderPie(
     // console.log(renderInfo);
     let errorMessage = "";
 
-    let radius = renderInfo.dataAreaSize.width * 0.5 * 0.8;
+    let radius = renderInfo.dataAreaSize.width * 0.5;
+    let outterRadius = radius * 0.8;
+    let innerRadius = outterRadius * pieInfo.ratioInnerRadius;
 
-    // data
+    // values
     let values: Array<number> = [];
     for (let strExpr of pieInfo.data) {
         let retValue = expr.resolveValue(strExpr, renderInfo);
@@ -120,6 +122,38 @@ function renderPie(
     if (errorMessage !== "") {
         return errorMessage;
     }
+    // console.log(values);
+
+    // labels
+    let labels: Array<string> = [];
+    for (let strExpr of pieInfo.label) {
+        let retLabel = expr.resolveTemplate(strExpr, renderInfo);
+        // console.log(retLabel);
+        if (retLabel.startsWith("Error")) {
+            errorMessage = retLabel;
+            break;
+        }
+        labels.push(retLabel);
+    }
+    if (errorMessage !== "") {
+        return errorMessage;
+    }
+    // console.log(labels);
+
+    // extLabel
+    let extLabels: Array<string> = [];
+    for (let strExpr of pieInfo.extLabel) {
+        let retExtLabel = expr.resolveTemplate(strExpr, renderInfo);
+        if (retExtLabel.startsWith("Error")) {
+            errorMessage = retExtLabel;
+            break;
+        }
+        extLabels.push(retExtLabel);
+    }
+    if (errorMessage !== "") {
+        return errorMessage;
+    }
+    // console.log(extLabels);
 
     // scale
     let colorScale = d3.scaleOrdinal().range(pieInfo.dataColor);
@@ -137,18 +171,21 @@ function renderPie(
     });
 
     let pie = d3.pie();
+    let pieValues = pie(values);
 
     let sectors = sectorsGroup
         .selectAll("sector")
-        .data(pie(values))
+        .data(pieValues)
         .enter()
         .append("g")
         .attr("class", "sector");
 
-    let arc = d3
+    let arc = d3.arc().innerRadius(innerRadius).outerRadius(outterRadius);
+
+    var hiddenArc = d3
         .arc()
-        .innerRadius(radius * pieInfo.ratioInnerRadius)
-        .outerRadius(radius);
+        .innerRadius(radius * 0.9)
+        .outerRadius(radius * 0.9);
 
     let sectorPaths = sectors
         .append("path")
@@ -156,6 +193,74 @@ function renderPie(
             return colorScale(i.toString());
         })
         .attr("d", arc);
+
+    // label elements
+    let labelElements = sectorsGroup
+        .selectAll("label")
+        .data(pie(values))
+        .enter()
+        .append("text")
+        .text(function (d: any, i: number) {
+            return labels[i];
+        })
+        .attr("transform", function (d: any) {
+            return (
+                "translate(" +
+                arc.centroid(d)[0] +
+                "," +
+                arc.centroid(d)[1] +
+                ")"
+            );
+        })
+        .style("text-anchor", "middle")
+        .attr("class", "tracker-tick-label");
+
+    function getMidAngle(arcObj: any) {
+        return arcObj.startAngle + (arcObj.endAngle - arcObj.startAngle) / 2;
+    }
+
+    // external label elements
+    let extLabelElements = sectorsGroup
+        .selectAll("extLabel")
+        .data(pieValues)
+        .enter()
+        .append("text")
+        .text(function (d: any, i: number) {
+            return extLabels[i];
+        })
+        .attr("transform", function (arcObj: any, i: number) {
+            let posLabel = hiddenArc.centroid(arcObj);
+            let midAngle = getMidAngle(arcObj);
+            posLabel[0] = radius * 0.99 * (midAngle < Math.PI ? 1 : -1);
+            return "translate(" + posLabel[0] + "," + posLabel[1] + ")";
+        })
+        .style("text-anchor", function (arcObj: any) {
+            let midAngle = getMidAngle(arcObj);
+            return midAngle < Math.PI ? "start" : "end";
+        })
+        .attr("class", "tracker-tick-label");
+
+    // Add lines between sectors and external labels
+    let lines = sectorsGroup
+        .selectAll("line")
+        .data(pieValues)
+        .enter()
+        .append("polyline")
+        .attr("stroke", "black")
+        .style("fill", "none")
+        .attr("stroke-width", 1)
+        .attr("points", function (arcObj: any, i: number) {
+            //PieArcDatum
+            if (extLabels[i] !== "") {
+                let posLabel = arc.centroid(arcObj); // line insertion in the slice
+                let posMiddle = hiddenArc.centroid(arcObj); // line break: we use the other arc generator that has been built only for that
+                let posExtLabel = hiddenArc.centroid(arcObj); // Label position = almost the same as posB
+                let midAngle = getMidAngle(arcObj);
+                posExtLabel[0] = radius * 0.95 * (midAngle < Math.PI ? 1 : -1); // multiply by 1 or -1 to put it on the right or on the left
+                return [posLabel, posMiddle, posExtLabel];
+            }
+        })
+        .attr("class", "tracker-axis");
 }
 
 export function renderPieChart(

@@ -694,6 +694,9 @@ export class PieInfo extends OutputInfo {
     title: string;
     data: string[];
     dataColor: string[];
+    label: string[];
+    extLabel: string[];
+
     ratioInnerRadius: number;
 
     constructor() {
@@ -701,6 +704,8 @@ export class PieInfo extends OutputInfo {
         this.title = "";
         this.data = [];
         this.dataColor = [];
+        this.label = [];
+        this.extLabel = [];
         this.ratioInnerRadius = 0.0;
     }
 }

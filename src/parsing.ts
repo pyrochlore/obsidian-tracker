@@ -1613,6 +1613,36 @@ export function getRenderInfoFromYaml(
         pie.dataColor = retDataColor;
         // console.log(pie.dataColor);
 
+        // label
+        let retLabel = getStringArrayFromInput(
+            "label",
+            yamlPie?.label,
+            numData,
+            "",
+            null,
+            true
+        );
+        if (typeof retLabel === "string") {
+            return retLabel; // errorMessage
+        }
+        pie.label = retLabel;
+        // console.log(pie.label);
+
+        // extLabel
+        let retExtLabel = getStringArrayFromInput(
+            "extLabel",
+            yamlPie?.extLabel,
+            numData,
+            "",
+            null,
+            true
+        );
+        if (typeof retExtLabel === "string") {
+            return retExtLabel; // errorMessage
+        }
+        pie.extLabel = retExtLabel;
+        // console.log(pie.extLabel);
+
         // ratioInnerRadius
         if (typeof yamlPie?.ratioInnerRadius === "number") {
             pie.ratioInnerRadius = yamlPie.ratioInnerRadius;
