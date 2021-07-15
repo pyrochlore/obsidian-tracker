@@ -1,20 +1,20 @@
 import { RenderInfo, Dataset } from "./data";
 import * as d3 from "d3";
-import { Moment } from "moment";
+import { isMoment, Moment } from "moment";
 import * as helper from "./helper";
 import jsep from "jsep";
-import sprintf from "sprintf-js";
+import { sprintf } from "sprintf-js";
 
 // Function accept datasetId as first argument
 type FnDatasetToValue = (
     dataset: Dataset,
     renderInfo: RenderInfo
-) => number | string;
+) => number | Moment | string;
 type FnDatasetToDataset = (dataset: Dataset, renderInfo: RenderInfo) => Dataset;
 type FnBinaryOp = (
-    l: number | Dataset,
-    r: number | Dataset
-) => number | Dataset;
+    l: number | Moment | Dataset,
+    r: number | Moment | Dataset
+) => number | Moment | Dataset | string;
 
 interface FnMapDatasetToValue {
     [key: string]: FnDatasetToValue;
@@ -31,87 +31,92 @@ interface FnMapBinaryOp {
 const fnMapDatasetToValue: FnMapDatasetToValue = {
     // min value of a dataset
     min: function (dataset, renderInfo) {
+        // return number
         return d3.min(dataset.getValues());
     },
     // the latest date with min value
     minDate: function (dataset, renderInfo) {
+        // return Moment
         let min = d3.min(dataset.getValues());
         if (Number.isNumber(min)) {
             let arrayDataset = Array.from(dataset);
             for (let dataPoint of arrayDataset.reverse()) {
                 if (dataPoint.value !== null && dataPoint.value === min) {
-                    return helper.dateToStr(
-                        dataPoint.date,
-                        renderInfo.dateFormat
-                    );
+                    return dataPoint.date;
                 }
             }
         }
-        return "min not found";
+        return "Error evaluating: min not found";
     },
     // max value of a dataset
     max: function (dataset, renderInfo) {
+        // return number
         return d3.max(dataset.getValues());
     },
     // the latest date with max value
     maxDate: function (dataset, renderInfo) {
+        // return Moment
         let max = d3.max(dataset.getValues());
         if (Number.isNumber(max)) {
             let arrayDataset = Array.from(dataset);
             for (let dataPoint of arrayDataset.reverse()) {
                 if (dataPoint.value !== null && dataPoint.value === max) {
-                    return helper.dateToStr(
-                        dataPoint.date,
-                        renderInfo.dateFormat
-                    );
+                    return dataPoint.date;
                 }
             }
         }
-        return "max not found";
+        return "Error evaluating: max not found";
     },
     // start date of a dataset
     // if datasetId not found, return overall startDate
     startDate: function (dataset, renderInfo) {
+        // return Moment
         if (dataset) {
             let startDate = dataset.getStartDate();
             if (startDate && startDate.isValid()) {
-                return helper.dateToStr(startDate, renderInfo.dateFormat);
+                return startDate;
             }
         }
-        return helper.dateToStr(renderInfo.startDate, renderInfo.dateFormat);
+        return renderInfo.startDate;
     },
     // end date of a dataset
     // if datasetId not found, return overall endDate
     endDate: function (dataset, renderInfo) {
+        // return Moment
         if (dataset) {
             let endDate = dataset.getEndDate();
             if (endDate && endDate.isValid()) {
-                return helper.dateToStr(endDate, renderInfo.dateFormat);
+                return endDate;
             }
         }
-        return helper.dateToStr(renderInfo.endDate, renderInfo.dateFormat);
+        return renderInfo.endDate;
     },
     // sum of all values in a dataset
     sum: function (dataset, renderInfo) {
+        // return number
         return d3.sum(dataset.getValues());
     },
     count: function (dataset, renderInfo) {
-        return "deprecated template variable 'count'";
+        return "Error evaluating: deprecated function 'count'";
     },
     // number of occurrences of a target in a dataset
     numTargets: function (dataset, renderInfo) {
+        // return number
         return dataset.getNumTargets();
     },
     days: function (dataset, renderInfo) {
-        return "deprecated template variable 'days'";
+        return "Error evaluating: deprecated function 'days'";
     },
     numDays: function (dataset, renderInfo) {
+        // return number
         return dataset.getLength();
     },
     numDaysHavingData: function (dataset, renderInfo) {
+        // return number
         return dataset.getLengthNotNull();
     },
     maxStreak: function (dataset, renderInfo) {
+        // return number
         let streak = 0;
         let maxStreak = 0;
         for (let dataPoint of dataset) {
@@ -127,6 +132,7 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
         return maxStreak;
     },
     maxStreakStart: function (dataset, renderInfo) {
+        // return Moment
         let streak = 0;
         let maxStreak = 0;
         let streakStart: Moment = null;
@@ -147,9 +153,10 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
                 }
             }
         }
-        return helper.dateToStr(maxStreakStart, renderInfo.dateFormat);
+        return maxStreakStart;
     },
     maxStreakEnd: function (dataset, renderInfo) {
+        // return Moment
         let streak = 0;
         let maxStreak = 0;
         let streakEnd: Moment = null;
@@ -178,9 +185,10 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
                 }
             }
         }
-        return helper.dateToStr(maxStreakEnd, renderInfo.dateFormat);
+        return maxStreakEnd;
     },
     maxBreaks: function (dataset, renderInfo) {
+        // return number
         let breaks = 0;
         let maxBreaks = 0;
         for (let dataPoint of dataset) {
@@ -196,6 +204,7 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
         return maxBreaks;
     },
     maxBreaksStart: function (dataset, renderInfo) {
+        // return Moment
         let breaks = 0;
         let maxBreaks = 0;
         let breaksStart: Moment = null;
@@ -216,9 +225,10 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
                 }
             }
         }
-        return helper.dateToStr(maxBreaksStart, renderInfo.dateFormat);
+        return maxBreaksStart;
     },
     maxBreaksEnd: function (dataset, renderInfo) {
+        // return Moment
         let breaks = 0;
         let maxBreaks = 0;
         let breaksEnd: Moment = null;
@@ -245,12 +255,13 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
                 }
             }
         }
-        return helper.dateToStr(maxBreaksEnd, renderInfo.dateFormat);
+        return maxBreaksEnd;
     },
     lastStreak: function (dataset, renderInfo) {
-        return "deprecated template variable 'lastStreak'";
+        return "Error evaluating: deprecated function 'lastStreak'";
     },
     currentStreak: function (dataset, renderInfo) {
+        // return number
         let currentStreak = 0;
         if (dataset) {
             let arrayDataset = Array.from(dataset);
@@ -266,6 +277,7 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
         return currentStreak;
     },
     currentStreakStart: function (dataset, renderInfo) {
+        // return Moment
         let currentStreak = 0;
         let currentStreakStart: Moment = null;
         if (dataset) {
@@ -284,11 +296,12 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
         }
 
         if (currentStreakStart === null) {
-            return "absense";
+            return "Error evaluating: absense";
         }
-        return helper.dateToStr(currentStreakStart, renderInfo.dateFormat);
+        return currentStreakStart;
     },
     currentStreakEnd: function (dataset, renderInfo) {
+        // return Moment
         let currentStreak = 0;
         let currentStreakEnd: Moment = null;
         if (dataset) {
@@ -307,11 +320,12 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
         }
 
         if (currentStreakEnd === null) {
-            return "absense";
+            return "Error evaluating: absense";
         }
-        return helper.dateToStr(currentStreakEnd, renderInfo.dateFormat);
+        return currentStreakEnd;
     },
     currentBreaks: function (dataset, renderInfo) {
+        // return number
         let currentBreaks = 0;
         if (dataset) {
             let arrayDataset = Array.from(dataset);
@@ -327,6 +341,7 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
         return currentBreaks;
     },
     currentBreaksStart: function (dataset, renderInfo) {
+        // return Moment
         let currentBreaks = 0;
         let currentBreaksStart: Moment = null;
         if (dataset) {
@@ -345,11 +360,12 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
         }
 
         if (currentBreaksStart === null) {
-            return "absense";
+            return "Error evaluating: absense";
         }
-        return helper.dateToStr(currentBreaksStart, renderInfo.dateFormat);
+        return currentBreaksStart;
     },
     currentBreaksEnd: function (dataset, renderInfo) {
+        // return Moment
         let currentBreaks = 0;
         let currentBreaksEnd: Moment = null;
         if (dataset) {
@@ -368,22 +384,25 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
         }
 
         if (currentBreaksEnd === null) {
-            return "absense";
+            return "Error evaluating: absense";
         }
-        return helper.dateToStr(currentBreaksEnd, renderInfo.dateFormat);
+        return currentBreaksEnd;
     },
     average: function (dataset, renderInfo) {
+        // return number
         let countNotNull = dataset.getLengthNotNull();
         if (countNotNull > 0) {
             let sum = d3.sum(dataset.getValues());
             return sum / countNotNull;
         }
-        return null;
+        return "Error evaluating: divide by zero";
     },
     median: function (dataset, renderInfo) {
+        // return number
         return d3.median(dataset.getValues());
     },
     variance: function (dataset, renderInfo) {
+        // return number
         return d3.variance(dataset.getValues());
     },
 };
@@ -392,7 +411,6 @@ const fnMapBinaryOp: FnMapBinaryOp = {
     "+": function (l, r) {
         if (typeof l === "number" && typeof r === "number") {
             // return number
-
             return l + r;
         } else if (typeof l === "number" && r instanceof Dataset) {
             // return Dataset
@@ -416,7 +434,7 @@ const fnMapBinaryOp: FnMapBinaryOp = {
             });
             return tmpDataset;
         }
-        return null;
+        return "Error evaluating:";
     },
     "-": function (l, r) {
         if (typeof l === "number" && typeof r === "number") {
@@ -444,7 +462,7 @@ const fnMapBinaryOp: FnMapBinaryOp = {
             });
             return tmpDataset;
         }
-        return null;
+        return "Error evaluating:";
     },
     "*": function (l, r) {
         if (typeof l === "number" && typeof r === "number") {
@@ -472,7 +490,7 @@ const fnMapBinaryOp: FnMapBinaryOp = {
             });
             return tmpDataset;
         }
-        return null;
+        return "Error evaluating:";
     },
     "/": function (l, r) {
         if (typeof l === "number" && typeof r === "number") {
@@ -500,7 +518,7 @@ const fnMapBinaryOp: FnMapBinaryOp = {
             });
             return tmpDataset;
         }
-        return null;
+        return "Error evaluating:";
     },
     "%": function (l, r) {
         if (typeof l === "number" && typeof r === "number") {
@@ -528,7 +546,7 @@ const fnMapBinaryOp: FnMapBinaryOp = {
             });
             return tmpDataset;
         }
-        return null;
+        return "Error evaluating:";
     },
 };
 
@@ -609,7 +627,7 @@ function evaluate(expr: jsep.Expression, renderInfo: RenderInfo): any {
                         renderInfo
                     );
                 }
-                return null;
+                return "Error evaluating:";
             }
 
             if (fnName in fnMapDatasetToDataset) {
@@ -621,68 +639,121 @@ function evaluate(expr: jsep.Expression, renderInfo: RenderInfo): any {
                 }
             }
 
-            return null;
+            return "Error evaluating:";
     }
     return "Error evaluating expression";
 }
 
-export function resolve(str: string, renderInfo: RenderInfo) {
-    // console.log(s);
+interface ExprResolved {
+    source: string;
+    value: number | Moment;
+    format: string;
+}
 
-    let exprMap: { [key: string]: string } = {};
+// Get a list of resolved result containing source, value, and format
+function resolve(
+    text: string,
+    renderInfo: RenderInfo
+): Array<ExprResolved> | string {
+    // console.log(text);
 
-    // {{[\w+\-*\/0-9\s()\[\]]+}}
-    let strExprRegex = "{{[\\w+\\-*\\/0-9\\s()\\[\\]%]+}}";
+    let exprMap: Array<ExprResolved> = [];
+
+    // {{(?<expr>[\w+\-*\/0-9\s()\[\]%.]+)(::(?<format>[\w+\-*\/0-9\s()\[\]%.:]+))?}}
+    let strExprRegex =
+        "{{(?<expr>[\\w+\\-*\\/0-9\\s()\\[\\]%.]+)(::(?<format>[\\w+\\-*\\/0-9\\s()\\[\\]%.:]+))?}}";
     let exprRegex = new RegExp(strExprRegex, "gm");
     let match;
-    while ((match = exprRegex.exec(str))) {
+    while ((match = exprRegex.exec(text))) {
         let fullmatch = match[0];
-        // console.log(match);
-        let strExpr = fullmatch.substring(2, fullmatch.length - 2);
-        // console.log(strExpr);
+        if (exprMap.some((e) => e.source === fullmatch)) continue;
 
-        if (!(fullmatch in exprMap)) {
-            const ast = jsep(strExpr);
-            // console.log(ast);
+        if (typeof match.groups !== "undefined") {
+            if (typeof match.groups.expr !== "undefined") {
+                let expr = match.groups.expr;
 
-            const value = evaluate(ast, renderInfo);
-            if (typeof value === "string") {
-                exprMap[fullmatch] = value;
-            } else if (typeof value === "number") {
-                exprMap[fullmatch] = value.toString();
+                const ast = jsep(expr);
+                // console.log(ast);
+                const value = evaluate(ast, renderInfo);
+                if (typeof value === "string") {
+                    return value; // error message
+                }
+
+                if (
+                    typeof value === "number" ||
+                    window.moment.isMoment(value)
+                ) {
+                    let format = null;
+                    if (typeof match.groups.format !== "undefined") {
+                        format = match.groups.format;
+                    }
+
+                    exprMap.push({
+                        source: fullmatch,
+                        value: value,
+                        format: format,
+                    });
+                }
             }
         }
     }
 
-    for (let fullmatch in exprMap) {
-        let strValue = exprMap[fullmatch];
-        str = str.replaceAll(fullmatch, strValue);
-    }
-
-    return str;
+    return exprMap;
 }
 
-export function resolveTemplate(str: string, renderInfo: RenderInfo): string {
-    // console.log(str);
-    let retResolve = resolve(str, renderInfo);
-    return retResolve;
-}
-
-export function resolveValue(
-    str: string,
+// Resolve the template expression in string and return a resolved string
+export function resolveTemplate(
+    template: string,
     renderInfo: RenderInfo
-): number | string {
-    // console.log(str);
-    str = str.trim();
-    let value = null;
-    if (str.startsWith("{{") && str.endsWith("}}")) {
-        let retResolve = resolve(str, renderInfo);
-        value = parseFloat(retResolve);
-    } else {
-        value = parseFloat(str);
+): string {
+    let retResolve = resolve(template, renderInfo);
+    if (typeof retResolve === "string") {
+        return retResolve; // error message
     }
-    if (Number.isNumber(value) && !Number.isNaN(value)) {
-        return value;
+    let exprMap = retResolve as Array<ExprResolved>;
+
+    for (let exprResolved of exprMap) {
+        let value = exprResolved.value;
+        let format = exprResolved.format;
+        let strValue = "";
+        if (typeof value === "number") {
+            if (format) {
+                strValue = sprintf("%" + format, value);
+            } else {
+                strValue = value.toFixed(1);
+            }
+        } else if (window.moment.isMoment(value)) {
+            if (format) {
+                strValue = helper.dateToStr(value, format);
+            } else {
+                strValue = helper.dateToStr(value, renderInfo.dateFormat);
+            }
+        }
+
+        if (strValue) {
+            template = template.replaceAll(exprResolved.source, strValue);
+        }
     }
+
+    return template;
+}
+
+// Resolve the template expression in string and return a number or date
+export function resolveValue(
+    template: string,
+    renderInfo: RenderInfo
+): number | Moment | string {
+    // console.log(template);
+
+    let retResolve = resolve(template.trim(), renderInfo);
+    if (typeof retResolve === "string") {
+        return retResolve; // error message
+    }
+    let exprMap = retResolve as Array<ExprResolved>;
+
+    if (exprMap.length > 0) {
+        return exprMap[0].value; // only first value will be return
+    }
+
     return "Error resolving values";
 }

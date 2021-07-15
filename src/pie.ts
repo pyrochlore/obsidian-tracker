@@ -116,8 +116,9 @@ function renderPie(
         if (typeof retValue === "string") {
             errorMessage = retValue;
             break;
+        } else if (typeof retValue === "number") {
+            values.push(retValue);
         }
-        values.push(retValue);
     }
     if (errorMessage !== "") {
         return errorMessage;
