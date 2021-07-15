@@ -740,12 +740,19 @@ export function resolveTemplate(
 
 // Resolve the template expression in string and return a number or date
 export function resolveValue(
-    template: string,
+    text: string,
     renderInfo: RenderInfo
 ): number | Moment | string {
     // console.log(template);
+    text = text.trim();
 
-    let retResolve = resolve(template.trim(), renderInfo);
+    // input is pure number
+    if (/^([\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)$/.test(text)) {
+        return parseFloat(text);
+    }
+
+    // template
+    let retResolve = resolve(text, renderInfo);
     if (typeof retResolve === "string") {
         return retResolve; // error message
     }
