@@ -1,4 +1,4 @@
-# Test Template Variables
+# Test Dataset Math
 
 ### {{min()}}
 ``` tracker
@@ -7,7 +7,7 @@ searchTarget: dataviewTarget
 folder: /diary
 endDate: 2021-01-03
 summary:
-    template: 'Minimum value: {{min()}} <-- should be 12'
+    template: 'Minimum value: {{min()::i}} <-- should be 12'
 ```
 
 ### {{minDate()}}
@@ -27,7 +27,7 @@ searchTarget: dataviewTarget
 folder: /diary
 endDate: 2021-01-03
 summary:
-    template: 'Maximum value: {{max()}} <-- should be 48'
+    template: 'Maximum value: {{max()::i}} <-- should be 48'
 ```
 
 ### {{maxDate()}}
@@ -67,7 +67,7 @@ searchTarget: meditation
 folder: /diary
 endDate: 2021-01-04
 summary:
-    template: 'Sum: {{sum()}} <-- should be 3'
+    template: 'Sum: {{sum()::i}} <-- should be 3'
 ```
 
 ### {{numTargets()}}
@@ -77,7 +77,7 @@ searchTarget: meditation
 folder: /diary
 endDate: 2021-01-04
 summary:
-    template: 'Number of targets: {{numTargets()}} <-- should be 3'
+    template: 'Number of targets: {{numTargets()::i}} <-- should be 3'
 ```
 
 ### {{numDays()}}
@@ -87,7 +87,7 @@ searchTarget: meditation
 folder: /diary
 endDate: 2021-01-04
 summary:
-    template: 'Number of days: {{numDays()}} <-- should be 4'
+    template: 'Number of days: {{numDays()::i}} <-- should be 4'
 ```
 
 ### {{numDaysHavingData()}}
@@ -97,7 +97,7 @@ searchTarget: meditation
 folder: /diary
 endDate: 2021-01-04
 summary:
-    template: 'Number of days having data: {{numDaysHavingData()}} <-- should be 3'
+    template: 'Number of days having data: {{numDaysHavingData()::i}} <-- should be 3'
 ```
 
 ### {{maxStreak()}}
@@ -107,7 +107,7 @@ searchTarget: meditation
 folder: /diary
 endDate: 2021-01-09
 summary:
-    template: 'Maximum streak: {{maxStreak()}} <-- should be 5'
+    template: 'Maximum streak: {{maxStreak()::i}} <-- should be 5'
 ```
 
 ### {{maxStreakStart()}}
@@ -137,7 +137,7 @@ searchTarget: meditation
 folder: /diary
 endDate: 2021-01-09
 summary:
-    template: 'Maximum breaks: {{maxBreaks()}} <-- should be 2'
+    template: 'Maximum breaks: {{maxBreaks()::i}} <-- should be 2'
 ```
 
 ### {{maxBreaksStart()}}
@@ -167,7 +167,7 @@ searchTarget: meditation
 folder: /diary
 endDate: 2021-01-24
 summary:
-    template: 'Latest streak: {{currentStreak()}} <-- should be 1'
+    template: 'Latest streak: {{currentStreak()::i}} <-- should be 1'
 ```
 
 ### {{currentStreakStart()}}
@@ -197,7 +197,7 @@ searchTarget: meditation
 folder: /diary
 endDate: 2021-01-22
 summary:
-    template: 'Current breaks: {{currentBreaks()}} <-- should be 1'
+    template: 'Current breaks: {{currentBreaks()::i}} <-- should be 1'
 ```
 
 ### {{currentBreaksStart()}}
@@ -228,7 +228,7 @@ searchTarget: dataviewTarget
 folder: /diary
 endDate: 2021-01-03
 summary:
-    template: 'Average value: {{average()}} <-- should be 28.33'
+    template: 'Average value: {{average()::.2f}} <-- should be 28.33'
 ```
 
 ### {{median()}}
@@ -238,7 +238,7 @@ searchTarget: dataviewTarget
 folder: /diary
 endDate: 2021-01-03
 summary:
-    template: 'Median value: {{median()}} <-- should be 25'
+    template: 'Median value: {{median()::i}} <-- should be 25'
 ```
 
 ### {{variance()}}
@@ -249,5 +249,5 @@ searchTarget: dataviewTarget
 folder: /diary
 endDate: 2021-01-03
 summary:
-    template: 'Variance value: {{variance()}} <-- should be 332.33'
+    template: 'Variance value: {{variance()::.2f}} <-- should be 332.33'
 ```
