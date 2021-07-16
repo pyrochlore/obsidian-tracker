@@ -13,6 +13,7 @@ import {
     RenderInfo,
     XValueMap,
     DataMap,
+    CustomDatasetInfo,
 } from "./data";
 import * as collecting from "./collecting";
 import {
@@ -482,7 +483,8 @@ export default class Tracker extends Plugin {
         for (let tableData of tables) {
             //extract xDataset from query
             let xDatasetQuery = tableData.xDataset;
-            if (!xDatasetQuery) {// missing xDataset
+            if (!xDatasetQuery) {
+                // missing xDataset
                 continue;
             }
             let yDatasetQueries = tableData.yDatasets;

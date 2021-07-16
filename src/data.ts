@@ -544,6 +544,7 @@ export class RenderInfo {
     month: MonthInfo[];
     heatmap: HeatmapInfo[];
     bullet: BulletInfo[];
+    customDataset: CustomDatasetInfo[];
 
     public datasets: Datasets | null;
 
@@ -580,6 +581,7 @@ export class RenderInfo {
         this.month = [];
         this.heatmap = [];
         this.bullet = [];
+        this.customDataset = [];
 
         this.datasets = null;
     }
@@ -590,6 +592,20 @@ export class RenderInfo {
                 return query;
             }
         }
+    }
+}
+
+export class CustomDatasetInfo {
+    id: number;
+    name: string;
+    xData: string[];
+    yData: string[];
+
+    constructor() {
+        this.id = -1;
+        this.name = "";
+        this.xData = [];
+        this.yData = [];
     }
 }
 

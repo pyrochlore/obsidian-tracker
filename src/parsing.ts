@@ -14,6 +14,7 @@ import {
     HeatmapInfo,
     BulletInfo,
     Dataset,
+    CustomDatasetInfo,
 } from "./data";
 import { TFolder, normalizePath } from "obsidian";
 import { parseYaml } from "obsidian";
@@ -1025,6 +1026,32 @@ export function getRenderInfoFromYaml(
             additionalAllowedKeys.push(key);
         }
     }
+    // Custom dataset
+    let yamlCustomDatasetKeys = [];
+    for (let key of keysFoundInYAML) {
+        if (/^dataset[0-9]*$/.test(key)) {
+            // Check the id of custom dataset is not duplicated
+            let customDatasetId = -1;
+            let strCustomDatasetId = key.replace("dataset", "");
+            if (strCustomDatasetId === "") {
+                customDatasetId = 0;
+            } else {
+                customDatasetId = parseFloat(strCustomDatasetId);
+            }
+
+            if (
+                queries.some((q) => {
+                    return q.getId() === customDatasetId;
+                })
+            ) {
+                errorMessage = "Duplicated dataset id for key '" + key + "'";
+                return errorMessage;
+            }
+
+            yamlCustomDatasetKeys.push(key);
+            additionalAllowedKeys.push(key);
+        }
+    }
     // console.log(additionalAllowedKeys);
     for (let key of keysFoundInYAML) {
         if (
@@ -1338,6 +1365,63 @@ export function getRenderInfoFromYaml(
         retMargin[3]
     );
     // console.log(renderInfo.margin);
+
+    // customDataset related parameters
+    for (let datasetKey of yamlCustomDatasetKeys) {
+        let customDataset = new CustomDatasetInfo();
+        let yamlCustomDataset = yaml[datasetKey];
+
+        let keysOfCustomDatasetInfo = getAvailableKeysOfClass(customDataset);
+        let keysFoundInYAML = getAvailableKeysOfClass(yamlCustomDataset);
+        // console.log(keysOfCustomDatasetInfo);
+        // console.log(keysFoundInYAML);
+        for (let key of keysFoundInYAML) {
+            if (!keysOfCustomDatasetInfo.includes(key)) {
+                errorMessage = "'" + key + "' is not an available key";
+                return errorMessage;
+            }
+        }
+
+        // id
+        let customDatasetId = -1;
+        let strCustomDatasetId = datasetKey.replace("dataset", "");
+        if (strCustomDatasetId === "") {
+            customDatasetId = 0;
+        } else {
+            customDatasetId = parseFloat(strCustomDatasetId);
+        }
+        customDataset.id = customDatasetId;
+
+        // name
+        if (typeof yamlCustomDataset?.name === "string") {
+            customDataset.name = yamlCustomDataset.name;
+        }
+
+        // xData
+        let retXData = getStringArray("xData", yamlCustomDataset?.xData);
+        if (typeof retXData === "string") {
+            return retXData;
+        }
+        customDataset.xData = retXData;
+        // console.log(customDataset.xData);
+        let numXData = customDataset.xData.length;
+
+        // yData
+        let retYData = getStringArray("yData", yamlCustomDataset?.yData);
+        if (typeof retYData === "string") {
+            return retYData;
+        }
+        customDataset.yData = retYData;
+        // console.log(customDataset.yData);
+        if (customDataset.yData.length !== numXData) {
+            let errorMessage =
+                "Number of elements in xData and yData not matched";
+            return errorMessage;
+        }
+
+        renderInfo.customDataset.push(customDataset);
+    } // customDataset related parameters
+    // console.log(renderInfo.customDataset);
 
     // line related parameters
     for (let lineKey of yamlLineKeys) {
