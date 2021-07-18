@@ -199,6 +199,8 @@ export class Dataset implements IterableIterator<DataPoint> {
     private lineInfo: LineInfo;
     private barInfo: BarInfo;
 
+    private isTmpDataset: boolean;
+
     valueType: ValueType;
 
     private currentIndex = 0; // IterableIterator
@@ -216,6 +218,9 @@ export class Dataset implements IterableIterator<DataPoint> {
         this.numTargets = 0;
         this.lineInfo = null;
         this.barInfo = null;
+
+        this.isTmpDataset = false;
+
         this.valueType = query?.valueType;
 
         for (let ind = 0; ind < parent.getDates().length; ind++) {
@@ -224,16 +229,20 @@ export class Dataset implements IterableIterator<DataPoint> {
     }
 
     public cloneToTmpDataset() {
-        let tmpDataset = new Dataset(this.parent, null);
-        tmpDataset.name = "tmp";
-        tmpDataset.values = [...this.values];
-        tmpDataset.yMin = this.yMin;
-        tmpDataset.yMax = this.yMax;
-        tmpDataset.startDate = this.startDate.clone();
-        tmpDataset.endDate = this.endDate.clone();
-        tmpDataset.numTargets = this.numTargets;
-        tmpDataset.valueType = this.valueType;
-        return tmpDataset;
+        if (!this.isTmpDataset) {
+            let tmpDataset = new Dataset(this.parent, null);
+            tmpDataset.name = "tmp";
+            tmpDataset.values = [...this.values];
+            tmpDataset.yMin = this.yMin;
+            tmpDataset.yMax = this.yMax;
+            tmpDataset.startDate = this.startDate.clone();
+            tmpDataset.endDate = this.endDate.clone();
+            tmpDataset.numTargets = this.numTargets;
+            tmpDataset.isTmpDataset = true;
+            tmpDataset.valueType = this.valueType;
+            return tmpDataset;
+        }
+        return this; // already tmp dataset
     }
 
     public getName() {
@@ -271,15 +280,20 @@ export class Dataset implements IterableIterator<DataPoint> {
     public setValue(date: Moment, value: number) {
         let ind = this.parent.getIndexOfDate(date);
         // console.log(ind);
-        if (ind >= 0) {
+
+        if (ind >= 0 && ind < this.values.length) {
+            // Set value
             this.values[ind] = value;
 
+            // Update yMin and yMax
             if (this.yMin === null || value < this.yMin) {
                 this.yMin = value;
             }
             if (this.yMax === null || value > this.yMax) {
                 this.yMax = value;
             }
+
+            // Update startDate and endDate
             if (this.startDate === null || date < this.startDate) {
                 this.startDate = date.clone();
             }
@@ -287,6 +301,11 @@ export class Dataset implements IterableIterator<DataPoint> {
                 this.endDate = date.clone();
             }
         }
+    }
+
+    public recalculateMinMax() {
+        this.yMin = Math.min(...this.values);
+        this.yMax = Math.max(...this.values);
     }
 
     public getYMin() {

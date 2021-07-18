@@ -175,6 +175,14 @@ summary:
     template: '{{sum()/0}}'
 ```
 
+Invalid datarange
+``` tracker
+searchType: tag
+searchTarget: meditation
+summary:
+    template: '{{sum(normalize(dataset(0)))}}'
+```
+
 ## Deprecated
 ### Deprecated template variables
 
