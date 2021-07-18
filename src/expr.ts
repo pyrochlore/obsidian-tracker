@@ -28,6 +28,42 @@ interface FnMapBinaryOp {
     [key: string]: FnBinaryOp;
 }
 
+function checkDivisor(divisor: any) {
+    // console.log("checking divior");
+    if (typeof divisor === "number") {
+        if (divisor === 0) return false;
+    } else if (divisor instanceof Dataset) {
+        if (
+            divisor.getValues().some(function (v) {
+                return v === 0;
+            })
+        ) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function checkBinaryOperantType(left: any, right: any) {
+    if (typeof left === "string") return left;
+    if (typeof right === "string") return right;
+    if (
+        typeof left !== "number" &&
+        !window.moment.isMoment(left) &&
+        !(left instanceof Dataset)
+    ) {
+        return "Error: invalide operant type";
+    }
+    if (
+        typeof right !== "number" &&
+        !window.moment.isMoment(right) &&
+        !(right instanceof Dataset)
+    ) {
+        return "Error: invalide operant type";
+    }
+    return "";
+}
+
 const fnMapDatasetToValue: FnMapDatasetToValue = {
     // min value of a dataset
     min: function (dataset, renderInfo) {
@@ -46,7 +82,7 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
                 }
             }
         }
-        return "Error evaluating: min not found";
+        return "Error: min not found";
     },
     // max value of a dataset
     max: function (dataset, renderInfo) {
@@ -65,7 +101,7 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
                 }
             }
         }
-        return "Error evaluating: max not found";
+        return "Error: max not found";
     },
     // start date of a dataset
     // if datasetId not found, return overall startDate
@@ -97,7 +133,7 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
         return d3.sum(dataset.getValues());
     },
     count: function (dataset, renderInfo) {
-        return "Error evaluating: deprecated function 'count'";
+        return "Error: deprecated function 'count'";
     },
     // number of occurrences of a target in a dataset
     numTargets: function (dataset, renderInfo) {
@@ -105,7 +141,7 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
         return dataset.getNumTargets();
     },
     days: function (dataset, renderInfo) {
-        return "Error evaluating: deprecated function 'days'";
+        return "Error: deprecated function 'days'";
     },
     numDays: function (dataset, renderInfo) {
         // return number
@@ -258,7 +294,7 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
         return maxBreaksEnd;
     },
     lastStreak: function (dataset, renderInfo) {
-        return "Error evaluating: deprecated function 'lastStreak'";
+        return "Error: deprecated function 'lastStreak'";
     },
     currentStreak: function (dataset, renderInfo) {
         // return number
@@ -296,7 +332,7 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
         }
 
         if (currentStreakStart === null) {
-            return "Error evaluating: absense";
+            return "Error: absense";
         }
         return currentStreakStart;
     },
@@ -320,7 +356,7 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
         }
 
         if (currentStreakEnd === null) {
-            return "Error evaluating: absense";
+            return "Error: absense";
         }
         return currentStreakEnd;
     },
@@ -360,7 +396,7 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
         }
 
         if (currentBreaksStart === null) {
-            return "Error evaluating: absense";
+            return "Error: absense";
         }
         return currentBreaksStart;
     },
@@ -384,18 +420,18 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
         }
 
         if (currentBreaksEnd === null) {
-            return "Error evaluating: absense";
+            return "Error: absense";
         }
         return currentBreaksEnd;
     },
     average: function (dataset, renderInfo) {
         // return number
         let countNotNull = dataset.getLengthNotNull();
-        if (countNotNull > 0) {
-            let sum = d3.sum(dataset.getValues());
-            return sum / countNotNull;
+        if (!checkDivisor(countNotNull)) {
+            return "Error: divide by zero in expression";
         }
-        return "Error evaluating: divide by zero";
+        let sum = d3.sum(dataset.getValues());
+        return sum / countNotNull;
     },
     median: function (dataset, renderInfo) {
         // return number
@@ -416,25 +452,37 @@ const fnMapBinaryOp: FnMapBinaryOp = {
             // return Dataset
             let tmpDataset = r.cloneToTmpDataset();
             tmpDataset.getValues().forEach(function (value, index, array) {
-                array[index] = l + value;
+                if (array[index] !== null) {
+                    array[index] = l + value;
+                } else {
+                    array[index] = null;
+                }
             });
             return tmpDataset;
         } else if (l instanceof Dataset && typeof r === "number") {
             // return Dataset
             let tmpDataset = l.cloneToTmpDataset();
             tmpDataset.getValues().forEach(function (value, index, array) {
-                array[index] = value + r;
+                if (array[index] !== null) {
+                    array[index] = value + r;
+                } else {
+                    array[index] = null;
+                }
             });
             return tmpDataset;
         } else if (l instanceof Dataset && r instanceof Dataset) {
             // return Dataset
             let tmpDataset = l.cloneToTmpDataset();
             tmpDataset.getValues().forEach(function (value, index, array) {
-                array[index] = value + r.getValues()[index];
+                if (array[index] !== null) {
+                    array[index] = value + r.getValues()[index];
+                } else {
+                    array[index] = null;
+                }
             });
             return tmpDataset;
         }
-        return "Error evaluating:";
+        return "Error: unknown operation for '+'";
     },
     "-": function (l, r) {
         if (typeof l === "number" && typeof r === "number") {
@@ -444,25 +492,37 @@ const fnMapBinaryOp: FnMapBinaryOp = {
             // return Dataset
             let tmpDataset = r.cloneToTmpDataset();
             tmpDataset.getValues().forEach(function (value, index, array) {
-                array[index] = l - value;
+                if (array[index] !== null) {
+                    array[index] = l - value;
+                } else {
+                    array[index] = null;
+                }
             });
             return tmpDataset;
         } else if (l instanceof Dataset && typeof r === "number") {
             // return Dataset
             let tmpDataset = l.cloneToTmpDataset();
             tmpDataset.getValues().forEach(function (value, index, array) {
-                array[index] = value - r;
+                if (array[index] !== null) {
+                    array[index] = value - r;
+                } else {
+                    array[index] = null;
+                }
             });
             return tmpDataset;
         } else if (l instanceof Dataset && r instanceof Dataset) {
             // return Dataset
             let tmpDataset = l.cloneToTmpDataset();
             tmpDataset.getValues().forEach(function (value, index, array) {
-                array[index] = value - r.getValues()[index];
+                if (array[index] !== null) {
+                    array[index] = value - r.getValues()[index];
+                } else {
+                    array[index] = null;
+                }
             });
             return tmpDataset;
         }
-        return "Error evaluating:";
+        return "Error: unknown operation for '-'";
     },
     "*": function (l, r) {
         if (typeof l === "number" && typeof r === "number") {
@@ -472,27 +532,42 @@ const fnMapBinaryOp: FnMapBinaryOp = {
             // return Dataset
             let tmpDataset = r.cloneToTmpDataset();
             tmpDataset.getValues().forEach(function (value, index, array) {
-                array[index] = l * value;
+                if (array[index] !== null) {
+                    array[index] = l * value;
+                } else {
+                    array[index] = null;
+                }
             });
             return tmpDataset;
         } else if (l instanceof Dataset && typeof r === "number") {
             // return Dataset
             let tmpDataset = l.cloneToTmpDataset();
             tmpDataset.getValues().forEach(function (value, index, array) {
-                array[index] = value * r;
+                if (array[index] !== null) {
+                    array[index] = value * r;
+                } else {
+                    array[index] = null;
+                }
             });
             return tmpDataset;
         } else if (l instanceof Dataset && r instanceof Dataset) {
             // return Dataset
             let tmpDataset = l.cloneToTmpDataset();
             tmpDataset.getValues().forEach(function (value, index, array) {
-                array[index] = value * r.getValues()[index];
+                if (array[index] !== null) {
+                    array[index] = value * r.getValues()[index];
+                } else {
+                    array[index] = null;
+                }
             });
             return tmpDataset;
         }
-        return "Error evaluating:";
+        return "Error: unknown operation for '*'";
     },
     "/": function (l, r) {
+        if (!checkDivisor(r)) {
+            return "Error: divide by zero in expression";
+        }
         if (typeof l === "number" && typeof r === "number") {
             // return number
             return l / r;
@@ -500,27 +575,42 @@ const fnMapBinaryOp: FnMapBinaryOp = {
             // return Dataset
             let tmpDataset = r.cloneToTmpDataset();
             tmpDataset.getValues().forEach(function (value, index, array) {
-                array[index] = l / value;
+                if (array[index] !== null) {
+                    array[index] = l / value;
+                } else {
+                    array[index] = null;
+                }
             });
             return tmpDataset;
         } else if (l instanceof Dataset && typeof r === "number") {
             // return Dataset
             let tmpDataset = l.cloneToTmpDataset();
             tmpDataset.getValues().forEach(function (value, index, array) {
-                array[index] = value / r;
+                if (array[index] !== null) {
+                    array[index] = value / r;
+                } else {
+                    array[index] = null;
+                }
             });
             return tmpDataset;
         } else if (l instanceof Dataset && r instanceof Dataset) {
             // return Dataset
             let tmpDataset = l.cloneToTmpDataset();
             tmpDataset.getValues().forEach(function (value, index, array) {
-                array[index] = value / r.getValues()[index];
+                if (array[index] !== null) {
+                    array[index] = value / r.getValues()[index];
+                } else {
+                    array[index] = null;
+                }
             });
             return tmpDataset;
         }
-        return "Error evaluating:";
+        return "Error: unknown operation for '/'";
     },
     "%": function (l, r) {
+        if (!checkDivisor(r)) {
+            return "Error: divide by zero in expression";
+        }
         if (typeof l === "number" && typeof r === "number") {
             // return number
             return l % r;
@@ -528,25 +618,37 @@ const fnMapBinaryOp: FnMapBinaryOp = {
             // return Dataset
             let tmpDataset = r.cloneToTmpDataset();
             tmpDataset.getValues().forEach(function (value, index, array) {
-                array[index] = l % value;
+                if (array[index] !== null) {
+                    array[index] = l % value;
+                } else {
+                    array[index] = null;
+                }
             });
             return tmpDataset;
         } else if (l instanceof Dataset && typeof r === "number") {
             // return Dataset
             let tmpDataset = l.cloneToTmpDataset();
             tmpDataset.getValues().forEach(function (value, index, array) {
-                array[index] = value % r;
+                if (array[index] !== null) {
+                    array[index] = value % r;
+                } else {
+                    array[index] = null;
+                }
             });
             return tmpDataset;
         } else if (l instanceof Dataset && r instanceof Dataset) {
             // return Dataset
             let tmpDataset = l.cloneToTmpDataset();
             tmpDataset.getValues().forEach(function (value, index, array) {
-                array[index] = value % r.getValues()[index];
+                if (array[index] !== null) {
+                    array[index] = value % r.getValues()[index];
+                } else {
+                    array[index] = null;
+                }
             });
             return tmpDataset;
         }
-        return "Error evaluating:";
+        return "Error: unknown operation for '%'";
     },
 };
 
@@ -583,10 +685,24 @@ function evaluate(expr: jsep.Expression, renderInfo: RenderInfo): any {
             let literalExpr = expr as jsep.Literal;
             return literalExpr.value; // string, number, boolean
 
+        case "Identifier":
+            let identifierExpr = expr as jsep.Identifier;
+            let identifierName = identifierExpr.name;
+            if (identifierName in fnMapDatasetToValue) {
+                return `Error: deprecated template variable '${identifierName}', use '${identifierName}()' instead`;
+            } else if (identifierName in fnMapDatasetToDataset) {
+                return `Error: deprecated template variable '${identifierName}', use '${identifierName}()' instead`;
+            }
+            return `Error: unknown function name '${identifierName}'`;
+
         case "BinaryExpression":
             let binaryExpr = expr as jsep.BinaryExpression;
             let leftValue = evaluate(binaryExpr.left, renderInfo);
             let rightValue = evaluate(binaryExpr.right, renderInfo);
+            let retCheck = checkBinaryOperantType(leftValue, rightValue);
+            if (typeof retCheck === "string" && retCheck.startsWith("Error:")) {
+                return retCheck;
+            }
             return fnMapBinaryOp[binaryExpr.operator](leftValue, rightValue);
 
         case "CallExpression":
@@ -598,16 +714,25 @@ function evaluate(expr: jsep.Expression, renderInfo: RenderInfo): any {
             // console.log(fnName);
             // console.log(args);
             let evaluatedArgs = evaluateArray(args, renderInfo);
+            if (typeof evaluatedArgs === "string") return evaluatedArgs;
 
             // function dataset accept only one arg in number
             if (fnName === "dataset") {
                 if (evaluatedArgs.length === 1) {
-                    return getDatasetById(evaluatedArgs[0], renderInfo);
+                    let arg = evaluatedArgs[0];
+                    if (typeof arg === "string") return arg;
+                    if (typeof arg !== "number") {
+                        return "Error: function 'dataset' only accepts id in number";
+                    }
+                    let dataset = getDatasetById(arg, renderInfo);
+                    if (!dataset) {
+                        return `Error: no dataset found for id '${arg}'`;
+                    }
+                    return dataset;
                 }
             }
-
             // fnDataset accept only one arg in number or Dataset
-            if (fnName in fnMapDatasetToValue) {
+            else if (fnName in fnMapDatasetToValue) {
                 if (evaluatedArgs.length === 0) {
                     // Use first non-X dataset
                     let dataset = null;
@@ -617,31 +742,36 @@ function evaluate(expr: jsep.Expression, renderInfo: RenderInfo): any {
                             // if breaks here, the index of Datasets not reset???
                         }
                     }
-                    if (dataset) {
-                        return fnMapDatasetToValue[fnName](dataset, renderInfo);
+                    if (!dataset) {
+                        return `No available dataset found for function ${fnName}`;
+                    }
+                    return fnMapDatasetToValue[fnName](dataset, renderInfo);
+                }
+                if (evaluatedArgs.length === 1) {
+                    let arg = evaluatedArgs[0];
+                    if (typeof arg === "string") return arg;
+                    if (arg instanceof Dataset) {
+                        return fnMapDatasetToValue[fnName](arg, renderInfo);
+                    } else {
+                        return `Error: function '${fnName}' only accepts Dataset`;
                     }
                 }
+                return `Error: Too many arguments for function ${fnName}`;
+            } else if (fnName in fnMapDatasetToDataset) {
                 if (evaluatedArgs.length === 1) {
-                    return fnMapDatasetToValue[fnName](
-                        evaluatedArgs[0],
-                        renderInfo
-                    );
+                    let arg = evaluatedArgs[0];
+                    if (typeof arg === "string") return arg;
+                    if (arg instanceof Dataset) {
+                        return fnMapDatasetToDataset[fnName](arg, renderInfo);
+                    } else {
+                        return `Error: function ${fnName} only accept Dataset`;
+                    }
                 }
-                return "Error evaluating:";
+                return `Error: Too many arguments for function ${fnName}`;
             }
-
-            if (fnName in fnMapDatasetToDataset) {
-                if (evaluatedArgs.length === 1) {
-                    return fnMapDatasetToDataset[fnName](
-                        evaluatedArgs[0],
-                        renderInfo
-                    );
-                }
-            }
-
-            return "Error evaluating:";
+            return `Error: unknown function name '${fnName}'`;
     }
-    return "Error evaluating expression";
+    return "Error: unknown expression";
 }
 
 interface ExprResolved {
@@ -672,8 +802,17 @@ function resolve(
             if (typeof match.groups.expr !== "undefined") {
                 let expr = match.groups.expr;
 
-                const ast = jsep(expr);
+                let ast = null;
+                try {
+                    ast = jsep(expr);
+                } catch (err) {
+                    return "Error:" + err.message;
+                }
+                if (!ast) {
+                    return "Error: failed to parse expression";
+                }
                 // console.log(ast);
+
                 const value = evaluate(ast, renderInfo);
                 if (typeof value === "string") {
                     return value; // error message
@@ -762,5 +901,5 @@ export function resolveValue(
         return exprMap[0].value; // only first value will be return
     }
 
-    return "Error resolving values";
+    return "Error: failed to resolve values";
 }
