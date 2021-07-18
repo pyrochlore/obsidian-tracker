@@ -1,6 +1,7 @@
 # Error Messages
+
 ## YAML
-Error parsing caused by the escaping character --> YAMLParsError: Missing closing "quote"
+Error parsing caused by the escaping character YAMLParsError: Missing closing "quote"
 ``` tracker
 searchType: tag
 searchTarget: "\"
@@ -142,4 +143,46 @@ line:
 Please also check those search targets in markdown files under folder 'diary' and 'data'.
 
 ## Expression
-TODO
+Unknown function
+``` tracker
+searchType: task
+searchTarget: Say I love you
+summary:
+    template: '{{unknown()}}'
+```
+
+Incomplete expression
+``` tracker
+searchType: task
+searchTarget: Say I love you
+summary:
+    template: '{{1+}}'
+```
+
+No data set found for id
+``` tracker
+searchType: task
+searchTarget: Say I love you
+summary:
+    template: '{{sum(dataset(1))}}'
+```
+
+Divide by zero
+``` tracker
+searchType: task
+searchTarget: Say I love you
+summary:
+    template: '{{sum()/0}}'
+```
+
+## Deprecated
+### Deprecated template variables
+
+Deprecated template variable
+``` tracker
+searchType: task
+searchTarget: Say I love you
+summary:
+    template: '{{sum}}'
+```
+
