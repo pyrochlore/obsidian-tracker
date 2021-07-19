@@ -13,7 +13,7 @@ export enum SearchType {
     TaskNotDone,
 }
 
-export enum OutputType {
+export enum GraphType {
     Line,
     Bar,
     Pie,
@@ -628,11 +628,19 @@ export class CustomDatasetInfo {
     }
 }
 
-export class OutputInfo {
-    constructor() {}
+export interface IGraph {
+    GetGraphType(): GraphType;
 }
 
-export class CommonChartInfo extends OutputInfo {
+export interface ILegend {
+    showLegend: boolean;
+    legendPosition: string;
+    legendOrientation: string;
+    legendBgColor: string;
+    legendBorderColor: string;
+}
+
+export class CommonChartInfo implements IGraph, ILegend {
     title: string;
     xAxisLabel: string;
     xAxisColor: string;
@@ -645,15 +653,15 @@ export class CommonChartInfo extends OutputInfo {
     yMax: number[];
     reverseYAxis: boolean[];
     allowInspectData: boolean;
+
+    // ILegend
     showLegend: boolean;
     legendPosition: string;
     legendOrientation: string;
     legendBgColor: string;
     legendBorderColor: string;
-    chartType: OutputType;
 
     constructor() {
-        super();
         this.title = "";
         this.xAxisLabel = "Date";
         this.xAxisColor = "";
@@ -666,16 +674,17 @@ export class CommonChartInfo extends OutputInfo {
         this.yMax = []; // null, 2 elements
         this.reverseYAxis = []; // false, 2 elements
         this.allowInspectData = true;
+
+        // ILegend
         this.showLegend = false;
         this.legendPosition = ""; // top, bottom, left, right
         this.legendOrientation = ""; // horizontal, vertical
         this.legendBgColor = "";
         this.legendBorderColor = "";
-        this.chartType = OutputType.Unknown;
     }
 
-    public GetChartType() {
-        return this.chartType;
+    public GetGraphType() {
+        return GraphType.Unknown;
     }
 }
 
@@ -705,8 +714,8 @@ export class LineInfo extends CommonChartInfo {
         this.yAxisLocation = []; // left, for each target
     }
 
-    public GetChartType() {
-        return OutputType.Line;
+    public GetGraphType() {
+        return GraphType.Line;
     }
 }
 
@@ -720,12 +729,12 @@ export class BarInfo extends CommonChartInfo {
         this.yAxisLocation = []; // left, for each target
     }
 
-    public GetChartType() {
-        return OutputType.Bar;
+    public GetGraphType() {
+        return GraphType.Bar;
     }
 }
 
-export class PieInfo extends OutputInfo {
+export class PieInfo implements IGraph, ILegend {
     title: string;
     data: string[];
     dataColor: string[];
@@ -734,29 +743,49 @@ export class PieInfo extends OutputInfo {
 
     ratioInnerRadius: number;
 
+    // ILegend
+    showLegend: boolean;
+    legendPosition: string;
+    legendOrientation: string;
+    legendBgColor: string;
+    legendBorderColor: string;
+
     constructor() {
-        super();
         this.title = "";
         this.data = [];
         this.dataColor = [];
         this.label = [];
         this.extLabel = [];
         this.ratioInnerRadius = 0.0;
+
+        // ILegend
+        this.showLegend = false;
+        this.legendPosition = ""; // top, bottom, left, right
+        this.legendOrientation = ""; // horizontal, vertical
+        this.legendBgColor = "";
+        this.legendBorderColor = "";
+    }
+
+    public GetGraphType() {
+        return GraphType.Pie;
     }
 }
 
-export class SummaryInfo extends OutputInfo {
+export class SummaryInfo implements IGraph {
     template: string;
     style: string;
 
     constructor() {
-        super();
         this.template = "";
         this.style = "";
     }
+
+    public GetGraphType() {
+        return GraphType.Summary;
+    }
 }
 
-export class MonthInfo extends OutputInfo {
+export class MonthInfo implements IGraph {
     mode: string;
     dataset: number[];
     startWeekOn: string;
@@ -783,7 +812,6 @@ export class MonthInfo extends OutputInfo {
     selectedDataset: number;
 
     constructor() {
-        super();
         this.mode = "circle"; // circle, symbol
         this.dataset = [];
         this.startWeekOn = "Sun";
@@ -809,9 +837,13 @@ export class MonthInfo extends OutputInfo {
         this.selectedDate = ""; // selected date
         this.selectedDataset = null; // selected index of dataset
     }
+
+    public GetGraphType() {
+        return GraphType.Month;
+    }
 }
 
-export class HeatmapInfo {
+export class HeatmapInfo implements IGraph {
     dataset: string;
     startWeekOn: string;
     orientation: string;
@@ -827,9 +859,13 @@ export class HeatmapInfo {
         this.yMax = null;
         this.color = null;
     }
+
+    public GetGraphType() {
+        return GraphType.Heatmap;
+    }
 }
 
-export class BulletInfo extends OutputInfo {
+export class BulletInfo implements IGraph {
     title: string;
     dataset: string;
     orientation: string;
@@ -843,7 +879,6 @@ export class BulletInfo extends OutputInfo {
     markerColor: string;
 
     constructor() {
-        super();
         this.title = "";
         this.dataset = "0"; // dataset id or name
         this.orientation = "horizontal"; // or vertical
@@ -855,6 +890,10 @@ export class BulletInfo extends OutputInfo {
         this.showMarker = false;
         this.markerValue = 0;
         this.markerColor = "";
+    }
+
+    public GetGraphType() {
+        return GraphType.Bullet;
     }
 }
 

@@ -9,7 +9,7 @@ import {
     Size,
     Transform,
     ChartElements,
-    OutputType,
+    GraphType,
     ValueType,
 } from "./data";
 import * as helper from "./helper";

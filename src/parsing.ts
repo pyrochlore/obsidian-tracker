@@ -7,7 +7,7 @@ import {
     RenderInfo,
     SummaryInfo,
     Margin,
-    OutputType,
+    GraphType,
     LineInfo,
     PieInfo,
     MonthInfo,

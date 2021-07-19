@@ -7,7 +7,7 @@ import {
     Datasets,
     Query,
     QueryValuePair,
-    OutputType,
+    GraphType,
     SearchType,
     TableData,
     RenderInfo,
@@ -50,19 +50,19 @@ export default class Tracker extends Plugin {
         this.addCommand({
             id: "add-line-chart-tracker",
             name: "Add Line Chart Tracker",
-            callback: () => this.addCodeBlock(OutputType.Line),
+            callback: () => this.addCodeBlock(GraphType.Line),
         });
 
         this.addCommand({
             id: "add-bar-chart-tracker",
             name: "Add Bar Chart Tracker",
-            callback: () => this.addCodeBlock(OutputType.Bar),
+            callback: () => this.addCodeBlock(GraphType.Bar),
         });
 
         this.addCommand({
             id: "add-summary-tracker",
             name: "Add Summary Tracker",
-            callback: () => this.addCodeBlock(OutputType.Summary),
+            callback: () => this.addCodeBlock(GraphType.Summary),
         });
     }
 
@@ -800,7 +800,7 @@ export default class Tracker extends Plugin {
         return this.app.workspace.getActiveViewOfType(MarkdownView).editor;
     }
 
-    addCodeBlock(outputType: OutputType): void {
+    addCodeBlock(outputType: GraphType): void {
         const currentView = this.app.workspace.activeLeaf.view;
 
         if (!(currentView instanceof MarkdownView)) {
@@ -809,7 +809,7 @@ export default class Tracker extends Plugin {
 
         let codeblockToInsert = "";
         switch (outputType) {
-            case OutputType.Line:
+            case GraphType.Line:
                 codeblockToInsert = `\`\`\` tracker
 searchType: tag
 searchTarget: tagName
@@ -822,7 +822,7 @@ line:
     yAxisLabel: Value
 \`\`\``;
                 break;
-            case OutputType.Bar:
+            case GraphType.Bar:
                 codeblockToInsert = `\`\`\` tracker
 searchType: tag
 searchTarget: tagName
@@ -835,7 +835,7 @@ bar:
     yAxisLabel: Value
 \`\`\``;
                 break;
-            case OutputType.Summary:
+            case GraphType.Summary:
                 codeblockToInsert = `\`\`\` tracker
 searchType: tag
 searchTarget: tagName
