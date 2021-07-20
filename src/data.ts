@@ -741,6 +741,7 @@ export class PieInfo implements IGraph, ILegend {
     dataName: string[];
     label: string[];
     hideLabelLessThan: number;
+    showExtLabelOnlyIfNoLabel: boolean;
     extLabel: string[];
 
     ratioInnerRadius: number;
@@ -760,6 +761,7 @@ export class PieInfo implements IGraph, ILegend {
         this.label = [];
         this.hideLabelLessThan = 0.03;
         this.extLabel = [];
+        this.showExtLabelOnlyIfNoLabel = false;
         this.ratioInnerRadius = 0.0;
 
         // ILegend

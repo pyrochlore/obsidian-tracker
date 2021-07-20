@@ -82,3 +82,31 @@ pie:
     dataColor: '#4daf4a,#377eb8,#ff7f00,#984ea3,#e41a1c'
     ratioInnerRadius: 0.5
 ```
+
+## External Labels
+``` tracker
+searchType: task.done, task.notdone
+searchTarget: Say I love you, Say I love you
+datasetName: Done, NotDone
+pie:
+    title: Task Done and Not Done
+	label: '2%, 4%, 6%, 8%, 10%'
+	extLabel: '2%, 4%, 6%, 8%, 10%'
+    data: '{{0.5}}, {{2 * 2}}, {{12/ 2}}, {{1+(2+3*2)-1}}, {{27%17}}'
+    dataColor: '#4daf4a,#377eb8,#ff7f00,#984ea3,#e41a1c'
+    ratioInnerRadius: 0.5
+```
+
+``` tracker
+searchType: task.done, task.notdone
+searchTarget: Say I love you, Say I love you
+datasetName: Done, NotDone
+pie:
+    title: Task Done and Not Done
+	label: '2%, 4%, 6%, 8%, 10%'
+	extLabel: '2%, 4%, 6%, 8%, 10%'
+    data: '{{0.5}}, {{2 * 2}}, {{12/ 2}}, {{1+(2+3*2)-1}}, {{27%17}}'
+    dataColor: '#4daf4a,#377eb8,#ff7f00,#984ea3,#e41a1c'
+    ratioInnerRadius: 0.5
+	showExtLabelOnlyIfNoLabel: true
+```

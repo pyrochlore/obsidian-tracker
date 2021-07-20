@@ -1744,6 +1744,12 @@ export function getRenderInfoFromYaml(
         pie.extLabel = retExtLabel;
         // console.log(pie.extLabel);
 
+        // showExtLabelOnlyIfNoLabel
+        if (typeof yamlPie?.showExtLabelOnlyIfNoLabel === "boolean") {
+            pie.showExtLabelOnlyIfNoLabel = yamlPie.showExtLabelOnlyIfNoLabel;
+        }
+        // console.log(pie.showExtLabelOnlyIfNoLabel);
+
         // ratioInnerRadius
         if (typeof yamlPie?.ratioInnerRadius === "number") {
             pie.ratioInnerRadius = yamlPie.ratioInnerRadius;

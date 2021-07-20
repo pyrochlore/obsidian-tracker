@@ -409,6 +409,8 @@ function renderPie(
     }
     // console.log(extLabels);
 
+    let showExtLabelOnlyIfNoLabel = pieInfo.showExtLabelOnlyIfNoLabel;
+
     // scale
     let colorScale = d3.scaleOrdinal().range(pieInfo.dataColor);
 
@@ -491,8 +493,16 @@ function renderPie(
         .data(pieValues)
         .enter()
         .append("text")
-        .text(function (d: any, i: number) {
-            return extLabels[i];
+        .text(function (arcObj: any, i: number) {
+            if (showExtLabelOnlyIfNoLabel) {
+                let fraction = getFraction(arcObj);
+                if (labels[i] === "" || fraction < hideLabelLessThan) {
+                    return extLabels[i];
+                }
+                return "";
+            } else {
+                return extLabels[i];
+            }
         })
         .attr("transform", function (arcObj: any, i: number) {
             let posLabel = hiddenArc.centroid(arcObj);
@@ -506,6 +516,15 @@ function renderPie(
         })
         .attr("class", "tracker-tick-label");
 
+    function drawConnectionLines(arcObj: any) {
+        let posLabel = arc.centroid(arcObj); // line insertion in the slice
+        let posMiddle = hiddenArc.centroid(arcObj); // line break: we use the other arc generator that has been built only for that
+        let posExtLabel = hiddenArc.centroid(arcObj); // Label position = almost the same as posB
+        let midAngle = getMidAngle(arcObj);
+        posExtLabel[0] = radius * 0.95 * (midAngle < Math.PI ? 1 : -1); // multiply by 1 or -1 to put it on the right or on the left
+        return [posLabel, posMiddle, posExtLabel];
+    }
+
     // Add lines between sectors and external labels
     let lines = sectorsGroup
         .selectAll("line")
@@ -516,14 +535,17 @@ function renderPie(
         .style("fill", "none")
         .attr("stroke-width", 1)
         .attr("points", function (arcObj: any, i: number) {
-            //PieArcDatum
-            if (extLabels[i] !== "") {
-                let posLabel = arc.centroid(arcObj); // line insertion in the slice
-                let posMiddle = hiddenArc.centroid(arcObj); // line break: we use the other arc generator that has been built only for that
-                let posExtLabel = hiddenArc.centroid(arcObj); // Label position = almost the same as posB
-                let midAngle = getMidAngle(arcObj);
-                posExtLabel[0] = radius * 0.95 * (midAngle < Math.PI ? 1 : -1); // multiply by 1 or -1 to put it on the right or on the left
-                return [posLabel, posMiddle, posExtLabel];
+            if (showExtLabelOnlyIfNoLabel) {
+                let fraction = getFraction(arcObj);
+                if (labels[i] === "" || fraction < hideLabelLessThan) {
+                    if (extLabels[i] !== "") {
+                        return drawConnectionLines(arcObj);
+                    }
+                }
+            } else {
+                if (extLabels[i] !== "") {
+                    return drawConnectionLines(arcObj);
+                }
             }
         })
         .attr("class", "tracker-axis");
