@@ -391,6 +391,9 @@ function renderPie(
     }
     // console.log(labels);
 
+    // hideLabelLessThan
+    let hideLabelLessThan = pieInfo.hideLabelLessThan;
+
     // extLabel
     let extLabels: Array<string> = [];
     for (let strExpr of pieInfo.extLabel) {
@@ -445,13 +448,25 @@ function renderPie(
         })
         .attr("d", arc);
 
+    function getFraction(arcObj: any) {
+        // console.log(`start/end: ${arcObj.startAngle}/${arcObj.endAngle}`);
+        let fraction = (arcObj.endAngle - arcObj.startAngle) / (2.0 * Math.PI);
+        return fraction;
+    }
+
     // label elements
     let labelElements = sectorsGroup
         .selectAll("label")
         .data(pie(values))
         .enter()
         .append("text")
-        .text(function (d: any, i: number) {
+        .text(function (arcObj: any, i: number) {
+            let fraction = getFraction(arcObj);
+            // console.log(fraction);
+            // console.log(hideLabelLessThan);
+            if (fraction < hideLabelLessThan) {
+                return "";
+            }
             return labels[i];
         })
         .attr("transform", function (d: any) {

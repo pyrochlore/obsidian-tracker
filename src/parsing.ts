@@ -1723,6 +1723,12 @@ export function getRenderInfoFromYaml(
         pie.label = retLabel;
         // console.log(pie.label);
 
+        // hideLabelLessThan
+        if (typeof yamlPie?.hideLabelLessThan === "number") {
+            pie.hideLabelLessThan = yamlPie.hideLabelLessThan;
+        }
+        // console.log(pie.hideLabelLessThan);
+
         // extLabel
         let retExtLabel = getStringArrayFromInput(
             "extLabel",
