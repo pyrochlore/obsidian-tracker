@@ -738,6 +738,7 @@ export class PieInfo implements IGraph, ILegend {
     title: string;
     data: string[];
     dataColor: string[];
+    dataName: string[];
     label: string[];
     extLabel: string[];
 
@@ -754,6 +755,7 @@ export class PieInfo implements IGraph, ILegend {
         this.title = "";
         this.data = [];
         this.dataColor = [];
+        this.dataName = [];
         this.label = [];
         this.extLabel = [];
         this.ratioInnerRadius = 0.0;

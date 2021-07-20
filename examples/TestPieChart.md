@@ -8,7 +8,7 @@ If numeric data not wrapped by single quotes
 searchType: task.done, task.notdone
 searchTarget: Say I love you, Say I love you
 pie:
-    title: Pie
+    title: Manual Input Data
     label: '{{2/30*100}}%, {{4/30*100}}%, {{6/30*100}}%, {{8/30*100}}%, {{10/30*100}}%'
     data: '2, 4, 6, 8, 10'
     dataColor: '#4daf4a,#377eb8,#ff7f00,#984ea3,#e41a1c'
@@ -25,10 +25,27 @@ searchType: task.done, task.notdone
 searchTarget: Say I love you, Say I love you
 datasetName: Done, NotDone
 pie:
-    title: Pie
+    title: Manual Input Data
     data: '{{1 + 1}}, {{2 * 2}}, {{12/ 2}}, {{1+(2+3*2)-1}}, {{27%17}}'
     dataColor: '#4daf4a,#377eb8,#ff7f00,#984ea3,#e41a1c'
     ratioInnerRadius: 0.5
+```
+
+### Legend
+``` tracker
+searchType: task.done, task.notdone
+searchTarget: Say I love you, Say I love you
+datasetName: Done, NotDone
+pie:
+    title: Manual Input Data
+	label: '{{2/30*100}}%, {{4/30*100}}%, {{6/30*100}}%, {{8/30*100}}%, {{10/30*100}}%'
+    data: '2, 4, 6, 8, 10'
+    dataColor: '#4daf4a,#377eb8,#ff7f00,#984ea3,#e41a1c'
+	dataName: A, B, C, D, E
+    ratioInnerRadius: 0.5
+	showLegend: true
+	legendPosition: right
+	legendOrientation: vertical	
 ```
 
 ## Data from Notes
@@ -38,7 +55,7 @@ searchTarget: Say I love you, Say I love you
 folder: diary
 datasetName: Done, NotDone
 pie:
-    title: Pie
+    title: Task Done and Not Done
     data: '{{sum(dataset(0))}},{{sum(dataset(1))}}'
     dataColor: '#4daf4a,#377eb8'
     ratioInnerRadius: 0.5
@@ -58,7 +75,7 @@ searchType: task.done, task.notdone
 searchTarget: Say I love you, Say I love you
 datasetName: Done, NotDone
 pie:
-    title: Pie
+    title: Task Done and Not Done
 	label: '2%, 4%, 6%, 8%, 10%'
 	extLabel: A, B, C, D
     data: '{{1 + 1}}, {{2 * 2}}, {{12/ 2}}, {{1+(2+3*2)-1}}, {{27%17}}'

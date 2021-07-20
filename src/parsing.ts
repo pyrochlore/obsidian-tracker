@@ -1693,6 +1693,21 @@ export function getRenderInfoFromYaml(
         pie.dataColor = retDataColor;
         // console.log(pie.dataColor);
 
+        // dataName
+        let retDataName = getStringArrayFromInput(
+            "dataName",
+            yamlPie?.dataName,
+            numData,
+            "",
+            null,
+            true
+        );
+        if (typeof retDataName === "string") {
+            return retDataName; // errorMessage
+        }
+        pie.dataName = retDataName;
+        // console.log(pie.dataName);
+
         // label
         let retLabel = getStringArrayFromInput(
             "label",
@@ -1729,9 +1744,52 @@ export function getRenderInfoFromYaml(
         }
         // console.log(pie.ratioInnerRadius);
 
+        // showLegend
+        if (typeof yamlPie?.showLegend === "boolean") {
+            pie.showLegend = yamlPie.showLegend;
+        }
+
+        // legendPosition
+        if (typeof yamlPie?.legendPosition === "string") {
+            pie.legendPosition = yamlPie.legendPosition;
+        } else {
+            pie.legendPosition = "right";
+        }
+
+        // legendOrient
+        if (typeof yamlPie?.legendOrientation === "string") {
+            pie.legendOrientation = yamlPie.legendOrientation;
+        } else {
+            if (
+                pie.legendPosition === "top" ||
+                pie.legendPosition === "bottom"
+            ) {
+                pie.legendOrientation = "horizontal";
+            } else if (
+                pie.legendPosition === "left" ||
+                pie.legendPosition === "right"
+            ) {
+                pie.legendOrientation = "vertical";
+            } else {
+                pie.legendOrientation = "horizontal";
+            }
+        }
+        // console.log(pie.legendPosition);
+        // console.log(pie.legendOrientation);
+
+        // legendBgColor
+        if (typeof yamlPie?.legendBgColor === "string") {
+            pie.legendBgColor = yamlPie.legendBgColor;
+        }
+
+        // legendBorderColor
+        if (typeof yamlPie?.legendBorderColor === "string") {
+            pie.legendBorderColor = yamlPie.legendBorderColor;
+        }
+
         renderInfo.pie.push(pie);
     } // pie related parameters
-    // console.log(renderInfo.pi);
+    // console.log(renderInfo.pie);
 
     // summary related parameters
     for (let summaryKey of yamlSummaryKeys) {
