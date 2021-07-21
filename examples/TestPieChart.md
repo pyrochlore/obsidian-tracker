@@ -90,9 +90,9 @@ searchTarget: Say I love you, Say I love you
 datasetName: Done, NotDone
 pie:
     title: Task Done and Not Done
-	label: '2%, 4%, 6%, 8%, 10%'
-	extLabel: '2%, 4%, 6%, 8%, 10%'
-    data: '{{0.5}}, {{2 * 2}}, {{12/ 2}}, {{1+(2+3*2)-1}}, {{27%17}}'
+	label: '{{0.5/28.5*100}}%, {{4/28.5*100}}%, {{6/28.5*100}}%, {{8/28.5*100}}%, {{10/28.5*100}}%'
+	extLabel: '{{0.5/28.5*100}}%, {{4/28.5*100}}%, {{6/28.5*100}}%, {{8/28.5*100}}%, {{10/28.5*100}}%'
+    data: '0.5, 4, 6, 8, 10'
     dataColor: '#4daf4a,#377eb8,#ff7f00,#984ea3,#e41a1c'
     ratioInnerRadius: 0.5
 ```
@@ -103,9 +103,9 @@ searchTarget: Say I love you, Say I love you
 datasetName: Done, NotDone
 pie:
     title: Task Done and Not Done
-	label: '2%, 4%, 6%, 8%, 10%'
-	extLabel: '2%, 4%, 6%, 8%, 10%'
-    data: '{{0.5}}, {{2 * 2}}, {{12/ 2}}, {{1+(2+3*2)-1}}, {{27%17}}'
+	label: '{{0.5/28.5*100}}%, {{4/28.5*100}}%, {{6/28.5*100}}%, {{8/28.5*100}}%, {{10/28.5*100}}%'
+	extLabel:  '{{0.5/28.5*100}}%, {{4/28.5*100}}%, {{6/28.5*100}}%, {{8/28.5*100}}%, {{10/28.5*100}}%'
+    data: '0.5, 4, 6, 8, 10'
     dataColor: '#4daf4a,#377eb8,#ff7f00,#984ea3,#e41a1c'
     ratioInnerRadius: 0.5
 	showExtLabelOnlyIfNoLabel: true

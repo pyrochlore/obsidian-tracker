@@ -394,6 +394,11 @@ function renderPie(
     // hideLabelLessThan
     let hideLabelLessThan = pieInfo.hideLabelLessThan;
 
+    // label sizes
+    let labelSizes = labels.map(function (n) {
+        return helper.measureTextSize(n, "tracker-tick-label");
+    });
+
     // extLabel
     let extLabels: Array<string> = [];
     for (let strExpr of pieInfo.extLabel) {
@@ -408,6 +413,11 @@ function renderPie(
         return errorMessage;
     }
     // console.log(extLabels);
+
+    // extLabel sizes
+    let extLabelSizes = labels.map(function (n) {
+        return helper.measureTextSize(n, "tracker-tick-label");
+    });
 
     let showExtLabelOnlyIfNoLabel = pieInfo.showExtLabelOnlyIfNoLabel;
 
@@ -450,10 +460,13 @@ function renderPie(
         })
         .attr("d", arc);
 
-    function getFraction(arcObj: any) {
+    function isLabelHidden(arcObj: any) {
         // console.log(`start/end: ${arcObj.startAngle}/${arcObj.endAngle}`);
         let fraction = (arcObj.endAngle - arcObj.startAngle) / (2.0 * Math.PI);
-        return fraction;
+        if (fraction < hideLabelLessThan) {
+            return true;
+        }
+        return false;
     }
 
     // label elements
@@ -463,10 +476,7 @@ function renderPie(
         .enter()
         .append("text")
         .text(function (arcObj: any, i: number) {
-            let fraction = getFraction(arcObj);
-            // console.log(fraction);
-            // console.log(hideLabelLessThan);
-            if (fraction < hideLabelLessThan) {
+            if (isLabelHidden(arcObj)) {
                 return "";
             }
             return labels[i];
@@ -495,8 +505,7 @@ function renderPie(
         .append("text")
         .text(function (arcObj: any, i: number) {
             if (showExtLabelOnlyIfNoLabel) {
-                let fraction = getFraction(arcObj);
-                if (labels[i] === "" || fraction < hideLabelLessThan) {
+                if (labels[i] === "" || isLabelHidden(arcObj)) {
                     return extLabels[i];
                 }
                 return "";
@@ -507,7 +516,10 @@ function renderPie(
         .attr("transform", function (arcObj: any, i: number) {
             let posLabel = hiddenArc.centroid(arcObj);
             let midAngle = getMidAngle(arcObj);
-            posLabel[0] = radius * 0.99 * (midAngle < Math.PI ? 1 : -1);
+
+            posLabel[0] =
+                (radius * 0.99 - extLabelSizes[i].width) *
+                (midAngle < Math.PI ? 1 : -1);
             return "translate(" + posLabel[0] + "," + posLabel[1] + ")";
         })
         .style("text-anchor", function (arcObj: any) {
@@ -516,12 +528,36 @@ function renderPie(
         })
         .attr("class", "tracker-tick-label");
 
-    function drawConnectionLines(arcObj: any) {
+    function drawConnectionLines(arcObj: any, i: number) {
+        let labelWidth = labelSizes[i].width;
+        let extLabelWidth = extLabelSizes[i].width;
+        let labelHidden = isLabelHidden(arcObj);
+        let midAngle = getMidAngle(arcObj);
+
         let posLabel = arc.centroid(arcObj); // line insertion in the slice
         let posMiddle = hiddenArc.centroid(arcObj); // line break: we use the other arc generator that has been built only for that
         let posExtLabel = hiddenArc.centroid(arcObj); // Label position = almost the same as posB
-        let midAngle = getMidAngle(arcObj);
-        posExtLabel[0] = radius * 0.95 * (midAngle < Math.PI ? 1 : -1); // multiply by 1 or -1 to put it on the right or on the left
+
+        let distLabelToMiddle = Math.sqrt(
+            (posMiddle[0] - posLabel[0]) ** 2 +
+                (posMiddle[1] - posLabel[1]) ** 2
+        );
+
+        if (labels[i] !== "") {
+            // shift posLabel
+            posLabel[0] =
+                posLabel[0] +
+                ((posMiddle[0] - posLabel[0]) * labelWidth) / distLabelToMiddle;
+            posLabel[1] =
+                posLabel[1] +
+                ((posMiddle[1] - posLabel[1]) * labelWidth) / distLabelToMiddle;
+
+            // shift posExtLabel
+            posExtLabel[0] =
+                (radius * 0.99 - extLabelWidth - 3) *
+                (midAngle < Math.PI ? 1 : -1); // multiply by 1 or -1 to put it on the right or on the left
+        }
+
         return [posLabel, posMiddle, posExtLabel];
     }
 
@@ -536,15 +572,14 @@ function renderPie(
         .attr("stroke-width", 1)
         .attr("points", function (arcObj: any, i: number) {
             if (showExtLabelOnlyIfNoLabel) {
-                let fraction = getFraction(arcObj);
-                if (labels[i] === "" || fraction < hideLabelLessThan) {
+                if (labels[i] === "" || isLabelHidden(arcObj)) {
                     if (extLabels[i] !== "") {
-                        return drawConnectionLines(arcObj);
+                        return drawConnectionLines(arcObj, i);
                     }
                 }
             } else {
                 if (extLabels[i] !== "") {
-                    return drawConnectionLines(arcObj);
+                    return drawConnectionLines(arcObj, i);
                 }
             }
         })
