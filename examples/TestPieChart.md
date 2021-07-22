@@ -110,3 +110,16 @@ pie:
     ratioInnerRadius: 0.5
 	showExtLabelOnlyIfNoLabel: true
 ```
+
+``` tracker
+searchType: task.done, task.notdone
+searchTarget: Say I love you, Say I love you
+datasetName: Done, NotDone
+pie:
+    title: Task Done and Not Done
+	label: '{{0.5/28.5*100::i}}%, {{4/28.5*100::i}}%, {{6/28.5*100::i}}%, {{8/28.5*100::i}}%, {{10/28.5*100::i}}%'
+	extLabel:  '{{0.5/28.5*100::i}}%, {{4/28.5*100::i}}%, {{6/28.5*100::i}}%, {{8/28.5*100::i}}%, {{10/28.5*100::i}}%'
+    data: '0.5, 4, 6, 8, 10'
+    dataColor: '#4daf4a,#377eb8,#ff7f00,#984ea3,#e41a1c'
+    ratioInnerRadius: 0.5
+```

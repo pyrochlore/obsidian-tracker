@@ -356,7 +356,7 @@ function renderPie(
     let errorMessage = "";
 
     let radius = renderInfo.dataAreaSize.width * 0.5;
-    let outterRadius = radius * 0.8;
+    let outterRadius = radius * 0.7;
     let innerRadius = outterRadius * pieInfo.ratioInnerRadius;
 
     // values
@@ -528,7 +528,7 @@ function renderPie(
         })
         .attr("class", "tracker-tick-label");
 
-    function drawConnectionLines(arcObj: any, i: number) {
+    function getPointsForConnectionLines(arcObj: any, i: number) {
         let labelWidth = labelSizes[i].width;
         let extLabelWidth = extLabelSizes[i].width;
         let labelHidden = isLabelHidden(arcObj);
@@ -537,20 +537,22 @@ function renderPie(
         let posLabel = arc.centroid(arcObj); // line insertion in the slice
         let posMiddle = hiddenArc.centroid(arcObj); // line break: we use the other arc generator that has been built only for that
         let posExtLabel = hiddenArc.centroid(arcObj); // Label position = almost the same as posB
+        // console.log(labels[i]);
+        // console.log(`label/middle/extLabel: ${posLabel}/${posMiddle}/${posExtLabel}`);
 
-        let distLabelToMiddle = Math.sqrt(
+        let distMiddleToLabel = Math.sqrt(
             (posMiddle[0] - posLabel[0]) ** 2 +
                 (posMiddle[1] - posLabel[1]) ** 2
         );
 
         if (labels[i] !== "") {
-            // shift posLabel
+            // shift posLabel, toward the middle point
             posLabel[0] =
                 posLabel[0] +
-                ((posMiddle[0] - posLabel[0]) * labelWidth) / distLabelToMiddle;
+                ((posMiddle[0] - posLabel[0]) * labelWidth) / distMiddleToLabel;
             posLabel[1] =
                 posLabel[1] +
-                ((posMiddle[1] - posLabel[1]) * labelWidth) / distLabelToMiddle;
+                ((posMiddle[1] - posLabel[1]) * labelWidth) / distMiddleToLabel;
 
             // shift posExtLabel
             posExtLabel[0] =
@@ -558,6 +560,20 @@ function renderPie(
                 (midAngle < Math.PI ? 1 : -1); // multiply by 1 or -1 to put it on the right or on the left
         }
 
+        distMiddleToLabel = Math.sqrt(
+            (posMiddle[0] - posLabel[0]) ** 2 +
+                (posMiddle[1] - posLabel[1]) ** 2
+        );
+
+        let distExtLabelToLabel = Math.sqrt(
+            (posExtLabel[0] - posLabel[0]) ** 2 +
+                (posExtLabel[1] - posLabel[1]) ** 2
+        );
+
+        if (distMiddleToLabel > distExtLabelToLabel) {
+            // console.log("two points");
+            return [posLabel, posExtLabel];
+        }
         return [posLabel, posMiddle, posExtLabel];
     }
 
@@ -574,12 +590,12 @@ function renderPie(
             if (showExtLabelOnlyIfNoLabel) {
                 if (labels[i] === "" || isLabelHidden(arcObj)) {
                     if (extLabels[i] !== "") {
-                        return drawConnectionLines(arcObj, i);
+                        return getPointsForConnectionLines(arcObj, i);
                     }
                 }
             } else {
                 if (extLabels[i] !== "") {
-                    return drawConnectionLines(arcObj, i);
+                    return getPointsForConnectionLines(arcObj, i);
                 }
             }
         })
