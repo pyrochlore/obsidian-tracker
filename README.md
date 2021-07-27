@@ -2,7 +2,7 @@
 
 ![GitHub release](https://img.shields.io/github/v/release/pyrochlore/obsidian-tracker)
 
-<img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/docs/images/screenshot_v1.7.png" width="800">
+<img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/docs/images/screenshot_v1.9.png" width="800">
 
 This is an [Obsidian](https://obsidian.md/) plugin that helps you collect data from notes and represent it comprehensively.
 
