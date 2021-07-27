@@ -1,37 +1,30 @@
 # Obsidian Tracker Plugin
+
 ![GitHub release](https://img.shields.io/github/v/release/pyrochlore/obsidian-tracker)
 
 <img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/docs/images/screenshot_v1.7.png" width="800">
 
-This is an [Obsidian](https://obsidian.md/) plugin that helps you do tracking in notes and represent the collected data comprehensively. 
+This is an [Obsidian](https://obsidian.md/) plugin that helps you collect data from notes and represent it comprehensively.
 
-[Here](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Examples.md) is a simplified table of examples showing what you can track.
+[Here](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Examples.md) is a table containing simplified examples showing what you can track.
+
+## !!! Breaking Changes !!!
+
+From version 1.9.0, template variables, e.g. '{{sum}}', are deprecated. Instead, Tracker provide operators (+, -, *, /, %) and functions (dataset(), sum(), maxStreak(), ......etc) to help us do data processing. For users having code blocks from previous version, please replace '{{sum}}' by '{{sum()}}' or '{{sum(1)}}' by '{{sum(dataset(1))}}'. More information about the new expressions could be found [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Expressions.md).
 
 ## What's New
-Version 1.8.0
-- Add a new `searchType` `task`, retrieving data from tasks ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestTask.md))
-- Enhancement
-    - Month view ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestCalendar.md))
-        - Add parameter `circleColorByValue` to show color based on the value
-        - Support multiple targets (dataset), change the dataset by clicking the header 
-        - Add a button to show current month
-    - Accept ISO-8601 date as `dateFormat` ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md#iso-8601-date-format))
-    - Relative date input for `startDate` and `endDate` ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md#relative-date-input-for-startdate-and-enddate))
-- Fixed missing dvField values at the last line of files
 
-Version 1.8.1
-- Fixed bugs while using month view with parameter `xDataset`
-
-Version 1.8.2
-- Fixed tasks searching not working for multiple targets
+Version 1.9.0
+- Add a new output type `pie`, rendering a pie chart ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestPieChart.md))
+- Allow expressions (operators and functions) as data inputs for output type `summary`, `bullet`, and `pie` (examples: [expression](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestExpression.md), [summary](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestSummary.md), [bullet](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestBullet.md), [pie](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestPieChart.md))
+- Allow formatting evaluated expressions by a follwing format string ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestExpression.md))
 
 ## Usage
+
 1. Have some targets you want to track in daily notes.
 2. Add a new note for displaying the tracker.
-3. Add tracker code blocks manually or using [commands](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Commands.md).
+3. Add tracker code blocks manually ([examples](https://github.com/pyrochlore/obsidian-tracker/tree/master/examples)) or using [commands](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Commands.md).
 4. Switch the document view mode to 'Preview', then the code block will get rendered.
-
-    <img src="https://raw.githubusercontent.com/pyrochlore/obsidian-tracker/master/docs/images/usage_v1.3.gif" width="400">
 
 For more use cases, please download and open the [examples](https://github.com/pyrochlore/obsidian-tracker/tree/master/examples) folder in obsidian with this plugin installed and enabled.
 
@@ -40,7 +33,7 @@ For more use cases, please download and open the [examples](https://github.com/p
 - [Concepts](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Concepts.md): Explain how this plugin works and what to setup
     - [Target Evaluation](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md)
     - [Input Parameters](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/InputParameters.md)
-    - [Template Variables](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TemplateVariables.md)
+    - [Expressions](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestExpression.md)
 - [Examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Examples.md)
 - [Plugin Settings](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Settings.md)
 - [Release Notes](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/ReleaseNotes.md)

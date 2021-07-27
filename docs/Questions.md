@@ -35,7 +35,7 @@ searchType: text
 searchTarget: 'tagName:\s(?<value>[0-9]+)'
 ......
 ```
-    More cases can be found [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TrackUsingRegex.md)
+    More cases can be found [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestRegex.md)
 
 ---
 
