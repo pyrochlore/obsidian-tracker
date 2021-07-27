@@ -14,7 +14,7 @@ pie:
     label: '{{2/30*100}}%, {{4/30*100}}%, {{6/30*100}}%, {{8/30*100}}%, {{10/30*100}}%'
     data: 2, 4, 6, 8, 10
     dataColor: '#4daf4a,#377eb8,#ff7f00,#984ea3,#e41a1c'
-    ratioInnerRadius: 0.5
+    ratioInnerRadius: 0.0
 ```
 
 ### Arithmetic
