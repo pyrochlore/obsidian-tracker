@@ -33,7 +33,7 @@ For more use cases, please download and open the [examples](https://github.com/p
 - [Concepts](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Concepts.md): Explain how this plugin works and what to setup
     - [Target Evaluation](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md)
     - [Input Parameters](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/InputParameters.md)
-    - [Expressions](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestExpression.md)
+    - [Expressions](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Expressions.md)
 - [Examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Examples.md)
 - [Plugin Settings](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Settings.md)
 - [Release Notes](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/ReleaseNotes.md)
