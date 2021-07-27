@@ -16,7 +16,7 @@ Expressions should be be wrapped in curly brackets. By Using the combination of 
 
 If the resolved expreasion is a string, we can optionally provide a format string by adding it right after the expression and two extra colons.
 
-The following tables show all the operators and functions available for now. Please make sure the input type and output type when you are combining them together. Examples could be found [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestExpression.md)).  
+The following tables show all the operators and functions available for now. Please make sure the input type and output type when you are combining them together. Examples could be found [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestExpression.md).  
 
 ## List of Operators
 
@@ -38,10 +38,10 @@ The following tables show all the operators and functions available for now. Ple
 | % | modulo | number or dataset | number or dataset | number or dataset |
 
 e.g.
-number + number --> number
-dataset + number --> dataset
-number + dataset -> dataset
-dataset + dataset --> dataset
+- number + number --> number
+- dataset + number --> dataset
+- number + dataset -> dataset
+- dataset + dataset --> dataset
 
 ## List of Functions
 
