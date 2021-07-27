@@ -57,7 +57,7 @@ This search type helps you count wiki links in articles. For example,
 [[B|Link to B]]
 
 ### searchType: text
-searchType `text` is the most powerful one among all. If you simply provide text like 'love', the number of occurrences of tags will be counted. You can provide a regular expression to search for a very complicated target by wrapping it in single quotes. If you want to retrieve a value from it, use the group name in the expression. To see more detail, see [this case](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TrackUsingRegex.md).
+searchType `text` is the most powerful one among all. If you simply provide text like 'love', the number of occurrences of tags will be counted. You can provide a regular expression to search for a very complicated target by wrapping it in single quotes. If you want to retrieve a value from it, use the group name in the expression. To see more detail, see [this case](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestRegex.md).
 
 Multiple values in text search can be achieved by separate regex by comma and wrap them all in single quotes as follows:
 

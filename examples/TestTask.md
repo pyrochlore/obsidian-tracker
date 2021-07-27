@@ -8,7 +8,7 @@ searchType: task
 searchTarget: Say I love you
 folder: diary
 summary:
-    template: "Total count: {{sum}}"
+    template: "Total count: {{sum()}}"
 ```
 
 ### All Tasks
@@ -18,7 +18,7 @@ searchType: task.all
 searchTarget: Say I love you
 folder: diary
 summary:
-    template: "Total count: {{sum}}"
+    template: "Total count: {{sum()}}"
 ```
 
 ### Task Done
@@ -28,7 +28,7 @@ searchType: task.done
 searchTarget: Say I love you
 folder: diary
 summary:
-    template: "How many days I said: {{sum}}"
+    template: "How many days I said: {{sum()}}"
 ```
 
 ### Task Not Done
@@ -38,7 +38,7 @@ searchType: task.notdone
 searchTarget: Say I love you
 folder: diary
 summary:
-    template: "How many days I didn't say: {{sum}}"
+    template: "How many days I didn't say: {{sum()}}"
 ```
 
 ## Month View

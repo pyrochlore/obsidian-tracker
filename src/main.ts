@@ -7,12 +7,13 @@ import {
     Datasets,
     Query,
     QueryValuePair,
-    OutputType,
+    GraphType,
     SearchType,
     TableData,
     RenderInfo,
     XValueMap,
     DataMap,
+    CustomDatasetInfo,
 } from "./data";
 import * as collecting from "./collecting";
 import {
@@ -49,19 +50,19 @@ export default class Tracker extends Plugin {
         this.addCommand({
             id: "add-line-chart-tracker",
             name: "Add Line Chart Tracker",
-            callback: () => this.addCodeBlock(OutputType.Line),
+            callback: () => this.addCodeBlock(GraphType.Line),
         });
 
         this.addCommand({
             id: "add-bar-chart-tracker",
             name: "Add Bar Chart Tracker",
-            callback: () => this.addCodeBlock(OutputType.Bar),
+            callback: () => this.addCodeBlock(GraphType.Bar),
         });
 
         this.addCommand({
             id: "add-summary-tracker",
             name: "Add Summary Tracker",
-            callback: () => this.addCodeBlock(OutputType.Summary),
+            callback: () => this.addCodeBlock(GraphType.Summary),
         });
     }
 
@@ -434,10 +435,20 @@ export default class Tracker extends Plugin {
         let tableQueries = renderInfo.queries.filter(
             (q) => q.getType() === SearchType.Table
         );
+        // console.log(tableQueries);
         // Separate queries by tables and xDatasets/yDatasets
         let tables: Array<TableData> = [];
+        let tableFileNotFound = false;
         for (let query of tableQueries) {
             let filePath = query.getParentTarget();
+            let file = this.app.vault.getAbstractFileByPath(
+                normalizePath(filePath + ".md")
+            );
+            if (!file || !(file instanceof TFile)) {
+                tableFileNotFound = true;
+                break;
+            }
+
             let tableIndex = query.getAccessor();
             let isX = query.usedAsXDataset;
 
@@ -462,9 +473,20 @@ export default class Tracker extends Plugin {
         }
         // console.log(tables);
 
+        if (tableFileNotFound) {
+            let errorMessage = "File containing tables not found";
+            renderErrorMessage(canvas, errorMessage);
+            el.appendChild(canvas);
+            return;
+        }
+
         for (let tableData of tables) {
             //extract xDataset from query
             let xDatasetQuery = tableData.xDataset;
+            if (!xDatasetQuery) {
+                // missing xDataset
+                continue;
+            }
             let yDatasetQueries = tableData.yDatasets;
             let filePath = xDatasetQuery.getParentTarget();
             let tableIndex = xDatasetQuery.getAccessor();
@@ -778,7 +800,7 @@ export default class Tracker extends Plugin {
         return this.app.workspace.getActiveViewOfType(MarkdownView).editor;
     }
 
-    addCodeBlock(outputType: OutputType): void {
+    addCodeBlock(outputType: GraphType): void {
         const currentView = this.app.workspace.activeLeaf.view;
 
         if (!(currentView instanceof MarkdownView)) {
@@ -787,7 +809,7 @@ export default class Tracker extends Plugin {
 
         let codeblockToInsert = "";
         switch (outputType) {
-            case OutputType.Line:
+            case GraphType.Line:
                 codeblockToInsert = `\`\`\` tracker
 searchType: tag
 searchTarget: tagName
@@ -800,7 +822,7 @@ line:
     yAxisLabel: Value
 \`\`\``;
                 break;
-            case OutputType.Bar:
+            case GraphType.Bar:
                 codeblockToInsert = `\`\`\` tracker
 searchType: tag
 searchTarget: tagName
@@ -813,7 +835,7 @@ bar:
     yAxisLabel: Value
 \`\`\``;
                 break;
-            case OutputType.Summary:
+            case GraphType.Summary:
                 codeblockToInsert = `\`\`\` tracker
 searchType: tag
 searchTarget: tagName

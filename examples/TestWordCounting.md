@@ -24,7 +24,7 @@ folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-05
 summary:
-    template: 'Total number of words: {{sum}}'
+    template: 'Total number of words: {{sum()}}'
 ```
 
 ``` tracker
@@ -34,7 +34,7 @@ folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-05
 summary:
-    template: 'Total number of characters: {{sum}}'
+    template: 'Total number of characters: {{sum()}}'
 ```
 
 ## Word counts of any notes
@@ -45,6 +45,6 @@ searchTarget: cDate, numWords
 xDataset: 0
 folder: /
 summary:
-    template: "Total word count: {{sum(Dataset(1))}}"
+    template: "Total word count: {{sum(dataset(1))}}"
 ```
 

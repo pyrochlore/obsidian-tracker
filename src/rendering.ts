@@ -8,7 +8,7 @@ import {
     Size,
     Transform,
     ChartElements,
-    OutputType,
+    GraphType,
     ValueType,
     CommonChartInfo,
     LineInfo,
@@ -368,7 +368,7 @@ function renderYAxis(
         yUpper = yMax + yExtent * 0.2;
     }
     // if it is bar chart, zero must be contained in the range
-    if (chartInfo.GetChartType() === OutputType.Bar) {
+    if (chartInfo.GetGraphType() === GraphType.Bar) {
         if (yUpper < 0.0) {
             yUpper = 0;
         }
@@ -816,8 +816,8 @@ function renderLegend(
     renderInfo: RenderInfo,
     chartInfo: CommonChartInfo
 ) {
-    // console.log(renderInfo.legendPosition);
-    // console.log(renderInfo.legendOrientation);
+    // console.log(chartInfo.legendPosition);
+    // console.log(chartInfo.legendOrientation);
 
     // Get chart elements
     let svg = chartElements.svg;
@@ -970,7 +970,7 @@ function renderLegend(
     let firstLabelY = firstMarkerY;
 
     if (chartInfo.legendOrientation === "vertical") {
-        if (chartInfo.GetChartType() === OutputType.Line) {
+        if (chartInfo.GetGraphType() === GraphType.Line) {
             // lines
             legend
                 .selectAll("markers")
@@ -1023,7 +1023,7 @@ function renderLegend(
                     if (xDatasetIds.includes(i)) return;
                     return (chartInfo as LineInfo).pointColor[i];
                 });
-        } else if (chartInfo.GetChartType() === OutputType.Bar) {
+        } else if (chartInfo.GetGraphType() === GraphType.Bar) {
             // bars
             legend
                 .selectAll("markers")
@@ -1067,12 +1067,12 @@ function renderLegend(
             .style("alignment-baseline", "middle")
             .attr("class", "tracker-legend-label");
 
-        if (chartInfo.GetChartType() === OutputType.Line) {
+        if (chartInfo.GetGraphType() === GraphType.Line) {
             nameLabels.style("fill", function (name: string, i: number) {
                 if (xDatasetIds.includes(i)) return;
                 return (chartInfo as LineInfo).lineColor[i];
             });
-        } else if (chartInfo.GetChartType() === OutputType.Bar) {
+        } else if (chartInfo.GetGraphType() === GraphType.Bar) {
             nameLabels.style("fill", function (name: string, i: number) {
                 if (xDatasetIds.includes(i)) return;
                 return (chartInfo as BarInfo).barColor[i];
@@ -1081,7 +1081,7 @@ function renderLegend(
     } else if (chartInfo.legendOrientation === "horizontal") {
         let currRenderPosX = 0.0;
         let currRenderPosX2 = 0.0;
-        if (chartInfo.GetChartType() === OutputType.Line) {
+        if (chartInfo.GetGraphType() === GraphType.Line) {
             // lines
             legend
                 .selectAll("markers")
@@ -1162,7 +1162,7 @@ function renderLegend(
                     if (xDatasetIds.includes(i)) return;
                     return (chartInfo as LineInfo).pointColor[i];
                 });
-        } else if (chartInfo.GetChartType() === OutputType.Bar) {
+        } else if (chartInfo.GetGraphType() === GraphType.Bar) {
             // bars
             currRenderPosX = 0.0;
             legend
@@ -1227,12 +1227,12 @@ function renderLegend(
             .style("alignment-baseline", "middle")
             .attr("class", "tracker-legend-label");
 
-        if (chartInfo.GetChartType() === OutputType.Line) {
+        if (chartInfo.GetGraphType() === GraphType.Line) {
             nameLabels.style("fill", function (name: string, i: number) {
                 if (xDatasetIds.includes(i)) return;
                 return (chartInfo as LineInfo).lineColor[i];
             });
-        } else if (chartInfo.GetChartType() === OutputType.Bar) {
+        } else if (chartInfo.GetGraphType() === GraphType.Bar) {
             nameLabels.style("fill", function (name: string, i: number) {
                 if (xDatasetIds.includes(i)) return;
                 return (chartInfo as BarInfo).barColor[i];

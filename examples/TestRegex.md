@@ -1,4 +1,4 @@
-# Track Text using Regular Expression
+# Search Text using Regular Expression
 
 **Important**!!
 1. Use single quotes to wrap the regular expression, or use double quotes with all back slashes (escape characters) duplicated.
@@ -27,7 +27,7 @@ folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 summary:
-    template: "Total number of emails found: {{sum}}"
+    template: "Total number of emails found: {{sum()}}"
     style: "font-size:20px;color:red;margin-left: 50px;margin-top:00px;"
 ```
 

@@ -1,6 +1,7 @@
 # Error Messages
+
 ## YAML
-Error parsing caused by the escaping character --> YAMLParsError: Missing closing "quote"
+Error parsing caused by the escaping character YAMLParsError: Missing closing "quote"
 ``` tracker
 searchType: tag
 searchTarget: "\"
@@ -100,7 +101,7 @@ yAxisLabel allows only two inputs
 searchType: frontmatter, frontmatter
 searchTarget: bloodpressure[0], bloodpressure[1]
 line:
-	yAxisLabel: BP1, BP2, BP3
+    yAxisLabel: BP1, BP2, BP3
 ```
 
 ## Output
@@ -116,8 +117,8 @@ The Parameter 'lineColor' allows only one input for the single target
 searchType: tag
 searchTarget: weight
 line:
-	title: Line
-	lineColor: red, yellow
+    title: Line
+    lineColor: red, yellow
 ``` 
 
 The parameter name should be 'title', not 'titles'
@@ -135,8 +136,61 @@ searchType: table
 searchTarget: data/Tables[4][0], data/Tables[4][1]
 xDataset: 0
 line:
-	lineColor: none, yellow
+    lineColor: none, yellow
 ```
 
 
 Please also check those search targets in markdown files under folder 'diary' and 'data'.
+
+## Expression
+Unknown function
+``` tracker
+searchType: task
+searchTarget: Say I love you
+summary:
+    template: '{{unknown()}}'
+```
+
+Incomplete expression
+``` tracker
+searchType: task
+searchTarget: Say I love you
+summary:
+    template: '{{1+}}'
+```
+
+No dataset found for id
+``` tracker
+searchType: task
+searchTarget: Say I love you
+summary:
+    template: '{{sum(dataset(1))}}'
+```
+
+Divide by zero
+``` tracker
+searchType: task
+searchTarget: Say I love you
+summary:
+    template: '{{sum()/0}}'
+```
+
+Invalid data range (data only contains 1 and null)
+``` tracker
+searchType: tag
+searchTarget: meditation
+summary:
+    template: '{{sum(normalize(dataset(0)))}}'
+```
+
+## Deprecated
+### Deprecated template variables
+
+Deprecated template variable
+``` tracker
+searchType: task
+searchTarget: Say I love you
+summary:
+    template: '{{sum}}'
+```
+

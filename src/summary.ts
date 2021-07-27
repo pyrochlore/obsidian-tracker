@@ -22,7 +22,13 @@ export function renderSummary(
         return "Invalid summary template";
     }
 
-    outputSummary = expr.resolveTemplate(outputSummary, renderInfo);
+    let retResolvedTemplate = expr.resolveTemplate(outputSummary, renderInfo);
+    // console.log(retResolvedTemplate);
+    if (retResolvedTemplate.startsWith("Error:")) {
+        return retResolvedTemplate;
+    }
+    outputSummary = retResolvedTemplate;
+
     if (outputSummary !== "") {
         let textBlock = d3.select(canvas).append("div");
         if (outputSummary.includes("\n")) {

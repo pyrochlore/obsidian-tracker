@@ -10,11 +10,13 @@
     "moduleResolution": "node",
     "importHelpers": true,
     "allowSyntheticDefaultImports": true,
+
     "lib": [
       "dom",
       "es5",
       "scripthost",
-      "es2015"
+      "es2015",
+      "ESNext.String"
     ]
   },
   "include": [

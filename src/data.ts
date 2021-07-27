@@ -13,7 +13,7 @@ export enum SearchType {
     TaskNotDone,
 }
 
-export enum OutputType {
+export enum GraphType {
     Line,
     Bar,
     Pie,
@@ -199,6 +199,8 @@ export class Dataset implements IterableIterator<DataPoint> {
     private lineInfo: LineInfo;
     private barInfo: BarInfo;
 
+    private isTmpDataset: boolean;
+
     valueType: ValueType;
 
     private currentIndex = 0; // IterableIterator
@@ -216,11 +218,31 @@ export class Dataset implements IterableIterator<DataPoint> {
         this.numTargets = 0;
         this.lineInfo = null;
         this.barInfo = null;
-        this.valueType = query.valueType;
+
+        this.isTmpDataset = false;
+
+        this.valueType = query?.valueType;
 
         for (let ind = 0; ind < parent.getDates().length; ind++) {
             this.values.push(null);
         }
+    }
+
+    public cloneToTmpDataset() {
+        if (!this.isTmpDataset) {
+            let tmpDataset = new Dataset(this.parent, null);
+            tmpDataset.name = "tmp";
+            tmpDataset.values = [...this.values];
+            tmpDataset.yMin = this.yMin;
+            tmpDataset.yMax = this.yMax;
+            tmpDataset.startDate = this.startDate.clone();
+            tmpDataset.endDate = this.endDate.clone();
+            tmpDataset.numTargets = this.numTargets;
+            tmpDataset.isTmpDataset = true;
+            tmpDataset.valueType = this.valueType;
+            return tmpDataset;
+        }
+        return this; // already tmp dataset
     }
 
     public getName() {
@@ -258,15 +280,20 @@ export class Dataset implements IterableIterator<DataPoint> {
     public setValue(date: Moment, value: number) {
         let ind = this.parent.getIndexOfDate(date);
         // console.log(ind);
-        if (ind >= 0) {
+
+        if (ind >= 0 && ind < this.values.length) {
+            // Set value
             this.values[ind] = value;
 
+            // Update yMin and yMax
             if (this.yMin === null || value < this.yMin) {
                 this.yMin = value;
             }
             if (this.yMax === null || value > this.yMax) {
                 this.yMax = value;
             }
+
+            // Update startDate and endDate
             if (this.startDate === null || date < this.startDate) {
                 this.startDate = date.clone();
             }
@@ -274,6 +301,11 @@ export class Dataset implements IterableIterator<DataPoint> {
                 this.endDate = date.clone();
             }
         }
+    }
+
+    public recalculateMinMax() {
+        this.yMin = Math.min(...this.values);
+        this.yMax = Math.max(...this.values);
     }
 
     public getYMin() {
@@ -531,6 +563,7 @@ export class RenderInfo {
     month: MonthInfo[];
     heatmap: HeatmapInfo[];
     bullet: BulletInfo[];
+    customDataset: CustomDatasetInfo[];
 
     public datasets: Datasets | null;
 
@@ -567,6 +600,7 @@ export class RenderInfo {
         this.month = [];
         this.heatmap = [];
         this.bullet = [];
+        this.customDataset = [];
 
         this.datasets = null;
     }
@@ -580,11 +614,33 @@ export class RenderInfo {
     }
 }
 
-export class OutputInfo {
-    constructor() {}
+export class CustomDatasetInfo {
+    id: number;
+    name: string;
+    xData: string[];
+    yData: string[];
+
+    constructor() {
+        this.id = -1;
+        this.name = "";
+        this.xData = [];
+        this.yData = [];
+    }
 }
 
-export class CommonChartInfo extends OutputInfo {
+export interface IGraph {
+    GetGraphType(): GraphType;
+}
+
+export interface ILegend {
+    showLegend: boolean;
+    legendPosition: string;
+    legendOrientation: string;
+    legendBgColor: string;
+    legendBorderColor: string;
+}
+
+export class CommonChartInfo implements IGraph, ILegend {
     title: string;
     xAxisLabel: string;
     xAxisColor: string;
@@ -597,15 +653,15 @@ export class CommonChartInfo extends OutputInfo {
     yMax: number[];
     reverseYAxis: boolean[];
     allowInspectData: boolean;
+
+    // ILegend
     showLegend: boolean;
     legendPosition: string;
     legendOrientation: string;
     legendBgColor: string;
     legendBorderColor: string;
-    chartType: OutputType;
 
     constructor() {
-        super();
         this.title = "";
         this.xAxisLabel = "Date";
         this.xAxisColor = "";
@@ -618,16 +674,17 @@ export class CommonChartInfo extends OutputInfo {
         this.yMax = []; // null, 2 elements
         this.reverseYAxis = []; // false, 2 elements
         this.allowInspectData = true;
+
+        // ILegend
         this.showLegend = false;
         this.legendPosition = ""; // top, bottom, left, right
         this.legendOrientation = ""; // horizontal, vertical
         this.legendBgColor = "";
         this.legendBorderColor = "";
-        this.chartType = OutputType.Unknown;
     }
 
-    public GetChartType() {
-        return this.chartType;
+    public GetGraphType() {
+        return GraphType.Unknown;
     }
 }
 
@@ -657,8 +714,8 @@ export class LineInfo extends CommonChartInfo {
         this.yAxisLocation = []; // left, for each target
     }
 
-    public GetChartType() {
-        return OutputType.Line;
+    public GetGraphType() {
+        return GraphType.Line;
     }
 }
 
@@ -672,38 +729,69 @@ export class BarInfo extends CommonChartInfo {
         this.yAxisLocation = []; // left, for each target
     }
 
-    public GetChartType() {
-        return OutputType.Bar;
+    public GetGraphType() {
+        return GraphType.Bar;
     }
 }
 
-export class PieInfo extends OutputInfo {
+export class PieInfo implements IGraph, ILegend {
     title: string;
     data: string[];
     dataColor: string[];
+    dataName: string[];
+    label: string[];
+    hideLabelLessThan: number;
+    showExtLabelOnlyIfNoLabel: boolean;
+    extLabel: string[];
+
     ratioInnerRadius: number;
 
+    // ILegend
+    showLegend: boolean;
+    legendPosition: string;
+    legendOrientation: string;
+    legendBgColor: string;
+    legendBorderColor: string;
+
     constructor() {
-        super();
         this.title = "";
         this.data = [];
         this.dataColor = [];
+        this.dataName = [];
+        this.label = [];
+        this.hideLabelLessThan = 0.03;
+        this.extLabel = [];
+        this.showExtLabelOnlyIfNoLabel = false;
         this.ratioInnerRadius = 0.0;
+
+        // ILegend
+        this.showLegend = false;
+        this.legendPosition = ""; // top, bottom, left, right
+        this.legendOrientation = ""; // horizontal, vertical
+        this.legendBgColor = "";
+        this.legendBorderColor = "";
+    }
+
+    public GetGraphType() {
+        return GraphType.Pie;
     }
 }
 
-export class SummaryInfo extends OutputInfo {
+export class SummaryInfo implements IGraph {
     template: string;
     style: string;
 
     constructor() {
-        super();
         this.template = "";
         this.style = "";
     }
+
+    public GetGraphType() {
+        return GraphType.Summary;
+    }
 }
 
-export class MonthInfo extends OutputInfo {
+export class MonthInfo implements IGraph {
     mode: string;
     dataset: number[];
     startWeekOn: string;
@@ -730,7 +818,6 @@ export class MonthInfo extends OutputInfo {
     selectedDataset: number;
 
     constructor() {
-        super();
         this.mode = "circle"; // circle, symbol
         this.dataset = [];
         this.startWeekOn = "Sun";
@@ -756,9 +843,13 @@ export class MonthInfo extends OutputInfo {
         this.selectedDate = ""; // selected date
         this.selectedDataset = null; // selected index of dataset
     }
+
+    public GetGraphType() {
+        return GraphType.Month;
+    }
 }
 
-export class HeatmapInfo {
+export class HeatmapInfo implements IGraph {
     dataset: string;
     startWeekOn: string;
     orientation: string;
@@ -774,9 +865,13 @@ export class HeatmapInfo {
         this.yMax = null;
         this.color = null;
     }
+
+    public GetGraphType() {
+        return GraphType.Heatmap;
+    }
 }
 
-export class BulletInfo extends OutputInfo {
+export class BulletInfo implements IGraph {
     title: string;
     dataset: string;
     orientation: string;
@@ -790,7 +885,6 @@ export class BulletInfo extends OutputInfo {
     markerColor: string;
 
     constructor() {
-        super();
         this.title = "";
         this.dataset = "0"; // dataset id or name
         this.orientation = "horizontal"; // or vertical
@@ -802,6 +896,10 @@ export class BulletInfo extends OutputInfo {
         this.showMarker = false;
         this.markerValue = 0;
         this.markerColor = "";
+    }
+
+    public GetGraphType() {
+        return GraphType.Bullet;
     }
 }
 
