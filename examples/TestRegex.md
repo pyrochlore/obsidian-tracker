@@ -1,4 +1,4 @@
-# Track Text using Regular Expression
+# Search Text using Regular Expression
 
 **Important**!!
 1. Use single quotes to wrap the regular expression, or use double quotes with all back slashes (escape characters) duplicated.

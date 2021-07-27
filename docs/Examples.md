@@ -56,6 +56,7 @@ List of all examples
 - [Multiple Targets / Multiple Values](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestMultipleTargetsMultipleValues.md)
 - [Pie Chart](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestPieChart.md)
 - [Scaling and Positioning](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestScalingAndPositioning.md)
+- [Summary](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestSummary.md)
 - [Table](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestTable.md)
 - [Task](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestTask.md)
 - [Time Values](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestTimeValues.md)

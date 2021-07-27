@@ -47,48 +47,48 @@ dataset + dataset --> dataset
 
 ### Get dataset from index
 
-| Function(Input Args): Output | Description |
+| Function(InputType): OutputType | Description |
 |:------------------|:-----------|
-| dataset(id: number): Dataset | Get dataset from dataset id (the order in `searchTarget` |
+| dataset(number): Dataset | Get dataset from dataset id (the order in `searchTarget`) |
 
 ### Functions Accept Dataset and return a value
 
-If the input dataset is missing, it will use the first available Y dataset found.
+**If the input dataset is missing, it will use the first available Y dataset found.**
 
-| Function(Input Args): Output | Description |
+| Function(InputType): OutputType | Description |
 |:------------------|:-----------|
-| min(dataset: Dataset): number | Minimum value of the dataset |
-| minDate(dataset: Dataset): Date | Latest date of minimum value |
-| max(dataset: Dataset): number | Maximum value of the dataset |
-| maxDate(dataset: Dataset): Date | Latest date of maximum value |
-| startDate(dataset: Dataset): Date | Start date of the dataset |
-| endDate(dataset: Dataset): Date | End date of the dataset |
-| sum(dataset: Dataset): number | Summation of values of the dataset |
-| numTargets(dataset: Dataset): number | Total counts of targets |
-| numDays(dataset: Dataset): number | Days from startDate to endDate |
-| numDaysHavingData(dataset: Dataset): number | Number of days having data |
-| maxStreak(dataset: Dataset): number | Maximum continuous days without breaks |
-| maxStreakStart(dataset: Dataset): Date | Start date of the max streak |
-| maxStreakEnd(dataset: Dataset): Date | End date of the max streak |
-| maxBreaks(dataset: Dataset): number | Maximum break days |
-| maxBreaksStart(dataset: Dataset): Date | Start date of the maximum break days |
-| maxBreaksEnd(dataset: Dataset): Date | End date of the maximum break days |
-| currentStreak(dataset: Dataset): number | Current continuous days |
-| currentStreakStart(dataset: Dataset): Date | Start date of current streak |
-| currentStreakEnd(dataset: Dataset): Date | End date of current streak |
-| currentBreaks(dataset: Dataset): number | Current break days |
-| currentBreaksStart(dataset: Dataset): Date | Start date of current breaks |
-| currentBreaksEnd(dataset: Dataset): Date | End date of current breaks |
-| average(dataset: Dataset): number | Average value of the dataset |
-| median(dataset: Dataset): number | Median value of the dataset |
-| variance(dataset: Dataset): number | Variance value of the dataset |
+| min(Dataset): number | Minimum value of the dataset |
+| minDate(Dataset): Date | Latest date of minimum value |
+| max(Dataset): number | Maximum value of the dataset |
+| maxDate(Dataset): Date | Latest date of maximum value |
+| startDate(Dataset): Date | Start date of the dataset |
+| endDate(Dataset): Date | End date of the dataset |
+| sum(Dataset): number | Summation of values of the dataset |
+| numTargets(Dataset): number | Total counts of targets |
+| numDays(Dataset): number | Days from startDate to endDate |
+| numDaysHavingData(Dataset): number | Number of days having data |
+| maxStreak(Dataset): number | Maximum continuous days without breaks |
+| maxStreakStart(Dataset): Date | Start date of the max streak |
+| maxStreakEnd(Dataset): Date | End date of the max streak |
+| maxBreaks(Dataset): number | Maximum break days |
+| maxBreaksStart(Dataset): Date | Start date of the maximum break days |
+| maxBreaksEnd(Dataset): Date | End date of the maximum break days |
+| currentStreak(Dataset): number | Current continuous days |
+| currentStreakStart(Dataset): Date | Start date of current streak |
+| currentStreakEnd(Dataset): Date | End date of current streak |
+| currentBreaks(Dataset): number | Current break days |
+| currentBreaksStart(Dataset): Date | Start date of current breaks |
+| currentBreaksEnd(Dataset): Date | End date of current breaks |
+| average(Dataset): number | Average value of the dataset |
+| median(Dataset): number | Median value of the dataset |
+| variance(Dataset): number | Variance value of the dataset |
 
 ### Functions Accept Dataset and Return Dataset
 
-| Function | Description |
+| Function(InputType): OutputType | Description |
 |:---------|:-----------|
-| normalize(dataset: Dataset): Dataset | rescale the Y values to [0, 1] |
-| setMissingValues(dataset: Dataset, missingValue: number): Dataset | set the missing values |
+| normalize(Dataset): Dataset | rescale the Y values to [0, 1] |
+| setMissingValues(Dataset, number): Dataset | set the missing values |
 
 ## Missing Values
 
