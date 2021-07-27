@@ -5,6 +5,19 @@ To see examples of `bullet` and `pie`, please check [bullet examples](https://gi
 
 ## Operators
 
+### number and number
+
+number \+ number --> number
+``` tracker
+searchType: dvField
+searchTarget: dataviewTarget
+folder: /diary
+startDate: 2021-01-01
+endDate: 2021-01-03
+summary:
+    template: 'Maximum value: {{10 + 10::i}} <-- should be 20'
+```
+
 ### Dataset and number
 
 Dataset \+ number --> Dataset
