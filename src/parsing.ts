@@ -2125,6 +2125,9 @@ export function getRenderInfoFromYaml(
         if (typeof yamlBullet?.value === "string") {
             bullet.value = yamlBullet.value;
         }
+        else if (typeof yamlBullet?.value === "number") {
+            bullet.value = yamlBullet.value.toString();
+        }
         // console.log(bullet.value);
 
         // value unit
