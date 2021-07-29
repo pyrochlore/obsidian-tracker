@@ -399,6 +399,7 @@ export function collectDataFromWiki(
     xValueMap: XValueMap
 ) {
     let links = fileCache.links;
+    if (!links) return;
 
     let linkMeasure = 0.0;
     let linkExist = false;
