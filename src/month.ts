@@ -30,6 +30,7 @@ interface DayInfo {
     showCircle: boolean;
     streakIn: boolean;
     streakOut: boolean;
+    annotation: string;
 }
 
 function toNextDataset(renderInfo: RenderInfo, monthInfo: MonthInfo): boolean {
@@ -182,7 +183,7 @@ function renderMonthHeader(
     let curDaysInMonth = curMonthDate.daysInMonth(); // 28~31
     let curYear = curMonthDate.year();
 
-    let maxDayTextSize = helper.measureTextSize("30", "tracker-axis-label");
+    let maxDayTextSize = helper.measureTextSize("30", "tracker-month-label");
     let cellSize =
         Math.max(maxDayTextSize.width, maxDayTextSize.height) * ratioCellToText;
     let dotRadius = ((cellSize / ratioCellToText) * ratioDotToText) / 2.0;
@@ -271,31 +272,37 @@ function renderMonthHeader(
         datasetName,
         "tracker-month-title-rotator"
     );
-    let datasetRotator = headerGroup
-        .append("text")
-        .text(datasetName)
-        .attr(
-            "transform",
-            "translate(" + 3.5 * cellSize + "," + datasetNameSize.height + ")"
-        )
-        .attr("class", "tracker-month-title-rotator")
-        .style("cursor", "pointer")
-        .on("click", function (event: any) {
-            // show next target
-            if (toNextDataset(renderInfo, monthInfo)) {
-                // clear circles
-                clearSelection(chartElements, monthInfo);
+    if (monthInfo.showTargetRotator) {
+        let datasetRotator = headerGroup
+            .append("text")
+            .text(datasetName)
+            .attr(
+                "transform",
+                "translate(" +
+                    3.5 * cellSize +
+                    "," +
+                    datasetNameSize.height +
+                    ")"
+            )
+            .attr("class", "tracker-month-title-rotator")
+            .style("cursor", "pointer")
+            .on("click", function (event: any) {
+                // show next target
+                if (toNextDataset(renderInfo, monthInfo)) {
+                    // clear circles
+                    clearSelection(chartElements, monthInfo);
 
-                refresh(
-                    canvas,
-                    chartElements,
-                    renderInfo,
-                    monthInfo,
-                    curMonthDate
-                );
-            }
-        });
-    chartElements["rotator"] = datasetRotator;
+                    refresh(
+                        canvas,
+                        chartElements,
+                        renderInfo,
+                        monthInfo,
+                        curMonthDate
+                    );
+                }
+            });
+        chartElements["rotator"] = datasetRotator;
+    }
 
     // value monitor
     let monitorTextSize = helper.measureTextSize(
@@ -486,12 +493,13 @@ function renderMonthDays(
     let curDatasetIndex = monthInfo.dataset.findIndex((id) => {
         return id === curDatasetId;
     });
+    if (curDatasetId < 0) curDatasetIndex = 0;
     let threshold = monthInfo.threshold[curDatasetIndex];
 
     let curMonth = curMonthDate.month(); // 0~11
     let curDaysInMonth = curMonthDate.daysInMonth(); // 28~31
 
-    let maxDayTextSize = helper.measureTextSize("30", "tracker-axis-label");
+    let maxDayTextSize = helper.measureTextSize("30", "tracker-month-label");
     let cellSize =
         Math.max(maxDayTextSize.width, maxDayTextSize.height) * ratioCellToText;
     let dotRadius = ((cellSize / ratioCellToText) * ratioDotToText) / 2.0;
@@ -532,6 +540,12 @@ function renderMonthDays(
     const dataEndDate = dataset.getEndDate();
     // console.log(monthStartDate.format("YYYY-MM-DD"));
     // console.log(startDate.format("YYYY-MM-DD"));
+
+    // annotations
+    let showAnnotation = monthInfo.showAnnotation;
+    let annotations = monthInfo.annotation;
+    let curAnnotation = annotations[curDatasetIndex];
+    let showAnnotationOfAllTargets = monthInfo.showAnnotationOfAllTargets;
 
     // Prepare data for graph
     let daysInMonthView: Array<DayInfo> = [];
@@ -634,6 +648,30 @@ function renderMonthDays(
         //     logToConsole = false;
         // }
 
+        let textAnnotation = "";
+        if (showAnnotation) {
+            if (!showAnnotationOfAllTargets) {
+                if (curValue > threshold) {
+                    textAnnotation = curAnnotation;
+                }
+            } else {
+                for (let datasetId of monthInfo.dataset) {
+                    let datasetIndex = monthInfo.dataset.findIndex((id) => {
+                        return id === datasetId;
+                    });
+                    if (datasetIndex >= 0) {
+                        let v = renderInfo.datasets
+                            .getDatasetById(datasetId)
+                            .getValue(curDate);
+                        let t = monthInfo.threshold[datasetIndex];
+                        if (v !== null && v > t) {
+                            textAnnotation += annotations[datasetIndex];
+                        }
+                    }
+                }
+            }
+        }
+
         daysInMonthView.push({
             date: helper.dateToStr(curDate, renderInfo.dateFormat),
             value: curValue,
@@ -646,6 +684,7 @@ function renderMonthDays(
             showCircle: showCircle,
             streakIn: streakIn,
             streakOut: streakOut,
+            annotation: textAnnotation,
         });
 
         ind++;
@@ -667,7 +706,7 @@ function renderMonthDays(
         .range([0, totalDayBlockWidth]);
 
     // streak lines
-    if (monthInfo.showStreak) {
+    if (monthInfo.showCircle && monthInfo.showStreak) {
         let streakColor = "#69b3a2";
         if (monthInfo.circleColor) {
             streakColor = monthInfo.circleColor;
@@ -883,12 +922,9 @@ function renderMonthDays(
             return d.dayInMonth.toString();
         })
         .attr("transform", function (d: DayInfo) {
-            let strTranslate =
-                "translate(" +
-                scale(d.col) +
-                "," +
-                (scale(d.row) + maxDayTextSize.height / 4) +
-                ")";
+            let transX = scale(d.col);
+            let transY = scale(d.row) + maxDayTextSize.height / 4;
+            let strTranslate = "translate(" + transX + "," + transY + ")";
 
             return strTranslate;
         })
@@ -910,7 +946,7 @@ function renderMonthDays(
         .attr("valueType", function (d: DayInfo) {
             return ValueType[dataset.valueType];
         })
-        .attr("class", "tracker-axis-label")
+        .attr("class", "tracker-month-label")
         .on("click", function (event: any) {
             // clear circles
             clearSelection(chartElements, monthInfo);
@@ -941,6 +977,29 @@ function renderMonthDays(
             }
         })
         .style("cursor", "pointer");
+
+    // annotation
+    if (showAnnotation) {
+        let dayAnnotation = chartElements.dataArea
+            .selectAll("dayAnnotation")
+            .data(daysInMonthView)
+            .enter()
+            .append("text")
+            .text(function (d: DayInfo) {
+                return d.annotation;
+            })
+            .attr("transform", function (d: DayInfo) {
+                let transX = scale(d.col);
+                let transY = scale(d.row) + maxDayTextSize.height / 4;
+                if (d.annotation) {
+                    transY += dotRadius;
+                }
+                let strTranslate = "translate(" + transX + "," + transY + ")";
+
+                return strTranslate;
+            })
+            .attr("class", "tracker-month-annotation");
+    }
 
     // Expand areas
     let svgWidth = parseFloat(chartElements.svg.attr("width"));

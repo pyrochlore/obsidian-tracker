@@ -792,54 +792,74 @@ export class SummaryInfo implements IGraph {
 }
 
 export class MonthInfo implements IGraph {
-    mode: string;
     dataset: number[];
     startWeekOn: string;
     threshold: number[];
     yMin: number[];
     yMax: number[];
-    showCircle: boolean;
     color: string;
     dimNotInMonth: boolean;
+    initMonth: string; // YYYY-MM
+    showSelectedValue: boolean;
+
+    // header
+    headerYearColor: string;
+    headerMonthColor: string;
+    showTargetRotator: boolean;
+    dividingLineColor: string;
+
+    // circles and rings
+    showCircle: boolean;
     showStreak: boolean;
     showTodayRing: boolean;
-    showSelectedValue: boolean;
     showSelectedRing: boolean;
     circleColor: string;
     circleColorByValue: boolean;
-    headerYearColor: string;
-    headerMonthColor: string;
-    dividingLineColor: string;
     todayRingColor: string;
     selectedRingColor: string;
-    initMonth: string; // YYYY-MM
 
+    // annotations
+    showAnnotation: boolean;
+    annotation: string[];
+    showAnnotationOfAllTargets: boolean;
+
+    // internal
     selectedDate: string;
     selectedDataset: number;
 
     constructor() {
-        this.mode = "circle"; // circle, symbol
         this.dataset = [];
         this.startWeekOn = "Sun";
         this.threshold = []; // if value > threshold, will show dot
         this.yMin = [];
         this.yMax = [];
-        this.showCircle = true;
         this.color = null;
         this.dimNotInMonth = true;
+        this.initMonth = "";
+        this.showSelectedValue = true;
+
+        // header
+        this.headerYearColor = null;
+        this.headerMonthColor = null;
+        this.showTargetRotator = true;
+        this.dividingLineColor = null;
+
+        // circles and rings
+        this.showCircle = true;
         this.showStreak = true; // a streak connects neigbor dots
         this.showTodayRing = true;
-        this.showSelectedValue = true;
         this.showSelectedRing = true;
         this.circleColor = null;
         this.circleColorByValue = false;
-        this.headerYearColor = null;
-        this.headerMonthColor = null;
-        this.dividingLineColor = null;
         this.todayRingColor = ""; // white
         this.selectedRingColor = "firebrick";
-        this.initMonth = "";
 
+        // annotations
+        this.showAnnotation = false;
+        this.annotation = []; // annotation for each dataset, accept expression thus value
+        this.showAnnotationOfAllTargets = true;
+
+        // internal
         this.selectedDate = ""; // selected date
         this.selectedDataset = null; // selected index of dataset
     }
