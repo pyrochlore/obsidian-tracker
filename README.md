@@ -20,8 +20,12 @@ Version 1.9.0
 - Allow formatting evaluated expressions by a follwing format string ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestExpression.md))
 
 Version 1.9.1
-- Fixed errors on collecting time values from dvField
+- Fixed errors on collecting time values from `dvField`
 - Fixed errors on collecting wiki while fileCache.links is undefined
+
+Version 1.9.2
+- Allow using seconds in time values
+- Fixed error parsing `dvField`
 
 ## Usage
 

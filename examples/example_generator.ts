@@ -227,6 +227,18 @@ for (
 
     content += "\n";
 
+    // clock-in clock-out in dvField
+    let seconds = dataviewValue1;
+    content += "clock-in:: " + time_clock_in + ":" + seconds + "\n";
+    content += "clock-out:: " + time_clock_out + ":" + seconds +"\n";
+
+    content += "\n";
+
+    // sleep in dvField
+    content += "sleep:: " + time_in_bed + "/" + time_out_of_bed + "\n";
+
+    content += "\n";
+
     let amplitude = 1.0;
     let period = 30; // how many days to complete a sin period
     let numSinValues = 9;
