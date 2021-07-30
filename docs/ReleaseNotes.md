@@ -1,7 +1,11 @@
 # Release Notes
 
+## v1.9.2
+- Allow using seconds in time values
+- Fixed error parsing `dvField`
+
 ## v1.9.1
-- Fixed errors on collecting time values from dvField
+- Fixed errors on collecting time values from `dvField`
 - Fixed errors on collecting wiki while fileCache.links is undefined
 
 ## v1.9.0
