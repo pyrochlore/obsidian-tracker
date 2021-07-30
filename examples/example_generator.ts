@@ -228,8 +228,9 @@ for (
     content += "\n";
 
     // clock-in clock-out in dvField
-    content += "clock-in:: " + time_clock_in + "\n";
-    content += "clock-out:: " + time_clock_out + "\n";
+    let seconds = dataviewValue1;
+    content += "clock-in:: " + time_clock_in + ":" + seconds + "\n";
+    content += "clock-out:: " + time_clock_out + ":" + seconds +"\n";
 
     content += "\n";
 

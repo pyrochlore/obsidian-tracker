@@ -35,6 +35,7 @@ line:
 
 ## From dvField
 Clock-In & Clock-Out from dvField
+time granularity to one second
 ``` tracker
 searchType: dvField
 searchTarget: clock-in, clock-out
