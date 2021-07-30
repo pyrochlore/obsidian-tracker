@@ -156,11 +156,12 @@ export function getDateFromDvField(
     dvTarget = dvTarget.replace("-", "[\\s\\-]");
 
     // Test this in Regex101
-    // (^|\s)\*{0,2}dvTarget\*{0,2}(::\s*(?<values>[\d\.\/\-\w,@;\s]*))(\s|$)
+    // remember '\s' includes new line
+    // (^| |\t)\*{0,2}dvTarget\*{0,2}(::[ |\t]*(?<values>[\d\.\/\-\w,@; \t:]*))(\r?\n|\r|$)
     let strHashtagRegex =
-        "(^|\\s)\\*{0,2}" +
+        "(^| |\\t)\\*{0,2}" +
         dvTarget +
-        "\\*{0,2}(::\\s*(?<values>[\\d\\.\\/\\-\\w,@;\\s]*))(\r?\n|\r)";
+        "\\*{0,2}(::[ |\\t]*(?<values>[\\d\\.\\/\\-\\w,@; \\t:]*))(\\r\\?\\n|\\r|$)";
     // console.log(strHashtagRegex);
     let hashTagRegex = new RegExp(strHashtagRegex, "gm");
     let match;
@@ -624,11 +625,12 @@ export function collectDataFromDvField(
     dvTarget = dvTarget.replace("-", "[\\s\\-]");
 
     // Test this in Regex101
-    // (^|\s)\*{0,2}dvTarget\*{0,2}(::\s*(?<values>[\d\.\/\-\w,@;\s:]*))(\s|$)
+    // remember '\s' includes new line
+    // (^| |\t)\*{0,2}dvTarget\*{0,2}(::[ |\t]*(?<values>[\d\.\/\-\w,@; \t:]*))(\r?\n|\r|$)
     let strHashtagRegex =
-        "(^|\\s)\\*{0,2}" +
+        "(^| |\\t)\\*{0,2}" +
         dvTarget +
-        "\\*{0,2}(::\\s*(?<values>[\\d\\.\\/\\-\\w,@;\\s:]*))(\r?\n|\r|$)";
+        "\\*{0,2}(::[ |\\t]*(?<values>[\\d\\.\\/\\-\\w,@; \\t:]*))(\\r\\?\\n|\\r|$)";
     // console.log(strHashtagRegex);
     let hashTagRegex = new RegExp(strHashtagRegex, "gm");
     let match;
@@ -649,6 +651,7 @@ export function collectDataFromDvField(
             if (splitted.length === 1) {
                 // console.log("single-value");
                 let toParse = splitted[0];
+                // console.log(toParse);
                 let retParse = helper.parseFloatFromAny(toParse);
                 if (retParse.value !== null) {
                     if (retParse.type === ValueType.Time) {
