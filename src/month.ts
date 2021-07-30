@@ -988,7 +988,7 @@ function renderMonthDays(
         .style("cursor", "pointer");
 
     // annotation
-    if (showAnnotation) {
+    if (mode === "annotation" && showAnnotation) {
         let dayAnnotation = chartElements.dataArea
             .selectAll("dayAnnotation")
             .data(daysInMonthView)
