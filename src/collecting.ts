@@ -399,6 +399,7 @@ export function collectDataFromWiki(
     xValueMap: XValueMap
 ) {
     let links = fileCache.links;
+    if (!links) return;
 
     let linkMeasure = 0.0;
     let linkExist = false;
@@ -623,11 +624,11 @@ export function collectDataFromDvField(
     dvTarget = dvTarget.replace("-", "[\\s\\-]");
 
     // Test this in Regex101
-    // (^|\s)\*{0,2}dvTarget\*{0,2}(::\s*(?<values>[\d\.\/\-\w,@;\s]*))(\s|$)
+    // (^|\s)\*{0,2}dvTarget\*{0,2}(::\s*(?<values>[\d\.\/\-\w,@;\s:]*))(\s|$)
     let strHashtagRegex =
         "(^|\\s)\\*{0,2}" +
         dvTarget +
-        "\\*{0,2}(::\\s*(?<values>[\\d\\.\\/\\-\\w,@;\\s]*))(\r?\n|\r|$)";
+        "\\*{0,2}(::\\s*(?<values>[\\d\\.\\/\\-\\w,@;\\s:]*))(\r?\n|\r|$)";
     // console.log(strHashtagRegex);
     let hashTagRegex = new RegExp(strHashtagRegex, "gm");
     let match;

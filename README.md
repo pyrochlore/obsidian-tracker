@@ -19,6 +19,10 @@ Version 1.9.0
 - Allow expressions (operators and functions) as data inputs for output type `summary`, `bullet`, and `pie` (examples: [expression](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestExpression.md), [summary](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestSummary.md), [bullet](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestBullet.md), [pie](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestPieChart.md))
 - Allow formatting evaluated expressions by a follwing format string ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestExpression.md))
 
+Version 1.9.1
+- Fixed errors on collecting time values from dvField
+- Fixed errors on collecting wiki while fileCache.links is undefined
+
 ## Usage
 
 1. Have some targets you want to track in daily notes.
