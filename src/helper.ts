@@ -5,20 +5,36 @@ import * as d3 from "d3";
 import { Moment } from "moment";
 
 // date and time
-const timeFormat = [
-    "HH:mm",
-    "HH:m",
-    "H:mm",
-    "H:m",
-    "hh:mm A",
-    "hh:mm a",
-    "hh:m A",
-    "hh:m a",
-    "h:mm A",
-    "h:mm a",
-    "h:m A",
-    "h:m a",
-];
+function makeTimeFormat() {
+    //HH: 2-digits hours (24 hour time) from 0 to 23, H:, 2-digits hours (24 hour time) from 0 to 23 without leading 0
+    // hh: 2-digits hours (12 hour time), h: 2-digits hours (12 hour time) without leading 0
+    // a/A: am or pm
+    const fmtHours = ["HH", "H", "hh", "h"];
+    //mm: 2-digits minutes, m: 2-digits minutes without leading zero
+    const fmtMins = ["mm", "m"];
+    // ss: 2-digits seconds, s: 2-digits seconds without leading zero
+    // can be empty
+    const fmtSecs = ["ss", "s", ""];
+
+    let timeFormat = [];
+    for (let fmtHour of fmtHours) {
+        for (let fmtMin of fmtMins) {
+            for (let fmtSec of fmtSecs) {
+                let fmt = `${fmtHour}:${fmtMin}`;
+                if (fmtSec !== "") {
+                    fmt += `:${fmtSec}`;
+                }
+                if (fmtHour.contains("h")) {
+                    fmt += " a";
+                }
+                timeFormat.push(fmt);
+            }
+        }
+    }
+    //console.log(timeFormat);
+    return timeFormat;
+}
+const timeFormat = makeTimeFormat();
 
 export function strToDate(strDate: string, dateFormat: string): Moment {
     let format: any = dateFormat;
