@@ -1,5 +1,9 @@
 # Release Notes
 
+## v1.9.1
+- Fixed errors on collecting time values from dvField
+- Fixed errors on collecting wiki while fileCache.links is undefined
+
 ## v1.9.0
 - Add a new output type `pie`, rendering a pie chart ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestPieChart.md))
 - Allow expressions (operators and functions) as data inputs for output type `summary`, `bullet`, and `pie` (examples: [expression](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestExpression.md), [summary](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestSummary.md), [bullet](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestBullet.md), [pie](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestPieChart.md))
