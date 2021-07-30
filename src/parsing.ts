@@ -1846,6 +1846,12 @@ export function getRenderInfoFromYaml(
             }
         }
 
+        // mode
+        if (typeof yamlMonth?.mode === "string") {
+            month.mode = yamlMonth.mode;
+        }
+        // console.log(month.mode);
+
         // dataset
         let retDataset = getNumberArray("dataset", yamlMonth?.dataset);
         if (typeof retDataset === "string") {
@@ -2013,6 +2019,37 @@ export function getRenderInfoFromYaml(
         }
         // console.log(month.initMonth);
 
+        // showAnnotation
+        if (typeof yamlMonth?.showAnnotation === "boolean") {
+            month.showAnnotation = yamlMonth.showAnnotation;
+        }
+        // console.log(month.showAnnotation);
+
+        // annotation
+        let retAnnotation = getStringArray("annotation", yamlMonth?.annotation);
+        if (typeof retAnnotation === "string") {
+            return retAnnotation;
+        }
+        month.annotation = retAnnotation;
+        if (month.annotation.length === 0) {
+            for (let indDataset = 0; indDataset < numDataset; indDataset++) {
+                month.annotation.push(null);
+            }
+        }
+        if (month.annotation.length !== month.dataset.length) {
+            const errorMessage =
+                "The number of inputs of annotation and dataset not matched";
+            return errorMessage;
+        }
+        // console.log(month.annotation);
+
+        // showAnnotationOfAllTargets
+        if (typeof yamlMonth?.showAnnotationOfAllTargets === "boolean") {
+            month.showAnnotationOfAllTargets =
+                yamlMonth.showAnnotationOfAllTargets;
+        }
+        // console.log(month.showAnnotationOfAllTargets);
+
         renderInfo.month.push(month);
     } // Month related parameters
     // console.log(renderInfo.month);
@@ -2124,8 +2161,7 @@ export function getRenderInfoFromYaml(
         // actual value, can possess template variable
         if (typeof yamlBullet?.value === "string") {
             bullet.value = yamlBullet.value;
-        }
-        else if (typeof yamlBullet?.value === "number") {
+        } else if (typeof yamlBullet?.value === "number") {
             bullet.value = yamlBullet.value.toString();
         }
         // console.log(bullet.value);

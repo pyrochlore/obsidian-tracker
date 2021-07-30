@@ -95,5 +95,40 @@ month:
     showSelectedValue: true
 ```
 
+## Annotations
+One target at a time
+``` tracker
+searchType: tag
+searchTarget: exercise-pushup, meditation
+datasetName: PushUp, Meditation
+folder: diary
+month:
+    mode: annotation
+    startWeekOn: 'Sun'
+    threshold: 40, 0
+    color: green
+    headerMonthColor: orange
+    dimNotInMonth: false
+	annotation: 💪,🧘‍♂️
+	showAnnotationOfAllTargets: false
+```
+
+All targets
+``` tracker
+searchType: tag
+searchTarget: exercise-pushup, meditation
+datasetName: PushUp, Meditation
+folder: diary
+month:
+    mode: annotation
+    startWeekOn: 'Sun'
+    threshold: 40, 0
+    color: green
+    headerMonthColor: orange
+    dimNotInMonth: false
+	annotation: 💪,🧘‍♂️
+	showAnnotationOfAllTargets: true
+```
+
 Please also check those search targets in markdown files under folder 'diary'.
 

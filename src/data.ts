@@ -792,6 +792,7 @@ export class SummaryInfo implements IGraph {
 }
 
 export class MonthInfo implements IGraph {
+    mode: string;
     dataset: number[];
     startWeekOn: string;
     threshold: number[];
@@ -805,7 +806,6 @@ export class MonthInfo implements IGraph {
     // header
     headerYearColor: string;
     headerMonthColor: string;
-    showTargetRotator: boolean;
     dividingLineColor: string;
 
     // circles and rings
@@ -828,6 +828,7 @@ export class MonthInfo implements IGraph {
     selectedDataset: number;
 
     constructor() {
+        this.mode = "circle"; // circle, annotation
         this.dataset = [];
         this.startWeekOn = "Sun";
         this.threshold = []; // if value > threshold, will show dot
@@ -841,7 +842,6 @@ export class MonthInfo implements IGraph {
         // header
         this.headerYearColor = null;
         this.headerMonthColor = null;
-        this.showTargetRotator = true;
         this.dividingLineColor = null;
 
         // circles and rings
@@ -855,7 +855,7 @@ export class MonthInfo implements IGraph {
         this.selectedRingColor = "firebrick";
 
         // annotations
-        this.showAnnotation = false;
+        this.showAnnotation = true;
         this.annotation = []; // annotation for each dataset, accept expression thus value
         this.showAnnotationOfAllTargets = true;
 

@@ -272,7 +272,11 @@ function renderMonthHeader(
         datasetName,
         "tracker-month-title-rotator"
     );
-    if (monthInfo.showTargetRotator) {
+    if (
+        monthInfo.mode === "circle" ||
+        (monthInfo.mode === "annotation" &&
+            !monthInfo.showAnnotationOfAllTargets)
+    ) {
         let datasetRotator = headerGroup
             .append("text")
             .text(datasetName)
@@ -484,6 +488,11 @@ function renderMonthDays(
     // console.log("renderMonthDays");
     // console.log(renderInfo);
     if (!renderInfo || !monthInfo) return;
+
+    let mode = monthInfo.mode;
+    if (mode !== "circle" && mode !== "annotation") {
+        return "Unknown month view mode";
+    }
 
     let curDatasetId = monthInfo.selectedDataset;
     if (curDatasetId === null) return;
@@ -706,7 +715,7 @@ function renderMonthDays(
         .range([0, totalDayBlockWidth]);
 
     // streak lines
-    if (monthInfo.showCircle && monthInfo.showStreak) {
+    if (mode === "circle" && monthInfo.showCircle && monthInfo.showStreak) {
         let streakColor = "#69b3a2";
         if (monthInfo.circleColor) {
             streakColor = monthInfo.circleColor;
@@ -817,7 +826,7 @@ function renderMonthDays(
     } else if (monthInfo.color) {
         circleColor = monthInfo.color;
     }
-    if (monthInfo.showCircle) {
+    if (mode === "circle" && monthInfo.showCircle) {
         let dots = chartElements.dataArea
             .selectAll("dot")
             .data(daysInMonthView)
@@ -863,7 +872,7 @@ function renderMonthDays(
 
     // today rings
     let today = helper.dateToStr(window.moment(), renderInfo.dateFormat);
-    if (monthInfo.showTodayRing) {
+    if (mode === "circle" && monthInfo.showTodayRing) {
         let todayRings = chartElements.dataArea
             .selectAll("todayRing")
             .data(
@@ -891,7 +900,7 @@ function renderMonthDays(
     }
 
     // selected rings
-    if (monthInfo.showSelectedRing) {
+    if (mode === "circle" && monthInfo.showSelectedRing) {
         let selectedRings = chartElements.dataArea
             .selectAll("selectedRing")
             .data(daysInMonthView)
