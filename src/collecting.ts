@@ -14,24 +14,14 @@ import * as helper from "./helper";
 export function getDateFromFilename(file: TFile, renderInfo: RenderInfo) {
     let fileBaseName = file.basename;
 
-    if (
-        renderInfo.dateFormatPrefix &&
-        fileBaseName.startsWith(renderInfo.dateFormatPrefix)
-    ) {
-        fileBaseName = fileBaseName.slice(renderInfo.dateFormatPrefix.length);
-    }
-    if (
-        renderInfo.dateFormatSuffix &&
-        fileBaseName.endsWith(renderInfo.dateFormatSuffix)
-    ) {
-        fileBaseName = fileBaseName.slice(
-            0,
-            fileBaseName.length - renderInfo.dateFormatSuffix.length
-        );
-    }
-    // console.log(fileBaseName);
+    let dateString = helper.getDateStringFromInputString(
+        fileBaseName,
+        renderInfo.dateFormatPrefix,
+        renderInfo.dateFormatSuffix
+    );
+    // console.log(dateString);
 
-    let fileDate = helper.strToDate(fileBaseName, renderInfo.dateFormat);
+    let fileDate = helper.strToDate(dateString, renderInfo.dateFormat);
     // console.log(fileDate);
 
     return fileDate;
@@ -52,6 +42,12 @@ export function getDateFromFrontmatter(
     if (frontMatter) {
         if (helper.deepValue(frontMatter, query.getTarget())) {
             let strDate = helper.deepValue(frontMatter, query.getTarget());
+
+            strDate = helper.getDateStringFromInputString(
+                strDate,
+                renderInfo.dateFormatPrefix,
+                renderInfo.dateFormatSuffix
+            );
 
             date = helper.strToDate(strDate, renderInfo.dateFormat);
             // console.log(date);
@@ -92,6 +88,13 @@ export function getDateFromTag(
             typeof match.groups.values !== "undefined"
         ) {
             let strDate = match.groups.values;
+
+            strDate = helper.getDateStringFromInputString(
+                strDate,
+                renderInfo.dateFormatPrefix,
+                renderInfo.dateFormatSuffix
+            );
+
             date = helper.strToDate(strDate, renderInfo.dateFormat);
             if (date.isValid()) {
                 break;
@@ -125,6 +128,12 @@ export function getDateFromText(
         ) {
             let strDate = match.groups.value.trim();
             // console.log(strDate);
+
+            strDate = helper.getDateStringFromInputString(
+                strDate,
+                renderInfo.dateFormatPrefix,
+                renderInfo.dateFormatSuffix
+            );
 
             date = helper.strToDate(strDate, renderInfo.dateFormat);
             if (date.isValid()) {
@@ -172,6 +181,13 @@ export function getDateFromDvField(
             typeof match.groups.values !== "undefined"
         ) {
             let strDate = match.groups.values.trim();
+
+            strDate = helper.getDateStringFromInputString(
+                strDate,
+                renderInfo.dateFormatPrefix,
+                renderInfo.dateFormatSuffix
+            );
+
             date = helper.strToDate(strDate, renderInfo.dateFormat);
             if (date.isValid()) {
                 break;
@@ -246,6 +262,12 @@ export function getDateFromTask(
         ) {
             let strDate = match.groups.value.trim();
             // console.log(strDate);
+
+            strDate = helper.getDateStringFromInputString(
+                strDate,
+                renderInfo.dateFormatPrefix,
+                renderInfo.dateFormatSuffix
+            );
 
             date = helper.strToDate(strDate, renderInfo.dateFormat);
             if (date.isValid()) {

@@ -119,6 +119,7 @@ The string provided in dateFormatPrefix and dateFormatSuffix will be removed bef
 searchType: tag
 searchTarget: weight
 folder: diary
+dateFormat: YYYYMMDD
 dateFormatPrefix: D-
 startDate: D-20210101
 endDate: D-20210105
@@ -135,6 +136,7 @@ line:
 searchType: tag
 searchTarget: weight
 folder: diary
+dateFormat: YYYYMMDD
 dateFormatSuffix: -D
 startDate: 20210101-D
 endDate: 20210105-D
@@ -142,6 +144,31 @@ line:
     title: Weight Log
     yAxisLabel: Weight
     yAxisUnit: kg
+    lineColor: yellow
+```
+
+### Using prefix and suffix with regular expression
+
+Examples of file name
+- Jeffrey-20210101-Journal
+- Jeffrey-20210102-Diary
+- Lucas-2021-0103-Journal
+- Lucas-2021-0104-Diary
+
+Data from the same days will be summed up.
+``` tracker
+searchType: tag
+searchTarget: exercise-pushup
+folder: diary
+dateFormat: YYYYMMDD
+dateFormatPrefix: '(Jeffrey-|Lucas-)'
+dateFormatSuffix: '(-Journal|-Diary)'
+startDate: 20210101
+endDate: 20210105
+line:
+    title: PushUp
+    yAxisLabel: Count
+    yAxisUnit: times
     lineColor: yellow
 ```
 

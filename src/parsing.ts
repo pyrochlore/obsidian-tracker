@@ -1123,31 +1123,22 @@ export function getRenderInfoFromYaml(
     // startDate, endDate
     // console.log("Parsing startDate");
     if (typeof yaml.startDate === "string") {
-        let strStartDate = yaml.startDate;
-        if (
-            renderInfo.dateFormatPrefix &&
-            strStartDate.startsWith(renderInfo.dateFormatPrefix)
-        ) {
-            strStartDate = strStartDate.slice(
-                renderInfo.dateFormatPrefix.length
-            );
-        }
-        if (
-            renderInfo.dateFormatSuffix &&
-            strStartDate.endsWith(renderInfo.dateFormatSuffix)
-        ) {
-            strStartDate = strStartDate.slice(
-                0,
-                strStartDate.length - renderInfo.dateFormatSuffix.length
-            );
-        }
+        let strStartDate = helper.getDateStringFromInputString(
+            yaml.startDate,
+            renderInfo.dateFormatPrefix,
+            renderInfo.dateFormatSuffix
+        );
+        // console.log(strStartDate);
 
+        // relative date
         let startDate = null;
         let isStartDateValid = false;
         startDate = helper.relDateStringToDate(
             strStartDate,
             renderInfo.dateFormat
         );
+        // console.log(startDate);
+
         if (startDate) {
             isStartDateValid = true;
         } else {
@@ -1156,6 +1147,7 @@ export function getRenderInfoFromYaml(
                 isStartDateValid = true;
             }
         }
+        // console.log(startDate);
 
         if (!isStartDateValid || startDate === null) {
             let errorMessage =
@@ -1168,22 +1160,11 @@ export function getRenderInfoFromYaml(
 
     // console.log("Parsing endDate");
     if (typeof yaml.endDate === "string") {
-        let strEndDate = yaml.endDate;
-        if (
-            renderInfo.dateFormatPrefix &&
-            strEndDate.startsWith(renderInfo.dateFormatPrefix)
-        ) {
-            strEndDate = strEndDate.slice(renderInfo.dateFormatPrefix.length);
-        }
-        if (
-            renderInfo.dateFormatSuffix &&
-            strEndDate.endsWith(renderInfo.dateFormatSuffix)
-        ) {
-            strEndDate = strEndDate.slice(
-                0,
-                strEndDate.length - renderInfo.dateFormatSuffix.length
-            );
-        }
+        let strEndDate = helper.getDateStringFromInputString(
+            yaml.endDate,
+            renderInfo.dateFormatPrefix,
+            renderInfo.dateFormatSuffix
+        );
 
         let endDate = null;
         let isEndDateValid = false;

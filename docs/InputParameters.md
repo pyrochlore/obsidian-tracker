@@ -22,8 +22,8 @@ These key-value pairs are placed under the code block root.
 | `searchTarget` | Target to search<br>[[detail](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md)] | NT (Number of Targets) | Must be provided |
 | `folder` | Root path containing notes to search | 1 | Root of this vault |
 | `dateFormat` | Date format<br> Use [Moment.js](https://momentjscom.readthedocs.io/en/latest/moment/04-displaying/01-format/) format or use [iso-8601](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md#iso-8601-date-format) | 1 | 'YYYY-MM-DD' |
-| `dateFormatPrefix` | Prefix before your dateFormat | 1 | '' |
-| `dateFormatSuffix` | Suffix after your dateFormat | 1 | '' |
+| `dateFormatPrefix` | Prefix before your dateFormat (accept regex) | 1 | '' |
+| `dateFormatSuffix` | Suffix after your dateFormat (accept regex) | 1 | '' |
 | `startDate` | Start date to collect data from<br>accept [relative date](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md#relative-date-input-for-startdate-and-enddate) | 1 | Min date found |
 | `endDate` | End date of to collect data<br>accept [relative date](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md#relative-date-input-for-startdate-and-enddate) | 1 | Max date found |
 | `datasetName` | Name of the dataset for a search target` | 1~NT | untitled |

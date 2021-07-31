@@ -36,6 +36,42 @@ function makeTimeFormat() {
 }
 const timeFormat = makeTimeFormat();
 
+export function getDateStringFromInputString(
+    inputString: string,
+    dateFormatPrefix: string,
+    dateFormatSuffix: string
+) {
+    if (!dateFormatPrefix && !dateFormatSuffix) return inputString;
+
+    let dateString = inputString;
+    if (dateString.startsWith("^")) {
+        dateString = dateString.slice(1);
+    }
+    // console.log(dateString);
+
+    if (dateFormatPrefix) {
+        let strRegex = "^(" + dateFormatPrefix + ")";
+        // console.log(strRegex);
+        let regex = new RegExp(strRegex, "gm");
+        if (regex.test(dateString)) {
+            dateString = dateString.replace(regex, "");
+        }
+    }
+    // console.log(dateString);
+
+    if (dateFormatSuffix) {
+        let strRegex = "(" + dateFormatSuffix + ")$";
+        // console.log(strRegex);
+        let regex = new RegExp(strRegex, "gm");
+        if (regex.test(dateString)) {
+            dateString = dateString.replace(regex, "");
+        }
+    }
+    // console.log(dateString);
+
+    return dateString;
+}
+
 export function strToDate(strDate: string, dateFormat: string): Moment {
     let format: any = dateFormat;
 
