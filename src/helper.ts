@@ -2,7 +2,7 @@ import { RenderInfo, Size, Transform } from "./data";
 import { TFile, TFolder, normalizePath } from "obsidian";
 import { ValueType } from "./data";
 import * as d3 from "d3";
-import { Moment } from "moment";
+import { Moment, Duration } from "moment";
 
 // date and time
 function makeTimeFormat() {
@@ -95,39 +95,187 @@ export function strToDate(strDate: string, dateFormat: string): Moment {
     return date;
 }
 
-export function relDateStringToDate(
+function extractValueFromDurationString(
+    strDuration: string,
+    units: Array<string>,
+    removePattern: boolean = true
+): [number, string] {
+    if (!strDuration || !units || units.length === 0) {
+        return [null, strDuration];
+    }
+
+    let value = null;
+    const strRegex = "(?<value>[0-9]+)(" + units.join("|") + ")";
+    // console.log(strRegex);
+    const regex = new RegExp(strRegex, "gm");
+    let match = regex.exec(strDuration);
+    if (
+        match &&
+        typeof match.groups !== "undefined" &&
+        typeof match.groups.value !== "undefined"
+    ) {
+        // console.log(match);
+        value = parseFloat(match.groups.value);
+        if (Number.isNumber(value) && !Number.isNaN(value)) {
+            if (removePattern) {
+                strDuration = strDuration.replace(regex, "");
+            }
+            // console.log(value);
+            // console.log(strDuration);
+            return [value, strDuration];
+        }
+    }
+
+    return [null, strDuration];
+}
+
+export function parseDurationString(strDuration: string) {
+    //duration string format:
+    //year (years, y, Y),
+    //month (months, M), // m will conflict with minute!!!
+    //week (weeks, w, W),
+    //day (days, d, D),
+    //hour (hours, h, H),
+    //minute (minutes, m), // M will conflict with month!!!
+    //second (seconds, s, S)
+    if (!strDuration) return null;
+
+    let duration: Duration = window.moment.duration(0);
+    let hasValue = false;
+
+    let negativeValue = false;
+    if (strDuration.startsWith("+")) {
+        negativeValue = false;
+        strDuration = strDuration.substring(1);
+    }
+    if (strDuration.startsWith("-")) {
+        negativeValue = true;
+        strDuration = strDuration.substring(1);
+    }
+
+    let yearValue = null;
+    [yearValue, strDuration] = extractValueFromDurationString(strDuration, [
+        "year",
+        "years",
+        "Y",
+        "y",
+    ]);
+    if (yearValue !== null) {
+        if (negativeValue) {
+            yearValue *= -1;
+        }
+        duration.add(yearValue, "years");
+        hasValue = true;
+    }
+
+    let monthValue = null;
+    [monthValue, strDuration] = extractValueFromDurationString(strDuration, [
+        "month",
+        "months",
+        "M",
+    ]);
+    if (monthValue !== null) {
+        if (negativeValue) {
+            monthValue *= -1;
+        }
+        duration.add(monthValue, "months");
+        hasValue = true;
+    }
+
+    let weekValue = null;
+    [weekValue, strDuration] = extractValueFromDurationString(strDuration, [
+        "week",
+        "weeks",
+        "W",
+        "w",
+    ]);
+    if (weekValue !== null) {
+        if (negativeValue) {
+            weekValue *= -1;
+        }
+        duration.add(weekValue, "weeks");
+        hasValue = true;
+    }
+
+    let dayValue = null;
+    [dayValue, strDuration] = extractValueFromDurationString(strDuration, [
+        "day",
+        "days",
+        "D",
+        "d",
+    ]);
+    if (dayValue !== null) {
+        if (negativeValue) {
+            dayValue *= -1;
+        }
+        duration.add(dayValue, "days");
+        hasValue = true;
+    }
+
+    let hourValue = null;
+    [hourValue, strDuration] = extractValueFromDurationString(strDuration, [
+        "hour",
+        "hours",
+        "H",
+        "h",
+    ]);
+    if (hourValue !== null) {
+        if (negativeValue) {
+            hourValue *= -1;
+        }
+        duration.add(hourValue, "hours");
+        hasValue = true;
+    }
+
+    let minuteValue = null;
+    [minuteValue, strDuration] = extractValueFromDurationString(strDuration, [
+        "minute",
+        "minutes",
+        "m",
+    ]);
+    if (minuteValue !== null) {
+        if (negativeValue) {
+            minuteValue *= -1;
+        }
+        duration.add(minuteValue, "minutes");
+        hasValue = true;
+    }
+
+    let secondValue = null;
+    [secondValue, strDuration] = extractValueFromDurationString(strDuration, [
+        "second",
+        "seconds",
+        "S",
+        "s",
+    ]);
+    if (secondValue !== null) {
+        if (negativeValue) {
+            secondValue *= -1;
+        }
+        duration.add(secondValue, "seconds");
+        hasValue = true;
+    }
+
+    if (!hasValue) return null;
+    return duration;
+}
+
+export function getDateByDurationToToday(
     relDateString: string,
     dateFormat: string
 ): Moment {
     let date = null;
-    const relDateRegex = /^(?<value>[\-\+]?[0-9]+)(?<unit>[dwmy])$/;
-    if (relDateRegex.test(relDateString)) {
-        let match = relDateRegex.exec(relDateString);
-        if (
-            typeof match.groups !== "undefined" &&
-            typeof match.groups.value !== "undefined" &&
-            typeof match.groups.unit !== "undefined"
-        ) {
-            let value = parseFloat(match.groups.value);
-            let unit = match.groups.unit;
-            date = getDateToday(dateFormat);
-            if (unit === "d") {
-                date = date.add(value, "days");
-            } else if (unit === "w") {
-                date = date.add(value, "weeks");
-            } else if (unit === "m") {
-                date = date.add(value, "months");
-            } else if (unit === "y") {
-                date = date.add(value, "years");
-            }
+    let duration = parseDurationString(relDateString);
+    if (duration && window.moment.isDuration(duration)) {
+        date = getDateToday(dateFormat);
+        date = date.add(duration);
+
+        if (date && date.isValid()) {
+            return date;
         }
     }
 
-    if (date && date.isValid()) {
-        return date;
-    }
-
-    return null;
+    return date;
 }
 
 export function dateToStr(date: Moment, dateFormat: string): string {

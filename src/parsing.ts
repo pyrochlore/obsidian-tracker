@@ -496,6 +496,25 @@ function getStringArrayFromInput(
                 }
             }
         }
+    } else if (typeof input === "number") {
+        let strNumber = input.toString();
+        if (validator) {
+            if (validator(strNumber)) {
+                array[0] = strNumber;
+                numValidValue++;
+                for (let ind = 1; ind < array.length; ind++) {
+                    array[ind] = strNumber;
+                }
+            } else {
+                errorMessage = "Invalid inputs for " + name;
+            }
+        } else {
+            array[0] = strNumber;
+            numValidValue++;
+            for (let ind = 1; ind < array.length; ind++) {
+                array[ind] = strNumber;
+            }
+        }
     } else {
         errorMessage = "Invalid inputs for " + name;
     }
@@ -744,6 +763,56 @@ function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
     }
     renderInfo.yAxisUnit = retYAxisUnit;
     // console.log(renderInfo.yAxisUnit);
+
+    // xAxisTickInterval
+    if (typeof yaml.xAxisTickInterval === "string") {
+        renderInfo.xAxisTickInterval = yaml.xAxisTickInterval;
+    } else if (typeof yaml.xAxisTickInterval === "number") {
+        renderInfo.xAxisTickInterval = yaml.xAxisTickInterval.toString();
+    }
+    // console.log(renderInfo.xAxisTickInterval);
+
+    // yAxisTickInterval
+    let retYAxisTickInterval = getStringArrayFromInput(
+        "yAxisTickInterval",
+        yaml.yAxisTickInterval,
+        2,
+        null,
+        null,
+        true
+    );
+    if (typeof retYAxisTickInterval === "string") {
+        return retYAxisTickInterval; // errorMessage
+    }
+    if (retYAxisTickInterval.length > 2) {
+        return "yAxisTickInterval accepts not more than two values for left and right y-axes";
+    }
+    renderInfo.yAxisTickInterval = retYAxisTickInterval;
+    // console.log(renderInfo.yAxisTickInterval);
+
+    // xAxisTickLabelFormat
+    if (typeof yaml.xAxisTickLabelFormat === "string") {
+        renderInfo.xAxisTickLabelFormat = yaml.xAxisTickLabelFormat;
+    }
+    // console.log(renderInfo.xAxisTickLabelFormat);
+
+    // yAxisTickLabelFormat
+    let retYAxisTickLabelFormat = getStringArrayFromInput(
+        "yAxisTickLabelFormat",
+        yaml.yAxisTickLabelFormat,
+        2,
+        null,
+        null,
+        true
+    );
+    if (typeof retYAxisTickLabelFormat === "string") {
+        return retYAxisTickLabelFormat; // errorMessage
+    }
+    if (retYAxisTickLabelFormat.length > 2) {
+        return "yAxisTickLabelFormat accepts not more than two values for left and right y-axes";
+    }
+    renderInfo.yAxisTickLabelFormat = retYAxisTickLabelFormat;
+    // console.log(renderInfo.yAxisTickLabelFormat);
 
     // yMin
     let retYMin = getNumberArrayFromInput("yMin", yaml?.yMin, 2, null, true);
@@ -1133,7 +1202,7 @@ export function getRenderInfoFromYaml(
         // relative date
         let startDate = null;
         let isStartDateValid = false;
-        startDate = helper.relDateStringToDate(
+        startDate = helper.getDateByDurationToToday(
             strStartDate,
             renderInfo.dateFormat
         );
@@ -1168,7 +1237,10 @@ export function getRenderInfoFromYaml(
 
         let endDate = null;
         let isEndDateValid = false;
-        endDate = helper.relDateStringToDate(strEndDate, renderInfo.dateFormat);
+        endDate = helper.getDateByDurationToToday(
+            strEndDate,
+            renderInfo.dateFormat
+        );
         if (endDate) {
             isEndDateValid = true;
         } else {

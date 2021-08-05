@@ -649,6 +649,10 @@ export class CommonChartInfo implements IGraph, ILegend {
     yAxisColor: string[];
     yAxisLabelColor: string[];
     yAxisUnit: string[];
+    xAxisTickInterval: string;
+    yAxisTickInterval: string[];
+    xAxisTickLabelFormat: string;
+    yAxisTickLabelFormat: string[];
     yMin: number[];
     yMax: number[];
     reverseYAxis: boolean[];
@@ -670,6 +674,10 @@ export class CommonChartInfo implements IGraph, ILegend {
         this.yAxisColor = []; // "", 2 elements
         this.yAxisLabelColor = []; // "", 2 elements
         this.yAxisUnit = []; // "", 2 elements
+        this.xAxisTickInterval = null; // the string will be converted to Duration (a month is not nesscesary to 30 days)
+        this.yAxisTickInterval = []; // null, 2 elements
+        this.xAxisTickLabelFormat = null;
+        this.yAxisTickLabelFormat = []; // null, 2 elements
         this.yMin = []; // null, 2 elements
         this.yMax = []; // null, 2 elements
         this.reverseYAxis = []; // false, 2 elements
