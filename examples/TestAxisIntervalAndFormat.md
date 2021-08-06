@@ -31,8 +31,9 @@ line:
 	reverseYAxis: true
     lineColor: yellow, red
     showPoint: true
-	showLegend: true
-    yAxisTickInterval: 3h
+    yAxisTickInterval: 1h
+	yMin: 06:00
+	yMax: 23:00
 ```
 
 ## Y Axis Tick Label Format
@@ -66,8 +67,10 @@ line:
 	reverseYAxis: true
     lineColor: yellow, red
     showPoint: true
-    yAxisTickInterval: 3h
-	yAxisTickLabelFormat: .1f
+    yMin: 05:00
+    yMax: 22:00
+    yAxisTickInterval: 50m
+    yAxisTickLabelFormat: H---m
 ```
 
 ## X Axis Interval

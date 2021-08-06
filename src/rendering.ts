@@ -172,27 +172,35 @@ function getYTickLabelFormat(
 
             return tickFormat;
         }
-        return null;
+        return d3.tickFormat(yLower, yUpper, 10);
     } else {
+        // values in seconds
         if (inTickLabelFormat) {
-            // null, let d3js decide what to do
+            function fnTickLabelFormat(value: number): string {
+                let dayStart = window.moment("00:00", "HH:mm", true);
+                let tickTime = dayStart.add(value, "seconds");
+                let format = tickTime.format(inTickLabelFormat);
+
+                let devHour = (value - yLower) / 3600;
+                let interleave = devHour % 2;
+
+                return format;
+            }
+            return fnTickLabelFormat;
         } else {
-            let skip = true;
-            function tickFormat(value: number): string {
+            function fnTickLabelFormat(value: number): string {
                 const absExtent = Math.abs(yUpper - yLower);
                 let dayStart = window.moment("00:00", "HH:mm", true);
                 let tickTime = dayStart.add(value, "seconds");
                 let format = tickTime.format("HH:mm");
-                if (skip && absExtent > 12 * 60 * 60) {
+                // console.log(`yLower/yUpper: ${yLower}/${yUpper}`)
+                // console.log(`value/extent/inter:${value}/${absExtent}/${(value-yLower)/3600}`);
+
+                // auto interleave if extent over 12 hours
+                if (absExtent > 12 * 60 * 60) {
                     let devHour = (value - yLower) / 3600;
                     let interleave = devHour % 2;
-                    if (value <= yLower) {
-                        format = "";
-                    } else if (value >= yUpper) {
-                        format = "";
-                    } else if (interleave > 1.0) {
-                        format = tickTime.format("HH:mm");
-                    } else {
+                    if (value < yLower || value > yUpper || interleave < 1.0) {
                         format = "";
                     }
                 }
@@ -200,7 +208,7 @@ function getYTickLabelFormat(
                 return format;
             }
 
-            return tickFormat;
+            return fnTickLabelFormat;
         }
     }
 
@@ -599,9 +607,6 @@ function renderYAxis(
         yAxisTickLabelFormat,
         valueIsTime
     );
-    if (!yTickLabelFormat) {
-        yTickLabelFormat = d3.tickFormat(yLower, yUpper, 10);
-    }
 
     let yLowerLabelSize = helper.measureTextSize(
         yTickLabelFormat(yLower),
