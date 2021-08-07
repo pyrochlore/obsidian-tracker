@@ -355,12 +355,17 @@ export function parseFloatFromAny(
             }
         } else {
             if (textValueMap) {
+                let anyMatch = false;
                 const keys = Object.keys(textValueMap) as Array<keyof string>;
                 for (let key of keys) {
                     if (toParse === key) {
                         value = textValueMap[key];
+                        anyMatch = true;
                         break;
                     }
+                }
+                if (!anyMatch) {
+                    value = parseFloat(toParse);
                 }
             } else {
                 value = parseFloat(toParse);

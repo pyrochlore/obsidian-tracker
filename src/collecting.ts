@@ -401,7 +401,10 @@ export function collectDataFromFrontmatterKey(
             ) {
                 // TODO: it's not efficent to retrieve one value at a time, enhance this
                 let splittedPart = splitted[query.getAccessor()].trim();
-                let retParse = helper.parseFloatFromAny(splittedPart);
+                let retParse = helper.parseFloatFromAny(
+                    splittedPart,
+                    renderInfo.textValueMap
+                );
                 if (retParse.value !== null) {
                     if (retParse.type === ValueType.Time) {
                         query.valueType = ValueType.Time;
@@ -790,7 +793,10 @@ export function collectDataFromTask(
             // console.log("valued-text");
             if (typeof match.groups.value !== "undefined") {
                 // set as null for missing value if it is valued-tag
-                let retParse = helper.parseFloatFromAny(match.groups.value);
+                let retParse = helper.parseFloatFromAny(
+                    match.groups.value,
+                    renderInfo.textValueMap
+                );
                 // console.log(value);
                 if (retParse.value !== null) {
                     if (retParse.type === ValueType.Time) {
