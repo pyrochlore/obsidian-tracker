@@ -1,4 +1,4 @@
-import { RenderInfo, Size, Transform } from "./data";
+import { RenderInfo, Size, TextValueMap, Transform } from "./data";
 import { TFile, TFolder, normalizePath } from "obsidian";
 import { ValueType } from "./data";
 import * as d3 from "d3";
@@ -328,7 +328,10 @@ export function trimByChar(str: string, char: string) {
 }
 
 // Parsing
-export function parseFloatFromAny(toParse: any) {
+export function parseFloatFromAny(
+    toParse: any,
+    textValueMap: TextValueMap = null
+) {
     let value = null;
     let valueType = ValueType.Number;
     if (typeof toParse === "string") {
@@ -351,7 +354,17 @@ export function parseFloatFromAny(toParse: any) {
                 valueType = ValueType.Time;
             }
         } else {
-            value = parseFloat(toParse);
+            if (textValueMap) {
+                const keys = Object.keys(textValueMap) as Array<keyof string>;
+                for (let key of keys) {
+                    if (toParse === key) {
+                        value = textValueMap[key];
+                        break;
+                    }
+                }
+            } else {
+                value = parseFloat(toParse);
+            }
         }
     } else if (typeof toParse === "number") {
         value = toParse;

@@ -35,6 +35,10 @@ export enum ValueType {
     String,
 }
 
+export type TextValueMap = {
+    [key: string]: number;
+};
+
 export class DataPoint {
     date: Moment;
     value: number;
@@ -547,6 +551,7 @@ export class RenderInfo {
     penalty: number[];
     valueShift: number[];
     valueType: string[]; // number/float, int, string, boolean, date, time, datetime
+    textValueMap: TextValueMap;
 
     dataAreaSize: Size;
     margin: Margin;
@@ -584,6 +589,7 @@ export class RenderInfo {
         this.penalty = []; // null, use this value instead of null value
         this.valueShift = [];
         this.valueType = [];
+        this.textValueMap = {};
 
         this.dataAreaSize = new Size(300, 300);
         this.margin = new Margin(10, 10, 10, 10); // top, right, bottom, left

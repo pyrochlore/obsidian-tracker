@@ -52,8 +52,9 @@ for (
         frontmatter += "tags: " + "work_log" + "\n";
     }
     // frontmatter mood
-    let mood = randomIntFromInterval(1, 10);
-    frontmatter += "mood: " + mood + "\n";
+    let moodSymbols = ["😀", "🙂", "😐", "🙁", "😞"];
+    let indMood = randomIntFromInterval(0, 4);
+    frontmatter += "mood: " + moodSymbols[indMood] + "\n";
 
     // blood pressure
     let progress = dayCount;

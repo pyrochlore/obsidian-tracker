@@ -1393,6 +1393,17 @@ export function getRenderInfoFromYaml(
     renderInfo.valueShift = retValueShift;
     // console.log(renderInfo.valueShift);
 
+    // textValueMap
+    if (typeof yaml.textValueMap !== "undefined") {
+        let keys = getAvailableKeysOfClass(yaml.textValueMap);
+        // console.log(texts);
+        for (let key of keys) {
+            let text = key.trim();
+            renderInfo.textValueMap[text] = yaml.textValueMap[text];
+        }
+    }
+    // console.log(renderInfo.textValueMap);
+
     // fixedScale
     if (typeof yaml.fixedScale === "number") {
         renderInfo.fixedScale = yaml.fixedScale;

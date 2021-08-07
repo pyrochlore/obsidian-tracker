@@ -359,7 +359,10 @@ export function collectDataFromFrontmatterKey(
     if (frontMatter) {
         if (helper.deepValue(frontMatter, query.getTarget())) {
             let toParse = helper.deepValue(frontMatter, query.getTarget());
-            let retParse = helper.parseFloatFromAny(toParse);
+            let retParse = helper.parseFloatFromAny(
+                toParse,
+                renderInfo.textValueMap
+            );
             if (retParse.value !== null) {
                 if (retParse.type === ValueType.Time) {
                     query.valueType = ValueType.Time;
@@ -482,7 +485,10 @@ export function collectDataFromInlineTag(
             if (splitted.length === 1) {
                 // console.log("single-value");
                 let toParse = splitted[0].trim();
-                let retParse = helper.parseFloatFromAny(toParse);
+                let retParse = helper.parseFloatFromAny(
+                    toParse,
+                    renderInfo.textValueMap
+                );
                 if (retParse.value !== null) {
                     if (retParse.type === ValueType.Time) {
                         tagMeasure = retParse.value;
@@ -505,7 +511,10 @@ export function collectDataFromInlineTag(
                 query.getAccessor() >= 0
             ) {
                 let toParse = splitted[query.getAccessor()].trim();
-                let retParse = helper.parseFloatFromAny(toParse);
+                let retParse = helper.parseFloatFromAny(
+                    toParse,
+                    renderInfo.textValueMap
+                );
                 //console.log(retParse);
                 if (retParse.value !== null) {
                     if (retParse.type === ValueType.Time) {
@@ -559,16 +568,25 @@ export function collectDataFromText(
             // console.log("valued-text");
             if (typeof match.groups.value !== "undefined") {
                 // set as null for missing value if it is valued-tag
-                let value = parseFloat(match.groups.value);
-                // console.log(value);
-                if (!Number.isNaN(value)) {
-                    if (
-                        !renderInfo.ignoreZeroValue[query.getId()] ||
-                        value !== 0
-                    ) {
-                        textMeasure += value;
+                let retParse = helper.parseFloatFromAny(
+                    match.groups.value,
+                    renderInfo.textValueMap
+                );
+                if (retParse.value !== null) {
+                    if (retParse.type === ValueType.Time) {
+                        textMeasure = retParse.value;
                         textExist = true;
+                        query.valueType = ValueType.Time;
                         query.addNumTargets();
+                    } else {
+                        if (
+                            !renderInfo.ignoreZeroValue[query.getId()] ||
+                            retParse.value !== 0
+                        ) {
+                            textMeasure += retParse.value;
+                            textExist = true;
+                            query.addNumTargets();
+                        }
                     }
                 }
             }
@@ -674,7 +692,10 @@ export function collectDataFromDvField(
                 // console.log("single-value");
                 let toParse = splitted[0];
                 // console.log(toParse);
-                let retParse = helper.parseFloatFromAny(toParse);
+                let retParse = helper.parseFloatFromAny(
+                    toParse,
+                    renderInfo.textValueMap
+                );
                 if (retParse.value !== null) {
                     if (retParse.type === ValueType.Time) {
                         tagMeasure = retParse.value;
@@ -699,7 +720,10 @@ export function collectDataFromDvField(
                 // TODO: it's not efficent to retrieve one value at a time, enhance this
                 // console.log("multiple-values");
                 let toParse = splitted[query.getAccessor()].trim();
-                let retParse = helper.parseFloatFromAny(toParse);
+                let retParse = helper.parseFloatFromAny(
+                    toParse,
+                    renderInfo.textValueMap
+                );
                 if (retParse.value !== null) {
                     if (retParse.type === ValueType.Time) {
                         tagMeasure = retParse.value;
@@ -766,16 +790,23 @@ export function collectDataFromTask(
             // console.log("valued-text");
             if (typeof match.groups.value !== "undefined") {
                 // set as null for missing value if it is valued-tag
-                let value = parseFloat(match.groups.value);
+                let retParse = helper.parseFloatFromAny(match.groups.value);
                 // console.log(value);
-                if (!Number.isNaN(value)) {
-                    if (
-                        !renderInfo.ignoreZeroValue[query.getId()] ||
-                        value !== 0
-                    ) {
-                        textMeasure += value;
+                if (retParse.value !== null) {
+                    if (retParse.type === ValueType.Time) {
+                        textMeasure = retParse.value;
                         textExist = true;
+                        query.valueType = ValueType.Time;
                         query.addNumTargets();
+                    } else {
+                        if (
+                            !renderInfo.ignoreZeroValue[query.getId()] ||
+                            retParse.value !== 0
+                        ) {
+                            textMeasure += retParse.value;
+                            textExist = true;
+                            query.addNumTargets();
+                        }
                     }
                 }
             }
