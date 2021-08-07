@@ -765,9 +765,9 @@ function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
     // console.log(renderInfo.yAxisUnit);
 
     // xAxisTickInterval
-    if (typeof yaml.xAxisTickInterval === "string") {
+    if (typeof yaml?.xAxisTickInterval === "string") {
         renderInfo.xAxisTickInterval = yaml.xAxisTickInterval;
-    } else if (typeof yaml.xAxisTickInterval === "number") {
+    } else if (typeof yaml?.xAxisTickInterval === "number") {
         renderInfo.xAxisTickInterval = yaml.xAxisTickInterval.toString();
     }
     // console.log(renderInfo.xAxisTickInterval);
@@ -775,7 +775,7 @@ function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
     // yAxisTickInterval
     let retYAxisTickInterval = getStringArrayFromInput(
         "yAxisTickInterval",
-        yaml.yAxisTickInterval,
+        yaml?.yAxisTickInterval,
         2,
         null,
         null,
@@ -791,7 +791,7 @@ function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
     // console.log(renderInfo.yAxisTickInterval);
 
     // xAxisTickLabelFormat
-    if (typeof yaml.xAxisTickLabelFormat === "string") {
+    if (typeof yaml?.xAxisTickLabelFormat === "string") {
         renderInfo.xAxisTickLabelFormat = yaml.xAxisTickLabelFormat;
     }
     // console.log(renderInfo.xAxisTickLabelFormat);
@@ -799,7 +799,7 @@ function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
     // yAxisTickLabelFormat
     let retYAxisTickLabelFormat = getStringArrayFromInput(
         "yAxisTickLabelFormat",
-        yaml.yAxisTickLabelFormat,
+        yaml?.yAxisTickLabelFormat,
         2,
         null,
         null,
