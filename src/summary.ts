@@ -15,6 +15,7 @@ export function renderSummary(
     // console.log(renderInfo);
     if (!renderInfo || !summaryInfo) return;
 
+    // console.log(summaryInfo.template);
     let outputSummary = "";
     if (checkSummaryTemplateValid(summaryInfo.template)) {
         outputSummary = summaryInfo.template;
@@ -31,9 +32,11 @@ export function renderSummary(
 
     if (outputSummary !== "") {
         let textBlock = d3.select(canvas).append("div");
-        if (outputSummary.includes("\n")) {
-            let outputLines = outputSummary.split("\n");
+        if (outputSummary.includes("\n") || outputSummary.includes("\\n")) {
+            let outputLines = outputSummary.split(/(\n|\\n)/);
+            // console.log(outputLines);
             for (let outputLine of outputLines) {
+                if (outputLine !== "\n" && outputLine !== "\\n")
                 textBlock.append("div").text(outputLine);
             }
         } else {
