@@ -174,3 +174,9 @@
     font-size: 10px;
     stroke: none;
 }
+
+.tracker-pie-label {
+    fill: var(--color-tick-label);
+    stroke: none;
+    font-size: 12px;
+}

@@ -94,7 +94,7 @@ searchTarget: Say I love you, Say I love you
 datasetName: Done, NotDone
 pie:
     label: '{{0.5/28.5*100}}%, {{4/28.5*100}}%, {{6/28.5*100}}%, {{8/28.5*100}}%, {{10/28.5*100}}%'
-    extLabel: 'A {{0.5/28.5*100}}%, B, C, D, E'
+    extLabel: 'DataA {{0.5/28.5*100}}%, DataB, DataC, DataD, DataE'
     data: '0.5, 4, 6, 8, 10'
     dataColor: '#4daf4a,#377eb8,#ff7f00,#984ea3,#e41a1c'
     ratioInnerRadius: 0.6

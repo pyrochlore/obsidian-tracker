@@ -415,9 +415,10 @@ function renderPie(
     // console.log(extLabels);
 
     // extLabel sizes
-    let extLabelSizes = labels.map(function (n) {
-        return helper.measureTextSize(n, "tracker-tick-label");
+    let extLabelSizes = extLabels.map(function (n) {
+        return helper.measureTextSize(n, "tracker-pie-label");
     });
+    // console.log(extLabelSizes);
 
     let showExtLabelOnlyIfNoLabel = pieInfo.showExtLabelOnlyIfNoLabel;
 
@@ -491,7 +492,7 @@ function renderPie(
             );
         })
         .style("text-anchor", "middle")
-        .attr("class", "tracker-tick-label");
+        .attr("class", "tracker-pie-label");
 
     function getMidAngle(arcObj: any) {
         return arcObj.startAngle + (arcObj.endAngle - arcObj.startAngle) / 2;
@@ -526,7 +527,7 @@ function renderPie(
             let midAngle = getMidAngle(arcObj);
             return midAngle < Math.PI ? "start" : "end";
         })
-        .attr("class", "tracker-tick-label");
+        .attr("class", "tracker-pie-label");
 
     function getPointsForConnectionLines(arcObj: any, i: number) {
         let labelWidth = labelSizes[i].width;
