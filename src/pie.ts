@@ -616,6 +616,14 @@ export function renderPieChart(
     let chartElements: ChartElements = {};
     chartElements = createAreas(chartElements, canvas, renderInfo, pieInfo);
 
+    // Set default dataColor if no dataColor provided
+    let defaultDataColor = d3.schemeSpectral[pieInfo.dataColor.length];
+    for (let i = 0; i < pieInfo.dataColor.length; i++) {
+        if (pieInfo.dataColor[i] === null) {
+            pieInfo.dataColor[i] = defaultDataColor[i];
+        }
+    }
+
     renderTitle(canvas, chartElements, renderInfo, pieInfo);
 
     renderPie(canvas, chartElements, renderInfo, pieInfo);

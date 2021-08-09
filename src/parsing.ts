@@ -1747,7 +1747,7 @@ export function getRenderInfoFromYaml(
             "dataColor",
             yamlPie?.dataColor,
             numData,
-            "none",
+            null,
             validateColor,
             true
         );

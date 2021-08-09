@@ -51,6 +51,17 @@ pie:
     legendOrientation: vertical	
 ```
 
+### Default data colors
+``` tracker
+searchType: task.done, task.notdone
+searchTarget: Say I love you, Say I love you
+pie:
+    title: Pie Chart
+    label: '{{2/30*100}}%, {{4/30*100}}%, {{6/30*100}}%, {{8/30*100}}%, {{10/30*100}}%'
+    data: 2, 4, 6, 8, 10
+    ratioInnerRadius: 0.0
+```
+
 ## Data from Notes
 
 Using function dataset() to get Dataset then use function sum() to get the summation
