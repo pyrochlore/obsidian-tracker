@@ -311,10 +311,15 @@ export function deepValue(obj: any, str: string) {
         if (k in obj) {
             obj = obj[k];
         } else {
-            return;
+            return null;
         }
     }
-    return obj;
+    if (typeof obj === "string" || Array.isArray(obj)) {
+        return obj;
+    } else if (typeof obj === "number") {
+        return obj.toString();
+    }
+    return null;
 }
 
 // String helpers
@@ -366,9 +371,15 @@ export function parseFloatFromAny(
                 }
                 if (!anyMatch) {
                     value = parseFloat(toParse);
+                    if (Number.isNaN(value)) {
+                        value = null;
+                    }
                 }
             } else {
                 value = parseFloat(toParse);
+                if (Number.isNaN(value)) {
+                    value = null;
+                }
             }
         }
     } else if (typeof toParse === "number") {

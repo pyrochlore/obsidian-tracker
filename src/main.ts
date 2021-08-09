@@ -160,6 +160,8 @@ export default class Tracker extends Plugin {
         let fileCounter = 0;
 
         let dataMap: DataMap = new Map(); // {strDate: [query: value, ...]}
+        let gotAnyValidXValue = false;
+        let gotAnyValidYValue = false;
         // Collect data from files, each file has one data point for each query
         const loopFilePromises = files.map(async (file) => {
             // console.log(file.basename);
@@ -292,6 +294,7 @@ export default class Tracker extends Plugin {
                     }
 
                     if (!skipThisFile) {
+                        gotAnyValidXValue ||= true;
                         xValueMap.set(
                             xDatasetId,
                             helper.dateToStr(xDate, renderInfo.dateFormat)
@@ -322,6 +325,7 @@ export default class Tracker extends Plugin {
             let yDatasetQueries = renderInfo.queries.filter((q) => {
                 return q.getType() !== SearchType.Table && !q.usedAsXDataset;
             });
+
             const loopQueryPromises = yDatasetQueries.map(async (query) => {
                 // Get xValue from file if xDataset assigned
                 // if (renderInfo.xDataset !== null)
@@ -330,13 +334,14 @@ export default class Tracker extends Plugin {
                 // console.log("Search frontmatter tags");
                 if (fileCache && query.getType() === SearchType.Tag) {
                     // Add frontmatter tags, allow simple tag only
-                    collecting.collectDataFromFrontmatterTag(
-                        fileCache,
-                        query,
-                        renderInfo,
-                        dataMap,
-                        xValueMap
-                    );
+                    gotAnyValidYValue ||=
+                        collecting.collectDataFromFrontmatterTag(
+                            fileCache,
+                            query,
+                            renderInfo,
+                            dataMap,
+                            xValueMap
+                        );
                 } // Search frontmatter tags
 
                 // console.log("Search frontmatter keys");
@@ -345,18 +350,19 @@ export default class Tracker extends Plugin {
                     query.getType() === SearchType.Frontmatter &&
                     query.getTarget() !== "tags"
                 ) {
-                    collecting.collectDataFromFrontmatterKey(
-                        fileCache,
-                        query,
-                        renderInfo,
-                        dataMap,
-                        xValueMap
-                    );
+                    gotAnyValidYValue ||=
+                        collecting.collectDataFromFrontmatterKey(
+                            fileCache,
+                            query,
+                            renderInfo,
+                            dataMap,
+                            xValueMap
+                        );
                 } // console.log("Search frontmatter keys");
 
                 // console.log("Search wiki links");
                 if (fileCache && query.getType() === SearchType.Wiki) {
-                    collecting.collectDataFromWiki(
+                    gotAnyValidYValue ||= collecting.collectDataFromWiki(
                         fileCache,
                         query,
                         renderInfo,
@@ -367,7 +373,7 @@ export default class Tracker extends Plugin {
 
                 // console.log("Search inline tags");
                 if (content && query.getType() === SearchType.Tag) {
-                    collecting.collectDataFromInlineTag(
+                    gotAnyValidYValue ||= collecting.collectDataFromInlineTag(
                         content,
                         query,
                         renderInfo,
@@ -378,7 +384,7 @@ export default class Tracker extends Plugin {
 
                 // console.log("Search Text");
                 if (content && query.getType() === SearchType.Text) {
-                    collecting.collectDataFromText(
+                    gotAnyValidYValue ||= collecting.collectDataFromText(
                         content,
                         query,
                         renderInfo,
@@ -389,7 +395,7 @@ export default class Tracker extends Plugin {
 
                 // console.log("Search FileMeta");
                 if (query.getType() === SearchType.FileMeta) {
-                    collecting.collectDataFromFileMeta(
+                    gotAnyValidYValue ||= collecting.collectDataFromFileMeta(
                         file,
                         content,
                         query,
@@ -401,7 +407,7 @@ export default class Tracker extends Plugin {
 
                 // console.log("Search dvField");
                 if (content && query.getType() === SearchType.dvField) {
-                    collecting.collectDataFromDvField(
+                    gotAnyValidYValue ||= collecting.collectDataFromDvField(
                         content,
                         query,
                         renderInfo,
@@ -417,7 +423,7 @@ export default class Tracker extends Plugin {
                         query.getType() === SearchType.TaskDone ||
                         query.getType() === SearchType.TaskNotDone)
                 ) {
-                    collecting.collectDataFromTask(
+                    gotAnyValidYValue ||= collecting.collectDataFromTask(
                         content,
                         query,
                         renderInfo,
@@ -593,11 +599,17 @@ export default class Tracker extends Plugin {
             }
             // console.log(xValues);
 
-            if (xValues.every((v) => v === null)) {
-                let errorMessage = "No valid X value found";
+            if (
+                xValues.every((v) => {
+                    return v === null;
+                })
+            ) {
+                let errorMessage = "No valid X value found in table";
                 renderErrorMessage(canvas, errorMessage);
                 el.appendChild(canvas);
                 return;
+            } else {
+                gotAnyValidXValue ||= true;
             }
 
             // get y data
@@ -621,6 +633,7 @@ export default class Tracker extends Plugin {
                                     indLine < xValues.length &&
                                     xValues[indLine]
                                 ) {
+                                    gotAnyValidYValue ||= true;
                                     collecting.addToDataMap(
                                         dataMap,
                                         helper.dateToStr(
@@ -645,6 +658,7 @@ export default class Tracker extends Plugin {
                                     indLine < xValues.length &&
                                     xValues[indLine]
                                 ) {
+                                    gotAnyValidYValue ||= true;
                                     collecting.addToDataMap(
                                         dataMap,
                                         helper.dateToStr(
@@ -662,6 +676,20 @@ export default class Tracker extends Plugin {
                     indLine++;
                 } // Loop over tableLines
             }
+        }
+
+        if (!gotAnyValidXValue) {
+            let errorMessage = "No valid X values found in notes";
+            renderErrorMessage(canvas, errorMessage);
+            el.appendChild(canvas);
+            return;
+        }
+
+        if (!gotAnyValidYValue) {
+            let errorMessage = "No valid Y values found in notes";
+            renderErrorMessage(canvas, errorMessage);
+            el.appendChild(canvas);
+            return;
         }
 
         if (fileCounter === 0) {

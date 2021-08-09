@@ -301,7 +301,7 @@ export function collectDataFromFrontmatterTag(
     renderInfo: RenderInfo,
     dataMap: DataMap,
     xValueMap: XValueMap
-) {
+): boolean {
     // console.log("collectDataFromFrontmatterTag");
     // console.log(query);
     // console.log(dataMap);
@@ -342,8 +342,11 @@ export function collectDataFromFrontmatterTag(
             }
             let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
             addToDataMap(dataMap, xValue, query, value);
+            return true;
         }
     }
+
+    return false;
 }
 
 export function collectDataFromFrontmatterKey(
@@ -352,7 +355,7 @@ export function collectDataFromFrontmatterKey(
     renderInfo: RenderInfo,
     dataMap: DataMap,
     xValueMap: XValueMap
-) {
+): boolean {
     // console.log("collectDataFromFrontmatterKey");
 
     let frontMatter = fileCache.frontmatter;
@@ -370,6 +373,7 @@ export function collectDataFromFrontmatterKey(
                 query.addNumTargets();
                 let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
                 addToDataMap(dataMap, xValue, query, retParse.value);
+                return true;
             }
         } else if (
             query.getParentTarget() &&
@@ -414,10 +418,13 @@ export function collectDataFromFrontmatterKey(
                         renderInfo.xDataset[query.getId()]
                     );
                     addToDataMap(dataMap, xValue, query, retParse.value);
+                    return true;
                 }
             }
         }
     }
+
+    return false;
 }
 
 export function collectDataFromWiki(
@@ -426,7 +433,7 @@ export function collectDataFromWiki(
     renderInfo: RenderInfo,
     dataMap: DataMap,
     xValueMap: XValueMap
-) {
+): boolean {
     let links = fileCache.links;
     if (!links) return;
 
@@ -444,8 +451,14 @@ export function collectDataFromWiki(
     if (linkExist) {
         linkValue = linkMeasure;
     }
-    let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
-    addToDataMap(dataMap, xValue, query, linkValue);
+
+    if (linkValue !== null) {
+        let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
+        addToDataMap(dataMap, xValue, query, linkValue);
+        return true;
+    }
+
+    return false;
 }
 
 export function collectDataFromInlineTag(
@@ -454,7 +467,7 @@ export function collectDataFromInlineTag(
     renderInfo: RenderInfo,
     dataMap: DataMap,
     xValueMap: XValueMap
-) {
+): boolean {
     // console.log(content);
     // Test this in Regex101
     // (^|\s)#tagName(\/[\w-]+)*(:(?<values>[\d\.\/-]*)[a-zA-Z]*)?([\\.!,\\?;~-]*)?(\s|$)
@@ -544,8 +557,13 @@ export function collectDataFromInlineTag(
     if (tagExist) {
         value = tagMeasure;
     }
-    let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
-    addToDataMap(dataMap, xValue, query, value);
+    if (value !== null) {
+        let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
+        addToDataMap(dataMap, xValue, query, value);
+        return true;
+    }
+
+    return false;
 }
 
 export function collectDataFromText(
@@ -554,7 +572,7 @@ export function collectDataFromText(
     renderInfo: RenderInfo,
     dataMap: DataMap,
     xValueMap: XValueMap
-) {
+): boolean {
     let strTextRegex = query.getTarget();
     // console.log(strTextRegex);
     let textRegex = new RegExp(strTextRegex, "gm");
@@ -604,7 +622,10 @@ export function collectDataFromText(
     if (textExist) {
         let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
         addToDataMap(dataMap, xValue, query, textMeasure);
+        return true;
     }
+
+    return false;
 }
 
 export function collectDataFromFileMeta(
@@ -614,7 +635,7 @@ export function collectDataFromFileMeta(
     renderInfo: RenderInfo,
     dataMap: DataMap,
     xValueMap: XValueMap
-) {
+): boolean {
     // console.log("collectDataFromFileMeta");
 
     if (file && file instanceof TFile) {
@@ -649,7 +670,11 @@ export function collectDataFromFileMeta(
             query.addNumTargets();
             addToDataMap(dataMap, xValue, query, numSentences);
         }
+
+        return true;
     }
+
+    return false;
 }
 
 export function collectDataFromDvField(
@@ -658,7 +683,7 @@ export function collectDataFromDvField(
     renderInfo: RenderInfo,
     dataMap: DataMap,
     xValueMap: XValueMap
-) {
+): boolean {
     let dvTarget = query.getTarget();
     if (query.getParentTarget()) {
         dvTarget = query.getParentTarget(); // use parent tag name for multiple values
@@ -752,8 +777,13 @@ export function collectDataFromDvField(
     if (tagExist) {
         value = tagMeasure;
     }
-    let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
-    addToDataMap(dataMap, xValue, query, value);
+    if (value !== null) {
+        let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
+        addToDataMap(dataMap, xValue, query, value);
+        return true;
+    }
+
+    return false;
 }
 
 export function collectDataFromTask(
@@ -762,7 +792,7 @@ export function collectDataFromTask(
     renderInfo: RenderInfo,
     dataMap: DataMap,
     xValueMap: XValueMap
-) {
+): boolean {
     let searchType = query.getType();
     // console.log(searchType);
 
@@ -827,5 +857,8 @@ export function collectDataFromTask(
     if (textExist) {
         let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
         addToDataMap(dataMap, xValue, query, textMeasure);
+        return true;
     }
+
+    return false;
 }

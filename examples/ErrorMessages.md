@@ -104,6 +104,26 @@ line:
     yAxisLabel: BP1, BP2, BP3
 ```
 
+## Input
+No valid X values, add "xDataset: 0" to fix it
+``` tracker
+searchType: fileMeta, dvField
+searchTarget: cDate, dataviewTarget
+folder: data
+line:
+    fillGap: true
+```
+
+No valid Y values!!!!!
+Use parameter `textValueMap` to map a text to a value.
+``` tracker
+searchType: frontmatter
+searchTarget: randchar
+folder: diary
+line:
+    fillGap: true
+```
+
 ## Output
 No output type provided, choose 'line', 'bar', or 'summary'.
 ``` tracker

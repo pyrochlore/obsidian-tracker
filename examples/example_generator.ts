@@ -44,8 +44,9 @@ for (
 
     // fontmatter
     let frontmatter = "---\n";
-    let weekday = curDate.weekday();
+
     // front matter tags
+    let weekday = curDate.weekday();
     if (weekday == 0 || weekday == 6) {
         frontmatter += "tags: " + "\n";
     } else {
@@ -118,6 +119,9 @@ for (
         indent = indent + "    ";
     }
     frontmatter += indent + "deep: " + deepValue.toFixed(1) + "\n";
+
+    // random character
+    frontmatter += "randchar: " + String.fromCharCode(65+indMood) + "\n";
 
     frontmatter += "---\n";
     content += frontmatter;
