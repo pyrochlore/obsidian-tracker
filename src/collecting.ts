@@ -43,14 +43,17 @@ export function getDateFromFrontmatter(
         if (helper.deepValue(frontMatter, query.getTarget())) {
             let strDate = helper.deepValue(frontMatter, query.getTarget());
 
-            strDate = helper.getDateStringFromInputString(
-                strDate,
-                renderInfo.dateFormatPrefix,
-                renderInfo.dateFormatSuffix
-            );
+            // We only support single value for now
+            if (typeof strDate === "string") {
+                strDate = helper.getDateStringFromInputString(
+                    strDate,
+                    renderInfo.dateFormatPrefix,
+                    renderInfo.dateFormatSuffix
+                );
 
-            date = helper.strToDate(strDate, renderInfo.dateFormat);
-            // console.log(date);
+                date = helper.strToDate(strDate, renderInfo.dateFormat);
+                // console.log(date);
+            }
         }
     }
 
