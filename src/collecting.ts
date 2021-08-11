@@ -12,6 +12,7 @@ import {
 import * as helper from "./helper";
 
 export function getDateFromFilename(file: TFile, renderInfo: RenderInfo) {
+    // console.log(`getDateFromFilename: ${file.name}`);
     let fileBaseName = file.basename;
 
     let dateString = helper.getDateStringFromInputString(
@@ -796,6 +797,7 @@ export function collectDataFromTask(
     dataMap: DataMap,
     xValueMap: XValueMap
 ): boolean {
+    // console.log("collectDataFromTask");
     let searchType = query.getType();
     // console.log(searchType);
 

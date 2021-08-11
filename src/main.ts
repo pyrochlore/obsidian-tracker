@@ -329,18 +329,19 @@ export default class Tracker extends Plugin {
                 // Get xValue from file if xDataset assigned
                 // if (renderInfo.xDataset !== null)
                 // let xDatasetId = renderInfo.xDataset;
+                // console.log(query);
 
                 // console.log("Search frontmatter tags");
                 if (fileCache && query.getType() === SearchType.Tag) {
                     // Add frontmatter tags, allow simple tag only
-                    processInfo.gotAnyValidYValue ||=
-                        collecting.collectDataFromFrontmatterTag(
-                            fileCache,
-                            query,
-                            renderInfo,
-                            dataMap,
-                            xValueMap
-                        );
+                    let gotAnyValue = collecting.collectDataFromFrontmatterTag(
+                        fileCache,
+                        query,
+                        renderInfo,
+                        dataMap,
+                        xValueMap
+                    );
+                    processInfo.gotAnyValidYValue ||= gotAnyValue;
                 } // Search frontmatter tags
 
                 // console.log("Search frontmatter keys");
@@ -349,75 +350,75 @@ export default class Tracker extends Plugin {
                     query.getType() === SearchType.Frontmatter &&
                     query.getTarget() !== "tags"
                 ) {
-                    processInfo.gotAnyValidYValue ||=
-                        collecting.collectDataFromFrontmatterKey(
-                            fileCache,
-                            query,
-                            renderInfo,
-                            dataMap,
-                            xValueMap
-                        );
+                    let gotAnyValue = collecting.collectDataFromFrontmatterKey(
+                        fileCache,
+                        query,
+                        renderInfo,
+                        dataMap,
+                        xValueMap
+                    );
+                    processInfo.gotAnyValidYValue ||= gotAnyValue;
                 } // console.log("Search frontmatter keys");
 
                 // console.log("Search wiki links");
                 if (fileCache && query.getType() === SearchType.Wiki) {
-                    processInfo.gotAnyValidYValue ||=
-                        collecting.collectDataFromWiki(
-                            fileCache,
-                            query,
-                            renderInfo,
-                            dataMap,
-                            xValueMap
-                        );
+                    let gotAnyValue = collecting.collectDataFromWiki(
+                        fileCache,
+                        query,
+                        renderInfo,
+                        dataMap,
+                        xValueMap
+                    );
+                    processInfo.gotAnyValidYValue ||= gotAnyValue;
                 }
 
                 // console.log("Search inline tags");
                 if (content && query.getType() === SearchType.Tag) {
-                    processInfo.gotAnyValidYValue ||=
-                        collecting.collectDataFromInlineTag(
-                            content,
-                            query,
-                            renderInfo,
-                            dataMap,
-                            xValueMap
-                        );
+                    let gotAnyValue = collecting.collectDataFromInlineTag(
+                        content,
+                        query,
+                        renderInfo,
+                        dataMap,
+                        xValueMap
+                    );
+                    processInfo.gotAnyValidYValue ||= gotAnyValue;
                 } // Search inline tags
 
                 // console.log("Search Text");
                 if (content && query.getType() === SearchType.Text) {
-                    processInfo.gotAnyValidYValue ||=
-                        collecting.collectDataFromText(
-                            content,
-                            query,
-                            renderInfo,
-                            dataMap,
-                            xValueMap
-                        );
+                    let gotAnyValue = collecting.collectDataFromText(
+                        content,
+                        query,
+                        renderInfo,
+                        dataMap,
+                        xValueMap
+                    );
+                    processInfo.gotAnyValidYValue ||= gotAnyValue;
                 } // Search text
 
                 // console.log("Search FileMeta");
                 if (query.getType() === SearchType.FileMeta) {
-                    processInfo.gotAnyValidYValue ||=
-                        collecting.collectDataFromFileMeta(
-                            file,
-                            content,
-                            query,
-                            renderInfo,
-                            dataMap,
-                            xValueMap
-                        );
+                    let gotAnyValue = collecting.collectDataFromFileMeta(
+                        file,
+                        content,
+                        query,
+                        renderInfo,
+                        dataMap,
+                        xValueMap
+                    );
+                    processInfo.gotAnyValidYValue ||= gotAnyValue;
                 } // Search FileMeta
 
                 // console.log("Search dvField");
                 if (content && query.getType() === SearchType.dvField) {
-                    processInfo.gotAnyValidYValue ||=
-                        collecting.collectDataFromDvField(
-                            content,
-                            query,
-                            renderInfo,
-                            dataMap,
-                            xValueMap
-                        );
+                    let gotAnyValue = collecting.collectDataFromDvField(
+                        content,
+                        query,
+                        renderInfo,
+                        dataMap,
+                        xValueMap
+                    );
+                    processInfo.gotAnyValidYValue ||= gotAnyValue;
                 } // search dvField
 
                 // console.log("Search Task");
@@ -427,14 +428,14 @@ export default class Tracker extends Plugin {
                         query.getType() === SearchType.TaskDone ||
                         query.getType() === SearchType.TaskNotDone)
                 ) {
-                    processInfo.gotAnyValidYValue ||=
-                        collecting.collectDataFromTask(
-                            content,
-                            query,
-                            renderInfo,
-                            dataMap,
-                            xValueMap
-                        );
+                    let gotAnyValue = collecting.collectDataFromTask(
+                        content,
+                        query,
+                        renderInfo,
+                        dataMap,
+                        xValueMap
+                    );
+                    processInfo.gotAnyValidYValue ||= gotAnyValue;
                 } // search Task
             });
             await Promise.all(loopQueryPromises);
