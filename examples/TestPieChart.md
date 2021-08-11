@@ -1,5 +1,12 @@
 # Test Pie Chart
-
+``` tracker
+searchType: task.done, task.notdone
+searchTarget: Say I love you, Say I love you
+folder: diary
+summary:
+    template: "How many days I said love: {{sum(dataset(0))::i}}\nHow many days I didn't say love: {{sum(dataset(1))::i}}"
+```
+<!--
 Expressions could be used in parameter `data`, `label`, and `extLabel`.
 
 ## Manual Input Data

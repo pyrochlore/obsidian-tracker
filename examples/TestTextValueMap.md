@@ -16,7 +16,7 @@ line:
     title: "Mood"
     yAxisLabel: Mood
     lineColor: "#d65d0e"
-	yAxisTickInterval: 1
-	yAxisTickLabelFormat: i
-	yMin: 0
+    yAxisTickInterval: 1
+    yAxisTickLabelFormat: i
+    yMin: 0
 ```

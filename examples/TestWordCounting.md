@@ -11,10 +11,10 @@ endDate: 2021-01-05
 datasetName: words, chars
 line:
     title: Word Counting
-	yAxisLocation: left, right
-	yAxisLabel: Words, Characters
-	lineColor: red, yellow
-	showLegend: true
+    yAxisLocation: left, right
+    yAxisLabel: Words, Characters
+    lineColor: red, yellow
+    showLegend: true
 ```
 
 ``` tracker

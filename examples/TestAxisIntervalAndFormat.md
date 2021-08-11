@@ -14,8 +14,8 @@ line:
     yAxisLabel: Weight
     yAxisUnit: kg
     lineColor: yellow
-	yAxisTickInterval: 5
-	yMin: 55
+    yAxisTickInterval: 5
+    yMin: 55
 ```
 
 Y values in time
@@ -28,12 +28,12 @@ datasetName: Clock-In, Clock-Out
 line:
     title: "Working Hours"
     yAxisLabel: "Time (24h)"
-	reverseYAxis: true
+    reverseYAxis: true
     lineColor: yellow, red
     showPoint: true
     yAxisTickInterval: 1h
-	yMin: 06:00
-	yMax: 23:00
+    yMin: 06:00
+    yMax: 23:00
 ```
 
 ## Y Axis Tick Label Format
@@ -49,9 +49,9 @@ line:
     yAxisLabel: Weight
     yAxisUnit: kg
     lineColor: yellow
-	yAxisTickInterval: 5
+    yAxisTickInterval: 5
     yAxisTickLabelFormat: .2f
-	yMin: 55
+    yMin: 55
 ```
 
 Y values in time
@@ -64,7 +64,7 @@ datasetName: Clock-In, Clock-Out
 line:
     title: "Working Hours"
     yAxisLabel: "Time (24h)"
-	reverseYAxis: true
+    reverseYAxis: true
     lineColor: yellow, red
     showPoint: true
     yMin: 05:00
@@ -101,5 +101,5 @@ line:
     yAxisUnit: kg
     lineColor: yellow
     xAxisTickInterval: 7d
-	xAxisTickLabelFormat: M-DD
+    xAxisTickLabelFormat: M-DD
 ```
