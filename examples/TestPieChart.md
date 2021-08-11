@@ -1,12 +1,5 @@
 # Test Pie Chart
-``` tracker
-searchType: task.done, task.notdone
-searchTarget: Say I love you, Say I love you
-folder: diary
-summary:
-    template: "How many days I said love: {{sum(dataset(0))::i}}\nHow many days I didn't say love: {{sum(dataset(1))::i}}"
-```
-<!--
+
 Expressions could be used in parameter `data`, `label`, and `extLabel`.
 
 ## Manual Input Data
@@ -48,7 +41,7 @@ searchTarget: Say I love you, Say I love you
 datasetName: Done, NotDone
 pie:
     title: Manual Input Data
-	label: '{{2/30*100}}%, {{4/30*100}}%, {{6/30*100}}%, {{8/30*100}}%, {{10/30*100}}%'
+    label: '{{2/30*100}}%, {{4/30*100}}%, {{6/30*100}}%, {{8/30*100}}%, {{10/30*100}}%'
     data: '2, 4, 6, 8, 10'
     dataColor: '#4daf4a,#377eb8,#ff7f00,#984ea3,#e41a1c'
     dataName: Data1, Data2, Data3, Data4, Data5
@@ -81,7 +74,7 @@ pie:
     title: Love is Action
     data: '{{sum(dataset(0))}},{{sum(dataset(1))}}'
     dataColor: '#4daf4a,#377eb8'
-	label: Say👍,Not Say💔
+    label: Say👍,Not Say💔
     ratioInnerRadius: 0.3
 ```
 
@@ -91,7 +84,7 @@ searchType: task.done, task.notdone
 searchTarget: Say I love you, Say I love you
 folder: diary
 summary:
-    template: "How many days I said love: {{sum(dataset(0))}}\nHow many days I didn't say love: {{sum(dataset(1))}}"
+    template: "How many days I said love: {{sum(dataset(0))::i}}\nHow many days I didn't say love: {{sum(dataset(1))::i}}"
 ```
 
 ## External Labels
@@ -119,6 +112,6 @@ pie:
     data: '0.5, 4, 6, 8, 10'
     dataColor: '#4daf4a,#377eb8,#ff7f00,#984ea3,#e41a1c'
     ratioInnerRadius: 0.4
-	hideLabelLessThan: 0.03
+    hideLabelLessThan: 0.03
     showExtLabelOnlyIfNoLabel: true
 ```
