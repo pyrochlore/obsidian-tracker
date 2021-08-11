@@ -14,6 +14,7 @@ import {
     XValueMap,
     DataMap,
     CustomDatasetInfo,
+    CollectingProcessInfo,
 } from "./data";
 import * as collecting from "./collecting";
 import {
@@ -155,13 +156,9 @@ export default class Tracker extends Plugin {
         // Use own settings panel for now
 
         // Collecting data to dataMap first
-        let minDate = window.moment("");
-        let maxDate = window.moment("");
-        let fileCounter = 0;
-
         let dataMap: DataMap = new Map(); // {strDate: [query: value, ...]}
-        let gotAnyValidXValue = false;
-        let gotAnyValidYValue = false;
+        let processInfo = new CollectingProcessInfo();
+
         // Collect data from files, each file has one data point for each query
         const loopFilePromises = files.map(async (file) => {
             // console.log(file.basename);
@@ -216,6 +213,7 @@ export default class Tracker extends Plugin {
             let skipThisFile = false;
             // console.log(renderInfo.xDataset);
             for (let xDatasetId of renderInfo.xDataset) {
+                // console.log(`xDatasetId: ${xDatasetId}`);
                 if (!xValueMap.has(xDatasetId)) {
                     let xDate = window.moment("");
                     if (xDatasetId === -1) {
@@ -294,23 +292,23 @@ export default class Tracker extends Plugin {
                     }
 
                     if (!skipThisFile) {
-                        gotAnyValidXValue ||= true;
+                        processInfo.gotAnyValidXValue ||= true;
                         xValueMap.set(
                             xDatasetId,
                             helper.dateToStr(xDate, renderInfo.dateFormat)
                         );
-                        fileCounter++;
+                        processInfo.fileCounter++;
 
                         // Get min/max date
-                        if (fileCounter == 1) {
-                            minDate = xDate.clone();
-                            maxDate = xDate.clone();
+                        if (processInfo.fileCounter == 1) {
+                            processInfo.minDate = xDate.clone();
+                            processInfo.maxDate = xDate.clone();
                         } else {
-                            if (xDate < minDate) {
-                                minDate = xDate.clone();
+                            if (xDate < processInfo.minDate) {
+                                processInfo.minDate = xDate.clone();
                             }
-                            if (xDate > maxDate) {
-                                maxDate = xDate.clone();
+                            if (xDate > processInfo.maxDate) {
+                                processInfo.maxDate = xDate.clone();
                             }
                         }
                     }
@@ -325,6 +323,7 @@ export default class Tracker extends Plugin {
             let yDatasetQueries = renderInfo.queries.filter((q) => {
                 return q.getType() !== SearchType.Table && !q.usedAsXDataset;
             });
+            // console.log(yDatasetQueries);
 
             const loopQueryPromises = yDatasetQueries.map(async (query) => {
                 // Get xValue from file if xDataset assigned
@@ -334,7 +333,7 @@ export default class Tracker extends Plugin {
                 // console.log("Search frontmatter tags");
                 if (fileCache && query.getType() === SearchType.Tag) {
                     // Add frontmatter tags, allow simple tag only
-                    gotAnyValidYValue ||=
+                    processInfo.gotAnyValidYValue ||=
                         collecting.collectDataFromFrontmatterTag(
                             fileCache,
                             query,
@@ -350,7 +349,7 @@ export default class Tracker extends Plugin {
                     query.getType() === SearchType.Frontmatter &&
                     query.getTarget() !== "tags"
                 ) {
-                    gotAnyValidYValue ||=
+                    processInfo.gotAnyValidYValue ||=
                         collecting.collectDataFromFrontmatterKey(
                             fileCache,
                             query,
@@ -362,58 +361,63 @@ export default class Tracker extends Plugin {
 
                 // console.log("Search wiki links");
                 if (fileCache && query.getType() === SearchType.Wiki) {
-                    gotAnyValidYValue ||= collecting.collectDataFromWiki(
-                        fileCache,
-                        query,
-                        renderInfo,
-                        dataMap,
-                        xValueMap
-                    );
+                    processInfo.gotAnyValidYValue ||=
+                        collecting.collectDataFromWiki(
+                            fileCache,
+                            query,
+                            renderInfo,
+                            dataMap,
+                            xValueMap
+                        );
                 }
 
                 // console.log("Search inline tags");
                 if (content && query.getType() === SearchType.Tag) {
-                    gotAnyValidYValue ||= collecting.collectDataFromInlineTag(
-                        content,
-                        query,
-                        renderInfo,
-                        dataMap,
-                        xValueMap
-                    );
+                    processInfo.gotAnyValidYValue ||=
+                        collecting.collectDataFromInlineTag(
+                            content,
+                            query,
+                            renderInfo,
+                            dataMap,
+                            xValueMap
+                        );
                 } // Search inline tags
 
                 // console.log("Search Text");
                 if (content && query.getType() === SearchType.Text) {
-                    gotAnyValidYValue ||= collecting.collectDataFromText(
-                        content,
-                        query,
-                        renderInfo,
-                        dataMap,
-                        xValueMap
-                    );
+                    processInfo.gotAnyValidYValue ||=
+                        collecting.collectDataFromText(
+                            content,
+                            query,
+                            renderInfo,
+                            dataMap,
+                            xValueMap
+                        );
                 } // Search text
 
                 // console.log("Search FileMeta");
                 if (query.getType() === SearchType.FileMeta) {
-                    gotAnyValidYValue ||= collecting.collectDataFromFileMeta(
-                        file,
-                        content,
-                        query,
-                        renderInfo,
-                        dataMap,
-                        xValueMap
-                    );
+                    processInfo.gotAnyValidYValue ||=
+                        collecting.collectDataFromFileMeta(
+                            file,
+                            content,
+                            query,
+                            renderInfo,
+                            dataMap,
+                            xValueMap
+                        );
                 } // Search FileMeta
 
                 // console.log("Search dvField");
                 if (content && query.getType() === SearchType.dvField) {
-                    gotAnyValidYValue ||= collecting.collectDataFromDvField(
-                        content,
-                        query,
-                        renderInfo,
-                        dataMap,
-                        xValueMap
-                    );
+                    processInfo.gotAnyValidYValue ||=
+                        collecting.collectDataFromDvField(
+                            content,
+                            query,
+                            renderInfo,
+                            dataMap,
+                            xValueMap
+                        );
                 } // search dvField
 
                 // console.log("Search Task");
@@ -423,13 +427,14 @@ export default class Tracker extends Plugin {
                         query.getType() === SearchType.TaskDone ||
                         query.getType() === SearchType.TaskNotDone)
                 ) {
-                    gotAnyValidYValue ||= collecting.collectDataFromTask(
-                        content,
-                        query,
-                        renderInfo,
-                        dataMap,
-                        xValueMap
-                    );
+                    processInfo.gotAnyValidYValue ||=
+                        collecting.collectDataFromTask(
+                            content,
+                            query,
+                            renderInfo,
+                            dataMap,
+                            xValueMap
+                        );
                 } // search Task
             });
             await Promise.all(loopQueryPromises);
@@ -438,261 +443,28 @@ export default class Tracker extends Plugin {
         // console.log(dataMap);
 
         // Collect data from a file, one file contains full dataset
-        let tableQueries = renderInfo.queries.filter(
-            (q) => q.getType() === SearchType.Table
-        );
-        // console.log(tableQueries);
-        // Separate queries by tables and xDatasets/yDatasets
-        let tables: Array<TableData> = [];
-        let tableFileNotFound = false;
-        for (let query of tableQueries) {
-            let filePath = query.getParentTarget();
-            let file = this.app.vault.getAbstractFileByPath(
-                normalizePath(filePath + ".md")
-            );
-            if (!file || !(file instanceof TFile)) {
-                tableFileNotFound = true;
-                break;
-            }
-
-            let tableIndex = query.getAccessor();
-            let isX = query.usedAsXDataset;
-
-            let table = tables.find(
-                (t) => t.filePath === filePath && t.tableIndex === tableIndex
-            );
-            if (table) {
-                if (isX) {
-                    table.xDataset = query;
-                } else {
-                    table.yDatasets.push(query);
-                }
-            } else {
-                let tableData = new TableData(filePath, tableIndex);
-                if (isX) {
-                    tableData.xDataset = query;
-                } else {
-                    tableData.yDatasets.push(query);
-                }
-                tables.push(tableData);
-            }
-        }
-        // console.log(tables);
-
-        if (tableFileNotFound) {
-            let errorMessage = "File containing tables not found";
-            renderErrorMessage(canvas, errorMessage);
+        await this.collectDataFromTable(dataMap, renderInfo, processInfo);
+        if (processInfo.errorMessage) {
+            renderErrorMessage(canvas, processInfo.errorMessage);
             el.appendChild(canvas);
             return;
         }
 
-        for (let tableData of tables) {
-            //extract xDataset from query
-            let xDatasetQuery = tableData.xDataset;
-            if (!xDatasetQuery) {
-                // missing xDataset
-                continue;
-            }
-            let yDatasetQueries = tableData.yDatasets;
-            let filePath = xDatasetQuery.getParentTarget();
-            let tableIndex = xDatasetQuery.getAccessor();
-
-            // Get table text
-            let textTable = "";
-            filePath = filePath + ".md";
-            let file = this.app.vault.getAbstractFileByPath(
-                normalizePath(filePath)
-            );
-            if (file && file instanceof TFile) {
-                fileCounter++;
-                let content = await this.app.vault.adapter.read(file.path);
-                // console.log(content);
-
-                // Test this in Regex101
-                // This is a not-so-strict table selector
-                // ((\r?\n){2}|^)([^\r\n]*\|[^\r\n]*(\r?\n)?)+(?=(\r?\n){2}|$)
-                let strMDTableRegex =
-                    "((\\r?\\n){2}|^)([^\\r\\n]*\\|[^\\r\\n]*(\\r?\\n)?)+(?=(\\r?\\n){2}|$)";
-                // console.log(strMDTableRegex);
-                let mdTableRegex = new RegExp(strMDTableRegex, "gm");
-                let match;
-                let indTable = 0;
-
-                while ((match = mdTableRegex.exec(content))) {
-                    // console.log(match);
-                    if (indTable === tableIndex) {
-                        textTable = match[0];
-                        break;
-                    }
-                    indTable++;
-                }
-            } else {
-                // file not exists
-                continue;
-            }
-            // console.log(textTable);
-
-            let tableLines = textTable.split(/\r?\n/);
-            tableLines = tableLines.filter((line) => {
-                return line !== "";
-            });
-            let numColumns = 0;
-            let numDataRows = 0;
-            // console.log(tableLines);
-
-            // Make sure it is a valid table first
-            if (tableLines.length >= 2) {
-                // Must have header and separator line
-                let headerLine = tableLines.shift().trim();
-                headerLine = helper.trimByChar(headerLine, "|");
-                let headerSplitted = headerLine.split("|");
-                numColumns = headerSplitted.length;
-
-                let sepLine = tableLines.shift().trim();
-                sepLine = helper.trimByChar(sepLine, "|");
-                let spepLineSplitted = sepLine.split("|");
-                for (let col of spepLineSplitted) {
-                    if (!col.includes("-")) {
-                        break; // Not a valid sep
-                    }
-                }
-
-                numDataRows = tableLines.length;
-            }
-
-            if (numDataRows == 0) continue;
-
-            // get x data
-            let columnXDataset = xDatasetQuery.getAccessor(1);
-            if (columnXDataset >= numColumns) continue;
-            let xValues = [];
-
-            let indLine = 0;
-            for (let tableLine of tableLines) {
-                let dataRow = helper.trimByChar(tableLine.trim(), "|");
-                let dataRowSplitted = dataRow.split("|");
-                if (columnXDataset < dataRowSplitted.length) {
-                    let data = dataRowSplitted[columnXDataset].trim();
-                    let date = helper.strToDate(data, renderInfo.dateFormat);
-
-                    if (date.isValid()) {
-                        xValues.push(date);
-
-                        if (!minDate.isValid() && !maxDate.isValid()) {
-                            minDate = date.clone();
-                            maxDate = date.clone();
-                        } else {
-                            if (date < minDate) {
-                                minDate = date.clone();
-                            }
-                            if (date > maxDate) {
-                                maxDate = date.clone();
-                            }
-                        }
-                    } else {
-                        xValues.push(null);
-                    }
-                } else {
-                    xValues.push(null);
-                }
-                indLine++;
-            }
-            // console.log(xValues);
-
-            if (
-                xValues.every((v) => {
-                    return v === null;
-                })
-            ) {
-                let errorMessage = "No valid X value found in table";
-                renderErrorMessage(canvas, errorMessage);
-                el.appendChild(canvas);
-                return;
-            } else {
-                gotAnyValidXValue ||= true;
-            }
-
-            // get y data
-            for (let yDatasetQuery of yDatasetQueries) {
-                let columnOfInterest = yDatasetQuery.getAccessor(1);
-                // console.log(`columnOfInterest: ${columnOfInterest}, numColumns: ${numColumns}`);
-                if (columnOfInterest >= numColumns) continue;
-
-                let indLine = 0;
-                for (let tableLine of tableLines) {
-                    let dataRow = helper.trimByChar(tableLine.trim(), "|");
-                    let dataRowSplitted = dataRow.split("|");
-                    if (columnOfInterest < dataRowSplitted.length) {
-                        let data = dataRowSplitted[columnOfInterest].trim();
-                        let splitted = data.split(yDatasetQuery.getSeparator());
-                        if (!splitted) continue;
-                        if (splitted.length === 1) {
-                            let value = parseFloat(splitted[0]);
-                            if (Number.isNumber(value)) {
-                                if (
-                                    indLine < xValues.length &&
-                                    xValues[indLine]
-                                ) {
-                                    gotAnyValidYValue ||= true;
-                                    collecting.addToDataMap(
-                                        dataMap,
-                                        helper.dateToStr(
-                                            xValues[indLine],
-                                            renderInfo.dateFormat
-                                        ),
-                                        yDatasetQuery,
-                                        value
-                                    );
-                                }
-                            }
-                        } else if (
-                            splitted.length > yDatasetQuery.getAccessor(2) &&
-                            yDatasetQuery.getAccessor(2) >= 0
-                        ) {
-                            let value = null;
-                            let splittedPart =
-                                splitted[yDatasetQuery.getAccessor(2)].trim();
-                            value = parseFloat(splittedPart);
-                            if (Number.isNumber(value)) {
-                                if (
-                                    indLine < xValues.length &&
-                                    xValues[indLine]
-                                ) {
-                                    gotAnyValidYValue ||= true;
-                                    collecting.addToDataMap(
-                                        dataMap,
-                                        helper.dateToStr(
-                                            xValues[indLine],
-                                            renderInfo.dateFormat
-                                        ),
-                                        yDatasetQuery,
-                                        value
-                                    );
-                                }
-                            }
-                        }
-                    }
-
-                    indLine++;
-                } // Loop over tableLines
-            }
-        }
-
-        if (!gotAnyValidXValue) {
+        if (!processInfo.gotAnyValidXValue) {
             let errorMessage = "No valid X values found in notes";
             renderErrorMessage(canvas, errorMessage);
             el.appendChild(canvas);
             return;
         }
 
-        if (!gotAnyValidYValue) {
+        if (!processInfo.gotAnyValidYValue) {
             let errorMessage = "No valid Y values found in notes";
             renderErrorMessage(canvas, errorMessage);
             el.appendChild(canvas);
             return;
         }
 
-        if (fileCounter === 0) {
+        if (processInfo.fileCounter === 0) {
             let errorMessage =
                 "No notes found under the given search condition";
             renderErrorMessage(canvas, errorMessage);
@@ -704,7 +476,7 @@ export default class Tracker extends Plugin {
         // console.log(dataMap);
 
         // Check date range
-        if (!minDate.isValid() || !maxDate.isValid()) {
+        if (!processInfo.minDate.isValid() || !processInfo.maxDate.isValid()) {
             let errorMessage = "Invalid date range";
             renderErrorMessage(canvas, errorMessage);
             el.appendChild(canvas);
@@ -712,14 +484,14 @@ export default class Tracker extends Plugin {
         }
         if (renderInfo.startDate === null && renderInfo.endDate === null) {
             // No date arguments
-            renderInfo.startDate = minDate.clone();
-            renderInfo.endDate = maxDate.clone();
+            renderInfo.startDate = processInfo.minDate.clone();
+            renderInfo.endDate = processInfo.maxDate.clone();
         } else if (
             renderInfo.startDate !== null &&
             renderInfo.endDate === null
         ) {
-            if (renderInfo.startDate < maxDate) {
-                renderInfo.endDate = maxDate.clone();
+            if (renderInfo.startDate < processInfo.maxDate) {
+                renderInfo.endDate = processInfo.maxDate.clone();
             } else {
                 let errorMessage = "Invalid date range";
                 renderErrorMessage(canvas, errorMessage);
@@ -730,8 +502,8 @@ export default class Tracker extends Plugin {
             renderInfo.endDate !== null &&
             renderInfo.startDate === null
         ) {
-            if (renderInfo.endDate > minDate) {
-                renderInfo.startDate = minDate.clone();
+            if (renderInfo.endDate > processInfo.minDate) {
+                renderInfo.startDate = processInfo.minDate.clone();
             } else {
                 let errorMessage = "Invalid date range";
                 renderErrorMessage(canvas, errorMessage);
@@ -741,9 +513,10 @@ export default class Tracker extends Plugin {
         } else {
             // startDate and endDate are valid
             if (
-                (renderInfo.startDate < minDate &&
-                    renderInfo.endDate < minDate) ||
-                (renderInfo.startDate > maxDate && renderInfo.endDate > maxDate)
+                (renderInfo.startDate < processInfo.minDate &&
+                    renderInfo.endDate < processInfo.minDate) ||
+                (renderInfo.startDate > processInfo.maxDate &&
+                    renderInfo.endDate > processInfo.maxDate)
             ) {
                 let errorMessage = "Invalid date range";
                 renderErrorMessage(canvas, errorMessage);
@@ -822,6 +595,254 @@ export default class Tracker extends Plugin {
         }
 
         el.appendChild(canvas);
+    }
+
+    // TODO: remove this.app and move to collecting.ts
+    async collectDataFromTable(
+        dataMap: DataMap,
+        renderInfo: RenderInfo,
+        processInfo: CollectingProcessInfo
+    ) {
+        // console.log("collectDataFromTable");
+
+        let tableQueries = renderInfo.queries.filter(
+            (q) => q.getType() === SearchType.Table
+        );
+        // console.log(tableQueries);
+        // Separate queries by tables and xDatasets/yDatasets
+        let tables: Array<TableData> = [];
+        let tableFileNotFound = false;
+        for (let query of tableQueries) {
+            let filePath = query.getParentTarget();
+            let file = this.app.vault.getAbstractFileByPath(
+                normalizePath(filePath + ".md")
+            );
+            if (!file || !(file instanceof TFile)) {
+                tableFileNotFound = true;
+                break;
+            }
+
+            let tableIndex = query.getAccessor();
+            let isX = query.usedAsXDataset;
+
+            let table = tables.find(
+                (t) => t.filePath === filePath && t.tableIndex === tableIndex
+            );
+            if (table) {
+                if (isX) {
+                    table.xDataset = query;
+                } else {
+                    table.yDatasets.push(query);
+                }
+            } else {
+                let tableData = new TableData(filePath, tableIndex);
+                if (isX) {
+                    tableData.xDataset = query;
+                } else {
+                    tableData.yDatasets.push(query);
+                }
+                tables.push(tableData);
+            }
+        }
+        // console.log(tables);
+
+        if (tableFileNotFound) {
+            let errorMessage = "File containing tables not found";
+            return errorMessage;
+        }
+
+        for (let tableData of tables) {
+            //extract xDataset from query
+            let xDatasetQuery = tableData.xDataset;
+            if (!xDatasetQuery) {
+                // missing xDataset
+                continue;
+            }
+            let yDatasetQueries = tableData.yDatasets;
+            let filePath = xDatasetQuery.getParentTarget();
+            let tableIndex = xDatasetQuery.getAccessor();
+
+            // Get table text
+            let textTable = "";
+            filePath = filePath + ".md";
+            let file = this.app.vault.getAbstractFileByPath(
+                normalizePath(filePath)
+            );
+            if (file && file instanceof TFile) {
+                processInfo.fileCounter++;
+                let content = await this.app.vault.adapter.read(file.path);
+                // console.log(content);
+
+                // Test this in Regex101
+                // This is a not-so-strict table selector
+                // ((\r?\n){2}|^)([^\r\n]*\|[^\r\n]*(\r?\n)?)+(?=(\r?\n){2}|$)
+                let strMDTableRegex =
+                    "((\\r?\\n){2}|^)([^\\r\\n]*\\|[^\\r\\n]*(\\r?\\n)?)+(?=(\\r?\\n){2}|$)";
+                // console.log(strMDTableRegex);
+                let mdTableRegex = new RegExp(strMDTableRegex, "gm");
+                let match;
+                let indTable = 0;
+
+                while ((match = mdTableRegex.exec(content))) {
+                    // console.log(match);
+                    if (indTable === tableIndex) {
+                        textTable = match[0];
+                        break;
+                    }
+                    indTable++;
+                }
+            } else {
+                // file not exists
+                continue;
+            }
+            // console.log(textTable);
+
+            let tableLines = textTable.split(/\r?\n/);
+            tableLines = tableLines.filter((line) => {
+                return line !== "";
+            });
+            let numColumns = 0;
+            let numDataRows = 0;
+            // console.log(tableLines);
+
+            // Make sure it is a valid table first
+            if (tableLines.length >= 2) {
+                // Must have header and separator line
+                let headerLine = tableLines.shift().trim();
+                headerLine = helper.trimByChar(headerLine, "|");
+                let headerSplitted = headerLine.split("|");
+                numColumns = headerSplitted.length;
+
+                let sepLine = tableLines.shift().trim();
+                sepLine = helper.trimByChar(sepLine, "|");
+                let spepLineSplitted = sepLine.split("|");
+                for (let col of spepLineSplitted) {
+                    if (!col.includes("-")) {
+                        break; // Not a valid sep
+                    }
+                }
+
+                numDataRows = tableLines.length;
+            }
+
+            if (numDataRows == 0) continue;
+
+            // get x data
+            let columnXDataset = xDatasetQuery.getAccessor(1);
+            if (columnXDataset >= numColumns) continue;
+            let xValues = [];
+
+            let indLine = 0;
+            for (let tableLine of tableLines) {
+                let dataRow = helper.trimByChar(tableLine.trim(), "|");
+                let dataRowSplitted = dataRow.split("|");
+                if (columnXDataset < dataRowSplitted.length) {
+                    let data = dataRowSplitted[columnXDataset].trim();
+                    let date = helper.strToDate(data, renderInfo.dateFormat);
+
+                    if (date.isValid()) {
+                        xValues.push(date);
+
+                        if (
+                            !processInfo.minDate.isValid() &&
+                            !processInfo.maxDate.isValid()
+                        ) {
+                            processInfo.minDate = date.clone();
+                            processInfo.maxDate = date.clone();
+                        } else {
+                            if (date < processInfo.minDate) {
+                                processInfo.minDate = date.clone();
+                            }
+                            if (date > processInfo.maxDate) {
+                                processInfo.maxDate = date.clone();
+                            }
+                        }
+                    } else {
+                        xValues.push(null);
+                    }
+                } else {
+                    xValues.push(null);
+                }
+                indLine++;
+            }
+            // console.log(xValues);
+
+            if (
+                xValues.every((v) => {
+                    return v === null;
+                })
+            ) {
+                let errorMessage = "No valid X value found in table";
+                return errorMessage;
+            } else {
+                processInfo.gotAnyValidXValue ||= true;
+            }
+
+            // get y data
+            for (let yDatasetQuery of yDatasetQueries) {
+                let columnOfInterest = yDatasetQuery.getAccessor(1);
+                // console.log(`columnOfInterest: ${columnOfInterest}, numColumns: ${numColumns}`);
+                if (columnOfInterest >= numColumns) continue;
+
+                let indLine = 0;
+                for (let tableLine of tableLines) {
+                    let dataRow = helper.trimByChar(tableLine.trim(), "|");
+                    let dataRowSplitted = dataRow.split("|");
+                    if (columnOfInterest < dataRowSplitted.length) {
+                        let data = dataRowSplitted[columnOfInterest].trim();
+                        let splitted = data.split(yDatasetQuery.getSeparator());
+                        if (!splitted) continue;
+                        if (splitted.length === 1) {
+                            let value = parseFloat(splitted[0]);
+                            if (Number.isNumber(value)) {
+                                if (
+                                    indLine < xValues.length &&
+                                    xValues[indLine]
+                                ) {
+                                    processInfo.gotAnyValidYValue ||= true;
+                                    collecting.addToDataMap(
+                                        dataMap,
+                                        helper.dateToStr(
+                                            xValues[indLine],
+                                            renderInfo.dateFormat
+                                        ),
+                                        yDatasetQuery,
+                                        value
+                                    );
+                                }
+                            }
+                        } else if (
+                            splitted.length > yDatasetQuery.getAccessor(2) &&
+                            yDatasetQuery.getAccessor(2) >= 0
+                        ) {
+                            let value = null;
+                            let splittedPart =
+                                splitted[yDatasetQuery.getAccessor(2)].trim();
+                            value = parseFloat(splittedPart);
+                            if (Number.isNumber(value)) {
+                                if (
+                                    indLine < xValues.length &&
+                                    xValues[indLine]
+                                ) {
+                                    processInfo.gotAnyValidYValue ||= true;
+                                    collecting.addToDataMap(
+                                        dataMap,
+                                        helper.dateToStr(
+                                            xValues[indLine],
+                                            renderInfo.dateFormat
+                                        ),
+                                        yDatasetQuery,
+                                        value
+                                    );
+                                }
+                            }
+                        }
+                    }
+
+                    indLine++;
+                } // Loop over tableLines
+            }
+        }
     }
 
     getEditor(): Editor {

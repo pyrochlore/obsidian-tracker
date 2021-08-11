@@ -999,5 +999,23 @@ export class TableData {
     }
 }
 
+export class CollectingProcessInfo {
+    fileCounter: number;
+    errorMessage: string;
+    minDate: Moment;
+    maxDate: Moment;
+    gotAnyValidXValue: boolean;
+    gotAnyValidYValue: boolean;
+
+    constructor() {
+        this.fileCounter = 0;
+        this.errorMessage = "";
+        this.minDate = window.moment(""); // invalid date
+        this.maxDate = window.moment(""); // invalid date
+        this.gotAnyValidXValue = false;
+        this.gotAnyValidYValue = false;
+    }
+}
+
 export type XValueMap = Map<number, string>;
 export type DataMap = Map<string, Array<QueryValuePair>>;
