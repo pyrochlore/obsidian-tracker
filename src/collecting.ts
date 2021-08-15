@@ -10,8 +10,12 @@ import {
     ValueType,
 } from "./data";
 import * as helper from "./helper";
+import { Moment } from "moment";
 
-export function getDateFromFilename(file: TFile, renderInfo: RenderInfo) {
+export function getDateFromFilename(
+    file: TFile,
+    renderInfo: RenderInfo
+): Moment {
     // console.log(`getDateFromFilename: ${file.name}`);
     let fileBaseName = file.basename;
 
@@ -34,7 +38,7 @@ export function getDateFromFrontmatter(
     fileCache: CachedMetadata,
     query: Query,
     renderInfo: RenderInfo
-) {
+): Moment {
     // console.log("getDateFromFrontmatter");
 
     let date = window.moment("");
@@ -68,7 +72,7 @@ export function getDateFromTag(
     content: string,
     query: Query,
     renderInfo: RenderInfo
-) {
+): Moment {
     // console.log("getDateFromTag");
 
     let date = window.moment("");
@@ -223,7 +227,8 @@ export function getDateFromFileMeta(
         } else if (target === "mDate") {
             let mtime = file.stat.mtime;
             date = helper.getDateFromUnixTime(mtime, renderInfo.dateFormat);
-        } else if (target === "size") {
+        } else if (target === "name") {
+            date = getDateFromFilename(file, renderInfo);
         }
     }
 
@@ -649,33 +654,70 @@ export function collectDataFromFileMeta(
         let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
 
         if (target === "cDate") {
-            let ctime = file.stat.ctime;
+            let ctime = file.stat.ctime; // number in seconds
             query.valueType = ValueType.Date;
             query.addNumTargets();
             addToDataMap(dataMap, xValue, query, ctime);
+            return true;
         } else if (target === "mDate") {
-            let mtime = file.stat.mtime;
+            let mtime = file.stat.mtime; // number in seconds
             query.valueType = ValueType.Date;
             query.addNumTargets();
             addToDataMap(dataMap, xValue, query, mtime);
+            return true;
         } else if (target === "size") {
-            let size = file.stat.size;
+            let size = file.stat.size; // number in
             query.addNumTargets();
             addToDataMap(dataMap, xValue, query, size);
+            return true;
         } else if (target === "numWords") {
             let numWords = helper.getWordCount(content);
             addToDataMap(dataMap, xValue, query, numWords);
+            return true;
         } else if (target === "numChars") {
             let numChars = helper.getCharacterCount(content);
             query.addNumTargets();
             addToDataMap(dataMap, xValue, query, numChars);
+            return true;
         } else if (target === "numSentences") {
             let numSentences = helper.getSentenceCount(content);
             query.addNumTargets();
             addToDataMap(dataMap, xValue, query, numSentences);
-        }
+            return true;
+        } else if (target === "name") {
+            let targetMeasure = 0.0;
+            let targetExist = false;
+            let retParse = helper.parseFloatFromAny(
+                file.basename,
+                renderInfo.textValueMap
+            );
+            if (retParse.value !== null) {
+                if (retParse.type === ValueType.Time) {
+                    targetMeasure = retParse.value;
+                    targetExist = true;
+                    query.valueType = ValueType.Time;
+                    query.addNumTargets();
+                } else {
+                    if (
+                        !renderInfo.ignoreZeroValue[query.getId()] ||
+                        retParse.value !== 0
+                    ) {
+                        targetMeasure += retParse.value;
+                        targetExist = true;
+                        query.addNumTargets();
+                    }
+                }
+            }
 
-        return true;
+            let value = null;
+            if (targetExist) {
+                value = targetMeasure;
+            }
+            if (value !== null) {
+                addToDataMap(dataMap, xValue, query, value);
+                return true;
+            }
+        }
     }
 
     return false;
