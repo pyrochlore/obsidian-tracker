@@ -43,6 +43,8 @@ function validateSearchType(searchType: string): boolean {
         searchType.toLowerCase() === "text" ||
         searchType.toLowerCase() === "frontmatter" ||
         searchType.toLowerCase() === "wiki" ||
+        searchType.toLowerCase() === "wiki.link" ||
+        searchType.toLowerCase() === "wiki.display" ||
         searchType.toLowerCase() === "dvfield" ||
         searchType.toLowerCase() === "table" ||
         searchType.toLowerCase() === "filemeta" ||
@@ -961,6 +963,12 @@ export function getRenderInfoFromYaml(
                 break;
             case "wiki":
                 searchType.push(SearchType.Wiki);
+                break;
+            case "wiki.link":
+                searchType.push(SearchType.WikiLink);
+                break;
+            case "wiki.display":
+                searchType.push(SearchType.WikiDisplay);
                 break;
             case "text":
                 searchType.push(SearchType.Text);

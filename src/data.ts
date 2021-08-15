@@ -4,6 +4,8 @@ export enum SearchType {
     Tag,
     Frontmatter,
     Wiki,
+    WikiLink,
+    WikiDisplay,
     Text,
     dvField,
     Table,

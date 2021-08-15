@@ -17,6 +17,8 @@ export function getDateFromFilename(
     renderInfo: RenderInfo
 ): Moment {
     // console.log(`getDateFromFilename: ${file.name}`);
+    // Get date form fileBaseName
+
     let fileBaseName = file.basename;
 
     let dateString = helper.getDateStringFromInputString(
@@ -33,13 +35,14 @@ export function getDateFromFilename(
 }
 
 // Not support multiple targets
-// May merge with collectDataFromFrontmatterKey
+// key-value type
 export function getDateFromFrontmatter(
     fileCache: CachedMetadata,
     query: Query,
     renderInfo: RenderInfo
 ): Moment {
     // console.log("getDateFromFrontmatter");
+    // Get date from 'frontMatterKey: date'
 
     let date = window.moment("");
 
@@ -65,15 +68,16 @@ export function getDateFromFrontmatter(
     return date;
 }
 
-// Inline tags only
 // Not support multiple targets
-// May merge with collectDataFromInlineTag
+// key-value type
 export function getDateFromTag(
     content: string,
     query: Query,
     renderInfo: RenderInfo
 ): Moment {
     // console.log("getDateFromTag");
+    // Get date from '#tagName: date'
+    // Inline value-attached tag only
 
     let date = window.moment("");
 
@@ -85,7 +89,7 @@ export function getDateFromTag(
     let strHashtagRegex =
         "(^|\\s)#" +
         tagName +
-        "(\\/[\\w-]+)*(:(?<values>[\\d\\.\\/-]*)[a-zA-Z]*)?([\\.!,\\?;~-]*)?(\\s|$)";
+        "(\\/[\\w-]+)*(:(?<value>[\\d\\.\\/-]*)[a-zA-Z]*)?([\\.!,\\?;~-]*)?(\\s|$)";
     // console.log(strHashtagRegex);
     let hashTagRegex = new RegExp(strHashtagRegex, "gm");
     let match;
@@ -93,9 +97,9 @@ export function getDateFromTag(
         // console.log(match);
         if (
             typeof match.groups !== "undefined" &&
-            typeof match.groups.values !== "undefined"
+            typeof match.groups.value !== "undefined"
         ) {
-            let strDate = match.groups.values;
+            let strDate = match.groups.value;
 
             strDate = helper.getDateStringFromInputString(
                 strDate,
@@ -115,12 +119,14 @@ export function getDateFromTag(
 
 // Not support multiple targets
 // May merge with colllectDataFromText
+// regex-value type
 export function getDateFromText(
     content: string,
     query: Query,
     renderInfo: RenderInfo
-) {
+): Moment {
     // console.log("getDateFromText");
+    // Get date from text using regex with value
 
     let date = window.moment("");
 
@@ -154,13 +160,14 @@ export function getDateFromText(
 }
 
 // Not support multiple targets
-// May merge with colllectDataFromDvField
+// key-value type
 export function getDateFromDvField(
     content: string,
     query: Query,
     renderInfo: RenderInfo
-) {
+): Moment {
     // console.log("getDateFromDvField");
+    // Get date form 'targetName:: date'
 
     let date = window.moment("");
 
@@ -178,7 +185,7 @@ export function getDateFromDvField(
     let strHashtagRegex =
         "(^| |\\t)\\*{0,2}" +
         dvTarget +
-        "\\*{0,2}(::[ |\\t]*(?<values>[\\d\\.\\/\\-\\w,@; \\t:]*))(\\r\\?\\n|\\r|$)";
+        "\\*{0,2}(::[ |\\t]*(?<value>[\\d\\.\\/\\-\\w,@; \\t:]*))(\\r\\?\\n|\\r|$)";
     // console.log(strHashtagRegex);
     let hashTagRegex = new RegExp(strHashtagRegex, "gm");
     let match;
@@ -186,9 +193,9 @@ export function getDateFromDvField(
         // console.log(match);
         if (
             typeof match.groups !== "undefined" &&
-            typeof match.groups.values !== "undefined"
+            typeof match.groups.value !== "undefined"
         ) {
-            let strDate = match.groups.values.trim();
+            let strDate = match.groups.value.trim();
 
             strDate = helper.getDateStringFromInputString(
                 strDate,
@@ -207,13 +214,86 @@ export function getDateFromDvField(
 }
 
 // Not support multiple targets
-// May merge with colllectDataFromFileMeta
+// regex-value type
+export function getDateFromWiki(
+    fileCache: CachedMetadata,
+    query: Query,
+    renderInfo: RenderInfo
+): Moment {
+    //console.log("getDateFromWiki");
+    // Get date from '[[regex with value]]'
+
+    let date = window.moment("");
+
+    let links = fileCache.links;
+    if (!links) return date;
+
+    let searchTarget = query.getTarget();
+    let searchType = query.getType();
+
+    for (let link of links) {
+        if (!link) continue;
+
+        let wikiText = "";
+        if (searchType === SearchType.Wiki) {
+            if (link.displayText) {
+                wikiText = link.displayText;
+            } else {
+                wikiText = link.link;
+            }
+        } else if (searchType === SearchType.WikiLink) {
+            // wiki.link point to a file name
+            // a colon is not allowed be in file name
+            wikiText = link.link;
+        } else if (searchType === SearchType.WikiDisplay) {
+            if (link.displayText) {
+                wikiText = link.displayText;
+            }
+        } else {
+            if (link.displayText) {
+                wikiText = link.displayText;
+            } else {
+                wikiText = link.link;
+            }
+        }
+        wikiText = wikiText.trim();
+
+        //
+        let strRegex = "^" + searchTarget + "$";
+        let regex = new RegExp(strRegex, "gm");
+        let match;
+        while ((match = regex.exec(wikiText))) {
+            // console.log(match);
+            if (
+                typeof match.groups !== "undefined" &&
+                typeof match.groups.value !== "undefined"
+            ) {
+                let strDate = match.groups.value.trim();
+                // console.log(strDate);
+
+                strDate = helper.getDateStringFromInputString(
+                    strDate,
+                    renderInfo.dateFormatPrefix,
+                    renderInfo.dateFormatSuffix
+                );
+
+                date = helper.strToDate(strDate, renderInfo.dateFormat);
+                if (date.isValid()) {
+                    break;
+                }
+            }
+        }
+    }
+}
+
+// Not support multiple targets
 export function getDateFromFileMeta(
     file: TFile,
     query: Query,
     renderInfo: RenderInfo
-) {
+): Moment {
     // console.log("getDateFromFileMeta");
+    // Get date from cDate, mDate or baseFileName
 
     let date = window.moment("");
 
@@ -222,10 +302,10 @@ export function getDateFromFileMeta(
 
         let target = query.getTarget();
         if (target === "cDate") {
-            let ctime = file.stat.ctime;
+            let ctime = file.stat.ctime; // unix time
             date = helper.getDateFromUnixTime(ctime, renderInfo.dateFormat);
         } else if (target === "mDate") {
-            let mtime = file.stat.mtime;
+            let mtime = file.stat.mtime; // unix time
             date = helper.getDateFromUnixTime(mtime, renderInfo.dateFormat);
         } else if (target === "name") {
             date = getDateFromFilename(file, renderInfo);
@@ -237,13 +317,14 @@ export function getDateFromFileMeta(
 }
 
 // Not support multiple targets
-// May merge with colllectDataFromTask
+// regex-value type
 export function getDateFromTask(
     content: string,
     query: Query,
     renderInfo: RenderInfo
-) {
+): Moment {
     // console.log("getDateFromTask");
+    // Get date from '- [ ] regex with value' or '- [x] regex with value'
 
     let date = window.moment("");
     let searchType = query.getType();
@@ -304,6 +385,7 @@ export function addToDataMap(
     }
 }
 
+// no value
 export function collectDataFromFrontmatterTag(
     fileCache: CachedMetadata,
     query: Query,
@@ -315,6 +397,7 @@ export function collectDataFromFrontmatterTag(
     // console.log(query);
     // console.log(dataMap);
     // console.log(xValueMap);
+
     let frontMatter = fileCache.frontmatter;
     let frontMatterTags: string[] = [];
     if (frontMatter && frontMatter.tags) {
@@ -358,6 +441,7 @@ export function collectDataFromFrontmatterTag(
     return false;
 }
 
+// key-value
 export function collectDataFromFrontmatterKey(
     fileCache: CachedMetadata,
     query: Query,
@@ -436,6 +520,7 @@ export function collectDataFromFrontmatterKey(
     return false;
 }
 
+// regex-value
 export function collectDataFromWiki(
     fileCache: CachedMetadata,
     query: Query,
@@ -449,7 +534,7 @@ export function collectDataFromWiki(
     let linkMeasure = 0.0;
     let linkExist = false;
     for (let link of links) {
-        if (link.link === query.getTarget()) {
+        if (link.link.startsWith(query.getTarget())) {
             linkExist = true;
             linkMeasure = linkMeasure + renderInfo.constValue[query.getId()];
             query.addNumTargets();
@@ -470,6 +555,7 @@ export function collectDataFromWiki(
     return false;
 }
 
+// key-value
 export function collectDataFromInlineTag(
     content: string,
     query: Query,
@@ -654,13 +740,13 @@ export function collectDataFromFileMeta(
         let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
 
         if (target === "cDate") {
-            let ctime = file.stat.ctime; // number in seconds
+            let ctime = file.stat.ctime; // unix time
             query.valueType = ValueType.Date;
             query.addNumTargets();
             addToDataMap(dataMap, xValue, query, ctime);
             return true;
         } else if (target === "mDate") {
-            let mtime = file.stat.mtime; // number in seconds
+            let mtime = file.stat.mtime; // unix time
             query.valueType = ValueType.Date;
             query.addNumTargets();
             addToDataMap(dataMap, xValue, query, mtime);
@@ -723,6 +809,7 @@ export function collectDataFromFileMeta(
     return false;
 }
 
+// key-value
 export function collectDataFromDvField(
     content: string,
     query: Query,
@@ -832,6 +919,7 @@ export function collectDataFromDvField(
     return false;
 }
 
+// regex-value
 export function collectDataFromTask(
     content: string,
     query: Query,

@@ -170,7 +170,9 @@ export default class Tracker extends Plugin {
                 if (
                     type === SearchType.Frontmatter ||
                     type === SearchType.Tag ||
-                    type === SearchType.Wiki
+                    type === SearchType.Wiki ||
+                    type === SearchType.WikiLink ||
+                    type === SearchType.WikiDisplay
                 ) {
                     return true;
                 }
@@ -361,7 +363,12 @@ export default class Tracker extends Plugin {
                 } // console.log("Search frontmatter keys");
 
                 // console.log("Search wiki links");
-                if (fileCache && query.getType() === SearchType.Wiki) {
+                if (
+                    fileCache &&
+                    (query.getType() === SearchType.Wiki ||
+                        query.getType() === SearchType.WikiLink ||
+                        query.getType() === SearchType.WikiDisplay)
+                ) {
                     let gotAnyValue = collecting.collectDataFromWiki(
                         fileCache,
                         query,
