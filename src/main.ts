@@ -655,8 +655,8 @@ export default class Tracker extends Plugin {
         // console.log(tables);
 
         if (tableFileNotFound) {
-            let errorMessage = "File containing tables not found";
-            return errorMessage;
+            processInfo.errorMessage = "File containing tables not found";
+            return;
         }
 
         for (let tableData of tables) {
@@ -780,8 +780,8 @@ export default class Tracker extends Plugin {
                     return v === null;
                 })
             ) {
-                let errorMessage = "No valid X value found in table";
-                return errorMessage;
+                processInfo.errorMessage = "No valid X value found in table";
+                return;
             } else {
                 processInfo.gotAnyValidXValue ||= true;
             }
