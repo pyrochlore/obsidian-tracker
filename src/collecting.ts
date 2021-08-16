@@ -312,76 +312,10 @@ export function addToDataMap(
     }
 }
 
+// Helper function
+// Accept multiple values using custom separators
 // regex with value --> extract value
 // regex without value --> count occurrencies
-function extractDataUsingRegexWithSingleValue(
-    text: string,
-    strRegex: string,
-    query: Query,
-    dataMap: DataMap,
-    xValueMap: XValueMap,
-    renderInfo: RenderInfo
-): boolean {
-    let textRegex = new RegExp(strRegex, "gm");
-    let match;
-    let measure = 0.0;
-    let extracted = false;
-    while ((match = textRegex.exec(text))) {
-        // console.log(match);
-        // match[0] whole match
-        if (!renderInfo.ignoreAttachedValue[query.getId()]) {
-            if (
-                typeof match.groups !== "undefined" &&
-                typeof match.groups.value !== "undefined"
-            ) {
-                // set as null for missing value if it is valued-tag
-                let retParse = helper.parseFloatFromAny(
-                    match.groups.value,
-                    renderInfo.textValueMap
-                );
-                // console.log(value);
-                if (retParse.value !== null) {
-                    if (retParse.type === ValueType.Time) {
-                        measure = retParse.value;
-                        extracted = true;
-                        query.valueType = ValueType.Time;
-                        query.addNumTargets();
-                    } else {
-                        if (
-                            !renderInfo.ignoreZeroValue[query.getId()] ||
-                            retParse.value !== 0
-                        ) {
-                            measure += retParse.value;
-                            extracted = true;
-                            query.addNumTargets();
-                        }
-                    }
-                }
-            } else {
-                // no named groups, count occurrencies
-                // console.log("count occurrencies");
-                measure += renderInfo.constValue[query.getId()];
-                extracted = true;
-                query.addNumTargets();
-            }
-        } else {
-            // force to count occurrencies
-            // console.log("count occurrencies");
-            measure += renderInfo.constValue[query.getId()];
-            extracted = true;
-            query.addNumTargets();
-        }
-    }
-
-    if (extracted) {
-        let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
-        addToDataMap(dataMap, xValue, query, measure);
-        return true;
-    }
-
-    return false;
-}
-
 function extractDataUsingRegexWithMultipleValues(
     text: string,
     strRegex: string,
@@ -488,7 +422,7 @@ function extractDataUsingRegexWithMultipleValues(
     return false;
 }
 
-// no value, count occurrences only
+// No value, count occurrences only
 export function collectDataFromFrontmatterTag(
     fileCache: CachedMetadata,
     query: Query,
@@ -666,7 +600,7 @@ export function collectDataFromWiki(
 
         let strRegex = "^" + searchTarget + "$";
 
-        let extracted = extractDataUsingRegexWithSingleValue(
+        let extracted = extractDataUsingRegexWithMultipleValues(
             wikiText,
             strRegex,
             query,
@@ -881,7 +815,7 @@ export function collectDataFromTask(
     }
     // console.log(strRegex);
 
-    return extractDataUsingRegexWithSingleValue(
+    return extractDataUsingRegexWithMultipleValues(
         content,
         strRegex,
         query,
