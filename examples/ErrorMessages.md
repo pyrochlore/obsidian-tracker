@@ -8,21 +8,24 @@ searchTarget: "\"
 line:
 ```
 
-'searchTypes' wrong, 'searchType' right
+'searchTypes' --> typo
+'searchType' --> correct
 ``` tracker
 searchTypes: tag
 searchTarget: weight
 line:
 ```
 
-'searchTargets' wrong, searchTarget right
+'searchTargets' --> typo
+'searchTarget' --> correct
 ``` tracker
 searchType: tag
 searchTargets: weight
 line:
 ```
 
-'lines' wrong, 'line' right
+'lines' --> typo
+'line' --> correct
 ``` tracker
 searchType: tag
 searchTarget: weight
@@ -36,15 +39,15 @@ searchTarget: weight
 line:
 ```
 
-## Target
-Missing search target
+## searchTarget
+Missing searchTarget
 ``` tracker
 searchType: tag
 searchTarget: 
 line:
 ```
 
-Invalid search target, '#' is not allowed
+Invalid searchTarget, '#' is a special character to YAML, use single quotes to wrap it
 ``` tracker
 searchType: tag
 searchTarget: #weight 
@@ -60,7 +63,16 @@ folder: abc
 line:
 ```
 
-## Date
+## Files
+No file in folder
+``` tracker
+searchType: tag
+searchTarget: weight
+folder: empty
+line:
+```
+
+## X Values (Date)
 The format of startDate or endDate does not match dateFormat in the plugin settings. Change the settings or Add a dateFormat parameter into YAML.
 ``` tracker
 searchType: tag
@@ -104,7 +116,7 @@ line:
     yAxisLabel: BP1, BP2, BP3
 ```
 
-## Input
+## Y Values
 No valid X values, add "xDataset: 0" to fix it
 ``` tracker
 searchType: fileMeta, dvField

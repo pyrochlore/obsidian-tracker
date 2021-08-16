@@ -150,7 +150,7 @@ export default class Tracker extends Plugin {
         }
         if (files.length === 0) {
             return this.renderErrorMessage(
-                "No files found in folder",
+                "No markdown files found in folder",
                 canvas,
                 el
             );
