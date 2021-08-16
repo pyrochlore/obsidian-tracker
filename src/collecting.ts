@@ -397,82 +397,91 @@ function extractDataUsingRegexWithMultipleValues(
     while ((match = regex.exec(text))) {
         // console.log(match);
         if (!renderInfo.ignoreAttachedValue[query.getId()]) {
-        }
-
-        if (
-            typeof match.groups !== "undefined" &&
-            typeof match.groups.values !== "undefined"
-        ) {
-            let values = match.groups.values.trim();
-            // console.log(values);
-            // console.log(query.getSeparator());
-            let splitted = values.split(query.getSeparator());
-            // console.log(splitted);
-            if (!splitted) continue;
-            if (splitted.length === 1) {
-                // console.log("single-value");
-                let toParse = splitted[0].trim();
-                // console.log(toParse);
-                let retParse = helper.parseFloatFromAny(
-                    toParse,
-                    renderInfo.textValueMap
-                );
-                if (retParse.value !== null) {
-                    if (retParse.type === ValueType.Time) {
-                        measure = retParse.value;
-                        extracted = true;
-                        query.valueType = ValueType.Time;
-                        query.addNumTargets();
-                    } else {
-                        if (
-                            !renderInfo.ignoreZeroValue[query.getId()] ||
-                            retParse.value !== 0
-                        ) {
+            if (
+                typeof match.groups !== "undefined" &&
+                typeof match.groups.values !== "undefined"
+            ) {
+                let values = match.groups.values.trim();
+                // console.log(values);
+                // console.log(query.getSeparator());
+                let splitted = values.split(query.getSeparator());
+                // console.log(splitted);
+                if (!splitted) continue;
+                if (splitted.length === 1) {
+                    // console.log("single-value");
+                    let toParse = splitted[0].trim();
+                    // console.log(toParse);
+                    let retParse = helper.parseFloatFromAny(
+                        toParse,
+                        renderInfo.textValueMap
+                    );
+                    if (retParse.value !== null) {
+                        if (retParse.type === ValueType.Time) {
+                            measure = retParse.value;
+                            extracted = true;
+                            query.valueType = ValueType.Time;
+                            query.addNumTargets();
+                        } else {
+                            if (
+                                !renderInfo.ignoreZeroValue[query.getId()] ||
+                                retParse.value !== 0
+                            ) {
+                                measure += retParse.value;
+                                extracted = true;
+                                query.addNumTargets();
+                            }
+                        }
+                    }
+                } else if (
+                    splitted.length > query.getAccessor() &&
+                    query.getAccessor() >= 0
+                ) {
+                    // TODO: it's not efficent to retrieve one value at a time, enhance this
+                    // console.log("multiple-values");
+                    let toParse = splitted[query.getAccessor()].trim();
+                    let retParse = helper.parseFloatFromAny(
+                        toParse,
+                        renderInfo.textValueMap
+                    );
+                    //console.log(retParse);
+                    if (retParse.value !== null) {
+                        if (retParse.type === ValueType.Time) {
+                            measure = retParse.value;
+                            extracted = true;
+                            query.valueType = ValueType.Time;
+                            query.addNumTargets();
+                        } else {
                             measure += retParse.value;
                             extracted = true;
                             query.addNumTargets();
                         }
                     }
+                } else {
+                    // no named groups, count occurrencies
+                    // console.log("count occurrencies");
+                    measure += renderInfo.constValue[query.getId()];
+                    extracted = true;
+                    query.addNumTargets();
                 }
-            } else if (
-                splitted.length > query.getAccessor() &&
-                query.getAccessor() >= 0
-            ) {
-                // TODO: it's not efficent to retrieve one value at a time, enhance this
-                // console.log("multiple-values");
-                let toParse = splitted[query.getAccessor()].trim();
-                let retParse = helper.parseFloatFromAny(
-                    toParse,
-                    renderInfo.textValueMap
-                );
-                //console.log(retParse);
-                if (retParse.value !== null) {
-                    if (retParse.type === ValueType.Time) {
-                        measure = retParse.value;
-                        extracted = true;
-                        query.valueType = ValueType.Time;
-                        query.addNumTargets();
-                    } else {
-                        measure += retParse.value;
-                        extracted = true;
-                        query.addNumTargets();
-                    }
-                }
+            } else {
+                // no named groups, count occurrencies
+                // console.log("count occurrencies");
+                measure += renderInfo.constValue[query.getId()];
+                extracted = true;
+                query.addNumTargets();
             }
         } else {
+            // force to count occurrencies
+            // console.log("count occurrencies");
             measure += renderInfo.constValue[query.getId()];
             extracted = true;
             query.addNumTargets();
         }
     }
 
-    let value = null;
     if (extracted) {
-        value = measure;
-    }
-    if (value !== null) {
         let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
-        addToDataMap(dataMap, xValue, query, value);
+        addToDataMap(dataMap, xValue, query, measure);
         return true;
     }
 
