@@ -1,7 +1,7 @@
 import { App, CachedMetadata, Plugin } from "obsidian";
 import { MarkdownPostProcessorContext, MarkdownView, Editor } from "obsidian";
 import { TFile, TFolder, normalizePath } from "obsidian";
-import { render, renderErrorMessage } from "./rendering";
+import * as rendering from "./rendering";
 import { getRenderInfoFromYaml } from "./parsing";
 import {
     Datasets,
@@ -79,6 +79,12 @@ export default class Tracker extends Plugin {
         await this.saveData(this.settings);
     }
 
+    renderErrorMessage(message: string, canvas: HTMLElement, el: HTMLElement) {
+        rendering.renderErrorMessage(canvas, message);
+        el.appendChild(canvas);
+        return;
+    }
+
     onunload() {
         console.log("unloading obsidian-tracker plugin");
     }
@@ -130,10 +136,7 @@ export default class Tracker extends Plugin {
         let yamlText = source.trim();
         let retRenderInfo = getRenderInfoFromYaml(yamlText, this);
         if (typeof retRenderInfo === "string") {
-            let errorMessage = retRenderInfo;
-            renderErrorMessage(canvas, errorMessage);
-            el.appendChild(canvas);
-            return;
+            return this.renderErrorMessage(retRenderInfo, canvas, el);
         }
         let renderInfo = retRenderInfo as RenderInfo;
         // console.log(renderInfo);
@@ -143,10 +146,14 @@ export default class Tracker extends Plugin {
         try {
             files = this.getFiles(renderInfo.folder);
         } catch (e) {
-            let errorMessage = e.message;
-            renderErrorMessage(canvas, errorMessage);
-            el.appendChild(canvas);
-            return;
+            return this.renderErrorMessage(e.message, canvas, el);
+        }
+        if (files.length === 0) {
+            return this.renderErrorMessage(
+                "No files found in folder",
+                canvas,
+                el
+            );
         }
         // console.log(files);
 
@@ -453,31 +460,35 @@ export default class Tracker extends Plugin {
         // Collect data from a file, one file contains full dataset
         await this.collectDataFromTable(dataMap, renderInfo, processInfo);
         if (processInfo.errorMessage) {
-            renderErrorMessage(canvas, processInfo.errorMessage);
-            el.appendChild(canvas);
-            return;
+            return this.renderErrorMessage(
+                processInfo.errorMessage,
+                canvas,
+                el
+            );
         }
 
         if (!processInfo.gotAnyValidXValue) {
-            let errorMessage = "No valid X values found in notes";
-            renderErrorMessage(canvas, errorMessage);
-            el.appendChild(canvas);
-            return;
+            return this.renderErrorMessage(
+                "No valid X values found in notes",
+                canvas,
+                el
+            );
         }
 
         if (!processInfo.gotAnyValidYValue) {
-            let errorMessage = "No valid Y values found in notes";
-            renderErrorMessage(canvas, errorMessage);
-            el.appendChild(canvas);
-            return;
+            return this.renderErrorMessage(
+                "No valid Y values found in notes",
+                canvas,
+                el
+            );
         }
 
         if (processInfo.fileCounter === 0) {
-            let errorMessage =
-                "No notes found under the given search condition";
-            renderErrorMessage(canvas, errorMessage);
-            el.appendChild(canvas);
-            return;
+            return this.renderErrorMessage(
+                "No notes found under the given search condition",
+                canvas,
+                el
+            );
         }
         // console.log(minDate);
         // console.log(maxDate);
@@ -485,10 +496,7 @@ export default class Tracker extends Plugin {
 
         // Check date range
         if (!processInfo.minDate.isValid() || !processInfo.maxDate.isValid()) {
-            let errorMessage = "Invalid date range";
-            renderErrorMessage(canvas, errorMessage);
-            el.appendChild(canvas);
-            return;
+            return this.renderErrorMessage("Invalid date range", canvas, el);
         }
         if (renderInfo.startDate === null && renderInfo.endDate === null) {
             // No date arguments
@@ -501,10 +509,11 @@ export default class Tracker extends Plugin {
             if (renderInfo.startDate < processInfo.maxDate) {
                 renderInfo.endDate = processInfo.maxDate.clone();
             } else {
-                let errorMessage = "Invalid date range";
-                renderErrorMessage(canvas, errorMessage);
-                el.appendChild(canvas);
-                return;
+                return this.renderErrorMessage(
+                    "Invalid date range",
+                    canvas,
+                    el
+                );
             }
         } else if (
             renderInfo.endDate !== null &&
@@ -513,10 +522,11 @@ export default class Tracker extends Plugin {
             if (renderInfo.endDate > processInfo.minDate) {
                 renderInfo.startDate = processInfo.minDate.clone();
             } else {
-                let errorMessage = "Invalid date range";
-                renderErrorMessage(canvas, errorMessage);
-                el.appendChild(canvas);
-                return;
+                return this.renderErrorMessage(
+                    "Invalid date range",
+                    canvas,
+                    el
+                );
             }
         } else {
             // startDate and endDate are valid
@@ -526,10 +536,11 @@ export default class Tracker extends Plugin {
                 (renderInfo.startDate > processInfo.maxDate &&
                     renderInfo.endDate > processInfo.maxDate)
             ) {
-                let errorMessage = "Invalid date range";
-                renderErrorMessage(canvas, errorMessage);
-                el.appendChild(canvas);
-                return;
+                return this.renderErrorMessage(
+                    "Invalid date range",
+                    canvas,
+                    el
+                );
             }
         }
         // console.log(renderInfo.startDate);
@@ -594,12 +605,9 @@ export default class Tracker extends Plugin {
         renderInfo.datasets = datasets;
         // console.log(renderInfo.datasets);
 
-        let result = render(canvas, renderInfo);
-        if (typeof result === "string") {
-            let errorMessage = result;
-            renderErrorMessage(canvas, errorMessage);
-            el.appendChild(canvas);
-            return;
+        let retRender = rendering.render(canvas, renderInfo);
+        if (typeof retRender === "string") {
+            return this.renderErrorMessage(retRender, canvas, el);
         }
 
         el.appendChild(canvas);
