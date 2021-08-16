@@ -566,6 +566,10 @@ export function collectDataFromWiki(
     let searchTarget = query.getTarget();
     let searchType = query.getType();
 
+    let textToSearch = "";
+    let strRegex = searchTarget;
+
+    // Prepare textToSearch
     for (let link of links) {
         if (!link) continue;
 
@@ -593,20 +597,17 @@ export function collectDataFromWiki(
         }
         wikiText = wikiText.trim();
 
-        let strRegex = searchTarget;
-
-        let extracted = extractDataUsingRegexWithMultipleValues(
-            wikiText,
-            strRegex,
-            query,
-            dataMap,
-            xValueMap,
-            renderInfo
-        );
-        if (extracted) return true;
+        textToSearch += wikiText + "\n";
     }
 
-    return false;
+    return extractDataUsingRegexWithMultipleValues(
+        textToSearch,
+        strRegex,
+        query,
+        dataMap,
+        xValueMap,
+        renderInfo
+    );
 }
 
 // In form 'key: value', name group 'value' from plugin, not from users
