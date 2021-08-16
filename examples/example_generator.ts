@@ -165,7 +165,7 @@ for (
 
     // clean up
     let tagCleanUp = "#clean-up";
-    let doCleanUp = randomIntFromInterval(0, 30);
+    let doCleanUp = randomIntFromInterval(0, 5);
     if (doCleanUp === 1) {
         content += tagCleanUp + "\n";
     }

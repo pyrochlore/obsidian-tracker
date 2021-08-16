@@ -10,4 +10,5 @@ line:
     title: PushUp
     yAxisLabel: Count
     lineColor: "#d65d0e"
+	yAxisTickInterval: 2
 ```

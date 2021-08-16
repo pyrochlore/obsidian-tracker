@@ -178,14 +178,14 @@ The reference date of the relative date input is 'today' (The current date of yo
 - 0d ==> today
 - -1d ==> yesterday
 - -1w ==> last week
-- -1m ==> last month
+- -1M ==> last month
 - -1y ==> last year
 
 ``` tracker
 searchType: tag
 searchTarget: weight
 folder: diary
-startDate: -1m
+startDate: -1M
 endDate: 0d
 line:
     title: Weight Log

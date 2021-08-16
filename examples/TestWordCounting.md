@@ -37,7 +37,7 @@ summary:
     template: 'Total number of characters: {{sum()}}'
 ```
 
-## Word counts of any notes
+## Word counts of all notes
 Use file creation dates as x values then sum the counts up
 ``` tracker
 searchType: fileMeta
