@@ -175,7 +175,7 @@ export function getDateFromDvField(
 
     // Test this in Regex101
     // remember '\s' includes new line
-    // (^| |\t)\*{0,2}dvTarget\*{0,2}(::[ |\t]*(?<values>[\d\.\/\-\w,@; \t:]*))(\r?\n|\r|$)
+    // (^| |\t)\*{0,2}dvTarget\*{0,2}(::[ |\t]*(?<value>[\d\.\/\-\w,@; \t:]*))(\r?\n|\r|$)
     let strRegex =
         "(^| |\\t)\\*{0,2}" +
         dvTarget +
@@ -324,6 +324,8 @@ function extractDataUsingRegexWithMultipleValues(
     xValueMap: XValueMap,
     renderInfo: RenderInfo
 ): boolean {
+    // console.log("extractDataUsingRegexWithMultipleValues");
+
     let regex = new RegExp(strRegex, "gm");
     let match;
     let measure = 0.0;
@@ -333,9 +335,9 @@ function extractDataUsingRegexWithMultipleValues(
         if (!renderInfo.ignoreAttachedValue[query.getId()]) {
             if (
                 typeof match.groups !== "undefined" &&
-                typeof match.groups.values !== "undefined"
+                typeof match.groups.value !== "undefined"
             ) {
-                let values = match.groups.values.trim();
+                let values = match.groups.value.trim();
                 // console.log(values);
                 // console.log(query.getSeparator());
                 let splitted = values.split(query.getSeparator());
@@ -370,7 +372,6 @@ function extractDataUsingRegexWithMultipleValues(
                     splitted.length > query.getAccessor() &&
                     query.getAccessor() >= 0
                 ) {
-                    // TODO: it's not efficent to retrieve one value at a time, enhance this
                     // console.log("multiple-values");
                     let toParse = splitted[query.getAccessor()].trim();
                     let retParse = helper.parseFloatFromAny(
@@ -390,12 +391,6 @@ function extractDataUsingRegexWithMultipleValues(
                             query.addNumTargets();
                         }
                     }
-                } else {
-                    // no named groups, count occurrencies
-                    // console.log("count occurrencies");
-                    measure += renderInfo.constValue[query.getId()];
-                    extracted = true;
-                    query.addNumTargets();
                 }
             } else {
                 // no named groups, count occurrencies
@@ -406,7 +401,7 @@ function extractDataUsingRegexWithMultipleValues(
             }
         } else {
             // force to count occurrencies
-            // console.log("count occurrencies");
+            // console.log("forced count occurrencies");
             measure += renderInfo.constValue[query.getId()];
             extracted = true;
             query.addNumTargets();
@@ -624,7 +619,7 @@ export function collectDataFromInlineTag(
 ): boolean {
     // console.log(content);
     // Test this in Regex101
-    // (^|\s)#tagName(\/[\w-]+)*(:(?<values>[\d\.\/-]*)[a-zA-Z]*)?([\\.!,\\?;~-]*)?(\s|$)
+    // (^|\s)#tagName(\/[\w-]+)*(:(?<value>[\d\.\/-]*)[a-zA-Z]*)?([\\.!,\\?;~-]*)?(\s|$)
     let tagName = query.getTarget();
     if (query.getParentTarget()) {
         tagName = query.getParentTarget(); // use parent tag name for multiple values
@@ -635,7 +630,7 @@ export function collectDataFromInlineTag(
     let strRegex =
         "(^|\\s)#" +
         tagName +
-        "(\\/[\\w-]+)*(:(?<values>[\\d\\.\\/-]*)[a-zA-Z]*)?([\\.!,\\?;~-]*)?(\\s|$)";
+        "(\\/[\\w-]+)*(:(?<value>[\\d\\.\\/-]*)[a-zA-Z]*)?([\\.!,\\?;~-]*)?(\\s|$)";
     // console.log(strRegex);
 
     return extractDataUsingRegexWithMultipleValues(
@@ -656,8 +651,10 @@ export function collectDataFromText(
     dataMap: DataMap,
     xValueMap: XValueMap
 ): boolean {
+    // console.log("collectDataFromText");
+
     let strRegex = query.getTarget();
-    // console.log(strTextRegex);
+    // console.log(strRegex);
 
     return extractDataUsingRegexWithMultipleValues(
         content,
@@ -773,11 +770,11 @@ export function collectDataFromDvField(
 
     // Test this in Regex101
     // remember '\s' includes new line
-    // (^| |\t)\*{0,2}dvTarget\*{0,2}(::[ |\t]*(?<values>[\d\.\/\-\w,@; \t:]*))(\r?\n|\r|$)
+    // (^| |\t)\*{0,2}dvTarget\*{0,2}(::[ |\t]*(?<value>[\d\.\/\-\w,@; \t:]*))(\r?\n|\r|$)
     let strRegex =
         "(^| |\\t)\\*{0,2}" +
         dvTarget +
-        "\\*{0,2}(::[ |\\t]*(?<values>[\\d\\.\\/\\-\\w,@; \\t:]*))(\\r\\?\\n|\\r|$)";
+        "\\*{0,2}(::[ |\\t]*(?<value>[\\d\\.\\/\\-\\w,@; \\t:]*))(\\r\\?\\n|\\r|$)";
     // console.log(strRegex);
 
     return extractDataUsingRegexWithMultipleValues(
