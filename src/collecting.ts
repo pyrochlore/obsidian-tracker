@@ -12,6 +12,7 @@ import {
 import * as helper from "./helper";
 import { Moment } from "moment";
 
+// fileBaseName is a string contains dateFormat only
 export function getDateFromFilename(
     file: TFile,
     renderInfo: RenderInfo
@@ -35,7 +36,7 @@ export function getDateFromFilename(
 }
 
 // Not support multiple targets
-// key-value type
+// In form 'key: value', target used to identify 'key'
 export function getDateFromFrontmatter(
     fileCache: CachedMetadata,
     query: Query,
@@ -68,8 +69,46 @@ export function getDateFromFrontmatter(
     return date;
 }
 
+// helper function
+// strRegex must have name group 'value'
+// Named group 'value' could be provided from users or plugin
+function extractDateUsingRegexWithValue(
+    text: string,
+    strRegex: string,
+    renderInfo: RenderInfo
+) {
+    let date = window.moment("");
+
+    let regex = new RegExp(strRegex, "gm");
+    let match;
+    while ((match = regex.exec(text))) {
+        // console.log(match);
+        if (
+            typeof match.groups !== "undefined" &&
+            typeof match.groups.value !== "undefined"
+        ) {
+            // must have group name 'value'
+            let strDate = match.groups.value.trim();
+            // console.log(strDate);
+
+            strDate = helper.getDateStringFromInputString(
+                strDate,
+                renderInfo.dateFormatPrefix,
+                renderInfo.dateFormatSuffix
+            );
+
+            date = helper.strToDate(strDate, renderInfo.dateFormat);
+            if (date.isValid()) {
+                return date;
+            }
+        }
+    }
+
+    return date;
+}
+
 // Not support multiple targets
-// key-value type
+// In form 'key: value', name group 'value' from plugin, not from users
 export function getDateFromTag(
     content: string,
     query: Query,
@@ -86,40 +125,18 @@ export function getDateFromTag(
         tagName = query.getParentTarget(); // use parent tag name for multiple values
     }
     // console.log(tagName);
-    let strHashtagRegex =
+
+    let strRegex =
         "(^|\\s)#" +
         tagName +
         "(\\/[\\w-]+)*(:(?<value>[\\d\\.\\/-]*)[a-zA-Z]*)?([\\.!,\\?;~-]*)?(\\s|$)";
-    // console.log(strHashtagRegex);
-    let hashTagRegex = new RegExp(strHashtagRegex, "gm");
-    let match;
-    while ((match = hashTagRegex.exec(content))) {
-        // console.log(match);
-        if (
-            typeof match.groups !== "undefined" &&
-            typeof match.groups.value !== "undefined"
-        ) {
-            let strDate = match.groups.value;
+    // console.log(strRegex);
 
-            strDate = helper.getDateStringFromInputString(
-                strDate,
-                renderInfo.dateFormatPrefix,
-                renderInfo.dateFormatSuffix
-            );
-
-            date = helper.strToDate(strDate, renderInfo.dateFormat);
-            if (date.isValid()) {
-                break;
-            }
-        }
-    }
-    // console.log(date);
-    return date;
+    return extractDateUsingRegexWithValue(content, strRegex, renderInfo);
 }
 
 // Not support multiple targets
-// May merge with colllectDataFromText
-// regex-value type
+// In form 'regex with value', name group 'value' from users
 export function getDateFromText(
     content: string,
     query: Query,
@@ -130,37 +147,14 @@ export function getDateFromText(
 
     let date = window.moment("");
 
-    let strTextRegex = query.getTarget();
+    let strRegex = query.getTarget();
     // console.log(strTextRegex);
-    let textRegex = new RegExp(strTextRegex, "gm");
-    let match;
-    while ((match = textRegex.exec(content))) {
-        // console.log(match);
-        if (
-            typeof match.groups !== "undefined" &&
-            typeof match.groups.value !== "undefined"
-        ) {
-            let strDate = match.groups.value.trim();
-            // console.log(strDate);
 
-            strDate = helper.getDateStringFromInputString(
-                strDate,
-                renderInfo.dateFormatPrefix,
-                renderInfo.dateFormatSuffix
-            );
-
-            date = helper.strToDate(strDate, renderInfo.dateFormat);
-            if (date.isValid()) {
-                break;
-            }
-        }
-    }
-    // console.log(date);
-    return date;
+    return extractDateUsingRegexWithValue(content, strRegex, renderInfo);
 }
 
 // Not support multiple targets
-// key-value type
+// In form 'key::value', named group 'value' from plugin
 export function getDateFromDvField(
     content: string,
     query: Query,
@@ -182,39 +176,17 @@ export function getDateFromDvField(
     // Test this in Regex101
     // remember '\s' includes new line
     // (^| |\t)\*{0,2}dvTarget\*{0,2}(::[ |\t]*(?<values>[\d\.\/\-\w,@; \t:]*))(\r?\n|\r|$)
-    let strHashtagRegex =
+    let strRegex =
         "(^| |\\t)\\*{0,2}" +
         dvTarget +
         "\\*{0,2}(::[ |\\t]*(?<value>[\\d\\.\\/\\-\\w,@; \\t:]*))(\\r\\?\\n|\\r|$)";
-    // console.log(strHashtagRegex);
-    let hashTagRegex = new RegExp(strHashtagRegex, "gm");
-    let match;
-    while ((match = hashTagRegex.exec(content))) {
-        // console.log(match);
-        if (
-            typeof match.groups !== "undefined" &&
-            typeof match.groups.value !== "undefined"
-        ) {
-            let strDate = match.groups.value.trim();
+    // console.log(strRegex);
 
-            strDate = helper.getDateStringFromInputString(
-                strDate,
-                renderInfo.dateFormatPrefix,
-                renderInfo.dateFormatSuffix
-            );
-
-            date = helper.strToDate(strDate, renderInfo.dateFormat);
-            if (date.isValid()) {
-                break;
-            }
-        }
-    }
-    // console.log(date);
-    return date;
+    return extractDateUsingRegexWithValue(content, strRegex, renderInfo);
 }
 
 // Not support multiple targets
-// regex-value type
+// In form 'regex with value', name group 'value' from users
 export function getDateFromWiki(
     fileCache: CachedMetadata,
     query: Query,
@@ -258,32 +230,11 @@ export function getDateFromWiki(
         }
         wikiText = wikiText.trim();
 
-        //
         let strRegex = "^" + searchTarget + "$";
-        let regex = new RegExp(strRegex, "gm");
-        let match;
-        while ((match = regex.exec(wikiText))) {
-            // console.log(match);
-            if (
-                typeof match.groups !== "undefined" &&
-                typeof match.groups.value !== "undefined"
-            ) {
-                let strDate = match.groups.value.trim();
-                // console.log(strDate);
-
-                strDate = helper.getDateStringFromInputString(
-                    strDate,
-                    renderInfo.dateFormatPrefix,
-                    renderInfo.dateFormatSuffix
-                );
-
-                date = helper.strToDate(strDate, renderInfo.dateFormat);
-                if (date.isValid()) {
-                    break;
-                }
-            }
-        }
+        return extractDateUsingRegexWithValue(wikiText, strRegex, renderInfo);
     }
+
+    return date;
 }
 
 // Not support multiple targets
@@ -317,7 +268,7 @@ export function getDateFromFileMeta(
 }
 
 // Not support multiple targets
-// regex-value type
+// In form 'regex with value', name group 'value' from users
 export function getDateFromTask(
     content: string,
     query: Query,
@@ -330,43 +281,19 @@ export function getDateFromTask(
     let searchType = query.getType();
     // console.log(searchType);
 
-    let strTextRegex = query.getTarget();
+    let strRegex = query.getTarget();
     if (searchType === SearchType.Task) {
-        strTextRegex = "\\[[\\sx]\\]\\s" + strTextRegex;
+        strRegex = "\\[[\\sx]\\]\\s" + strRegex;
     } else if (searchType === SearchType.TaskDone) {
-        strTextRegex = "\\[x\\]\\s" + strTextRegex;
+        strRegex = "\\[x\\]\\s" + strRegex;
     } else if (searchType === SearchType.TaskNotDone) {
-        strTextRegex = "\\[\\s\\]\\s" + strTextRegex;
+        strRegex = "\\[\\s\\]\\s" + strRegex;
     } else {
-        strTextRegex = "\\[[\\sx]\\]\\s" + strTextRegex;
+        strRegex = "\\[[\\sx]\\]\\s" + strRegex;
     }
     // console.log(strTextRegex);
 
-    let textRegex = new RegExp(strTextRegex, "gm");
-    let match;
-    while ((match = textRegex.exec(content))) {
-        // console.log(match);
-        if (
-            typeof match.groups !== "undefined" &&
-            typeof match.groups.value !== "undefined"
-        ) {
-            let strDate = match.groups.value.trim();
-            // console.log(strDate);
-
-            strDate = helper.getDateStringFromInputString(
-                strDate,
-                renderInfo.dateFormatPrefix,
-                renderInfo.dateFormatSuffix
-            );
-
-            date = helper.strToDate(strDate, renderInfo.dateFormat);
-            if (date.isValid()) {
-                break;
-            }
-        }
-    }
-    // console.log(date);
-    return date;
+    return extractDateUsingRegexWithValue(content, strRegex, renderInfo);
 }
 
 export function addToDataMap(
@@ -383,6 +310,76 @@ export function addToDataMap(
         let targetValuePairs = dataMap.get(date);
         targetValuePairs.push({ query: query, value: value });
     }
+}
+
+// regex with value --> extract value
+// regex without value --> count occurrencies
+function extractDataUsingRegex(
+    text: string,
+    strRegex: string,
+    query: Query,
+    dataMap: DataMap,
+    xValueMap: XValueMap,
+    renderInfo: RenderInfo
+) {
+    let textRegex = new RegExp(strRegex, "gm");
+    let match;
+    let measure = 0.0;
+    let extracted = false;
+    while ((match = textRegex.exec(text))) {
+        // console.log(match);
+        // match[0] whole match
+        if (!renderInfo.ignoreAttachedValue[query.getId()]) {
+            if (
+                typeof match.groups !== "undefined" &&
+                typeof match.groups.value !== "undefined"
+            ) {
+                // set as null for missing value if it is valued-tag
+                let retParse = helper.parseFloatFromAny(
+                    match.groups.value,
+                    renderInfo.textValueMap
+                );
+                // console.log(value);
+                if (retParse.value !== null) {
+                    if (retParse.type === ValueType.Time) {
+                        measure = retParse.value;
+                        extracted = true;
+                        query.valueType = ValueType.Time;
+                        query.addNumTargets();
+                    } else {
+                        if (
+                            !renderInfo.ignoreZeroValue[query.getId()] ||
+                            retParse.value !== 0
+                        ) {
+                            measure += retParse.value;
+                            extracted = true;
+                            query.addNumTargets();
+                        }
+                    }
+                }
+            } else {
+                // no named groups, count occurrencies
+                // console.log("count occurrencies");
+                measure += renderInfo.constValue[query.getId()];
+                extracted = true;
+                query.addNumTargets();
+            }
+        } else {
+            // force to count occurrencies
+            // console.log("count occurrencies");
+            measure += renderInfo.constValue[query.getId()];
+            extracted = true;
+            query.addNumTargets();
+        }
+    }
+
+    if (extracted) {
+        let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
+        addToDataMap(dataMap, xValue, query, measure);
+        return true;
+    }
+
+    return false;
 }
 
 // no value
@@ -520,7 +517,9 @@ export function collectDataFromFrontmatterKey(
     return false;
 }
 
-// regex-value
+// no key
+// regex with value --> extract value
+// regex without value --> count occurrencies
 export function collectDataFromWiki(
     fileCache: CachedMetadata,
     query: Query,
@@ -529,27 +528,49 @@ export function collectDataFromWiki(
     xValueMap: XValueMap
 ): boolean {
     let links = fileCache.links;
-    if (!links) return;
+    if (!links) return false;
 
-    let linkMeasure = 0.0;
-    let linkExist = false;
+    let searchTarget = query.getTarget();
+    let searchType = query.getType();
+
     for (let link of links) {
-        if (link.link.startsWith(query.getTarget())) {
-            linkExist = true;
-            linkMeasure = linkMeasure + renderInfo.constValue[query.getId()];
-            query.addNumTargets();
+        if (!link) continue;
+
+        let wikiText = "";
+        if (searchType === SearchType.Wiki) {
+            if (link.displayText) {
+                wikiText = link.displayText;
+            } else {
+                wikiText = link.link;
+            }
+        } else if (searchType === SearchType.WikiLink) {
+            // wiki.link point to a file name
+            // a colon is not allowed be in file name
+            wikiText = link.link;
+        } else if (searchType === SearchType.WikiDisplay) {
+            if (link.displayText) {
+                wikiText = link.displayText;
+            }
+        } else {
+            if (link.displayText) {
+                wikiText = link.displayText;
+            } else {
+                wikiText = link.link;
+            }
         }
-    }
+        wikiText = wikiText.trim();
 
-    let linkValue = null;
-    if (linkExist) {
-        linkValue = linkMeasure;
-    }
+        let strRegex = "^" + searchTarget + "$";
 
-    if (linkValue !== null) {
-        let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
-        addToDataMap(dataMap, xValue, query, linkValue);
-        return true;
+        let extracted = extractDataUsingRegex(
+            wikiText,
+            strRegex,
+            query,
+            dataMap,
+            xValueMap,
+            renderInfo
+        );
+        if (extracted) return true;
     }
 
     return false;
@@ -661,6 +682,9 @@ export function collectDataFromInlineTag(
     return false;
 }
 
+// no key
+// regex with value --> extract value
+// regex without value --> count occurrencies
 export function collectDataFromText(
     content: string,
     query: Query,
@@ -668,59 +692,17 @@ export function collectDataFromText(
     dataMap: DataMap,
     xValueMap: XValueMap
 ): boolean {
-    let strTextRegex = query.getTarget();
+    let strRegex = query.getTarget();
     // console.log(strTextRegex);
-    let textRegex = new RegExp(strTextRegex, "gm");
-    let match;
-    let textMeasure = 0.0;
-    let textExist = false;
-    while ((match = textRegex.exec(content))) {
-        // console.log(match);
-        if (
-            !renderInfo.ignoreAttachedValue[query.getId()] &&
-            typeof match.groups !== "undefined"
-        ) {
-            // match[0] whole match
-            // console.log("valued-text");
-            if (typeof match.groups.value !== "undefined") {
-                // set as null for missing value if it is valued-tag
-                let retParse = helper.parseFloatFromAny(
-                    match.groups.value,
-                    renderInfo.textValueMap
-                );
-                if (retParse.value !== null) {
-                    if (retParse.type === ValueType.Time) {
-                        textMeasure = retParse.value;
-                        textExist = true;
-                        query.valueType = ValueType.Time;
-                        query.addNumTargets();
-                    } else {
-                        if (
-                            !renderInfo.ignoreZeroValue[query.getId()] ||
-                            retParse.value !== 0
-                        ) {
-                            textMeasure += retParse.value;
-                            textExist = true;
-                            query.addNumTargets();
-                        }
-                    }
-                }
-            }
-        } else {
-            // console.log("simple-text");
-            textMeasure = textMeasure + renderInfo.constValue[query.getId()];
-            textExist = true;
-            query.addNumTargets();
-        }
-    }
 
-    if (textExist) {
-        let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
-        addToDataMap(dataMap, xValue, query, textMeasure);
-        return true;
-    }
-
-    return false;
+    return extractDataUsingRegex(
+        content,
+        strRegex,
+        query,
+        dataMap,
+        xValueMap,
+        renderInfo
+    );
 }
 
 export function collectDataFromFileMeta(
@@ -919,7 +901,8 @@ export function collectDataFromDvField(
     return false;
 }
 
-// regex-value
+// no key
+
 export function collectDataFromTask(
     content: string,
     query: Query,
@@ -931,69 +914,25 @@ export function collectDataFromTask(
     let searchType = query.getType();
     // console.log(searchType);
 
-    let strTextRegex = query.getTarget();
+    let strRegex = query.getTarget();
     if (searchType === SearchType.Task) {
-        strTextRegex = "\\[[\\sx]\\]\\s" + strTextRegex;
+        strRegex = "\\[[\\sx]\\]\\s" + strRegex;
     } else if (searchType === SearchType.TaskDone) {
-        strTextRegex = "\\[x\\]\\s" + strTextRegex;
+        strRegex = "\\[x\\]\\s" + strRegex;
     } else if (searchType === SearchType.TaskNotDone) {
-        strTextRegex = "\\[\\s\\]\\s" + strTextRegex;
+        strRegex = "\\[\\s\\]\\s" + strRegex;
     } else {
         // all
-        strTextRegex = "\\[[\\sx]\\]\\s" + strTextRegex;
+        strRegex = "\\[[\\sx]\\]\\s" + strRegex;
     }
-    // console.log(strTextRegex);
+    // console.log(strRegex);
 
-    let textRegex = new RegExp(strTextRegex, "gm");
-    let match;
-    let textMeasure = 0.0;
-    let textExist = false;
-    while ((match = textRegex.exec(content))) {
-        // console.log(match);
-        if (
-            !renderInfo.ignoreAttachedValue[query.getId()] &&
-            typeof match.groups !== "undefined"
-        ) {
-            // match[0] whole match
-            // console.log("valued-text");
-            if (typeof match.groups.value !== "undefined") {
-                // set as null for missing value if it is valued-tag
-                let retParse = helper.parseFloatFromAny(
-                    match.groups.value,
-                    renderInfo.textValueMap
-                );
-                // console.log(value);
-                if (retParse.value !== null) {
-                    if (retParse.type === ValueType.Time) {
-                        textMeasure = retParse.value;
-                        textExist = true;
-                        query.valueType = ValueType.Time;
-                        query.addNumTargets();
-                    } else {
-                        if (
-                            !renderInfo.ignoreZeroValue[query.getId()] ||
-                            retParse.value !== 0
-                        ) {
-                            textMeasure += retParse.value;
-                            textExist = true;
-                            query.addNumTargets();
-                        }
-                    }
-                }
-            }
-        } else {
-            // console.log("simple-text");
-            textMeasure = textMeasure + renderInfo.constValue[query.getId()];
-            textExist = true;
-            query.addNumTargets();
-        }
-    }
-
-    if (textExist) {
-        let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
-        addToDataMap(dataMap, xValue, query, textMeasure);
-        return true;
-    }
-
-    return false;
+    return extractDataUsingRegex(
+        content,
+        strRegex,
+        query,
+        dataMap,
+        xValueMap,
+        renderInfo
+    );
 }
