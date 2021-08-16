@@ -598,7 +598,7 @@ export function collectDataFromWiki(
         }
         wikiText = wikiText.trim();
 
-        let strRegex = "^" + searchTarget + "$";
+        let strRegex = searchTarget;
 
         let extracted = extractDataUsingRegexWithMultipleValues(
             wikiText,
