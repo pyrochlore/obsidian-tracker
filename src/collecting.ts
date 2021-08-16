@@ -36,7 +36,7 @@ export function getDateFromFilename(
 }
 
 // Not support multiple targets
-// In form 'key: value', target used to identify 'key'
+// In form 'key: value', target used to identify 'frontmatter key'
 export function getDateFromFrontmatter(
     fileCache: CachedMetadata,
     query: Query,
@@ -76,7 +76,7 @@ function extractDateUsingRegexWithValue(
     text: string,
     strRegex: string,
     renderInfo: RenderInfo
-) {
+): Moment {
     let date = window.moment("");
 
     let regex = new RegExp(strRegex, "gm");
@@ -314,14 +314,14 @@ export function addToDataMap(
 
 // regex with value --> extract value
 // regex without value --> count occurrencies
-function extractDataUsingRegex(
+function extractDataUsingRegexWithSingleValue(
     text: string,
     strRegex: string,
     query: Query,
     dataMap: DataMap,
     xValueMap: XValueMap,
     renderInfo: RenderInfo
-) {
+): boolean {
     let textRegex = new RegExp(strRegex, "gm");
     let match;
     let measure = 0.0;
@@ -382,7 +382,104 @@ function extractDataUsingRegex(
     return false;
 }
 
-// no value
+function extractDataUsingRegexWithMultipleValues(
+    text: string,
+    strRegex: string,
+    query: Query,
+    dataMap: DataMap,
+    xValueMap: XValueMap,
+    renderInfo: RenderInfo
+): boolean {
+    let regex = new RegExp(strRegex, "gm");
+    let match;
+    let measure = 0.0;
+    let extracted = false;
+    while ((match = regex.exec(text))) {
+        // console.log(match);
+        if (!renderInfo.ignoreAttachedValue[query.getId()]) {
+        }
+
+        if (
+            typeof match.groups !== "undefined" &&
+            typeof match.groups.values !== "undefined"
+        ) {
+            let values = match.groups.values.trim();
+            // console.log(values);
+            // console.log(query.getSeparator());
+            let splitted = values.split(query.getSeparator());
+            // console.log(splitted);
+            if (!splitted) continue;
+            if (splitted.length === 1) {
+                // console.log("single-value");
+                let toParse = splitted[0].trim();
+                // console.log(toParse);
+                let retParse = helper.parseFloatFromAny(
+                    toParse,
+                    renderInfo.textValueMap
+                );
+                if (retParse.value !== null) {
+                    if (retParse.type === ValueType.Time) {
+                        measure = retParse.value;
+                        extracted = true;
+                        query.valueType = ValueType.Time;
+                        query.addNumTargets();
+                    } else {
+                        if (
+                            !renderInfo.ignoreZeroValue[query.getId()] ||
+                            retParse.value !== 0
+                        ) {
+                            measure += retParse.value;
+                            extracted = true;
+                            query.addNumTargets();
+                        }
+                    }
+                }
+            } else if (
+                splitted.length > query.getAccessor() &&
+                query.getAccessor() >= 0
+            ) {
+                // TODO: it's not efficent to retrieve one value at a time, enhance this
+                // console.log("multiple-values");
+                let toParse = splitted[query.getAccessor()].trim();
+                let retParse = helper.parseFloatFromAny(
+                    toParse,
+                    renderInfo.textValueMap
+                );
+                //console.log(retParse);
+                if (retParse.value !== null) {
+                    if (retParse.type === ValueType.Time) {
+                        measure = retParse.value;
+                        extracted = true;
+                        query.valueType = ValueType.Time;
+                        query.addNumTargets();
+                    } else {
+                        measure += retParse.value;
+                        extracted = true;
+                        query.addNumTargets();
+                    }
+                }
+            }
+        } else {
+            measure += renderInfo.constValue[query.getId()];
+            extracted = true;
+            query.addNumTargets();
+        }
+    }
+
+    let value = null;
+    if (extracted) {
+        value = measure;
+    }
+    if (value !== null) {
+        let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
+        addToDataMap(dataMap, xValue, query, value);
+        return true;
+    }
+
+    return false;
+}
+
+// no value, count occurrences only
 export function collectDataFromFrontmatterTag(
     fileCache: CachedMetadata,
     query: Query,
@@ -423,7 +520,7 @@ export function collectDataFromFrontmatterTag(
             }
 
             // valued-tag in frontmatter is not supported
-            // because the "tag:value" in frontmatter will be consider as a new tag for different values
+            // because the "tag:value" in frontmatter will be consider as a new tag for each existing value
 
             let value = null;
             if (tagExist) {
@@ -438,7 +535,7 @@ export function collectDataFromFrontmatterTag(
     return false;
 }
 
-// key-value
+// In form 'key: value', target used to identify 'frontmatter key'
 export function collectDataFromFrontmatterKey(
     fileCache: CachedMetadata,
     query: Query,
@@ -517,9 +614,7 @@ export function collectDataFromFrontmatterKey(
     return false;
 }
 
-// no key
-// regex with value --> extract value
-// regex without value --> count occurrencies
+// In form 'regex with value', name group 'value' from users
 export function collectDataFromWiki(
     fileCache: CachedMetadata,
     query: Query,
@@ -562,7 +657,7 @@ export function collectDataFromWiki(
 
         let strRegex = "^" + searchTarget + "$";
 
-        let extracted = extractDataUsingRegex(
+        let extracted = extractDataUsingRegexWithSingleValue(
             wikiText,
             strRegex,
             query,
@@ -576,7 +671,7 @@ export function collectDataFromWiki(
     return false;
 }
 
-// key-value
+// In form 'key: value', name group 'value' from plugin, not from users
 export function collectDataFromInlineTag(
     content: string,
     query: Query,
@@ -594,97 +689,23 @@ export function collectDataFromInlineTag(
     if (tagName.length > 1 && tagName.startsWith("#")) {
         tagName = tagName.substring(1);
     }
-    let strHashtagRegex =
+    let strRegex =
         "(^|\\s)#" +
         tagName +
         "(\\/[\\w-]+)*(:(?<values>[\\d\\.\\/-]*)[a-zA-Z]*)?([\\.!,\\?;~-]*)?(\\s|$)";
-    // console.log(strHashtagRegex);
-    let hashTagRegex = new RegExp(strHashtagRegex, "gm");
-    let match;
-    let tagMeasure = 0.0;
-    let tagExist = false;
-    while ((match = hashTagRegex.exec(content))) {
-        // console.log(match);
-        if (
-            !renderInfo.ignoreAttachedValue[query.getId()] &&
-            typeof match.groups !== "undefined" &&
-            typeof match.groups.values !== "undefined"
-        ) {
-            // console.log("value-attached tag");
-            let values = match.groups.values;
-            let splitted = values.split(query.getSeparator());
-            if (!splitted) continue;
-            if (splitted.length === 1) {
-                // console.log("single-value");
-                let toParse = splitted[0].trim();
-                let retParse = helper.parseFloatFromAny(
-                    toParse,
-                    renderInfo.textValueMap
-                );
-                if (retParse.value !== null) {
-                    if (retParse.type === ValueType.Time) {
-                        tagMeasure = retParse.value;
-                        tagExist = true;
-                        query.valueType = ValueType.Time;
-                        query.addNumTargets();
-                    } else {
-                        if (
-                            !renderInfo.ignoreZeroValue[query.getId()] ||
-                            retParse.value !== 0
-                        ) {
-                            tagMeasure += retParse.value;
-                            tagExist = true;
-                            query.addNumTargets();
-                        }
-                    }
-                }
-            } else if (
-                splitted.length > query.getAccessor() &&
-                query.getAccessor() >= 0
-            ) {
-                let toParse = splitted[query.getAccessor()].trim();
-                let retParse = helper.parseFloatFromAny(
-                    toParse,
-                    renderInfo.textValueMap
-                );
-                //console.log(retParse);
-                if (retParse.value !== null) {
-                    if (retParse.type === ValueType.Time) {
-                        tagMeasure = retParse.value;
-                        tagExist = true;
-                        query.valueType = ValueType.Time;
-                        query.addNumTargets();
-                    } else {
-                        tagMeasure += retParse.value;
-                        tagExist = true;
-                        query.addNumTargets();
-                    }
-                }
-            }
-        } else {
-            // console.log("simple-tag");
-            tagMeasure = tagMeasure + renderInfo.constValue[query.getId()];
-            tagExist = true;
-            query.addNumTargets();
-        }
-    }
+    // console.log(strRegex);
 
-    let value = null;
-    if (tagExist) {
-        value = tagMeasure;
-    }
-    if (value !== null) {
-        let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
-        addToDataMap(dataMap, xValue, query, value);
-        return true;
-    }
-
-    return false;
+    return extractDataUsingRegexWithMultipleValues(
+        content,
+        strRegex,
+        query,
+        dataMap,
+        xValueMap,
+        renderInfo
+    );
 }
 
-// no key
-// regex with value --> extract value
-// regex without value --> count occurrencies
+// In form 'regex with value', name group 'value' from users
 export function collectDataFromText(
     content: string,
     query: Query,
@@ -695,7 +716,7 @@ export function collectDataFromText(
     let strRegex = query.getTarget();
     // console.log(strTextRegex);
 
-    return extractDataUsingRegex(
+    return extractDataUsingRegexWithMultipleValues(
         content,
         strRegex,
         query,
@@ -791,7 +812,7 @@ export function collectDataFromFileMeta(
     return false;
 }
 
-// key-value
+// In form 'key::value', named group 'value' from plugin
 export function collectDataFromDvField(
     content: string,
     query: Query,
@@ -810,99 +831,23 @@ export function collectDataFromDvField(
     // Test this in Regex101
     // remember '\s' includes new line
     // (^| |\t)\*{0,2}dvTarget\*{0,2}(::[ |\t]*(?<values>[\d\.\/\-\w,@; \t:]*))(\r?\n|\r|$)
-    let strHashtagRegex =
+    let strRegex =
         "(^| |\\t)\\*{0,2}" +
         dvTarget +
         "\\*{0,2}(::[ |\\t]*(?<values>[\\d\\.\\/\\-\\w,@; \\t:]*))(\\r\\?\\n|\\r|$)";
-    // console.log(strHashtagRegex);
-    let hashTagRegex = new RegExp(strHashtagRegex, "gm");
-    let match;
-    let tagMeasure = 0.0;
-    let tagExist = false;
-    while ((match = hashTagRegex.exec(content))) {
-        // console.log(match);
-        if (
-            typeof match.groups !== "undefined" &&
-            typeof match.groups.values !== "undefined"
-        ) {
-            let values = match.groups.values.trim();
-            // console.log(values);
-            // console.log(query.getSeparator());
-            let splitted = values.split(query.getSeparator());
-            // console.log(splitted);
-            if (!splitted) continue;
-            if (splitted.length === 1) {
-                // console.log("single-value");
-                let toParse = splitted[0];
-                // console.log(toParse);
-                let retParse = helper.parseFloatFromAny(
-                    toParse,
-                    renderInfo.textValueMap
-                );
-                if (retParse.value !== null) {
-                    if (retParse.type === ValueType.Time) {
-                        tagMeasure = retParse.value;
-                        tagExist = true;
-                        query.valueType = ValueType.Time;
-                        query.addNumTargets();
-                    } else {
-                        if (
-                            !renderInfo.ignoreZeroValue[query.getId()] ||
-                            retParse.value !== 0
-                        ) {
-                            tagMeasure += retParse.value;
-                            tagExist = true;
-                            query.addNumTargets();
-                        }
-                    }
-                }
-            } else if (
-                splitted.length > query.getAccessor() &&
-                query.getAccessor() >= 0
-            ) {
-                // TODO: it's not efficent to retrieve one value at a time, enhance this
-                // console.log("multiple-values");
-                let toParse = splitted[query.getAccessor()].trim();
-                let retParse = helper.parseFloatFromAny(
-                    toParse,
-                    renderInfo.textValueMap
-                );
-                if (retParse.value !== null) {
-                    if (retParse.type === ValueType.Time) {
-                        tagMeasure = retParse.value;
-                        tagExist = true;
-                        query.valueType = ValueType.Time;
-                        query.addNumTargets();
-                    } else {
-                        tagMeasure += retParse.value;
-                        tagExist = true;
-                        query.addNumTargets();
-                    }
-                }
-            }
-        } else {
-            // console.log("simple-tag");
-            tagMeasure = tagMeasure + renderInfo.constValue[query.getId()];
-            tagExist = true;
-            query.addNumTargets();
-        }
-    }
+    // console.log(strRegex);
 
-    let value = null;
-    if (tagExist) {
-        value = tagMeasure;
-    }
-    if (value !== null) {
-        let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
-        addToDataMap(dataMap, xValue, query, value);
-        return true;
-    }
-
-    return false;
+    return extractDataUsingRegexWithMultipleValues(
+        content,
+        strRegex,
+        query,
+        dataMap,
+        xValueMap,
+        renderInfo
+    );
 }
 
-// no key
-
+// In form 'regex with value', name group 'value' from users
 export function collectDataFromTask(
     content: string,
     query: Query,
@@ -927,7 +872,7 @@ export function collectDataFromTask(
     }
     // console.log(strRegex);
 
-    return extractDataUsingRegex(
+    return extractDataUsingRegexWithSingleValue(
         content,
         strRegex,
         query,
