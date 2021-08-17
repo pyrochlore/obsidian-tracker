@@ -110,8 +110,12 @@ export default class Tracker extends Plugin {
         return files;
     }
 
-    getFiles(renderInfo: RenderInfo, includeSubFolders: boolean = true) {
-        let files: TFile[] = [];
+    getFiles(
+        files: TFile[],
+        renderInfo: RenderInfo,
+        includeSubFolders: boolean = true
+    ) {
+        if (!files) return;
 
         let folderToSearch = renderInfo.folder;
         let useSpecifiedFilesOnly = renderInfo.specifiedFilesOnly;
@@ -119,29 +123,39 @@ export default class Tracker extends Plugin {
         let filesContainsLinkedFiles = renderInfo.fileContainsLinkedFiles;
 
         // Include files in folder
+        // console.log(useSpecifiedFilesOnly);
         if (!useSpecifiedFilesOnly) {
             let folder = this.app.vault.getAbstractFileByPath(
                 normalizePath(folderToSearch)
             );
             if (folder && folder instanceof TFolder) {
-                files = files.concat(this.getFilesInFolder(folder));
+                let folderFiles = this.getFilesInFolder(folder);
+                for (let file of folderFiles) {
+                    files.push(file);
+                }
             }
         }
 
         // Include specified file
+        // console.log(specifiedFiles);
         for (let filePath of specifiedFiles) {
-            if (!filePath.endsWith(".md")) {
-                filePath += ".md";
+            let path = filePath;
+            if (!path.endsWith(".md")) {
+                path += ".md";
             }
-            let file = this.app.vault.getAbstractFileByPath(
-                normalizePath(filePath)
-            );
+            path = normalizePath(path);
+            // console.log(path);
+
+            let file = this.app.vault.getAbstractFileByPath(path);
+            // console.log(file);
             if (file && file instanceof TFile) {
                 files.push(file);
             }
         }
+        // console.log(files);
 
         // Include files in pointed by links in file
+        // console.log(filesContainsLinkedFiles);
         for (let filePath of filesContainsLinkedFiles) {
             if (!filePath.endsWith(".md")) {
                 filePath += ".md";
@@ -153,24 +167,23 @@ export default class Tracker extends Plugin {
                 // Get linked files
                 let fileCache = this.app.metadataCache.getFileCache(file);
                 // this.app.metadataCache.
-                if (fileCache?.links) {
-                    for (let link of fileCache.links) {
-                        if (!link) continue;
-                        let linkedFile =
-                            this.app.metadataCache.getFirstLinkpathDest(
-                                link.link,
-                                filePath
-                            );
-                        if (linkedFile && linkedFile instanceof TFile) {
-                            files.push(linkedFile);
-                        }
+                if (!fileCache?.links) continue;
+
+                for (let link of fileCache.links) {
+                    if (!link) continue;
+                    let linkedFile =
+                        this.app.metadataCache.getFirstLinkpathDest(
+                            link.link,
+                            filePath
+                        );
+                    if (linkedFile && linkedFile instanceof TFile) {
+                        files.push(linkedFile);
                     }
                 }
             }
         }
 
         // console.log(files);
-        return files;
     }
 
     async postprocessor(
@@ -190,9 +203,9 @@ export default class Tracker extends Plugin {
         // console.log(renderInfo);
 
         // Get files
-        let files: TFile[];
+        let files: TFile[] = [];
         try {
-            files = this.getFiles(renderInfo);
+            this.getFiles(files, renderInfo);
         } catch (e) {
             return this.renderErrorMessage(e.message, canvas, el);
         }

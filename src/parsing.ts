@@ -595,7 +595,7 @@ function getStringArray(name: string, input: any): Array<string> | string {
         if (Array.isArray(input)) {
             for (let elem of input) {
                 if (typeof elem === "string") {
-                    strArray.push(elem);
+                    strArray.push(elem.trim());
                 }
             }
         }
@@ -604,7 +604,7 @@ function getStringArray(name: string, input: any): Array<string> | string {
         // console.log(splitted);
         if (splitted.length > 1) {
             for (let piece of splitted) {
-                strArray.push(piece);
+                strArray.push(piece.trim());
             }
         } else if (input === "") {
             let errorMessage = `Empty ${name} is not allowed.`;
