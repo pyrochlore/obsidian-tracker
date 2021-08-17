@@ -181,6 +181,10 @@ The reference date of the relative date input is 'today' (The current date of yo
 - -1M ==> last month
 - -1y ==> last year
 
+Notice!! 
+- small 'm' represent 'minute'
+- If the date range is less than 1 day, you will get the error message 'No valid date as X value found in notes'.
+
 ``` tracker
 searchType: tag
 searchTarget: weight

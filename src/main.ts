@@ -165,6 +165,7 @@ export default class Tracker extends Plugin {
         // Collecting data to dataMap first
         let dataMap: DataMap = new Map(); // {strDate: [query: value, ...]}
         let processInfo = new CollectingProcessInfo();
+        processInfo.fileTotal = files.length;
 
         // Collect data from files, each file has one data point for each query
         const loopFilePromises = files.map(async (file) => {
@@ -286,16 +287,19 @@ export default class Tracker extends Plugin {
                     if (!xDate.isValid()) {
                         // console.log("Invalid xDate");
                         skipThisFile = true;
+                        processInfo.fileNotInFormat++;
                     } else {
                         // console.log("file " + file.basename + " accepted");
                         if (renderInfo.startDate !== null) {
                             if (xDate < renderInfo.startDate) {
                                 skipThisFile = true;
+                                processInfo.fileOutOfDateRange++;
                             }
                         }
                         if (renderInfo.endDate !== null) {
                             if (xDate > renderInfo.endDate) {
                                 skipThisFile = true;
+                                processInfo.fileOutOfDateRange++;
                             }
                         }
                     }
@@ -306,10 +310,10 @@ export default class Tracker extends Plugin {
                             xDatasetId,
                             helper.dateToStr(xDate, renderInfo.dateFormat)
                         );
-                        processInfo.fileCounter++;
+                        processInfo.fileAvailable++;
 
                         // Get min/max date
-                        if (processInfo.fileCounter == 1) {
+                        if (processInfo.fileAvailable == 1) {
                             processInfo.minDate = xDate.clone();
                             processInfo.maxDate = xDate.clone();
                         } else {
@@ -466,37 +470,30 @@ export default class Tracker extends Plugin {
                 el
             );
         }
-
-        if (!processInfo.gotAnyValidXValue) {
-            return this.renderErrorMessage(
-                "No valid X values found in notes",
-                canvas,
-                el
-            );
-        }
-
-        if (!processInfo.gotAnyValidYValue) {
-            return this.renderErrorMessage(
-                "No valid Y values found in notes",
-                canvas,
-                el
-            );
-        }
-
-        if (processInfo.fileCounter === 0) {
-            return this.renderErrorMessage(
-                "No notes found under the given search condition",
-                canvas,
-                el
-            );
-        }
         // console.log(minDate);
         // console.log(maxDate);
         // console.log(dataMap);
 
         // Check date range
-        if (!processInfo.minDate.isValid() || !processInfo.maxDate.isValid()) {
-            return this.renderErrorMessage("Invalid date range", canvas, el);
+        // minDate and maxDate are collected without knowing startDate and endDate
+        // console.log(`fileTotal: ${processInfo.fileTotal}`);
+        // console.log(`fileAvailable: ${processInfo.fileAvailable}`);
+        // console.log(`fileNotInFormat: ${processInfo.fileNotInFormat}`);
+        // console.log(`fileOutOfDateRange: ${processInfo.fileOutOfDateRange}`);
+        let dateErrorMessage = "";
+        if (
+            !processInfo.minDate.isValid() ||
+            !processInfo.maxDate.isValid() ||
+            processInfo.fileAvailable === 0 ||
+            !processInfo.gotAnyValidXValue
+        ) {
+            dateErrorMessage = `No valid date as X value found in notes.`;
+            if (processInfo.fileOutOfDateRange > 0) {
+                dateErrorMessage += `\n${processInfo.fileOutOfDateRange} files are out of the date range.`;
+            }
+            if (processInfo.fileNotInFormat) {
+                dateErrorMessage += `\n${processInfo.fileNotInFormat} files are not in the right format.`;
+            }
         }
         if (renderInfo.startDate === null && renderInfo.endDate === null) {
             // No date arguments
@@ -509,11 +506,7 @@ export default class Tracker extends Plugin {
             if (renderInfo.startDate < processInfo.maxDate) {
                 renderInfo.endDate = processInfo.maxDate.clone();
             } else {
-                return this.renderErrorMessage(
-                    "Invalid date range",
-                    canvas,
-                    el
-                );
+                dateErrorMessage = "Invalid date range";
             }
         } else if (
             renderInfo.endDate !== null &&
@@ -522,11 +515,7 @@ export default class Tracker extends Plugin {
             if (renderInfo.endDate > processInfo.minDate) {
                 renderInfo.startDate = processInfo.minDate.clone();
             } else {
-                return this.renderErrorMessage(
-                    "Invalid date range",
-                    canvas,
-                    el
-                );
+                dateErrorMessage = "Invalid date range";
             }
         } else {
             // startDate and endDate are valid
@@ -536,15 +525,22 @@ export default class Tracker extends Plugin {
                 (renderInfo.startDate > processInfo.maxDate &&
                     renderInfo.endDate > processInfo.maxDate)
             ) {
-                return this.renderErrorMessage(
-                    "Invalid date range",
-                    canvas,
-                    el
-                );
+                dateErrorMessage = "Invalid date range";
             }
+        }
+        if (dateErrorMessage) {
+            return this.renderErrorMessage(dateErrorMessage, canvas, el);
         }
         // console.log(renderInfo.startDate);
         // console.log(renderInfo.endDate);
+
+        if (!processInfo.gotAnyValidYValue) {
+            return this.renderErrorMessage(
+                "No valid Y value found in notes",
+                canvas,
+                el
+            );
+        }
 
         // Reshape data for rendering
         let datasets = new Datasets(renderInfo.startDate, renderInfo.endDate);
@@ -685,7 +681,7 @@ export default class Tracker extends Plugin {
                 normalizePath(filePath)
             );
             if (file && file instanceof TFile) {
-                processInfo.fileCounter++;
+                processInfo.fileAvailable++;
                 let content = await this.app.vault.adapter.read(file.path);
                 // console.log(content);
 
@@ -788,7 +784,7 @@ export default class Tracker extends Plugin {
                     return v === null;
                 })
             ) {
-                processInfo.errorMessage = "No valid X value found in table";
+                processInfo.errorMessage = "No valid date as X value found in table";
                 return;
             } else {
                 processInfo.gotAnyValidXValue ||= true;

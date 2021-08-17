@@ -72,34 +72,6 @@ folder: empty
 line:
 ```
 
-## X Values (Date)
-The format of startDate or endDate does not match dateFormat in the plugin settings. Change the settings or Add a dateFormat parameter into YAML.
-``` tracker
-searchType: tag
-searchTarget: weight
-startDate: 2020-01-01_Fri
-endDate: 2020-01-31_Mon
-line:
-```
-
-No note found in the given date range
-``` tracker
-searchType: tag
-searchTarget: weight
-startDate: 2020-01-01
-endDate: 2020-01-31
-line:
-```
-
-We don't have thirty days in February
-``` tracker
-searchType: tag
-searchTarget: weight
-startDate: 2021-02-01
-endDate: 2021-02-30
-line:
-```
-
 ## Number of parameters
 Two search targets provided, the number of search types shouldn't be more than two.
 ``` tracker
@@ -116,7 +88,35 @@ line:
     yAxisLabel: BP1, BP2, BP3
 ```
 
-## Y Values
+## startDate & endDate
+The format of startDate or endDate does not match dateFormat in the plugin settings. Change the settings or Add a dateFormat parameter into YAML.
+``` tracker
+searchType: tag
+searchTarget: weight
+startDate: 2020-01-01_Fri
+endDate: 2020-01-31_Mon
+line:
+```
+
+We don't have thirty days in February
+``` tracker
+searchType: tag
+searchTarget: weight
+startDate: 2021-02-01
+endDate: 2021-02-30
+line:
+```
+
+## X Values (Dates)
+No note found in the given date range
+``` tracker
+searchType: tag
+searchTarget: weight
+startDate: 2020-01-01
+endDate: 2020-01-31
+line:
+```
+
 No valid X values, add "xDataset: 0" to fix it
 ``` tracker
 searchType: fileMeta, dvField
@@ -126,6 +126,7 @@ line:
     fillGap: true
 ```
 
+## Y Values
 No valid Y values!!!!!
 Use parameter `textValueMap` to map a text to a value.
 ``` tracker
