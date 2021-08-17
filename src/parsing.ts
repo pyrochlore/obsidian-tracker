@@ -1172,6 +1172,35 @@ export function getRenderInfoFromYaml(
         return errorMessage;
     }
 
+    // file
+    if (typeof yaml.file === "string") {
+        let retFiles = getStringArray("file", yaml.file);
+        if (typeof retFiles === "string") {
+            return retFiles; // error message
+        }
+        renderInfo.file = retFiles;
+    }
+    // console.log(renderInfo.file);
+
+    // specifiedFilesOnly
+    if (typeof yaml.specifiedFilesOnly === "boolean") {
+        renderInfo.specifiedFilesOnly = yaml.specifiedFilesOnly;
+    }
+    // console.log(renderInfo.specifiedFilesOnly);
+
+    // fileContainsLinkedFiles
+    if (typeof yaml.fileContainsLinkedFiles === "string") {
+        let retFiles = getStringArray(
+            "fileContainsLinkedFiles",
+            yaml.fileContainsLinkedFiles
+        );
+        if (typeof retFiles === "string") {
+            return retFiles;
+        }
+        renderInfo.fileContainsLinkedFiles = retFiles;
+    }
+    // console.log(renderInfo.fileContainsLinkedFiles);
+
     // Date format
     const dateFormat = yaml.dateFormat;
     //?? not sure why I need this to make it works,

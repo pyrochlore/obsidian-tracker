@@ -1,4 +1,4 @@
-import { App, CachedMetadata, Plugin } from "obsidian";
+import { App, CachedMetadata, getLinkpath, Plugin } from "obsidian";
 import { MarkdownPostProcessorContext, MarkdownView, Editor } from "obsidian";
 import { TFile, TFolder, normalizePath } from "obsidian";
 import * as rendering from "./rendering";
@@ -110,18 +110,66 @@ export default class Tracker extends Plugin {
         return files;
     }
 
-    getFiles(folderToSearch: string, includeSubFolders: boolean = true) {
+    getFiles(renderInfo: RenderInfo, includeSubFolders: boolean = true) {
         let files: TFile[] = [];
 
-        let folder = this.app.vault.getAbstractFileByPath(
-            normalizePath(folderToSearch)
-        );
-        if (!folder || !(folder instanceof TFolder)) {
-            // Folder not exists
-        } else {
-            files = files.concat(this.getFilesInFolder(folder));
+        let folderToSearch = renderInfo.folder;
+        let useSpecifiedFilesOnly = renderInfo.specifiedFilesOnly;
+        let specifiedFiles = renderInfo.file;
+        let filesContainsLinkedFiles = renderInfo.fileContainsLinkedFiles;
+
+        // Include files in folder
+        if (!useSpecifiedFilesOnly) {
+            let folder = this.app.vault.getAbstractFileByPath(
+                normalizePath(folderToSearch)
+            );
+            if (folder && folder instanceof TFolder) {
+                files = files.concat(this.getFilesInFolder(folder));
+            }
         }
 
+        // Include specified file
+        for (let filePath of specifiedFiles) {
+            if (!filePath.endsWith(".md")) {
+                filePath += ".md";
+            }
+            let file = this.app.vault.getAbstractFileByPath(
+                normalizePath(filePath)
+            );
+            if (file && file instanceof TFile) {
+                files.push(file);
+            }
+        }
+
+        // Include files in pointed by links in file
+        for (let filePath of filesContainsLinkedFiles) {
+            if (!filePath.endsWith(".md")) {
+                filePath += ".md";
+            }
+            let file = this.app.vault.getAbstractFileByPath(
+                normalizePath(filePath)
+            );
+            if (file && file instanceof TFile) {
+                // Get linked files
+                let fileCache = this.app.metadataCache.getFileCache(file);
+                // this.app.metadataCache.
+                if (fileCache?.links) {
+                    for (let link of fileCache.links) {
+                        if (!link) continue;
+                        let linkedFile =
+                            this.app.metadataCache.getFirstLinkpathDest(
+                                link.link,
+                                filePath
+                            );
+                        if (linkedFile && linkedFile instanceof TFile) {
+                            files.push(linkedFile);
+                        }
+                    }
+                }
+            }
+        }
+
+        // console.log(files);
         return files;
     }
 
@@ -144,7 +192,7 @@ export default class Tracker extends Plugin {
         // Get files
         let files: TFile[];
         try {
-            files = this.getFiles(renderInfo.folder);
+            files = this.getFiles(renderInfo);
         } catch (e) {
             return this.renderErrorMessage(e.message, canvas, el);
         }
@@ -784,7 +832,8 @@ export default class Tracker extends Plugin {
                     return v === null;
                 })
             ) {
-                processInfo.errorMessage = "No valid date as X value found in table";
+                processInfo.errorMessage =
+                    "No valid date as X value found in table";
                 return;
             } else {
                 processInfo.gotAnyValidXValue ||= true;

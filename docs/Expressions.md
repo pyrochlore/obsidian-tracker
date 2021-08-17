@@ -93,3 +93,7 @@ e.g.
 ## Missing Values
 
 Notice that the missing values (null values) are ignored in function like sum or average. Moreover, a value plus a missing value will leads to null value (missing value). To avoid these, you can set those missing values to a value by using parameter `penalty` or use expression function `setMissingValues`.
+
+## String Output Format
+
+If the output of an expression is string, you can assign the format by using

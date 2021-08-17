@@ -1,22 +1,29 @@
 # Frequently Asked Questions
 
-- Does Tracker only track data in daily notes (notes named by dates)?
+- Does Tracker only track data in daily notes (file names contain dates)?
 
-    No. From version 1.6.0, you can use collect date data from file meta data with search type `fileMeta` and use that dataset as `xDataset`. So any notes can be included.
+    No. You can get date from any `searchType` including `fileMeta`. The collected dates  use that dataset as `xDataset`. So any notes can be included.
 
 - Does Tracker only track data over dates?
 
     Yes. The data type of x values should be in the form of date for now. This constrain might be relaxed in future.
 
-- Why my line chart looks broken at some points?
+- Why my line chart looks broken (not connected) at some points?
 
     The plugin only connects adjacent points (by date) by default. To force it connecting points over missing data, set the parameter `fillGap` under `line` to true.
+
+- Why the plugin shows error 'No valid X values found in notes'?
+
+    The default X values were extracted from the title of your notes. By assigning proper `dateFormat`, and combine with `dateFormatPrefix` and `dateFormatSuffix`. The date could be extracted from your title successfully.
+    The X values in Tracker should be of Date type. No files or x data values matched the dateFormat you gave in the given folder
+
+- Wny the plugin shows error 'No valid Y values found in notes'?
+    No y data values found
 
 - Why the plugin shows 'No notes found under the given search condition'?
 
     There are few possibilities for this error messages.
     1. No files in the given folder
-    2. No files or x data values matched the dateFormat you gave in the given folder
     3. No files in the date range you gave (from startDate to endDate)
 
 - Why the plugin shows 'Error parsing YAML'?

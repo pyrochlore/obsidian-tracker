@@ -59,6 +59,9 @@ These key-value pairs should be placed under the key `line` or `bar`.
 | `yAxisColor` | Color of Y axis | 1~2 | 'white'('black'<sup>*</sup>) |
 | `yAxisLabelColor` | Color of Y axis label | 1~2 | 'white'('black'<sup>*</sup>) |
 | `yAxisUnit` | Unit displayed aside Y axis label | 1~2 | '' | 
+yAxisTickInterval
+yAxisTickFormat
+
 | `yMin` | Minimum value on Y axis | 1~2 |Minimum Y value found | 
 | `yMax` | Maximum value on Y axis | 1~2 | Maximum Y value found |
 | `reverseYAxis` | Flip (upside down) the Y Axis or not (true\|false) | 1~2 | false |
@@ -123,6 +126,7 @@ These key-value pairs should be placed under the key `month`.
 
 | Key | Description | Number of Values | Default |
 |:--------|:-------|:-----------:|:------|
+| `mode` | () | 1 | 
 | `dataset` | Index of the dataset of your interest | 1~NT | all indices of non-x searchTarget |
 | `startWeekOn` | First day of a week ('Sun'\|'Mon') | 1 | 'Sun' |
 | `threshold` | Threshold to determine showing a circle on a day or not | 1~NT | 0 |
@@ -143,6 +147,10 @@ These key-value pairs should be placed under the key `month`.
 | `todayRingColor` | Color of the ring on today | 1 | 'white' |
 | `selectedRingColor` | Color of the ring on the selected day | 1 | 'firebrick' |
 | `initMonth` | Initial month to show (YYYY-MM) | 1 | last month found |
+showAnnotation
+annotation
+showAnnotationOfAllTargets
+
 
 ### Parameters for Pie Chart
 These key-value pairs should be placed under the key `pie`.

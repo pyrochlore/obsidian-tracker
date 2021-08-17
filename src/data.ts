@@ -540,6 +540,9 @@ export class RenderInfo {
     queries: Query[];
     xDataset: number[];
     folder: string;
+    file: string[];
+    specifiedFilesOnly: boolean;
+    fileContainsLinkedFiles: string[];
     dateFormat: string;
     dateFormatPrefix: string;
     dateFormatSuffix: string;
@@ -578,6 +581,9 @@ export class RenderInfo {
         this.queries = queries;
         this.xDataset = []; // use file name
         this.folder = "/";
+        this.file = []; // extra files to use
+        this.specifiedFilesOnly = false; // if true, use files specified only
+        this.fileContainsLinkedFiles = [];
         this.dateFormat = "YYYY-MM-DD";
         this.dateFormatPrefix = "";
         this.dateFormatSuffix = "";
