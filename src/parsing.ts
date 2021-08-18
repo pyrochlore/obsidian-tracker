@@ -1201,6 +1201,16 @@ export function getRenderInfoFromYaml(
     }
     // console.log(renderInfo.fileContainsLinkedFiles);
 
+    // fileMultiplierAfterLink
+    if (typeof yaml.fileMultiplierAfterLink === "string") {
+        renderInfo.fileMultiplierAfterLink = yaml.fileMultiplierAfterLink;
+    }
+    if (typeof yaml.fileMultiplierAfterLink === "number") {
+        renderInfo.fileMultiplierAfterLink =
+            yaml.fileMultiplierAfterLink.toString();
+    }
+    // console.log(renderInfo.fileMultiplierAfterLink);
+
     // Date format
     const dateFormat = yaml.dateFormat;
     //?? not sure why I need this to make it works,

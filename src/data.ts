@@ -543,6 +543,7 @@ export class RenderInfo {
     file: string[];
     specifiedFilesOnly: boolean;
     fileContainsLinkedFiles: string[];
+    fileMultiplierAfterLink: string;
     dateFormat: string;
     dateFormatPrefix: string;
     dateFormatSuffix: string;
@@ -584,6 +585,7 @@ export class RenderInfo {
         this.file = []; // extra files to use
         this.specifiedFilesOnly = false; // if true, use files specified only
         this.fileContainsLinkedFiles = [];
+        this.fileMultiplierAfterLink = ""; // regex pattern to extract multiplier after link
         this.dateFormat = "YYYY-MM-DD";
         this.dateFormatPrefix = "";
         this.dateFormatSuffix = "";

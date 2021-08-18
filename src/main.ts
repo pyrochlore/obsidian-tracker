@@ -110,7 +110,7 @@ export default class Tracker extends Plugin {
         return files;
     }
 
-    getFiles(
+    async getFiles(
         files: TFile[],
         renderInfo: RenderInfo,
         includeSubFolders: boolean = true
@@ -121,6 +121,7 @@ export default class Tracker extends Plugin {
         let useSpecifiedFilesOnly = renderInfo.specifiedFilesOnly;
         let specifiedFiles = renderInfo.file;
         let filesContainsLinkedFiles = renderInfo.fileContainsLinkedFiles;
+        let fileMultiplierAfterLink = renderInfo.fileMultiplierAfterLink;
 
         // Include files in folder
         // console.log(useSpecifiedFilesOnly);
@@ -156,6 +157,18 @@ export default class Tracker extends Plugin {
 
         // Include files in pointed by links in file
         // console.log(filesContainsLinkedFiles);
+        // console.log(fileMultiplierAfterLink);
+        let linkedFileMultiplier = 1;
+        let searchFileMultifpierAfterLink = true;
+        if (fileMultiplierAfterLink === "") {
+            searchFileMultifpierAfterLink = false;
+        } else if (/^[0-9]+$/.test(fileMultiplierAfterLink)) {
+            linkedFileMultiplier = parseFloat(fileMultiplierAfterLink);
+            searchFileMultifpierAfterLink = false;
+        } else if (!/\?<value>/.test(fileMultiplierAfterLink)) {
+            // no 'value' named group
+            searchFileMultifpierAfterLink = false;
+        }
         for (let filePath of filesContainsLinkedFiles) {
             if (!filePath.endsWith(".md")) {
                 filePath += ".md";
@@ -166,7 +179,12 @@ export default class Tracker extends Plugin {
             if (file && file instanceof TFile) {
                 // Get linked files
                 let fileCache = this.app.metadataCache.getFileCache(file);
-                // this.app.metadataCache.
+                let fileContent = await this.app.vault.adapter.read(file.path);
+                let lines = fileContent.split(
+                    /\r\n|[\n\v\f\r\x85\u2028\u2029]/
+                );
+                // console.log(lines);
+
                 if (!fileCache?.links) continue;
 
                 for (let link of fileCache.links) {
@@ -177,7 +195,45 @@ export default class Tracker extends Plugin {
                             filePath
                         );
                     if (linkedFile && linkedFile instanceof TFile) {
-                        files.push(linkedFile);
+                        if (searchFileMultifpierAfterLink) {
+                            // Get the line of link in file
+                            let lineNumber = link.position.end.line;
+                            // console.log(lineNumber);
+                            if (lineNumber >= 0 && lineNumber < lines.length) {
+                                let line = lines[lineNumber];
+                                // console.log(line);
+
+                                // Try extract multiplier
+                                // if (link.position)
+                                let splitted = line.split(link.original);
+                                console.log(splitted);
+                                if (splitted.length === 2) {
+                                    let toParse = splitted[1].trim();
+                                    let strRegex = fileMultiplierAfterLink;
+                                    let regex = new RegExp(strRegex, "gm");
+                                    let match;
+                                    while ((match = regex.exec(toParse))) {
+                                        // console.log(match);
+                                        if (
+                                            typeof match.groups !==
+                                                "undefined" &&
+                                            typeof match.groups.value !==
+                                                "undefined"
+                                        ) {
+                                            // must have group name 'value'
+                                            linkedFileMultiplier = parseFloat(
+                                                match.groups.value.trim()
+                                            );
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        for (let i = 0; i < linkedFileMultiplier; i++) {
+                            files.push(linkedFile);
+                        }
                     }
                 }
             }
@@ -205,7 +261,7 @@ export default class Tracker extends Plugin {
         // Get files
         let files: TFile[] = [];
         try {
-            this.getFiles(files, renderInfo);
+            await this.getFiles(files, renderInfo);
         } catch (e) {
             return this.renderErrorMessage(e.message, canvas, el);
         }
