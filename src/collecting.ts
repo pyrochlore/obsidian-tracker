@@ -491,12 +491,16 @@ export function collectDataFromFrontmatterKey(
 
     let frontMatter = fileCache.frontmatter;
     if (frontMatter) {
-        if (helper.deepValue(frontMatter, query.getTarget())) {
-            let toParse = helper.deepValue(frontMatter, query.getTarget());
+        // console.log(frontMatter);
+        // console.log(query.getTarget());
+        let deepValue = helper.deepValue(frontMatter, query.getTarget());
+        // console.log(deepValue);
+        if (deepValue) {
             let retParse = helper.parseFloatFromAny(
-                toParse,
+                deepValue,
                 renderInfo.textValueMap
             );
+            // console.log(retParse);
             if (retParse.value !== null) {
                 if (retParse.type === ValueType.Time) {
                     query.valueType = ValueType.Time;
@@ -529,6 +533,7 @@ export function collectDataFromFrontmatterKey(
             } else if (typeof toParse === "string") {
                 splitted = toParse.split(query.getSeparator());
             }
+            // console.log(splitted);
             if (
                 splitted &&
                 splitted.length > query.getAccessor() &&
