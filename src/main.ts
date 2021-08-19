@@ -206,7 +206,7 @@ export default class Tracker extends Plugin {
                                 // Try extract multiplier
                                 // if (link.position)
                                 let splitted = line.split(link.original);
-                                console.log(splitted);
+                                // console.log(splitted);
                                 if (splitted.length === 2) {
                                     let toParse = splitted[1].trim();
                                     let strRegex = fileMultiplierAfterLink;
@@ -604,7 +604,7 @@ export default class Tracker extends Plugin {
             processInfo.fileAvailable === 0 ||
             !processInfo.gotAnyValidXValue
         ) {
-            dateErrorMessage = `No valid date as X value found in notes.`;
+            dateErrorMessage = `No valid date as X value found in notes`;
             if (processInfo.fileOutOfDateRange > 0) {
                 dateErrorMessage += `\n${processInfo.fileOutOfDateRange} files are out of the date range.`;
             }
