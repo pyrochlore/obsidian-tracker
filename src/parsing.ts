@@ -134,7 +134,7 @@ function getBoolArrayFromInput(
             }
         }
     } else if (typeof input === "string") {
-        let splitted = input.split(",");
+        let splitted = input.split("(?<!\\\\),");
         if (splitted.length > 1) {
             if (splitted.length > numDataset) {
                 errorMessage = "Too many inputs for parameter '" + name + "'";
@@ -275,7 +275,7 @@ function getNumberArrayFromInput(
             }
         }
     } else if (typeof input === "string") {
-        let splitted = input.split(",");
+        let splitted = input.split("(?<!\\\\),");
         if (splitted.length > 1) {
             if (splitted.length > numDataset) {
                 errorMessage = "Too many inputs for parameter '" + name + "'";
@@ -432,7 +432,7 @@ function getStringArrayFromInput(
             }
         }
     } else if (typeof input === "string") {
-        let splitted = input.split(",");
+        let splitted = input.split("(?<!\\\\),");
         if (splitted.length > 1) {
             if (splitted.length > numDataset) {
                 errorMessage = "Too many inputs for parameter '" + name + "'";
@@ -552,7 +552,7 @@ function getNumberArray(name: string, input: any): Array<number> | string {
             }
         }
     } else if (typeof input === "string") {
-        let splitted = input.split(",");
+        let splitted = input.split("(?<!\\\\),");
         if (splitted.length > 1) {
             for (let piece of splitted) {
                 let v = parseFloat(piece.trim());
@@ -600,7 +600,7 @@ function getStringArray(name: string, input: any): Array<string> | string {
             }
         }
     } else if (typeof input === "string") {
-        let splitted = input.split(",");
+        let splitted = input.split("(?<!\\\\),");
         // console.log(splitted);
         if (splitted.length > 1) {
             for (let piece of splitted) {
@@ -909,7 +909,7 @@ export function getRenderInfoFromYaml(
             }
         }
     } else if (typeof yaml.searchTarget === "string") {
-        let splitted = yaml.searchTarget.split(",");
+        let splitted = yaml.searchTarget.split("(?<!\\\\),");
         if (splitted.length > 1) {
             for (let piece of splitted) {
                 piece = piece.trim();
@@ -1021,7 +1021,7 @@ export function getRenderInfoFromYaml(
         return retMultipleValueSparator; // errorMessage
     }
     multipleValueSparator = retMultipleValueSparator.map((sep) => {
-        if (sep === "comma") {
+        if (sep === "comma" || sep === "\\,") {
             return ",";
         }
         return sep;

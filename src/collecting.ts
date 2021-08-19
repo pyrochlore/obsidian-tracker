@@ -438,8 +438,14 @@ export function collectDataFromFrontmatterTag(
         let tagExist = false;
         if (Array.isArray(frontMatter.tags)) {
             frontMatterTags = frontMatterTags.concat(frontMatter.tags);
-        } else {
-            frontMatterTags.push(frontMatter.tags);
+        } else if (typeof frontMatter.tags === "string") {
+            let splitted = frontMatter.tags.split(query.getSeparator());
+            for (let splittedPart of splitted) {
+                let part = splittedPart.trim();
+                if (part !== "") {
+                    frontMatterTags.push(part);
+                }
+            }
         }
 
         for (let tag of frontMatterTags) {
