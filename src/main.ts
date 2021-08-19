@@ -227,8 +227,9 @@ export default class Tracker extends Plugin {
                                                     match.groups.value.trim(),
                                                     renderInfo.textValueMap
                                                 );
-                                            if (Number.isNumber(retParse)) {
-                                                linkedFileMultiplier = retParse;
+                                            if (retParse.value !== null) {
+                                                linkedFileMultiplier =
+                                                    retParse.value;
                                                 break;
                                             }
                                         }
@@ -927,14 +928,16 @@ export default class Tracker extends Plugin {
                     if (columnOfInterest < dataRowSplitted.length) {
                         let data = dataRowSplitted[columnOfInterest].trim();
                         let splitted = data.split(yDatasetQuery.getSeparator());
+                        // console.log(splitted);
                         if (!splitted) continue;
                         if (splitted.length === 1) {
                             let retParse = helper.parseFloatFromAny(
                                 splitted[0],
                                 renderInfo.textValueMap
                             );
-                            if (Number.isNumber(retParse)) {
-                                let value = retParse as number;
+                            // console.log(retParse);
+                            if (retParse.value !== null) {
+                                let value = retParse.value;
                                 if (
                                     indLine < xValues.length &&
                                     xValues[indLine]
@@ -958,12 +961,14 @@ export default class Tracker extends Plugin {
                             let value = null;
                             let splittedPart =
                                 splitted[yDatasetQuery.getAccessor(2)].trim();
+                            // console.log(splittedPart);
                             let retParse = helper.parseFloatFromAny(
                                 splittedPart,
                                 renderInfo.textValueMap
                             );
-                            if (Number.isNumber(retParse)) {
-                                value = retParse as number;
+                            // console.log(retParse);
+                            if (retParse.value !== null) {
+                                value = retParse.value;
                                 if (
                                     indLine < xValues.length &&
                                     xValues[indLine]

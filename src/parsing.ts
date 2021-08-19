@@ -298,7 +298,7 @@ function getNumberArrayFromInput(
                         }
                     } else {
                         let currNum = helper.parseFloatFromAny(curr).value;
-                        if (Number.isNumber(currNum)) {
+                        if (currNum !== null) {
                             array[ind] = currNum;
                             numValidValue++;
                         } else {
@@ -311,7 +311,7 @@ function getNumberArrayFromInput(
                     let last = helper.parseFloatFromAny(
                         splitted[input.length - 1].trim()
                     ).value;
-                    if (numValidValue > 0 && Number.isNumber(last)) {
+                    if (numValidValue > 0 && last !== null) {
                         array[ind] = last;
                     } else {
                         array[ind] = defaultValue;
@@ -323,7 +323,7 @@ function getNumberArrayFromInput(
                 // all defaultValue
             } else {
                 let inputNum = helper.parseFloatFromAny(input).value;
-                if (Number.isNumber(inputNum)) {
+                if (inputNum !== null) {
                     array[0] = inputNum;
                     numValidValue++;
                     for (let ind = 1; ind < array.length; ind++) {
