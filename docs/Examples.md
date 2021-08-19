@@ -1,10 +1,12 @@
 # Examples
 
-The following table lists use cases with information of target location (Location), target to track (Target to Track), simplified tracker block (Tracker), and what kind of data you will get ((((O)ccurence/(V)alue). Various kinds of full examples can also be found in the following section after the table.
+We provide a simplified table of use cases and full examples including data.
 
 ## Table of Use Cases
 
-| Location | Target to Track  | Tracker | Get (O)ccurrence/(V)alue |
+Check where (Location) and what (Target to Track) is your target and find the settings (Tracker) you need.
+
+| Location | Target to Track  | Tracker | Get (O)ccurrences/(V)alues |
 |:--------|:-------|:---------|:--:|
 | content | #meditation | searchType: tag<br>searchTarget: meditation | O |
 | frontmatter | ---<br>tags: meditation<br>--- | searchType: tag<br>searchTarget: meditation | O |
@@ -36,7 +38,7 @@ The following table lists use cases with information of target location (Locatio
 
 ## Full examples
 
-Full tracker code blocks can be found in [this folder](https://github.com/pyrochlore/obsidian-tracker/tree/master/examples) and the corresponding notes can be found under folder 'diary' and 'data'.
+Full tracker code blocks can be found in folder [examples](https://github.com/pyrochlore/obsidian-tracker/tree/master/examples) and the corresponding notes (data) can be found under folder '[diary](https://github.com/pyrochlore/obsidian-tracker/tree/master/examples/diary)' and '[data](https://github.com/pyrochlore/obsidian-tracker/tree/master/examples/data)'.
 
 List of all examples
 - [Bloodpressure Tracker](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/BloodPressureTracker.md)
@@ -46,6 +48,7 @@ List of all examples
 - [Mood Tracker](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/MoodTracker.md)
 - [Star Tracker](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/StarTracker.md)
 - [Bar Chart](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestBarChart.md)
+- [Axis Interval and Format](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestAxisIntervalAndFormat.md)
 - [Bullet Chart](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestBullet.md)
 - [Calendar](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestCalendar.md)
 - [Date Formats](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md)
@@ -56,9 +59,11 @@ List of all examples
 - [Multiple Targets / Multiple Values](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestMultipleTargetsMultipleValues.md)
 - [Pie Chart](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestPieChart.md)
 - [Scaling and Positioning](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestScalingAndPositioning.md)
+- [Specified Files](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestSpecifiedFiles.md))
 - [Summary](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestSummary.md)
 - [Table](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestTable.md)
 - [Task](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestTask.md)
+- [Text-value Map](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestTextValueMap.md)
 - [Time Values](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestTimeValues.md)
 - [Word Counting](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestWordCounting.md)
 - [X Dataset](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestXDataset.md)

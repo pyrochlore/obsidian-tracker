@@ -1,26 +1,30 @@
 # Input Parameters
 
-Obsidian-tracker parses key-value pairs in your code block in YAML format and uses them as input parameters. The minimum requirements for parameters are `searchType`, `searchTarget` and one output parameter (`line`, `bar`, `summary`, `bullet`, `month`, or `pie`).
+Obsidian-tracker parses key-value pairs in YAML format in your code block and uses them as input parameters. The minimum requirements for parameters are `searchType`, `searchTarget` and at least one output parameter (`line`, `bar`, `summary`, `bullet`, `month`, or `pie`).
 
 ## Array Input for a Parameter
 
-Some of the parameters can accept more than one value for each target, thus the maximum number of values of the parameter equals the number of targets (NT). If the number of values is less than the number of targets, the plugin will use the previously provided value or use the default value if nothing is provided.
+Some of the parameters can accept more than one value for each target. For those parameters accept different value for each given search target, the maximum number of values should equal to the number of search target (NT). If the number of values are less than the number of targets, Tracker will use the previously provided one in sequence or use the default value if nothing is provided.
 
-Also, some y-axis related parameters for chart (`line` or `bar`), like `yMin`, `yMax`, and `yAxisLabel` accept one value for each y-axis (`left` and `right`). If you only use one axis, or the values for the two axes are the same, only one value is required. If you need the two axes to have different values, assign two values to them. The first one will be used for the left axis and the second one for the right axis.
+For Y axis related parameters, like `yMin`, `yMax`, or `yAxisLabel`, they accept one value for each Y axis (`left` and `right`). If you only use one axis, or the values for the two axes are the same, only one value is required. If you need the two axes to have different values, provide two values to do the work. The first one will be used for the left Y axis and the second one for the right Y axis.
 
-To enter array of values, Use YAML array (e.g. ['value1', 'value2', 'value3']) or simply values separated by comma (e.g. value1, value2, value3). The second method is a syntax surgar of Tracker to simplify the inputs. If YAML special characters are included, be sure to wrap the whole values by single quotes (e.g. 'value1, value2, value3'). Please also check [this](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md) for more information about YAML in Tracker.
+To enter array of values, we can use YAML array (e.g. ['value1', 'value2', 'value3']) or simply values separated by comma (e.g. value1, value2, value3). The second method is a syntax surgar of Tracker to simplify input process. If YAML special characters are required in the inputs, be sure to wrap the whole values by single quotes (e.g. 'value1, value2, value3'). Please also check [this](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/YAML.md) for more information about YAML in Tracker.
 
 ## List of Parameters
 
 ### Root Parameters
 
-These key-value pairs are placed under the code block root.
+These key-value pairs are placed under the root of the code block.
 
 | Key | Description | Number of Values | Default |
 |:--------|:-------|:-----------:|:------|
 | `searchType` | Type of `searchTarget` (tag\|frontmatter\|wiki\|text\|dvField\|table\|fileMeta\|task) | 1~NT | Must be provided |
 | `searchTarget` | Target to search<br>[[detail](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md)] | NT (Number of Targets) | Must be provided |
 | `folder` | Root path containing notes to search | 1 | Root of this vault |
+| `file` | Files to include for searching | N | null |
+| `specifiedFilesOnly` | Ignore files found in `folder` | 1 | false |
+| `fileContainsLinkedFiles` | Include the linked files in the specified files here | N | null |
+| `fileMultiplierAfterLink` | Regex string include named group 'value' <br>to search the multiplier after link | 1 | '' |
 | `dateFormat` | Date format<br> Use [Moment.js](https://momentjscom.readthedocs.io/en/latest/moment/04-displaying/01-format/) format or use [iso-8601](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md#iso-8601-date-format) | 1 | 'YYYY-MM-DD' |
 | `dateFormatPrefix` | Prefix before your dateFormat (accept regex) | 1 | '' |
 | `dateFormatSuffix` | Suffix after your dateFormat (accept regex) | 1 | '' |
@@ -36,15 +40,16 @@ These key-value pairs are placed under the code block root.
 | `penalty` | Value to use if the search target is missing on the day | 1~NT | |
 | `valueShift` | Amount to shift for each collected value | 1~NT | 0 |
 | `valueType` | Not implemented yet | 1~NT | |
+| `textValueMap` | A container key for multiple text-value mapping | | |
 | `fixedScale` | Uniform scaling factor to the graph dimensions | 1 | 1.0 |
 | `fitPanelWidth` | Auto-fit the width of the chart to the container | 1 | false |
 | `margin` | Four margins (top|right|bottom|left) of the graph | 1~4 | 10 |
 | `line` | A container key for parameters related to the line chart | | |
 | `bar` | A container key for parameters related to the bar chart | | |
 | `summary` | A container key for parameters related to the summary output | | |
-| `bullet` | A container key for parameters related to the bullet chart | 
-| `month` | A container key for parameters related to the month view |
-| `pie` | A container key for parameters related to the pie chart |
+| `bullet` | A container key for parameters related to the bullet chart | | | 
+| `month` | A container key for parameters related to the month view | | |
+| `pie` | A container key for parameters related to the pie chart | | |
 
 ### Parameters for Common Charts
 These key-value pairs should be placed under the key `line` or `bar`.
@@ -59,9 +64,10 @@ These key-value pairs should be placed under the key `line` or `bar`.
 | `yAxisColor` | Color of Y axis | 1~2 | 'white'('black'<sup>*</sup>) |
 | `yAxisLabelColor` | Color of Y axis label | 1~2 | 'white'('black'<sup>*</sup>) |
 | `yAxisUnit` | Unit displayed aside Y axis label | 1~2 | '' | 
-yAxisTickInterval
-yAxisTickFormat
-
+| `xAxisTickInterval` | X axis interval between ticks | 1~2 | null |
+| `xAxisTickLabelFormat` | Format of tick label on X axis<br> | 1~2 | null |
+| `yAxisTickInterval` | Y axis interval between ticks | 1~2 | null |
+| `yAxisTickLabelFormat` | Format of tick label on Y axis<br> | 1~2 | null |
 | `yMin` | Minimum value on Y axis | 1~2 |Minimum Y value found | 
 | `yMax` | Maximum value on Y axis | 1~2 | Maximum Y value found |
 | `reverseYAxis` | Flip (upside down) the Y Axis or not (true\|false) | 1~2 | false |
@@ -126,7 +132,7 @@ These key-value pairs should be placed under the key `month`.
 
 | Key | Description | Number of Values | Default |
 |:--------|:-------|:-----------:|:------|
-| `mode` | () | 1 | 
+| `mode` | Pick one mode of the two(circle\|annotation) | 1 | 
 | `dataset` | Index of the dataset of your interest | 1~NT | all indices of non-x searchTarget |
 | `startWeekOn` | First day of a week ('Sun'\|'Mon') | 1 | 'Sun' |
 | `threshold` | Threshold to determine showing a circle on a day or not | 1~NT | 0 |
@@ -147,9 +153,9 @@ These key-value pairs should be placed under the key `month`.
 | `todayRingColor` | Color of the ring on today | 1 | 'white' |
 | `selectedRingColor` | Color of the ring on the selected day | 1 | 'firebrick' |
 | `initMonth` | Initial month to show (YYYY-MM) | 1 | last month found |
-showAnnotation
-annotation
-showAnnotationOfAllTargets
+| `showAnnotation` | Show/hide annotation | 1 | false |
+| `annotation` | Annotation for each piece of data | NT | '' |
+| `showAnnotationOfAllTargets` | Show annotation of all targets at the same time | 1 | false |
 
 
 ### Parameters for Pie Chart
