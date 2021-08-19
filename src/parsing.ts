@@ -1239,6 +1239,11 @@ export function getRenderInfoFromYaml(
     // startDate, endDate
     // console.log("Parsing startDate");
     if (typeof yaml.startDate === "string") {
+        if (/^([\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)m$/.test(yaml.startDate)) {
+            let errorMessage =
+                "'m' for 'minute' is too small for parameter startDate, please use 'd' for 'day' or 'M' for month";
+            return errorMessage;
+        }
         let strStartDate = helper.getDateStringFromInputString(
             yaml.startDate,
             renderInfo.dateFormatPrefix,
@@ -1276,6 +1281,11 @@ export function getRenderInfoFromYaml(
 
     // console.log("Parsing endDate");
     if (typeof yaml.endDate === "string") {
+        if (/^([\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)m$/.test(yaml.endDate)) {
+            let errorMessage =
+                "'m' for 'minute' is too small for parameter endDate, please use 'd' for 'day' or 'M' for month";
+            return errorMessage;
+        }
         let strEndDate = helper.getDateStringFromInputString(
             yaml.endDate,
             renderInfo.dateFormatPrefix,
