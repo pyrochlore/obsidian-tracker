@@ -163,6 +163,7 @@ export default class Tracker extends Plugin {
         if (fileMultiplierAfterLink === "") {
             searchFileMultifpierAfterLink = false;
         } else if (/^[0-9]+$/.test(fileMultiplierAfterLink)) {
+            // integer
             linkedFileMultiplier = parseFloat(fileMultiplierAfterLink);
             searchFileMultifpierAfterLink = false;
         } else if (!/\?<value>/.test(fileMultiplierAfterLink)) {
@@ -221,10 +222,15 @@ export default class Tracker extends Plugin {
                                                 "undefined"
                                         ) {
                                             // must have group name 'value'
-                                            linkedFileMultiplier = parseFloat(
-                                                match.groups.value.trim()
-                                            );
-                                            break;
+                                            let retParse =
+                                                helper.parseFloatFromAny(
+                                                    match.groups.value.trim(),
+                                                    renderInfo.textValueMap
+                                                );
+                                            if (Number.isNumber(retParse)) {
+                                                linkedFileMultiplier = retParse;
+                                                break;
+                                            }
                                         }
                                     }
                                 }
@@ -923,8 +929,12 @@ export default class Tracker extends Plugin {
                         let splitted = data.split(yDatasetQuery.getSeparator());
                         if (!splitted) continue;
                         if (splitted.length === 1) {
-                            let value = parseFloat(splitted[0]);
-                            if (Number.isNumber(value)) {
+                            let retParse = helper.parseFloatFromAny(
+                                splitted[0],
+                                renderInfo.textValueMap
+                            );
+                            if (Number.isNumber(retParse)) {
+                                let value = retParse as number;
                                 if (
                                     indLine < xValues.length &&
                                     xValues[indLine]
@@ -948,8 +958,12 @@ export default class Tracker extends Plugin {
                             let value = null;
                             let splittedPart =
                                 splitted[yDatasetQuery.getAccessor(2)].trim();
-                            value = parseFloat(splittedPart);
-                            if (Number.isNumber(value)) {
+                            let retParse = helper.parseFloatFromAny(
+                                splittedPart,
+                                renderInfo.textValueMap
+                            );
+                            if (Number.isNumber(retParse)) {
+                                value = retParse as number;
                                 if (
                                     indLine < xValues.length &&
                                     xValues[indLine]
