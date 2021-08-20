@@ -31,7 +31,7 @@ These key-value pairs are placed under the root of the code block.
 | `startDate` | Start date to collect data from<br>accept [relative date](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md#relative-date-input-for-startdate-and-enddate) | 1 | Min date found |
 | `endDate` | End date of to collect data<br>accept [relative date](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md#relative-date-input-for-startdate-and-enddate) | 1 | Max date found |
 | `datasetName` | Name of the dataset for a search target` | 1~NT | untitled |
-| `separator` | Character used to separate multiple values appearing in the search target | 1~NT | '/' |
+| `separator` | Character used to separate multiple values appearing in the search target | 1~NT | '/' <br> ',' in front matter tags |
 | `xDataset` | Index of `searchTarget` used as xDataset | 1~NT | -1 (use filename as xDataset) |
 | `constValue` | Constant value of a target if no value attached | 1~NT | 1.0 |
 | `ignoreAttachedValue` | Use `constValue` even if the target has a value attached on (true\|false) | 1~NT | false |

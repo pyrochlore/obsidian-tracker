@@ -68,7 +68,7 @@ export class Query {
     constructor(id: number, searchType: SearchType, searchTarget: string) {
         this.type = searchType;
         this.target = searchTarget;
-        this.separator = "/";
+        this.separator = "";// separator to separate multiple values
         this.id = id;
         this.accessor = -1;
         this.accessor1 = -1;
@@ -172,7 +172,13 @@ export class Query {
         this.separator = sep;
     }
 
-    public getSeparator() {
+    public getSeparator(isForFrontmatterTags: boolean = false) {
+        if (this.separator === "") {
+            if (isForFrontmatterTags) {
+                return ",";
+            }
+            return "/";
+        }
         return this.separator;
     }
 

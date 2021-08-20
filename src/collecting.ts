@@ -439,7 +439,7 @@ export function collectDataFromFrontmatterTag(
         if (Array.isArray(frontMatter.tags)) {
             frontMatterTags = frontMatterTags.concat(frontMatter.tags);
         } else if (typeof frontMatter.tags === "string") {
-            let splitted = frontMatter.tags.split(query.getSeparator());
+            let splitted = frontMatter.tags.split(query.getSeparator(true));
             for (let splittedPart of splitted) {
                 let part = splittedPart.trim();
                 if (part !== "") {
@@ -447,6 +447,8 @@ export function collectDataFromFrontmatterTag(
                 }
             }
         }
+        // console.log(frontMatterTags);
+        // console.log(query.getTarget());
 
         for (let tag of frontMatterTags) {
             if (tag === query.getTarget()) {

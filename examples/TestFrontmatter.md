@@ -36,14 +36,31 @@ line:
 ```
 
 ## Multiple Tags in Front Matter
-Use 'comma', or '\,' in parameter `separator`
-Notice the comma character should be escaped
+Extract data of one tag from multiple tags
+The default separator in front matter tags is comma (,)
+``` tracker
+searchType: tag
+searchTarget: work_log
+folder: diary
+accum: true
+startDate: 2021-01-01
+endDate: 2021-01-31
+line:
+    title: Work Log
+    yAxisLabel: Count
+    pointSize: 5
+    pointColor: white
+    pointBorderWidth: 2
+    pointBorderColor: "#d65d0e"
+```
+
+Use the data of two tags
+The default separator in front matter tags is comma (,)
 ``` tracker
 searchType: tag
 searchTarget: work_log, work_log2
 folder: diary
 datasetName: Work1, Work2
-separator: '\,'
 month:
     initMonth: 2021-01
 ```

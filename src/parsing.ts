@@ -1014,7 +1014,7 @@ export function getRenderInfoFromYaml(
         "separator",
         yaml.separator,
         numDatasets,
-        "/",
+        "",// set the default value later
         null,
         true
     );
