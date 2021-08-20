@@ -69,6 +69,18 @@ function validateColor(color: string): boolean {
     return true;
 }
 
+function splitInputByComma(input: string) {
+    // Split string by ',' but not by '\,'
+    // let splitted = input.split(/(?<!\\),/); // -->lookbehind not support in Safari for now
+    const dummy = "::::::tracker::::::";
+    let temp = input.replaceAll("\\,", dummy);
+    let splitted = temp.split(",");
+    for (let ind = 0; ind < splitted.length; ind++) {
+        splitted[ind] = splitted[ind].replaceAll(dummy, ",");
+    }
+    return splitted;
+}
+
 function getBoolArrayFromInput(
     name: string,
     input: any,
@@ -134,7 +146,7 @@ function getBoolArrayFromInput(
             }
         }
     } else if (typeof input === "string") {
-        let splitted = input.split(/(?<!\\),/);
+        let splitted = splitInputByComma(input);
         if (splitted.length > 1) {
             if (splitted.length > numDataset) {
                 errorMessage = "Too many inputs for parameter '" + name + "'";
@@ -275,7 +287,7 @@ function getNumberArrayFromInput(
             }
         }
     } else if (typeof input === "string") {
-        let splitted = input.split(/(?<!\\),/);
+        let splitted = splitInputByComma(input);
         if (splitted.length > 1) {
             if (splitted.length > numDataset) {
                 errorMessage = "Too many inputs for parameter '" + name + "'";
@@ -432,7 +444,7 @@ function getStringArrayFromInput(
             }
         }
     } else if (typeof input === "string") {
-        let splitted = input.split(/(?<!\\),/);
+        let splitted = splitInputByComma(input);
         if (splitted.length > 1) {
             if (splitted.length > numDataset) {
                 errorMessage = "Too many inputs for parameter '" + name + "'";
@@ -552,7 +564,7 @@ function getNumberArray(name: string, input: any): Array<number> | string {
             }
         }
     } else if (typeof input === "string") {
-        let splitted = input.split(/(?<!\\),/);
+        let splitted = splitInputByComma(input);
         if (splitted.length > 1) {
             for (let piece of splitted) {
                 let v = parseFloat(piece.trim());
@@ -600,7 +612,7 @@ function getStringArray(name: string, input: any): Array<string> | string {
             }
         }
     } else if (typeof input === "string") {
-        let splitted = input.split(/(?<!\\),/);
+        let splitted = splitInputByComma(input);
         // console.log(splitted);
         if (splitted.length > 1) {
             for (let piece of splitted) {
@@ -909,7 +921,7 @@ export function getRenderInfoFromYaml(
             }
         }
     } else if (typeof yaml.searchTarget === "string") {
-        let splitted = yaml.searchTarget.split(/(?<!\\),/);
+        let splitted = splitInputByComma(yaml.searchTarget);
         // console.log(splitted);
         if (splitted.length > 1) {
             for (let piece of splitted) {
@@ -1014,7 +1026,7 @@ export function getRenderInfoFromYaml(
         "separator",
         yaml.separator,
         numDatasets,
-        "",// set the default value later
+        "", // set the default value later
         null,
         true
     );
@@ -1022,7 +1034,7 @@ export function getRenderInfoFromYaml(
         return retMultipleValueSparator; // errorMessage
     }
     multipleValueSparator = retMultipleValueSparator.map((sep) => {
-        if (sep === "comma" || sep === "\\,") {
+        if (sep === "comma") {
             return ",";
         }
         return sep;
