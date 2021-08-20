@@ -1,47 +1,32 @@
 # Frequently Asked Questions
 
-- Does Tracker only track data in daily notes (notes named by dates)?
+- Does Tracker only track data in daily notes (file names contain dates)?
 
-    No. From version 1.6.0, you can use collect date data from file meta data with search type `fileMeta` and use that dataset as `xDataset`. So any notes can be included.
+    No. The file name of your notes could be any string. But we do need a date from each file. If it is not from the file name, we should add one more `searchTarget` and use that target as the source of X values by setting parameter `xDataset` to its index. The searchType `fileMeta` with `searchTarget` cDate (creation date) and mDate (modification date) are always accessible as date sources if you don't have any. Examples of these use cases could be found [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestXDataset.md).
 
-- Does Tracker only track data over dates?
+- Why my line chart looks broken (not connected) at some points?
 
-    Yes. The data type of x values should be in the form of date for now. This constrain might be relaxed in future.
+    Tracker only connects adjacent points (neighbor points by date) by default. To force it connecting points over missing data, set the parameter `fillGap` under `line` or `bar` to true.
 
-- Why my line chart looks broken at some points?
+- Why the plugin shows error 'No valid date as X value found in notes'?
 
-    The plugin only connects adjacent points (by date) by default. To force it connecting points over missing data, set the parameter `fillGap` under `line` to true.
+    First we have to confirm where is the source of your X values. Tracker always needs X values in dates. The default source of X values are the file names of your notes. As long as a proper `dateFormat` was assigned, and combine with `dateFormatPrefix` and `dateFormatSuffix`, the dates in file names could be extracted from your file names successfully.
 
-- Why the plugin shows 'No notes found under the given search condition'?
+    If the date values are from front matter, dataview inline field, or other places, choose the right `searchType` and `searchTarget` and mark them as `xDataset`, Tracker will collect X values for you.
 
-    There are few possibilities for this error messages.
-    1. No files in the given folder
-    2. No files or x data values matched the dateFormat you gave in the given folder
-    3. No files in the date range you gave (from startDate to endDate)
+    If you don't have any date values, and you just want to count the number of occurrences of a target. As a trick, you can use the creation date (cDate) or modification date (mDate) of the file as X data source. 
+
+    Examples of these use cases could be found [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestXDataset.md).
+
+- Wny the plugin shows error 'No valid Y value found in notes'?
+
+    That means no matched data found in your notes. Please check the document for the detail of [target evaluation](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md).
 
 - Why the plugin shows 'Error parsing YAML'?
 
-    There are syntax errors in your code block. Please check [this document](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/YAML.md) for common mistakes.
-
-- Why no data (points or lines) is shown in my chart?
-
-    That means no matched data found in your notes. Please check `searchType` and `searchTarget` in your notes and the document for [target evaluation](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md).
-
-    For example, if you were doing tag search (`searchType` input is `tag`), an additional space between the colon and the value will leads to data missing. If the space in between is a must, you can use `text` search with regular expression instead of `tag`. Here is an example.
-
-    To Track '#tagName: 10' in daily notes. Use
-```
-searchType: text
-searchTarget: 'tagName:\s(?<value>[0-9]+)'
-......
-```
-    More cases can be found [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestRegex.md)
+    There are syntax errors in your code block. Please check [this document](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/YAML.md) for common issues.
 
 ---
 
-Please also check [these trackers](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/ErrorMessages.md) for more cases leading to error messages.
-
----
-
-Still have problems?? You might encounter bugs.
+Still have problems?? You might encounter a bug.
 Welcome to leave an issue [here](https://github.com/pyrochlore/obsidian-tracker/issues).

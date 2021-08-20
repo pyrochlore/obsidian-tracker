@@ -9,7 +9,7 @@ startDate: 2021-01-01
 endDate: 2021-01-31
 line:
     title: dvField
-	lineColor: green
+    lineColor: green
 ```
 
 Field with a space
@@ -21,7 +21,7 @@ startDate: 2021-01-01
 endDate: 2021-01-31
 line:
     title: dvField
-	lineColor: yellow
+    lineColor: yellow
 ```
 
 Field with a dash line
@@ -33,7 +33,7 @@ startDate: 2021-01-01
 endDate: 2021-01-31
 line:
     title: dvField
-	lineColor: red
+    lineColor: red
 ```
 
 Extract the first value from multiple values
@@ -45,7 +45,7 @@ startDate: 2021-01-01
 endDate: 2021-01-31
 line:
     title: dvField
-	lineColor: blue
+    lineColor: blue
 ```
 
 Multiple values separated by '/' (default)

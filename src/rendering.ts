@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { Moment } from "moment";
+import { Moment, Duration } from "moment";
 import {
     Datasets,
     DataPoint,
@@ -25,107 +25,194 @@ import * as month from "./month";
 import * as heatmap from "./heatmap";
 import * as bullet from "./bullet";
 import * as helper from "./helper";
+import { sprintf } from "sprintf-js";
 
-function getXTickInterval(datasets: Datasets) {
-    let tickInterval;
-    let days = datasets.getDates().length;
+function getXTickValues(
+    dates: Moment[],
+    interval: Duration
+): [Array<Date>, d3.TimeInterval] {
+    // The input interval could be null,
+    // generate tick values even if interval is null
 
-    if (days <= 15) {
-        // number of ticks: 0-15
-        tickInterval = d3.timeDay;
-    } else if (days <= 4 * 15) {
-        // number of ticks: 4-15
-        tickInterval = d3.timeDay.every(4);
-    } else if (days <= 7 * 15) {
-        // number of ticks: 8-15
-        tickInterval = d3.timeWeek;
-    } else if (days <= 15 * 30) {
-        // number of ticks: 4-15
-        tickInterval = d3.timeMonth;
-    } else if (days <= 15 * 60) {
-        // number of ticks: 8-15
-        tickInterval = d3.timeMonth.every(2);
+    // console.log(interval);
+
+    let tickValues: Array<Date> = [];
+    let tickInterval = null;
+
+    // y values are time values
+    if (interval) {
+        let firstDate = dates[0];
+        let lastDate = dates[dates.length - 1];
+        tickValues = d3.timeDay.range(
+            firstDate.toDate(),
+            lastDate.toDate(),
+            interval.asDays()
+        );
     } else {
-        tickInterval = d3.timeYear;
+        let days = dates.length;
+        if (days <= 15) {
+            // number of ticks: 0-15
+            tickInterval = d3.timeDay;
+        } else if (days <= 4 * 15) {
+            // number of ticks: 4-15
+            tickInterval = d3.timeDay.every(4);
+        } else if (days <= 7 * 15) {
+            // number of ticks: 8-15
+            tickInterval = d3.timeWeek;
+        } else if (days <= 15 * 30) {
+            // number of ticks: 4-15
+            tickInterval = d3.timeMonth;
+        } else if (days <= 15 * 60) {
+            // number of ticks: 8-15
+            tickInterval = d3.timeMonth.every(2);
+        } else {
+            tickInterval = d3.timeYear;
+        }
     }
 
-    return tickInterval;
+    return [tickValues, tickInterval];
 }
 
-function getXTickFormat(datasets: Datasets) {
-    let tickFormat;
-    let days = datasets.getDates().length;
-
-    if (days <= 15) {
-        // number of ticks: 0-15
-        tickFormat = d3.timeFormat("%y-%m-%d");
-    } else if (days <= 4 * 15) {
-        // number of ticks: 4-15
-        tickFormat = d3.timeFormat("%y-%m-%d");
-    } else if (days <= 7 * 15) {
-        // number of ticks: 8-15
-        tickFormat = d3.timeFormat("%y-%m-%d");
-    } else if (days <= 15 * 30) {
-        // number of ticks: 4-15
-        tickFormat = d3.timeFormat("%y %b");
-    } else if (days <= 15 * 60) {
-        // number of ticks: 8-15
-        tickFormat = d3.timeFormat("%y %b");
+function getXTickLabelFormat(dates: Moment[], inTickLabelFormat: string) {
+    if (inTickLabelFormat) {
+        function fnTickLabelFormat(date: Date): string {
+            return helper.dateToStr(window.moment(date), inTickLabelFormat);
+        }
+        return fnTickLabelFormat;
     } else {
-        tickFormat = d3.timeFormat("%Y");
-    }
+        let tickLabelFormat = null;
+        let days = dates.length;
 
-    return tickFormat;
+        if (days <= 15) {
+            // number of ticks: 0-15
+            tickLabelFormat = d3.timeFormat("%y-%m-%d");
+        } else if (days <= 4 * 15) {
+            // number of ticks: 4-15
+            tickLabelFormat = d3.timeFormat("%y-%m-%d");
+        } else if (days <= 7 * 15) {
+            // number of ticks: 8-15
+            tickLabelFormat = d3.timeFormat("%y-%m-%d");
+        } else if (days <= 15 * 30) {
+            // number of ticks: 4-15
+            tickLabelFormat = d3.timeFormat("%y %b");
+        } else if (days <= 15 * 60) {
+            // number of ticks: 8-15
+            tickLabelFormat = d3.timeFormat("%y %b");
+        } else {
+            tickLabelFormat = d3.timeFormat("%Y");
+        }
+
+        return tickLabelFormat;
+    }
 }
 
-function getYTickValues(yLower: number, yUpper: number) {
-    // currently used for time value tick only, value in seconds
+function getYTickValues(
+    yLower: number,
+    yUpper: number,
+    interval: number | Duration,
+    isTimeValue = false
+) {
+    // The input interval could be null,
+    // generate tick values for time values even if interval is null
+
+    // console.log(interval);
+    // console.log(isTimeValue);
+
     const absExtent = Math.abs(yUpper - yLower);
-    let tickValues = [];
-    if (absExtent > 5 * 60 * 60) {
-        // extent over than 5 hours
-        // tick on the hour
-        yLower = Math.floor(yLower / 3600) * 3600;
-        yUpper = Math.ceil(yUpper / 3600) * 3600;
+    let tickValues: Array<number> = [];
 
-        tickValues = d3.range(yLower, yUpper, 3600);
+    if (!isTimeValue) {
+        // y values are numbers
+        if (interval && typeof interval === "number") {
+            // !==null && !== 0
+            tickValues = d3.range(yLower, yUpper, interval);
+        }
     } else {
-        // tick on the half hour
-        yLower = Math.floor(yLower / 1800) * 1800;
-        yUpper = Math.ceil(yUpper / 1800) * 1800;
+        // y values are time values
+        if (interval && window.moment.isDuration(interval)) {
+            let intervalInSeconds = Math.abs(interval.asSeconds());
+            tickValues = d3.range(yLower, yUpper, intervalInSeconds);
+        } else {
+            // auto interval for time values
+            if (absExtent > 5 * 60 * 60) {
+                // extent over than 5 hours
+                // tick on the hour
+                yLower = Math.floor(yLower / 3600) * 3600;
+                yUpper = Math.ceil(yUpper / 3600) * 3600;
 
-        tickValues = d3.range(yLower, yUpper, 1800);
+                tickValues = d3.range(yLower, yUpper, 3600);
+            } else {
+                // tick on the half hour
+                yLower = Math.floor(yLower / 1800) * 1800;
+                yUpper = Math.ceil(yUpper / 1800) * 1800;
+
+                tickValues = d3.range(yLower, yUpper, 1800);
+            }
+        }
     }
 
+    if (tickValues.length === 0) return null;
     return tickValues;
 }
 
-function getYTickFormat(yLower: number, yUpper: number, skip: boolean = true) {
-    // currently used for time value tick only
+function getYTickLabelFormat(
+    yLower: number,
+    yUpper: number,
+    inTickLabelFormat: string,
+    isTimeValue = false
+) {
     // return a function convert value to time string
-    function tickFormat(value: number): string {
-        const absExtent = Math.abs(yUpper - yLower);
-        let dayStart = window.moment("00:00", "HH:mm", true);
-        let tickTime = dayStart.add(value, "seconds");
-        let format = tickTime.format("HH:mm");
-        if (skip && absExtent > 12 * 60 * 60) {
-            let devHour = (value - yLower) / 3600;
-            let interleave = devHour % 2;
-            if (value <= yLower) {
-                format = "";
-            } else if (value >= yUpper) {
-                format = "";
-            } else if (interleave > 1.0) {
-                format = tickTime.format("HH:mm");
-            } else {
-                format = "";
-            }
-        }
 
-        return format;
+    if (!isTimeValue) {
+        if (inTickLabelFormat) {
+            function tickFormat(value: number): string {
+                let strValue = sprintf("%" + inTickLabelFormat, value);
+                return strValue;
+            }
+
+            return tickFormat;
+        }
+        return d3.tickFormat(yLower, yUpper, 10);
+    } else {
+        // values in seconds
+        if (inTickLabelFormat) {
+            function fnTickLabelFormat(value: number): string {
+                let dayStart = window.moment("00:00", "HH:mm", true);
+                let tickTime = dayStart.add(value, "seconds");
+                let format = tickTime.format(inTickLabelFormat);
+
+                let devHour = (value - yLower) / 3600;
+                let interleave = devHour % 2;
+
+                return format;
+            }
+            return fnTickLabelFormat;
+        } else {
+            function fnTickLabelFormat(value: number): string {
+                const absExtent = Math.abs(yUpper - yLower);
+                let dayStart = window.moment("00:00", "HH:mm", true);
+                let tickTime = dayStart.add(value, "seconds");
+                let format = tickTime.format("HH:mm");
+                // console.log(`yLower/yUpper: ${yLower}/${yUpper}`)
+                // console.log(`value/extent/inter:${value}/${absExtent}/${(value-yLower)/3600}`);
+
+                // auto interleave if extent over 12 hours
+                if (absExtent > 12 * 60 * 60) {
+                    let devHour = (value - yLower) / 3600;
+                    let interleave = devHour % 2;
+                    if (value < yLower || value > yUpper || interleave < 1.0) {
+                        format = "";
+                    }
+                }
+
+                return format;
+            }
+
+            return fnTickLabelFormat;
+        }
     }
 
-    return tickFormat;
+    return null;
 }
 
 export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
@@ -210,13 +297,30 @@ function renderXAxis(
         .range([0, renderInfo.dataAreaSize.width]);
     chartElements["xScale"] = xScale;
 
-    let tickInterval = getXTickInterval(datasets);
-    let tickFormat = getXTickFormat(datasets);
+    let tickIntervalInDuration = helper.parseDurationString(
+        chartInfo.xAxisTickInterval
+    );
 
-    let xAxisGen = d3
-        .axisBottom(xScale)
-        .ticks(tickInterval)
-        .tickFormat(tickFormat);
+    let [tickValues, tickInterval] = getXTickValues(
+        datasets.getDates(),
+        tickIntervalInDuration
+    );
+    let tickFormat = getXTickLabelFormat(
+        datasets.getDates(),
+        chartInfo.xAxisTickLabelFormat
+    );
+
+    let xAxisGen = d3.axisBottom(xScale);
+
+    if (tickValues && tickValues.length !== 0) {
+        xAxisGen.tickValues(tickValues);
+    } else if (tickInterval) {
+        xAxisGen.ticks(tickInterval);
+    }
+    if (tickFormat) {
+        xAxisGen.tickFormat(tickFormat);
+    }
+
     let xAxis = chartElements.dataArea // axis includes ticks
         .append("g")
         .attr("id", "xAxis")
@@ -413,10 +517,26 @@ function renderYAxis(
     }
 
     let yAxisUnitText = "";
+    let yAxisTickInterval = null;
+    let yAxisTickLabelFormat = null;
     if (yAxisLocation === "left") {
         yAxisUnitText = chartInfo.yAxisUnit[0];
+        yAxisTickInterval = chartInfo.yAxisTickInterval[0]; // string
+        yAxisTickLabelFormat = chartInfo.yAxisTickLabelFormat[0];
     } else if (yAxisLocation === "right") {
         yAxisUnitText = chartInfo.yAxisUnit[1];
+        yAxisTickInterval = chartInfo.yAxisTickInterval[1]; // string
+        yAxisTickLabelFormat = chartInfo.yAxisTickLabelFormat[1];
+    }
+    // get interval from string
+    let tickInterval = null;
+    if (valueIsTime) {
+        tickInterval = helper.parseDurationString(yAxisTickInterval);
+    } else {
+        tickInterval = parseFloat(yAxisTickInterval);
+        if (!Number.isNumber(tickInterval) || Number.isNaN(tickInterval)) {
+            tickInterval = null;
+        }
     }
 
     let yAxisGen;
@@ -425,10 +545,25 @@ function renderYAxis(
     } else if (yAxisLocation === "right") {
         yAxisGen = d3.axisRight(yScale);
     }
-    if (yAxisGen && valueIsTime) {
-        let tickFormat = getYTickFormat(yLower, yUpper);
-        let tickValues = getYTickValues(yLower, yUpper);
-        yAxisGen.tickValues(tickValues).tickFormat(tickFormat);
+    if (yAxisGen) {
+        let tickLabelFormat = getYTickLabelFormat(
+            yLower,
+            yUpper,
+            yAxisTickLabelFormat,
+            valueIsTime
+        );
+        if (tickLabelFormat) {
+            yAxisGen.tickFormat(tickLabelFormat);
+        }
+        let tickValues = getYTickValues(
+            yLower,
+            yUpper,
+            tickInterval,
+            valueIsTime
+        );
+        if (tickValues) {
+            yAxisGen.tickValues(tickValues);
+        }
     }
 
     let yAxis = chartElements.dataArea
@@ -466,16 +601,19 @@ function renderYAxis(
     }
 
     // Get max tick label width
-    let yTickFormat = d3.tickFormat(yLower, yUpper, 10);
-    if (valueIsTime) {
-        yTickFormat = getYTickFormat(yLower, yUpper, false);
-    }
+    let yTickLabelFormat = getYTickLabelFormat(
+        yLower,
+        yUpper,
+        yAxisTickLabelFormat,
+        valueIsTime
+    );
+
     let yLowerLabelSize = helper.measureTextSize(
-        yTickFormat(yLower),
+        yTickLabelFormat(yLower),
         "tracker-axis-label"
     );
     let yUpperLabelSize = helper.measureTextSize(
-        yTickFormat(yUpper),
+        yTickLabelFormat(yUpper),
         "tracker-axis-label"
     );
     let maxTickLabelWidth = Math.max(

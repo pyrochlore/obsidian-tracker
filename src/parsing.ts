@@ -43,6 +43,8 @@ function validateSearchType(searchType: string): boolean {
         searchType.toLowerCase() === "text" ||
         searchType.toLowerCase() === "frontmatter" ||
         searchType.toLowerCase() === "wiki" ||
+        searchType.toLowerCase() === "wiki.link" ||
+        searchType.toLowerCase() === "wiki.display" ||
         searchType.toLowerCase() === "dvfield" ||
         searchType.toLowerCase() === "table" ||
         searchType.toLowerCase() === "filemeta" ||
@@ -132,7 +134,7 @@ function getBoolArrayFromInput(
             }
         }
     } else if (typeof input === "string") {
-        let splitted = input.split(",");
+        let splitted = input.split(/(?<!\\),/);
         if (splitted.length > 1) {
             if (splitted.length > numDataset) {
                 errorMessage = "Too many inputs for parameter '" + name + "'";
@@ -273,7 +275,7 @@ function getNumberArrayFromInput(
             }
         }
     } else if (typeof input === "string") {
-        let splitted = input.split(",");
+        let splitted = input.split(/(?<!\\),/);
         if (splitted.length > 1) {
             if (splitted.length > numDataset) {
                 errorMessage = "Too many inputs for parameter '" + name + "'";
@@ -296,7 +298,7 @@ function getNumberArrayFromInput(
                         }
                     } else {
                         let currNum = helper.parseFloatFromAny(curr).value;
-                        if (Number.isNumber(currNum)) {
+                        if (currNum !== null) {
                             array[ind] = currNum;
                             numValidValue++;
                         } else {
@@ -309,7 +311,7 @@ function getNumberArrayFromInput(
                     let last = helper.parseFloatFromAny(
                         splitted[input.length - 1].trim()
                     ).value;
-                    if (numValidValue > 0 && Number.isNumber(last)) {
+                    if (numValidValue > 0 && last !== null) {
                         array[ind] = last;
                     } else {
                         array[ind] = defaultValue;
@@ -321,7 +323,7 @@ function getNumberArrayFromInput(
                 // all defaultValue
             } else {
                 let inputNum = helper.parseFloatFromAny(input).value;
-                if (Number.isNumber(inputNum)) {
+                if (inputNum !== null) {
                     array[0] = inputNum;
                     numValidValue++;
                     for (let ind = 1; ind < array.length; ind++) {
@@ -430,7 +432,7 @@ function getStringArrayFromInput(
             }
         }
     } else if (typeof input === "string") {
-        let splitted = input.split(",");
+        let splitted = input.split(/(?<!\\),/);
         if (splitted.length > 1) {
             if (splitted.length > numDataset) {
                 errorMessage = "Too many inputs for parameter '" + name + "'";
@@ -496,6 +498,25 @@ function getStringArrayFromInput(
                 }
             }
         }
+    } else if (typeof input === "number") {
+        let strNumber = input.toString();
+        if (validator) {
+            if (validator(strNumber)) {
+                array[0] = strNumber;
+                numValidValue++;
+                for (let ind = 1; ind < array.length; ind++) {
+                    array[ind] = strNumber;
+                }
+            } else {
+                errorMessage = "Invalid inputs for " + name;
+            }
+        } else {
+            array[0] = strNumber;
+            numValidValue++;
+            for (let ind = 1; ind < array.length; ind++) {
+                array[ind] = strNumber;
+            }
+        }
     } else {
         errorMessage = "Invalid inputs for " + name;
     }
@@ -531,7 +552,7 @@ function getNumberArray(name: string, input: any): Array<number> | string {
             }
         }
     } else if (typeof input === "string") {
-        let splitted = input.split(",");
+        let splitted = input.split(/(?<!\\),/);
         if (splitted.length > 1) {
             for (let piece of splitted) {
                 let v = parseFloat(piece.trim());
@@ -574,16 +595,16 @@ function getStringArray(name: string, input: any): Array<string> | string {
         if (Array.isArray(input)) {
             for (let elem of input) {
                 if (typeof elem === "string") {
-                    strArray.push(elem);
+                    strArray.push(elem.trim());
                 }
             }
         }
     } else if (typeof input === "string") {
-        let splitted = input.split(",");
+        let splitted = input.split(/(?<!\\),/);
         // console.log(splitted);
         if (splitted.length > 1) {
             for (let piece of splitted) {
-                strArray.push(piece);
+                strArray.push(piece.trim());
             }
         } else if (input === "") {
             let errorMessage = `Empty ${name} is not allowed.`;
@@ -745,6 +766,56 @@ function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
     renderInfo.yAxisUnit = retYAxisUnit;
     // console.log(renderInfo.yAxisUnit);
 
+    // xAxisTickInterval
+    if (typeof yaml?.xAxisTickInterval === "string") {
+        renderInfo.xAxisTickInterval = yaml.xAxisTickInterval;
+    } else if (typeof yaml?.xAxisTickInterval === "number") {
+        renderInfo.xAxisTickInterval = yaml.xAxisTickInterval.toString();
+    }
+    // console.log(renderInfo.xAxisTickInterval);
+
+    // yAxisTickInterval
+    let retYAxisTickInterval = getStringArrayFromInput(
+        "yAxisTickInterval",
+        yaml?.yAxisTickInterval,
+        2,
+        null,
+        null,
+        true
+    );
+    if (typeof retYAxisTickInterval === "string") {
+        return retYAxisTickInterval; // errorMessage
+    }
+    if (retYAxisTickInterval.length > 2) {
+        return "yAxisTickInterval accepts not more than two values for left and right y-axes";
+    }
+    renderInfo.yAxisTickInterval = retYAxisTickInterval;
+    // console.log(renderInfo.yAxisTickInterval);
+
+    // xAxisTickLabelFormat
+    if (typeof yaml?.xAxisTickLabelFormat === "string") {
+        renderInfo.xAxisTickLabelFormat = yaml.xAxisTickLabelFormat;
+    }
+    // console.log(renderInfo.xAxisTickLabelFormat);
+
+    // yAxisTickLabelFormat
+    let retYAxisTickLabelFormat = getStringArrayFromInput(
+        "yAxisTickLabelFormat",
+        yaml?.yAxisTickLabelFormat,
+        2,
+        null,
+        null,
+        true
+    );
+    if (typeof retYAxisTickLabelFormat === "string") {
+        return retYAxisTickLabelFormat; // errorMessage
+    }
+    if (retYAxisTickLabelFormat.length > 2) {
+        return "yAxisTickLabelFormat accepts not more than two values for left and right y-axes";
+    }
+    renderInfo.yAxisTickLabelFormat = retYAxisTickLabelFormat;
+    // console.log(renderInfo.yAxisTickLabelFormat);
+
     // yMin
     let retYMin = getNumberArrayFromInput("yMin", yaml?.yMin, 2, null, true);
     if (typeof retYMin === "string") {
@@ -838,7 +909,8 @@ export function getRenderInfoFromYaml(
             }
         }
     } else if (typeof yaml.searchTarget === "string") {
-        let splitted = yaml.searchTarget.split(",");
+        let splitted = yaml.searchTarget.split(/(?<!\\),/);
+        // console.log(splitted);
         if (splitted.length > 1) {
             for (let piece of splitted) {
                 piece = piece.trim();
@@ -893,6 +965,12 @@ export function getRenderInfoFromYaml(
             case "wiki":
                 searchType.push(SearchType.Wiki);
                 break;
+            case "wiki.link":
+                searchType.push(SearchType.WikiLink);
+                break;
+            case "wiki.display":
+                searchType.push(SearchType.WikiDisplay);
+                break;
             case "text":
                 searchType.push(SearchType.Text);
                 break;
@@ -936,7 +1014,7 @@ export function getRenderInfoFromYaml(
         "separator",
         yaml.separator,
         numDatasets,
-        "/",
+        "",// set the default value later
         null,
         true
     );
@@ -944,7 +1022,7 @@ export function getRenderInfoFromYaml(
         return retMultipleValueSparator; // errorMessage
     }
     multipleValueSparator = retMultipleValueSparator.map((sep) => {
-        if (sep === "comma") {
+        if (sep === "comma" || sep === "\\,") {
             return ",";
         }
         return sep;
@@ -1095,6 +1173,45 @@ export function getRenderInfoFromYaml(
         return errorMessage;
     }
 
+    // file
+    if (typeof yaml.file === "string") {
+        let retFiles = getStringArray("file", yaml.file);
+        if (typeof retFiles === "string") {
+            return retFiles; // error message
+        }
+        renderInfo.file = retFiles;
+    }
+    // console.log(renderInfo.file);
+
+    // specifiedFilesOnly
+    if (typeof yaml.specifiedFilesOnly === "boolean") {
+        renderInfo.specifiedFilesOnly = yaml.specifiedFilesOnly;
+    }
+    // console.log(renderInfo.specifiedFilesOnly);
+
+    // fileContainsLinkedFiles
+    if (typeof yaml.fileContainsLinkedFiles === "string") {
+        let retFiles = getStringArray(
+            "fileContainsLinkedFiles",
+            yaml.fileContainsLinkedFiles
+        );
+        if (typeof retFiles === "string") {
+            return retFiles;
+        }
+        renderInfo.fileContainsLinkedFiles = retFiles;
+    }
+    // console.log(renderInfo.fileContainsLinkedFiles);
+
+    // fileMultiplierAfterLink
+    if (typeof yaml.fileMultiplierAfterLink === "string") {
+        renderInfo.fileMultiplierAfterLink = yaml.fileMultiplierAfterLink;
+    }
+    if (typeof yaml.fileMultiplierAfterLink === "number") {
+        renderInfo.fileMultiplierAfterLink =
+            yaml.fileMultiplierAfterLink.toString();
+    }
+    // console.log(renderInfo.fileMultiplierAfterLink);
+
     // Date format
     const dateFormat = yaml.dateFormat;
     //?? not sure why I need this to make it works,
@@ -1123,31 +1240,27 @@ export function getRenderInfoFromYaml(
     // startDate, endDate
     // console.log("Parsing startDate");
     if (typeof yaml.startDate === "string") {
-        let strStartDate = yaml.startDate;
-        if (
-            renderInfo.dateFormatPrefix &&
-            strStartDate.startsWith(renderInfo.dateFormatPrefix)
-        ) {
-            strStartDate = strStartDate.slice(
-                renderInfo.dateFormatPrefix.length
-            );
+        if (/^([\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)m$/.test(yaml.startDate)) {
+            let errorMessage =
+                "'m' for 'minute' is too small for parameter startDate, please use 'd' for 'day' or 'M' for month";
+            return errorMessage;
         }
-        if (
-            renderInfo.dateFormatSuffix &&
-            strStartDate.endsWith(renderInfo.dateFormatSuffix)
-        ) {
-            strStartDate = strStartDate.slice(
-                0,
-                strStartDate.length - renderInfo.dateFormatSuffix.length
-            );
-        }
+        let strStartDate = helper.getDateStringFromInputString(
+            yaml.startDate,
+            renderInfo.dateFormatPrefix,
+            renderInfo.dateFormatSuffix
+        );
+        // console.log(strStartDate);
 
+        // relative date
         let startDate = null;
         let isStartDateValid = false;
-        startDate = helper.relDateStringToDate(
+        startDate = helper.getDateByDurationToToday(
             strStartDate,
             renderInfo.dateFormat
         );
+        // console.log(startDate);
+
         if (startDate) {
             isStartDateValid = true;
         } else {
@@ -1156,6 +1269,7 @@ export function getRenderInfoFromYaml(
                 isStartDateValid = true;
             }
         }
+        // console.log(startDate);
 
         if (!isStartDateValid || startDate === null) {
             let errorMessage =
@@ -1168,26 +1282,23 @@ export function getRenderInfoFromYaml(
 
     // console.log("Parsing endDate");
     if (typeof yaml.endDate === "string") {
-        let strEndDate = yaml.endDate;
-        if (
-            renderInfo.dateFormatPrefix &&
-            strEndDate.startsWith(renderInfo.dateFormatPrefix)
-        ) {
-            strEndDate = strEndDate.slice(renderInfo.dateFormatPrefix.length);
+        if (/^([\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)m$/.test(yaml.endDate)) {
+            let errorMessage =
+                "'m' for 'minute' is too small for parameter endDate, please use 'd' for 'day' or 'M' for month";
+            return errorMessage;
         }
-        if (
-            renderInfo.dateFormatSuffix &&
-            strEndDate.endsWith(renderInfo.dateFormatSuffix)
-        ) {
-            strEndDate = strEndDate.slice(
-                0,
-                strEndDate.length - renderInfo.dateFormatSuffix.length
-            );
-        }
+        let strEndDate = helper.getDateStringFromInputString(
+            yaml.endDate,
+            renderInfo.dateFormatPrefix,
+            renderInfo.dateFormatSuffix
+        );
 
         let endDate = null;
         let isEndDateValid = false;
-        endDate = helper.relDateStringToDate(strEndDate, renderInfo.dateFormat);
+        endDate = helper.getDateByDurationToToday(
+            strEndDate,
+            renderInfo.dateFormat
+        );
         if (endDate) {
             isEndDateValid = true;
         } else {
@@ -1339,6 +1450,17 @@ export function getRenderInfoFromYaml(
     }
     renderInfo.valueShift = retValueShift;
     // console.log(renderInfo.valueShift);
+
+    // textValueMap
+    if (typeof yaml.textValueMap !== "undefined") {
+        let keys = getAvailableKeysOfClass(yaml.textValueMap);
+        // console.log(texts);
+        for (let key of keys) {
+            let text = key.trim();
+            renderInfo.textValueMap[text] = yaml.textValueMap[text];
+        }
+    }
+    // console.log(renderInfo.textValueMap);
 
     // fixedScale
     if (typeof yaml.fixedScale === "number") {
@@ -1683,7 +1805,7 @@ export function getRenderInfoFromYaml(
             "dataColor",
             yamlPie?.dataColor,
             numData,
-            "none",
+            null,
             validateColor,
             true
         );
@@ -1845,6 +1967,12 @@ export function getRenderInfoFromYaml(
                 return errorMessage;
             }
         }
+
+        // mode
+        if (typeof yamlMonth?.mode === "string") {
+            month.mode = yamlMonth.mode;
+        }
+        // console.log(month.mode);
 
         // dataset
         let retDataset = getNumberArray("dataset", yamlMonth?.dataset);
@@ -2013,6 +2141,37 @@ export function getRenderInfoFromYaml(
         }
         // console.log(month.initMonth);
 
+        // showAnnotation
+        if (typeof yamlMonth?.showAnnotation === "boolean") {
+            month.showAnnotation = yamlMonth.showAnnotation;
+        }
+        // console.log(month.showAnnotation);
+
+        // annotation
+        let retAnnotation = getStringArray("annotation", yamlMonth?.annotation);
+        if (typeof retAnnotation === "string") {
+            return retAnnotation;
+        }
+        month.annotation = retAnnotation;
+        if (month.annotation.length === 0) {
+            for (let indDataset = 0; indDataset < numDataset; indDataset++) {
+                month.annotation.push(null);
+            }
+        }
+        if (month.annotation.length !== month.dataset.length) {
+            const errorMessage =
+                "The number of inputs of annotation and dataset not matched";
+            return errorMessage;
+        }
+        // console.log(month.annotation);
+
+        // showAnnotationOfAllTargets
+        if (typeof yamlMonth?.showAnnotationOfAllTargets === "boolean") {
+            month.showAnnotationOfAllTargets =
+                yamlMonth.showAnnotationOfAllTargets;
+        }
+        // console.log(month.showAnnotationOfAllTargets);
+
         renderInfo.month.push(month);
     } // Month related parameters
     // console.log(renderInfo.month);
@@ -2124,8 +2283,7 @@ export function getRenderInfoFromYaml(
         // actual value, can possess template variable
         if (typeof yamlBullet?.value === "string") {
             bullet.value = yamlBullet.value;
-        }
-        else if (typeof yamlBullet?.value === "number") {
+        } else if (typeof yamlBullet?.value === "number") {
             bullet.value = yamlBullet.value.toString();
         }
         // console.log(bullet.value);

@@ -7,7 +7,7 @@ searchType: tag
 searchTarget: weight
 folder: diary
 summary:
-  template: "Minimum: {{min()}}kg\nMaximum: {{max()}}kg\nMedian: {{median()}}kg\nAverage: {{average()}}kg"
+    template: "Minimum: {{min()}}kg\nMaximum: {{max()}}kg\nMedian: {{median()}}kg\nAverage: {{average()}}kg"
 ```
 
 ## Styling

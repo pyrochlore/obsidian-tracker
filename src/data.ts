@@ -4,6 +4,8 @@ export enum SearchType {
     Tag,
     Frontmatter,
     Wiki,
+    WikiLink,
+    WikiDisplay,
     Text,
     dvField,
     Table,
@@ -35,6 +37,10 @@ export enum ValueType {
     String,
 }
 
+export type TextValueMap = {
+    [key: string]: number;
+};
+
 export class DataPoint {
     date: Moment;
     value: number;
@@ -62,7 +68,7 @@ export class Query {
     constructor(id: number, searchType: SearchType, searchTarget: string) {
         this.type = searchType;
         this.target = searchTarget;
-        this.separator = "/";
+        this.separator = "";// separator to separate multiple values
         this.id = id;
         this.accessor = -1;
         this.accessor1 = -1;
@@ -166,7 +172,13 @@ export class Query {
         this.separator = sep;
     }
 
-    public getSeparator() {
+    public getSeparator(isForFrontmatterTags: boolean = false) {
+        if (this.separator === "") {
+            if (isForFrontmatterTags) {
+                return ",";
+            }
+            return "/";
+        }
         return this.separator;
     }
 
@@ -534,6 +546,10 @@ export class RenderInfo {
     queries: Query[];
     xDataset: number[];
     folder: string;
+    file: string[];
+    specifiedFilesOnly: boolean;
+    fileContainsLinkedFiles: string[];
+    fileMultiplierAfterLink: string;
     dateFormat: string;
     dateFormatPrefix: string;
     dateFormatSuffix: string;
@@ -547,6 +563,7 @@ export class RenderInfo {
     penalty: number[];
     valueShift: number[];
     valueType: string[]; // number/float, int, string, boolean, date, time, datetime
+    textValueMap: TextValueMap;
 
     dataAreaSize: Size;
     margin: Margin;
@@ -571,6 +588,10 @@ export class RenderInfo {
         this.queries = queries;
         this.xDataset = []; // use file name
         this.folder = "/";
+        this.file = []; // extra files to use
+        this.specifiedFilesOnly = false; // if true, use files specified only
+        this.fileContainsLinkedFiles = [];
+        this.fileMultiplierAfterLink = ""; // regex pattern to extract multiplier after link
         this.dateFormat = "YYYY-MM-DD";
         this.dateFormatPrefix = "";
         this.dateFormatSuffix = "";
@@ -584,6 +605,7 @@ export class RenderInfo {
         this.penalty = []; // null, use this value instead of null value
         this.valueShift = [];
         this.valueType = [];
+        this.textValueMap = {};
 
         this.dataAreaSize = new Size(300, 300);
         this.margin = new Margin(10, 10, 10, 10); // top, right, bottom, left
@@ -649,6 +671,10 @@ export class CommonChartInfo implements IGraph, ILegend {
     yAxisColor: string[];
     yAxisLabelColor: string[];
     yAxisUnit: string[];
+    xAxisTickInterval: string;
+    yAxisTickInterval: string[];
+    xAxisTickLabelFormat: string;
+    yAxisTickLabelFormat: string[];
     yMin: number[];
     yMax: number[];
     reverseYAxis: boolean[];
@@ -670,6 +696,10 @@ export class CommonChartInfo implements IGraph, ILegend {
         this.yAxisColor = []; // "", 2 elements
         this.yAxisLabelColor = []; // "", 2 elements
         this.yAxisUnit = []; // "", 2 elements
+        this.xAxisTickInterval = null; // the string will be converted to Duration (a month is not nesscesary to 30 days)
+        this.yAxisTickInterval = []; // null, 2 elements
+        this.xAxisTickLabelFormat = null;
+        this.yAxisTickLabelFormat = []; // null, 2 elements
         this.yMin = []; // null, 2 elements
         this.yMax = []; // null, 2 elements
         this.reverseYAxis = []; // false, 2 elements
@@ -798,48 +828,68 @@ export class MonthInfo implements IGraph {
     threshold: number[];
     yMin: number[];
     yMax: number[];
-    showCircle: boolean;
     color: string;
     dimNotInMonth: boolean;
-    showStreak: boolean;
-    showTodayRing: boolean;
+    initMonth: string; // YYYY-MM
     showSelectedValue: boolean;
-    showSelectedRing: boolean;
-    circleColor: string;
-    circleColorByValue: boolean;
+
+    // header
     headerYearColor: string;
     headerMonthColor: string;
     dividingLineColor: string;
+
+    // circles and rings
+    showCircle: boolean;
+    showStreak: boolean;
+    showTodayRing: boolean;
+    showSelectedRing: boolean;
+    circleColor: string;
+    circleColorByValue: boolean;
     todayRingColor: string;
     selectedRingColor: string;
-    initMonth: string; // YYYY-MM
 
+    // annotations
+    showAnnotation: boolean;
+    annotation: string[];
+    showAnnotationOfAllTargets: boolean;
+
+    // internal
     selectedDate: string;
     selectedDataset: number;
 
     constructor() {
-        this.mode = "circle"; // circle, symbol
+        this.mode = "circle"; // circle, annotation
         this.dataset = [];
         this.startWeekOn = "Sun";
         this.threshold = []; // if value > threshold, will show dot
         this.yMin = [];
         this.yMax = [];
-        this.showCircle = true;
         this.color = null;
         this.dimNotInMonth = true;
-        this.showStreak = true; // a streak connects neigbor dots
-        this.showTodayRing = true;
+        this.initMonth = "";
         this.showSelectedValue = true;
-        this.showSelectedRing = true;
-        this.circleColor = null;
-        this.circleColorByValue = false;
+
+        // header
         this.headerYearColor = null;
         this.headerMonthColor = null;
         this.dividingLineColor = null;
+
+        // circles and rings
+        this.showCircle = true;
+        this.showStreak = true; // a streak connects neigbor dots
+        this.showTodayRing = true;
+        this.showSelectedRing = true;
+        this.circleColor = null;
+        this.circleColorByValue = false;
         this.todayRingColor = ""; // white
         this.selectedRingColor = "firebrick";
-        this.initMonth = "";
 
+        // annotations
+        this.showAnnotation = true;
+        this.annotation = []; // annotation for each dataset, accept expression thus value
+        this.showAnnotationOfAllTargets = true;
+
+        // internal
         this.selectedDate = ""; // selected date
         this.selectedDataset = null; // selected index of dataset
     }
@@ -962,6 +1012,30 @@ export class TableData {
         this.tableIndex = tableIndex;
         this.xDataset = null;
         this.yDatasets = []; // array of query
+    }
+}
+
+export class CollectingProcessInfo {
+    fileTotal: number; // total number of files
+    fileAvailable: number; // total available count
+    fileOutOfDateRange: number;
+    fileNotInFormat: number;
+    errorMessage: string;
+    minDate: Moment;
+    maxDate: Moment;
+    gotAnyValidXValue: boolean;
+    gotAnyValidYValue: boolean;
+
+    constructor() {
+        this.fileTotal = 0;
+        this.fileAvailable = 0;
+        this.fileOutOfDateRange = 0;
+        this.fileNotInFormat = 0;
+        this.errorMessage = "";
+        this.minDate = window.moment(""); // invalid date
+        this.maxDate = window.moment(""); // invalid date
+        this.gotAnyValidXValue = false;
+        this.gotAnyValidYValue = false;
     }
 }
 

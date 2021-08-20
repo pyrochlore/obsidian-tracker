@@ -160,3 +160,23 @@
     stroke: "red";
     stroke-width: 2px;
 }
+
+.tracker-month-label {
+    fill: var(--color-axis-label);
+    text-anchor: middle;
+    font-size: 14px;
+    stroke: none;
+}
+
+.tracker-month-annotation {
+    fill: var(--color-axis-label);
+    text-anchor: middle;
+    font-size: 10px;
+    stroke: none;
+}
+
+.tracker-pie-label {
+    fill: var(--color-tick-label);
+    stroke: none;
+    font-size: 12px;
+}

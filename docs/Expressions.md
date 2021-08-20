@@ -8,15 +8,17 @@ From version 1.9.0, template variables, e.g. '{{sum}}', are deprecated. Instead,
 
 ## Where to Use 
 
-Currently, we can only use expressions in some parameters. These includes `template` in `summary` output, `value` in `bullet` output, and `data` `label` `extLabel` in `pie` output. In future release, we might add a parameter `dataset` accepting expressions to be used with other output type.
+Currently, we can only use expressions in some parameters. These includes `template` in `summary` output, `value` in `bullet` output, and `data` `label` `extLabel` in `pie` output. In future release, there will be more parameters using expressiones as input.
 
 ## How to Use
 
-Expressions should be be wrapped in curly brackets. By Using the combination of operatora and funtions listed beloew, Tracker will try to resolve the whole expression in brackets and then generate a number or a string according to what was requested. 
+Expressions should be be wrapped in curly brackets. By using the combination of operators and funtions, Tracker can resolve the whole expression in brackets and then generate a number or a string according to what was requested. 
 
-If the resolved expreasion is a string, we can optionally provide a format string by adding it right after the expression and two extra colons.
+If the resolved output of an expression is a string, we can assign a format string to it. The format string should be placed after the expression in curly brackets following by two colons. For example, The expression '{{sum()::i}}' will force the output number represented as an integer (i for integer).  
 
-The following tables show all the operators and functions available for now. Please make sure the input type and output type when you are combining them together. Examples could be found [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestExpression.md).  
+For the number output, use '[Printf Format String](https://en.wikipedia.org/wiki/Printf_format_string)' for the format string. For the date output, use the date format string defined in [Moment.js](https://momentjscom.readthedocs.io/en/latest/moment/04-displaying/01-format/).
+
+The following tables show all the operators and functions available for now. Please make sure the input type and output type when you are combining them together. Examples could be found [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestExpression.md). Requests for operators or functions are welcome.
 
 ## List of Operators
 
@@ -45,7 +47,7 @@ e.g.
 
 ## List of Functions
 
-### Get dataset from index
+### Get Dataset by Index
 
 | Function(InputType): OutputType | Description |
 |:------------------|:-----------|

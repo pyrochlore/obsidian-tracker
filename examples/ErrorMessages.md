@@ -8,21 +8,24 @@ searchTarget: "\"
 line:
 ```
 
-'searchTypes' wrong, 'searchType' right
+'searchTypes' --> typo
+'searchType' --> correct
 ``` tracker
 searchTypes: tag
 searchTarget: weight
 line:
 ```
 
-'searchTargets' wrong, searchTarget right
+'searchTargets' --> typo
+'searchTarget' --> correct
 ``` tracker
 searchType: tag
 searchTargets: weight
 line:
 ```
 
-'lines' wrong, 'line' right
+'lines' --> typo
+'line' --> correct
 ``` tracker
 searchType: tag
 searchTarget: weight
@@ -36,15 +39,15 @@ searchTarget: weight
 line:
 ```
 
-## Target
-Missing search target
+## searchTarget
+Missing searchTarget
 ``` tracker
 searchType: tag
 searchTarget: 
 line:
 ```
 
-Invalid search target, '#' is not allowed
+Invalid searchTarget, '#' is a special character to YAML, use single quotes to wrap it
 ``` tracker
 searchType: tag
 searchTarget: #weight 
@@ -60,31 +63,12 @@ folder: abc
 line:
 ```
 
-## Date
-The format of startDate or endDate does not match dateFormat in the plugin settings. Change the settings or Add a dateFormat parameter into YAML.
+## Files
+No file in folder
 ``` tracker
 searchType: tag
 searchTarget: weight
-startDate: 2020-01-01_Fri
-endDate: 2020-01-31_Mon
-line:
-```
-
-No note found in the given date range
-``` tracker
-searchType: tag
-searchTarget: weight
-startDate: 2020-01-01
-endDate: 2020-01-31
-line:
-```
-
-We don't have thirty days in February
-``` tracker
-searchType: tag
-searchTarget: weight
-startDate: 2021-02-01
-endDate: 2021-02-30
+folder: empty
 line:
 ```
 
@@ -102,6 +86,55 @@ searchType: frontmatter, frontmatter
 searchTarget: bloodpressure[0], bloodpressure[1]
 line:
     yAxisLabel: BP1, BP2, BP3
+```
+
+## startDate & endDate
+The format of startDate or endDate does not match dateFormat in the plugin settings. Change the settings or Add a dateFormat parameter into YAML.
+``` tracker
+searchType: tag
+searchTarget: weight
+startDate: 2020-01-01_Fri
+endDate: 2020-01-31_Mon
+line:
+```
+
+We don't have thirty days in February
+``` tracker
+searchType: tag
+searchTarget: weight
+startDate: 2021-02-01
+endDate: 2021-02-30
+line:
+```
+
+## X Values (Dates)
+No note found in the given date range
+``` tracker
+searchType: tag
+searchTarget: weight
+startDate: 2020-01-01
+endDate: 2020-01-31
+line:
+```
+
+No valid X values, add "xDataset: 0" to fix it
+``` tracker
+searchType: fileMeta, dvField
+searchTarget: cDate, dataviewTarget
+folder: data
+line:
+    fillGap: true
+```
+
+## Y Values
+No valid Y values!!!!!
+Use parameter `textValueMap` to map a text to a value.
+``` tracker
+searchType: frontmatter
+searchTarget: randchar
+folder: diary
+line:
+    fillGap: true
 ```
 
 ## Output

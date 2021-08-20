@@ -11,7 +11,7 @@ datasetName: Clock-In, Clock-Out
 line:
     title: "Working Hours"
     yAxisLabel: "Time (24h)"
-	reverseYAxis: true
+    reverseYAxis: true
     lineColor: yellow, red
     showPoint: true
 	showLegend: true
@@ -30,7 +30,7 @@ line:
     yAxisLabel: "Time (24h)"
     lineColor: yellow, red
     showPoint: true
-	showLegend: true
+    showLegend: true
 ```
 
 ## From dvField
@@ -45,10 +45,10 @@ datasetName: Clock-In, Clock-Out
 line:
     title: "Working Hours"
     yAxisLabel: "Time (24h)"
-	reverseYAxis: true
+    reverseYAxis: true
     lineColor: yellow, red
     showPoint: true
-	showLegend: true
+    showLegend: true
 ```
 
 Sleep time separated by / from dvField
@@ -64,7 +64,7 @@ line:
     yAxisLabel: "Time (24h)"
     lineColor: yellow, red
     showPoint: true
-	showLegend: true
+    showLegend: true
 ```
 
 Please also check those search targets in markdown files under folder 'diary'.

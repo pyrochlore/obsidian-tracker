@@ -18,6 +18,10 @@ line:
     title: Email Occurencies
     yAxisLabel: Count
     lineColor: yellow
+	yAxisTickInterval: 1.0
+	yAxisTickLabelFormat: i
+	yMin: 0
+	yMax: 5
 ```
 
 ``` tracker
@@ -27,7 +31,7 @@ folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 summary:
-    template: "Total number of emails found: {{sum()}}"
+    template: "Total number of emails found: {{sum()::i}}"
     style: "font-size:20px;color:red;margin-left: 50px;margin-top:00px;"
 ```
 

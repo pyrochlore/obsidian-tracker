@@ -44,16 +44,18 @@ for (
 
     // fontmatter
     let frontmatter = "---\n";
-    let weekday = curDate.weekday();
+
     // front matter tags
+    let weekday = curDate.weekday();
     if (weekday == 0 || weekday == 6) {
         frontmatter += "tags: " + "\n";
     } else {
-        frontmatter += "tags: " + "work_log" + "\n";
+        frontmatter += "tags: " + "work_log" + ", " + "work_log2" + "\n";
     }
     // frontmatter mood
-    let mood = randomIntFromInterval(1, 10);
-    frontmatter += "mood: " + mood + "\n";
+    let moodSymbols = ["😀", "🙂", "😐", "🙁", "😞"];
+    let indMood = randomIntFromInterval(0, 4);
+    frontmatter += "mood: " + moodSymbols[indMood] + "\n";
 
     // blood pressure
     let progress = dayCount;
@@ -118,6 +120,9 @@ for (
     }
     frontmatter += indent + "deep: " + deepValue.toFixed(1) + "\n";
 
+    // random character
+    frontmatter += "randchar: " + String.fromCharCode(65+indMood) + "\n";
+
     frontmatter += "---\n";
     content += frontmatter;
 
@@ -160,7 +165,7 @@ for (
 
     // clean up
     let tagCleanUp = "#clean-up";
-    let doCleanUp = randomIntFromInterval(0, 30);
+    let doCleanUp = randomIntFromInterval(0, 5);
     if (doCleanUp === 1) {
         content += tagCleanUp + "\n";
     }

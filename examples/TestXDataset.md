@@ -18,7 +18,7 @@ xDataset: 0
 folder: data
 line:
     title: Dataview Inline Field
-	fillGap: true
+    fillGap: true
 ```
 
 Use dates from date-attached tags as x values
@@ -29,7 +29,7 @@ xDataset: 0
 folder: data
 line:
     title: Dataview Inline Field
-	fillGap: true
+    fillGap: true
 ```
 
 Ue dates from Dataview inline fields as x values
@@ -40,7 +40,7 @@ xDataset: 0
 folder: data
 line:
     title: Dataview Inline Field
-	fillGap: true
+    fillGap: true
 ```
 
 Ue dates from formatted text as x values
@@ -51,7 +51,7 @@ xDataset: 0
 folder: data
 line:
     title: Dataview Inline Field
-	fillGap: true
+    fillGap: true
 ```
 
 Please also check those search targets in markdown files under folder 'data'.

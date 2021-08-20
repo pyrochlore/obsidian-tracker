@@ -11,10 +11,10 @@ endDate: 2021-01-05
 datasetName: words, chars
 line:
     title: Word Counting
-	yAxisLocation: left, right
-	yAxisLabel: Words, Characters
-	lineColor: red, yellow
-	showLegend: true
+    yAxisLocation: left, right
+    yAxisLabel: Words, Characters
+    lineColor: red, yellow
+    showLegend: true
 ```
 
 ``` tracker
@@ -37,7 +37,7 @@ summary:
     template: 'Total number of characters: {{sum()}}'
 ```
 
-## Word counts of any notes
+## Word counts of all notes
 Use file creation dates as x values then sum the counts up
 ``` tracker
 searchType: fileMeta
