@@ -487,6 +487,7 @@ function renderMonthDays(
 ) {
     // console.log("renderMonthDays");
     // console.log(renderInfo);
+    // console.log(monthInfo);
     if (!renderInfo || !monthInfo) return;
 
     let mode = monthInfo.mode;
@@ -498,6 +499,7 @@ function renderMonthDays(
     if (curDatasetId === null) return;
     let dataset = renderInfo.datasets.getDatasetById(curDatasetId);
     if (!dataset) return;
+    // console.log(dataset);
 
     let curDatasetIndex = monthInfo.dataset.findIndex((id) => {
         return id === curDatasetId;
@@ -566,6 +568,16 @@ function renderMonthDays(
         curDate <= endDate;
         curDate.add(1, "days")
     ) {
+        // not sure why we need to do this to stablize the date
+        // sometimes, curValue is wrong without doing this
+        curDate = helper.strToDate(
+            helper.dateToStr(curDate, renderInfo.dateFormat),
+            renderInfo.dateFormat
+        );
+        if (curDate.format("YYYY-MM-DD") === "2021-01-02") {
+            logToConsole = false; // Change this to do dubugging
+        }
+
         if (monthInfo.startWeekOn.toLowerCase() === "mon") {
             indCol = curDate.day() - 1;
             if (indCol < 0) {
@@ -596,8 +608,13 @@ function renderMonthDays(
             isOutOfDataRange = false;
         }
 
-        // curValue
-        let curValue = dataset.getValue(curDate);
+        const curValue = dataset.getValue(curDate);
+        if (logToConsole) {
+            console.log(dataset);
+            console.log(helper.dateToStr(curDate, renderInfo.dateFormat));
+            console.log(dataset.getValue(window.moment("2021-01-02")));
+            console.log(curValue);
+        }
 
         // showCircle
         let showCircle = false;
@@ -631,10 +648,6 @@ function renderMonthDays(
         // console.log(yMax);
         // console.log(scaledValue);
 
-        // if (curDate.format("YYYY-MM-DD") === "2021-11-02") {
-        //     logToConsole = true;
-        // }
-
         // streakIn and streakOut
         let nextValue = dataset.getValue(curDate, 1);
         let prevValue = dataset.getValue(curDate, -1);
@@ -650,12 +663,13 @@ function renderMonthDays(
                 streakOut = true;
             }
         }
-        // if (logToConsole) {
-        //     console.log(`preValue: ${prevValue}, curValue: ${curValue}, nextValue: ${nextValue}`);
-        //     console.log(monthInfo.threshold);
-        //     console.log(`streakIn: ${streakIn}, streakOut: ${streakOut}`);
-        //     logToConsole = false;
-        // }
+        if (logToConsole) {
+            console.log(
+                `preValue: ${prevValue}, curValue: ${curValue}, nextValue: ${nextValue}`
+            );
+            console.log(monthInfo.threshold);
+            console.log(`streakIn: ${streakIn}, streakOut: ${streakOut}`);
+        }
 
         let textAnnotation = "";
         if (showAnnotation) {
@@ -697,6 +711,11 @@ function renderMonthDays(
         });
 
         ind++;
+
+        // Disable logging starts at the beginning of each loop
+        if (logToConsole) {
+            logToConsole = false;
+        }
     }
     // console.log(daysInMonthView);
     // console.log(daysInMonthView.filter(function (d: DayInfo) {

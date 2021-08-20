@@ -50,7 +50,7 @@ for (
     if (weekday == 0 || weekday == 6) {
         frontmatter += "tags: " + "\n";
     } else {
-        frontmatter += "tags: " + "work_log" + "\n";
+        frontmatter += "tags: " + "work_log" + ", " + "work_log2" + "\n";
     }
     // frontmatter mood
     let moodSymbols = ["😀", "🙂", "😐", "🙁", "😞"];

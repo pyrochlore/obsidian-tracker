@@ -35,4 +35,17 @@ line:
     legendPosition: bottom
 ```
 
+## Multiple Tags in Front Matter
+Use 'comma', or '\,' in parameter `separator`
+Notice the comma character should be escaped
+``` tracker
+searchType: tag
+searchTarget: work_log, work_log2
+folder: diary
+datasetName: Work1, Work2
+separator: '\,'
+month:
+    initMonth: 2021-01
+```
+
 Please also check those search targets in markdown files under folder 'diary'.
