@@ -9,6 +9,7 @@ This is an [Obsidian](https://obsidian.md/) plugin that helps you collect data f
 [Here](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Examples.md) is a table containing simplified examples showing what you can track.
 
 ## What's New
+
 Version 1.10.0
 - Add annotation mode for month view ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestCalendar.md))
 - Add parameters `xAxisTickInterval`, `yAxisTickInterval`, `xAxisTickLabelFormat` and `yAxisTickLabelFormat` for the line and bar chart ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestAxisIntervalAndFormat.md))
@@ -17,6 +18,9 @@ Version 1.10.0
 - Add a parameter `textValueMap` to convert texts or emojis to specified values ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestTextValueMap.md))
 - Fixed bugs
 - Enhanced error messages
+
+Version 1.10.1
+- Fixed 'failed to load plugin' on iOS
 
 ## !!! Breaking Changes !!!
 
