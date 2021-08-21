@@ -84,12 +84,12 @@ function toNextDataset(renderInfo: RenderInfo, monthInfo: MonthInfo): boolean {
 
 function createAreas(
     chartElements: ChartElements,
-    canvas: HTMLElement,
+    svgCanvas: any,
     renderInfo: RenderInfo,
     monthInfo: MonthInfo
 ): ChartElements {
     // clean areas
-    d3.select(canvas).select("#svg").remove();
+    svgCanvas.select("#svg").remove();
     var props = Object.getOwnPropertyNames(chartElements);
     for (var i = 0; i < props.length; i++) {
         // d3.select(chartElements[props[i]]).remove();
@@ -98,8 +98,7 @@ function createAreas(
     // console.log(chartElements);
 
     // whole area for plotting, includes margins
-    let svg = d3
-        .select(canvas)
+    let svg = svgCanvas
         .append("svg")
         .attr("id", "svg")
         .attr(
@@ -163,7 +162,7 @@ function clearSelection(chartElements: ChartElements, monthInfo: MonthInfo) {
 }
 
 function renderMonthHeader(
-    canvas: HTMLElement,
+    svgCanvas: any,
     chartElements: ChartElements,
     renderInfo: RenderInfo,
     monthInfo: MonthInfo,
@@ -297,7 +296,7 @@ function renderMonthHeader(
                     clearSelection(chartElements, monthInfo);
 
                     refresh(
-                        canvas,
+                        svgCanvas,
                         chartElements,
                         renderInfo,
                         monthInfo,
@@ -351,7 +350,7 @@ function renderMonthHeader(
             monthInfo.selectedDate = "";
             let prevMonthDate = curMonthDate.clone().add(-1, "month");
             refresh(
-                canvas,
+                svgCanvas,
                 chartElements,
                 renderInfo,
                 monthInfo,
@@ -380,7 +379,7 @@ function renderMonthHeader(
 
             let nextMonthDate = curMonthDate.clone().add(1, "month");
             refresh(
-                canvas,
+                svgCanvas,
                 chartElements,
                 renderInfo,
                 monthInfo,
@@ -408,7 +407,7 @@ function renderMonthHeader(
             clearSelection(chartElements, monthInfo);
 
             let todayDate = helper.getDateToday(renderInfo.dateFormat);
-            refresh(canvas, chartElements, renderInfo, monthInfo, todayDate);
+            refresh(svgCanvas, chartElements, renderInfo, monthInfo, todayDate);
         })
         .style("cursor", "pointer");
 
@@ -479,7 +478,7 @@ function renderMonthHeader(
 }
 
 function renderMonthDays(
-    canvas: HTMLElement,
+    svgCanvas: any,
     chartElements: ChartElements,
     renderInfo: RenderInfo,
     monthInfo: MonthInfo,
@@ -1056,7 +1055,7 @@ function renderMonthDays(
 }
 
 function refresh(
-    canvas: HTMLElement,
+    svgCanvas: any,
     chartElements: ChartElements,
     renderInfo: RenderInfo,
     monthInfo: MonthInfo,
@@ -1066,22 +1065,33 @@ function refresh(
     // console.log(renderInfo);
     if (!renderInfo || !renderMonth) return;
 
-    chartElements = createAreas(chartElements, canvas, renderInfo, monthInfo);
+    chartElements = createAreas(
+        chartElements,
+        svgCanvas,
+        renderInfo,
+        monthInfo
+    );
 
     // render
     renderMonthHeader(
-        canvas,
+        svgCanvas,
         chartElements,
         renderInfo,
         monthInfo,
         curMonthDate
     );
 
-    renderMonthDays(canvas, chartElements, renderInfo, monthInfo, curMonthDate);
+    renderMonthDays(
+        svgCanvas,
+        chartElements,
+        renderInfo,
+        monthInfo,
+        curMonthDate
+    );
 }
 
 export function renderMonth(
-    canvas: HTMLElement,
+    svgCanvas: any,
     renderInfo: RenderInfo,
     monthInfo: MonthInfo
 ) {
@@ -1107,7 +1117,12 @@ export function renderMonth(
     }
 
     let chartElements: ChartElements = {};
-    chartElements = createAreas(chartElements, canvas, renderInfo, monthInfo);
+    chartElements = createAreas(
+        chartElements,
+        svgCanvas,
+        renderInfo,
+        monthInfo
+    );
 
     let monthDate: Moment = null;
     if (monthInfo.initMonth) {
@@ -1124,7 +1139,13 @@ export function renderMonth(
     }
     if (!monthDate) return;
 
-    renderMonthHeader(canvas, chartElements, renderInfo, monthInfo, monthDate);
+    renderMonthHeader(
+        svgCanvas,
+        chartElements,
+        renderInfo,
+        monthInfo,
+        monthDate
+    );
 
-    renderMonthDays(canvas, chartElements, renderInfo, monthInfo, monthDate);
+    renderMonthDays(svgCanvas, chartElements, renderInfo, monthInfo, monthDate);
 }

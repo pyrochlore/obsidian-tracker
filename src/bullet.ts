@@ -15,7 +15,7 @@ import * as d3 from "d3";
 import * as expr from "./expr";
 
 function createAreas(
-    canvas: HTMLElement,
+    svgCanvas: any,
     renderInfo: RenderInfo,
     bulletInfo: BulletInfo
 ): ChartElements {
@@ -24,8 +24,7 @@ function createAreas(
 
     if (!renderInfo || !bulletInfo) return;
 
-    let svg = d3
-        .select(canvas)
+    let svg = svgCanvas
         .append("svg")
         .attr("id", "svg")
         .attr(
@@ -73,7 +72,7 @@ function createAreas(
 }
 
 function setChartScale(
-    _canvas: HTMLElement,
+    _canvas: any,
     chartElements: ChartElements,
     renderInfo: RenderInfo
 ) {
@@ -531,7 +530,7 @@ function renderMark(
 
 // Bullet graph https://en.wikipedia.org/wiki/Bullet_graph
 export function renderBullet(
-    canvas: HTMLElement,
+    svgCanvas: any,
     renderInfo: RenderInfo,
     bulletInfo: BulletInfo
 ) {
@@ -549,7 +548,7 @@ export function renderBullet(
         renderInfo.dataAreaSize = { width: 24, height: 250 };
     }
 
-    let chartElements = createAreas(canvas, renderInfo, bulletInfo);
+    let chartElements = createAreas(svgCanvas, renderInfo, bulletInfo);
 
     let retRenderAxis = renderAxis(
         chartElements,
@@ -577,5 +576,5 @@ export function renderBullet(
 
     renderMark(chartElements, renderInfo, bulletInfo, dataset);
 
-    setChartScale(canvas, chartElements, renderInfo);
+    setChartScale(svgCanvas, chartElements, renderInfo);
 }

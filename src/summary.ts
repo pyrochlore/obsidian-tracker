@@ -7,7 +7,7 @@ function checkSummaryTemplateValid(summaryTemplate: string): boolean {
 }
 
 export function renderSummary(
-    canvas: HTMLElement,
+    svgCanvas: any,
     renderInfo: RenderInfo,
     summaryInfo: SummaryInfo
 ) {
@@ -31,13 +31,13 @@ export function renderSummary(
     outputSummary = retResolvedTemplate;
 
     if (outputSummary !== "") {
-        let textBlock = d3.select(canvas).append("div");
+        let textBlock = svgCanvas.append("div");
         if (outputSummary.includes("\n") || outputSummary.includes("\\n")) {
             let outputLines = outputSummary.split(/(\n|\\n)/);
             // console.log(outputLines);
             for (let outputLine of outputLines) {
                 if (outputLine !== "\n" && outputLine !== "\\n")
-                textBlock.append("div").text(outputLine);
+                    textBlock.append("div").text(outputLine);
             }
         } else {
             textBlock.text(outputSummary);

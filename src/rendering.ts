@@ -220,6 +220,8 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
     // console.log("render");
     // console.log(renderInfo.datasets);
 
+    let svgCanvas = d3.select(canvas).append("svg");
+
     // Data preprocessing
     for (let dataset of renderInfo.datasets) {
         if (dataset.getQuery().usedAsXDataset) continue;
@@ -238,50 +240,50 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
     }
 
     for (let lineInfo of renderInfo.line) {
-        let ret = renderLineChart(canvas, renderInfo, lineInfo);
+        let ret = renderLineChart(svgCanvas, renderInfo, lineInfo);
         if (typeof ret === "string") {
             return ret;
         }
     }
     for (let barInfo of renderInfo.bar) {
-        let ret = renderBarChart(canvas, renderInfo, barInfo);
+        let ret = renderBarChart(svgCanvas, renderInfo, barInfo);
         if (typeof ret === "string") {
             return ret;
         }
     }
     for (let pieInfo of renderInfo.pie) {
-        let ret = pie.renderPieChart(canvas, renderInfo, pieInfo);
+        let ret = pie.renderPieChart(svgCanvas, renderInfo, pieInfo);
         if (typeof ret === "string") {
             return ret;
         }
     }
     for (let summaryInfo of renderInfo.summary) {
-        let ret = summary.renderSummary(canvas, renderInfo, summaryInfo);
+        let ret = summary.renderSummary(svgCanvas, renderInfo, summaryInfo);
         if (typeof ret === "string") {
             return ret;
         }
     }
     for (let bulletInfo of renderInfo.bullet) {
-        let ret = bullet.renderBullet(canvas, renderInfo, bulletInfo);
+        let ret = bullet.renderBullet(svgCanvas, renderInfo, bulletInfo);
         if (typeof ret === "string") {
             return ret;
         }
     }
     for (let monthInfo of renderInfo.month) {
-        let ret = month.renderMonth(canvas, renderInfo, monthInfo);
+        let ret = month.renderMonth(svgCanvas, renderInfo, monthInfo);
         if (typeof ret === "string") {
             return ret;
         }
     }
     for (let heatmapInfo of renderInfo.heatmap) {
-        let ret = heatmap.renderHeatmap(canvas, renderInfo, heatmapInfo);
+        let ret = heatmap.renderHeatmap(svgCanvas, renderInfo, heatmapInfo);
         if (typeof ret === "string") {
             return ret;
         }
     }
 
     for (let svgInfo of renderInfo.svg) {
-        let ret = renderSvg(canvas, renderInfo, svgInfo);
+        let ret = renderSvg(svgCanvas, renderInfo, svgInfo);
         if (typeof ret === "string") {
             return ret;
         }
@@ -1428,11 +1430,11 @@ function renderTitle(
 }
 
 function setChartScale(
-    _canvas: HTMLElement,
+    svgCanvas: any,
     chartElements: ChartElements,
     renderInfo: RenderInfo
 ) {
-    let canvas = d3.select(_canvas);
+    let canvas = svgCanvas;
     let svg = chartElements.svg;
     let svgWidth = parseFloat(svg.attr("width"));
     let svgHeight = parseFloat(svg.attr("height"));
@@ -1455,14 +1457,10 @@ function setChartScale(
     }
 }
 
-function createAreas(
-    canvas: HTMLElement,
-    renderInfo: RenderInfo
-): ChartElements {
+function createAreas(svgCanvas: any, renderInfo: RenderInfo): ChartElements {
     let chartElements: ChartElements = {};
     // whole area for plotting, includes margins
-    let svg = d3
-        .select(canvas)
+    let svg = svgCanvas
         .append("svg")
         .attr("id", "svg")
         .attr(
@@ -1510,7 +1508,7 @@ function createAreas(
 }
 
 function renderLineChart(
-    canvas: HTMLElement,
+    svgCanvas: any,
     renderInfo: RenderInfo,
     lineInfo: LineInfo
 ) {
@@ -1519,7 +1517,7 @@ function renderLineChart(
 
     if (!renderInfo || !lineInfo) return;
 
-    let chartElements = createAreas(canvas, renderInfo);
+    let chartElements = createAreas(svgCanvas, renderInfo);
 
     renderTitle(chartElements, renderInfo, lineInfo);
 
@@ -1588,11 +1586,11 @@ function renderLineChart(
         renderLegend(chartElements, renderInfo, lineInfo);
     }
 
-    setChartScale(canvas, chartElements, renderInfo);
+    setChartScale(svgCanvas, chartElements, renderInfo);
 }
 
 function renderBarChart(
-    canvas: HTMLElement,
+    svgCanvas: any,
     renderInfo: RenderInfo,
     barInfo: BarInfo
 ) {
@@ -1600,7 +1598,7 @@ function renderBarChart(
     // console.log(renderInfo);
     if (!renderInfo || !barInfo) return;
 
-    let chartElements = createAreas(canvas, renderInfo);
+    let chartElements = createAreas(svgCanvas, renderInfo);
 
     renderTitle(chartElements, renderInfo, barInfo);
 
@@ -1688,7 +1686,7 @@ function renderBarChart(
         renderLegend(chartElements, renderInfo, barInfo);
     }
 
-    setChartScale(canvas, chartElements, renderInfo);
+    setChartScale(svgCanvas, chartElements, renderInfo);
 }
 
 export function renderErrorMessage(canvas: HTMLElement, errorMessage: string) {
@@ -1706,21 +1704,23 @@ export function renderErrorMessage(canvas: HTMLElement, errorMessage: string) {
 }
 
 export function renderSvg(
-    canvas: HTMLElement,
+    svgCanvas: any,
     renderInfo: RenderInfo,
     svgInfo: SvgInfo
 ) {
     // Remove graph not completed
     // let graph = d3.select(canvas).select("#svg").remove();
 
-    let svg = svgInfo.element;
-    // unicode space
-    svg = svg.replace(
-        /[\u00A0\u1680​\u180e\u2000-\u2009\u200a​\u200b​\u202f\u205f​\u3000]/g,
-        " "
-    );
-    // html space
-    svg = svg.replace(/&nbsp;/g, " ");
-    // console.log(svg);
-    d3.select(canvas).html(svg);
+    if (svgInfo.element) {
+        let svg = svgInfo.element;
+        // unicode space
+        svg = svg.replace(
+            /[\u00A0\u1680​\u180e\u2000-\u2009\u200a​\u200b​\u202f\u205f​\u3000]/g,
+            " "
+        );
+        // html space
+        svg = svg.replace(/&nbsp;/g, " ");
+        // console.log(svg);
+        svgCanvas.append("svg").html(svg);
+    }
 }

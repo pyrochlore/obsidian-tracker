@@ -25,12 +25,12 @@ interface DayInfo {
 
 function createAreas(
     chartElements: ChartElements,
-    canvas: HTMLElement,
+    svgCanvas: any,
     renderInfo: RenderInfo,
     heatmapInfo: HeatmapInfo
 ): ChartElements {
     // clean areas
-    d3.select(canvas).select("#svg").remove();
+    svgCanvas.select("#svg").remove();
     var props = Object.getOwnPropertyNames(chartElements);
     for (var i = 0; i < props.length; i++) {
         // d3.select(chartElements[props[i]]).remove();
@@ -39,8 +39,7 @@ function createAreas(
     // console.log(chartElements);
 
     // whole area for plotting, includes margins
-    let svg = d3
-        .select(canvas)
+    let svg = svgCanvas
         .append("svg")
         .attr("id", "svg")
         .attr(
@@ -88,7 +87,7 @@ function createAreas(
 }
 
 function renderHeatmapHeader(
-    canvas: HTMLElement,
+    svgCanvas: any,
     chartElements: ChartElements,
     renderInfo: RenderInfo,
     heatmapInfo: HeatmapInfo,
@@ -97,22 +96,21 @@ function renderHeatmapHeader(
     // console.log("renderMonthHeader")
 
     if (!renderInfo || !heatmapInfo) return;
-
 }
 
 function renderHeatmapDays(
-    canvas: HTMLElement,
+    svgCanvas: any,
     chartElements: ChartElements,
     renderInfo: RenderInfo,
     heatmapInfo: HeatmapInfo,
-    dataset: Dataset,
+    dataset: Dataset
 ) {
     // console.log("renderHeatmapDays");
 
     if (!renderInfo || !heatmapInfo) return;
 
     let cellSize = 20;
-    let dotRadius = cellSize / 2.0 * 0.6;
+    let dotRadius = (cellSize / 2.0) * 0.6;
 
     // Get min and max, null values will be treated as zero here
     let yMin = d3.min(dataset.getValues());
@@ -128,9 +126,7 @@ function renderHeatmapDays(
     // Prepare data for graph
     let daysInHeatmapView: Array<DayInfo> = [];
     const dataStartDate = dataset.getStartDate().clone();
-    let startDate = dataStartDate
-        .clone()
-        .subtract(dataStartDate.day(), "days");
+    let startDate = dataStartDate.clone().subtract(dataStartDate.day(), "days");
     if (heatmapInfo.startWeekOn.toLowerCase() === "mon") {
         startDate = startDate.add(1, "days");
     }
@@ -208,10 +204,7 @@ function renderHeatmapDays(
             return scale(d.row);
         })
         .style("fill", function (d: DayInfo) {
-            return d3.interpolateLab(
-                    "white",
-                    heatmapColor
-                )(d.scaledValue);
+            return d3.interpolateLab("white", heatmapColor)(d.scaledValue);
         })
         .style("cursor", "default");
 
@@ -220,8 +213,7 @@ function renderHeatmapDays(
     let svgHeight = parseFloat(chartElements.svg.attr("height"));
     let graphAreaWidth = parseFloat(chartElements.graphArea.attr("width"));
     let graphAreaHeight = parseFloat(chartElements.graphArea.attr("height"));
-    let totalHeight =
-        (indRow + 2) * cellSize;// + parseFloat(chartElements.header.attr("height"));
+    let totalHeight = (indRow + 2) * cellSize; // + parseFloat(chartElements.header.attr("height"));
     let totalWidth = (indCol + 1) * cellSize;
     if (totalHeight > svgHeight) {
         helper.expandArea(chartElements.svg, 0, totalHeight - svgHeight);
@@ -242,7 +234,7 @@ function renderHeatmapDays(
 }
 
 export function renderHeatmap(
-    canvas: HTMLElement,
+    svgCanvas: any,
     renderInfo: RenderInfo,
     heatmapInfo: HeatmapInfo
 ) {
@@ -253,7 +245,12 @@ export function renderHeatmap(
     return "Under construction";
 
     let chartElements: ChartElements = {};
-    chartElements = createAreas(chartElements, canvas, renderInfo, heatmapInfo);
+    chartElements = createAreas(
+        chartElements,
+        svgCanvas,
+        renderInfo,
+        heatmapInfo
+    );
 
     let today = window.moment();
     let lastDataMonthDate = renderInfo.datasets.getDates().last();
@@ -262,7 +259,7 @@ export function renderHeatmap(
     let dataset = renderInfo.datasets.getDatasetById(datasetId);
 
     renderHeatmapHeader(
-        canvas,
+        svgCanvas,
         chartElements,
         renderInfo,
         heatmapInfo,
@@ -270,7 +267,7 @@ export function renderHeatmap(
     );
 
     renderHeatmapDays(
-        canvas,
+        svgCanvas,
         chartElements,
         renderInfo,
         heatmapInfo,

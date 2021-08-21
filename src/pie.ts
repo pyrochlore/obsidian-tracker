@@ -19,12 +19,12 @@ import { pie } from "d3";
 
 function createAreas(
     chartElements: ChartElements,
-    canvas: HTMLElement,
+    svgCanvas: any,
     renderInfo: RenderInfo,
     pieInfo: PieInfo
 ): ChartElements {
     // clean areas
-    d3.select(canvas).select("#svg").remove();
+    svgCanvas.select("#svg").remove();
     var props = Object.getOwnPropertyNames(chartElements);
     for (var i = 0; i < props.length; i++) {
         // d3.select(chartElements[props[i]]).remove();
@@ -33,8 +33,7 @@ function createAreas(
     // console.log(chartElements);
 
     // whole area for plotting, includes margins
-    let svg = d3
-        .select(canvas)
+    let svg = svgCanvas
         .append("svg")
         .attr("id", "svg")
         .attr(
@@ -82,7 +81,7 @@ function createAreas(
 }
 
 function renderTitle(
-    canvas: HTMLElement,
+    svgCanvas: any,
     chartElements: ChartElements,
     renderInfo: RenderInfo,
     pieInfo: PieInfo
@@ -123,7 +122,7 @@ function renderTitle(
 }
 
 function renderLegend(
-    canvas: HTMLElement,
+    svgCanvas: any,
     chartElements: ChartElements,
     renderInfo: RenderInfo,
     pieInfo: PieInfo
@@ -346,7 +345,7 @@ function renderLegend(
 }
 
 function renderPie(
-    canvas: HTMLElement,
+    svgCanvas: any,
     chartElements: ChartElements,
     renderInfo: RenderInfo,
     pieInfo: PieInfo
@@ -604,7 +603,7 @@ function renderPie(
 }
 
 export function renderPieChart(
-    canvas: HTMLElement,
+    svgCanvas: any,
     renderInfo: RenderInfo,
     pieInfo: PieInfo
 ) {
@@ -615,7 +614,7 @@ export function renderPieChart(
     // return "Under construction";
 
     let chartElements: ChartElements = {};
-    chartElements = createAreas(chartElements, canvas, renderInfo, pieInfo);
+    chartElements = createAreas(chartElements, svgCanvas, renderInfo, pieInfo);
 
     // Set default dataColor if no dataColor provided
     let defaultDataColor = d3.schemeSpectral[pieInfo.dataColor.length];
@@ -625,11 +624,11 @@ export function renderPieChart(
         }
     }
 
-    renderTitle(canvas, chartElements, renderInfo, pieInfo);
+    renderTitle(svgCanvas, chartElements, renderInfo, pieInfo);
 
-    renderPie(canvas, chartElements, renderInfo, pieInfo);
+    renderPie(svgCanvas, chartElements, renderInfo, pieInfo);
 
     if (pieInfo.showLegend) {
-        renderLegend(canvas, chartElements, renderInfo, pieInfo);
+        renderLegend(svgCanvas, chartElements, renderInfo, pieInfo);
     }
 }
