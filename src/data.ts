@@ -25,6 +25,7 @@ export enum GraphType {
     Month,
     Heatmap,
     Bullet,
+    Svg,
     Unknown,
 }
 
@@ -68,7 +69,7 @@ export class Query {
     constructor(id: number, searchType: SearchType, searchTarget: string) {
         this.type = searchType;
         this.target = searchTarget;
-        this.separator = "";// separator to separate multiple values
+        this.separator = ""; // separator to separate multiple values
         this.id = id;
         this.accessor = -1;
         this.accessor1 = -1;
@@ -580,6 +581,7 @@ export class RenderInfo {
     month: MonthInfo[];
     heatmap: HeatmapInfo[];
     bullet: BulletInfo[];
+    svg: SvgInfo[];
     customDataset: CustomDatasetInfo[];
 
     public datasets: Datasets | null;
@@ -622,6 +624,7 @@ export class RenderInfo {
         this.month = [];
         this.heatmap = [];
         this.bullet = [];
+        this.svg = [];
         this.customDataset = [];
 
         this.datasets = null;
@@ -953,6 +956,15 @@ export class BulletInfo implements IGraph {
     }
 }
 
+export class SvgInfo implements IGraph {
+    element: string;
+    constructor() {
+        this.element = "";
+    }
+    public GetGraphType() {
+        return GraphType.Svg;
+    }
+}
 export class Size {
     width: number;
     height: number;

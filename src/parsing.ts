@@ -13,6 +13,7 @@ import {
     MonthInfo,
     HeatmapInfo,
     BulletInfo,
+    SvgInfo,
     Dataset,
     CustomDatasetInfo,
 } from "./data";
@@ -1086,6 +1087,7 @@ export function getRenderInfoFromYaml(
     let yamlMonthKeys = [];
     let yamlHeatmapKeys = [];
     let yamlBulletKeys = [];
+    let yamlSvgKeys = [];
     for (let key of keysFoundInYAML) {
         if (/^line[0-9]*$/.test(key)) {
             yamlLineKeys.push(key);
@@ -1105,6 +1107,10 @@ export function getRenderInfoFromYaml(
         }
         if (/^bullet[0-9]*$/.test(key)) {
             yamlBulletKeys.push(key);
+            additionalAllowedKeys.push(key);
+        }
+        if (/^svg[0-9]*$/.test(key)) {
+            yamlSvgKeys.push(key);
             additionalAllowedKeys.push(key);
         }
         if (/^month[0-9]*$/.test(key)) {
@@ -1159,10 +1165,11 @@ export function getRenderInfoFromYaml(
         yamlPieKeys.length +
         yamlSummaryKeys.length +
         yamlBulletKeys.length +
+        yamlSvgKeys.length +
         yamlMonthKeys.length +
         yamlHeatmapKeys.length;
     if (totalNumOutputs === 0) {
-        return "No output parameter provided, please place line, bar, pie, month, bullet, or summary.";
+        return "No output parameter provided, please place line, bar, pie, month, bullet, svg, or summary.";
     }
 
     // Root folder to search
@@ -2334,5 +2341,30 @@ export function getRenderInfoFromYaml(
     } // Bullet related parameters
     // console.log(renderInfo.bullet);
 
+    // svg related parameters
+    for (let svgKey of yamlSvgKeys) {
+        let svg = new SvgInfo();
+        let yamlSvg = yaml[svgKey];
+
+        let keysOfSvgInfo = getAvailableKeysOfClass(svg);
+        let keysFoundInYAML = getAvailableKeysOfClass(yamlSvg);
+        // console.log(keysOfSvgInfo);
+        // console.log(keysFoundInYAML);
+        for (let key of keysFoundInYAML) {
+            if (!keysOfSvgInfo.includes(key)) {
+                errorMessage = "'" + key + "' is not an available key";
+                return errorMessage;
+            }
+        }
+
+        // element
+        if (typeof yamlSvg?.element === "string") {
+            svg.element = yamlSvg.element;
+        }
+        // console.log(bullet.markValue);
+
+        renderInfo.svg.push(svg);
+    }
+    // console.log(renderInfo.svg);
     return renderInfo;
 }

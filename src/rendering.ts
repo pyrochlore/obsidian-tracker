@@ -16,6 +16,7 @@ import {
     PieInfo,
     SummaryInfo,
     BulletInfo,
+    SvgInfo,
     MonthInfo,
     HeatmapInfo,
 } from "./data";
@@ -274,6 +275,13 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
     }
     for (let heatmapInfo of renderInfo.heatmap) {
         let ret = heatmap.renderHeatmap(canvas, renderInfo, heatmapInfo);
+        if (typeof ret === "string") {
+            return ret;
+        }
+    }
+
+    for (let svgInfo of renderInfo.svg) {
+        let ret = renderSvg(canvas, renderInfo, svgInfo);
         if (typeof ret === "string") {
             return ret;
         }
@@ -1695,4 +1703,24 @@ export function renderErrorMessage(canvas: HTMLElement, errorMessage: string) {
         .style("margin-bottom", "20px")
         .style("padding", "10px")
         .style("color", "red");
+}
+
+export function renderSvg(
+    canvas: HTMLElement,
+    renderInfo: RenderInfo,
+    svgInfo: SvgInfo
+) {
+    // Remove graph not completed
+    // let graph = d3.select(canvas).select("#svg").remove();
+
+    let svg = svgInfo.element;
+    // unicode space
+    svg = svg.replace(
+        /[\u00A0\u1680​\u180e\u2000-\u2009\u200a​\u200b​\u202f\u205f​\u3000]/g,
+        " "
+    );
+    // html space
+    svg = svg.replace(/&nbsp;/g, " ");
+    // console.log(svg);
+    d3.select(canvas).html(svg);
 }
