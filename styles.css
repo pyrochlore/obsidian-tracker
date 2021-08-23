@@ -180,3 +180,9 @@
     stroke: none;
     font-size: 12px;
 }
+
+.tracker-summary-text {
+    fill: var(--color-tick-label);
+    font-size: 18px;
+    stroke: none;
+}

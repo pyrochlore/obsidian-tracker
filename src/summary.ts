@@ -31,20 +31,41 @@ export function renderSummary(
     outputSummary = retResolvedTemplate;
 
     if (outputSummary !== "") {
-        let textBlock = svgCanvas.append("div");
+        let svg = svgCanvas
+            .append("svg")
+            .attr("id", "svg")
+            .attr("width", 200)
+            .attr("height", 200);
+
+        let textBlock = svg.append("text")
+            .attr("x", 0)
+            .attr("y", 0);
         if (outputSummary.includes("\n") || outputSummary.includes("\\n")) {
             let outputLines = outputSummary.split(/(\n|\\n)/);
             // console.log(outputLines);
             for (let outputLine of outputLines) {
-                if (outputLine !== "\n" && outputLine !== "\\n")
-                    textBlock.append("div").text(outputLine);
+                if (outputLine !== "\n" && outputLine !== "\\n") {
+                    let line = textBlock.append("tspan").text(outputLine);
+                    line.attr("x", 0)
+                        .attr("dy", "1.5em")
+                        .attr("class", "tracker-summary-text");
+                    
+                    if (summaryInfo.style !== "") {
+                        line.attr("style", summaryInfo.style);
+                    }
+                }
             }
         } else {
-            textBlock.text(outputSummary);
-        }
+            let line = textBlock.text(outputSummary);
+            line.attr("x", 0)
+                .attr("dy", "1.5em")
+                .attr("class", "tracker-summary-text");
 
-        if (summaryInfo.style !== "") {
-            textBlock.attr("style", summaryInfo.style);
+            if (summaryInfo.style !== "") {
+                line.attr("style", summaryInfo.style);
+            }
         }
+        
+
     }
 }
