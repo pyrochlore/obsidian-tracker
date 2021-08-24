@@ -964,6 +964,7 @@ export function resolveTemplate(
     let exprMap = retResolve as Array<ExprResolved>;
 
     for (let exprResolved of exprMap) {
+        let source = exprResolved.source;
         let value = exprResolved.value;
         let format = exprResolved.format;
         let strValue = "";
@@ -982,7 +983,8 @@ export function resolveTemplate(
         }
 
         if (strValue) {
-            template = template.replaceAll(exprResolved.source, strValue);
+            // console.log(exprResolved);
+            template = template.split(source).join(strValue);
         }
     }
 

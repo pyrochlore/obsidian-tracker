@@ -73,10 +73,10 @@ function splitInputByComma(input: string) {
     // Split string by ',' but not by '\,'
     // let splitted = input.split(/(?<!\\),/); // -->lookbehind not support in Safari for now
     const dummy = "::::::tracker::::::";
-    let temp = input.replaceAll("\\,", dummy);
+    let temp = input.split("\\,").join(dummy);
     let splitted = temp.split(",");
     for (let ind = 0; ind < splitted.length; ind++) {
-        splitted[ind] = splitted[ind].replaceAll(dummy, ",");
+        splitted[ind] = splitted[ind].split(dummy).join(",");
     }
     return splitted;
 }
