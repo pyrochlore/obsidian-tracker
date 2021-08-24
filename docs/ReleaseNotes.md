@@ -1,5 +1,8 @@
 # Release Notes
 
+## v1.10.2
+- Fixed plugin not rendering on some macOS machines
+
 ## v1.10.1
 - Fixed 'failed to load plugin' on iOS
 
