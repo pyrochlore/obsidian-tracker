@@ -22,5 +22,5 @@ xDataset: 0
 pie:
     label: '{{sum(dataset(1))::i}},{{sum(dataset(2))::i}},{{sum(dataset(3))::i}},{{sum(dataset(4))::i}},{{sum(dataset(5))::i}}'
     data: '{{sum(dataset(1))}},{{sum(dataset(2))}}, {{sum(dataset(3))}}, {{sum(dataset(4))}},{{sum(dataset(5))}}'
-	dataColor: lightgray, firebrick, yellowgreen, lightblue, gray
+    dataColor: lightgray, firebrick, yellowgreen, lightblue, gray
 ```

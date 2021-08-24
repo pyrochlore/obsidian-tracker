@@ -18,10 +18,10 @@ line:
     title: Email Occurencies
     yAxisLabel: Count
     lineColor: yellow
-	yAxisTickInterval: 1.0
-	yAxisTickLabelFormat: i
-	yMin: 0
-	yMax: 5
+    yAxisTickInterval: 1.0
+    yAxisTickLabelFormat: i
+    yMin: 0
+    yMax: 5
 ```
 
 ``` tracker
