@@ -7,8 +7,8 @@ folder: diary
 endDate: 2021-01-31
 line:
     title: File Size Variation
-	yAxisLabel: Size
-	yAxisUnit: bytes
+    yAxisLabel: Size
+    yAxisUnit: bytes
 ```
 
 Use file created dates (cDate) as x values

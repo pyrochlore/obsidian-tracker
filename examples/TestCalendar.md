@@ -109,8 +109,8 @@ month:
     color: green
     headerMonthColor: orange
     dimNotInMonth: false
-	annotation: 💪,🧘‍♂️
-	showAnnotationOfAllTargets: false
+    annotation: 💪,🧘‍♂️
+    showAnnotationOfAllTargets: false
 ```
 
 All targets
@@ -126,8 +126,8 @@ month:
     color: green
     headerMonthColor: orange
     dimNotInMonth: false
-	annotation: 💪,🧘‍♂️
-	showAnnotationOfAllTargets: true
+    annotation: 💪,🧘‍♂️
+    showAnnotationOfAllTargets: true
 ```
 
 Please also check those search targets in markdown files under folder 'diary'.

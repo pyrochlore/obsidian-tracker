@@ -14,7 +14,7 @@ line:
     reverseYAxis: true
     lineColor: yellow, red
     showPoint: true
-	showLegend: true
+    showLegend: true
 ```
 
 Sleep time separated by / from front matter
