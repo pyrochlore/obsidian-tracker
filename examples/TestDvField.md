@@ -73,6 +73,19 @@ line:
     lineColor: green, red
 ```
 
+Multiple values seprated by '\,'
+``` tracker
+searchType: dvField
+searchTarget: dataviewTarget3[0], dataviewTarget3[1]
+folder: diary
+startDate: 2021-01-01
+endDate: 2021-01-31
+separator: '\,'
+line:
+    title: dvField
+    lineColor: green, red
+```
+
 Use custom multiple value separator
 ``` tracker
 searchType: dvField
