@@ -1034,7 +1034,7 @@ export function getRenderInfoFromYaml(
         return retMultipleValueSparator; // errorMessage
     }
     multipleValueSparator = retMultipleValueSparator.map((sep) => {
-        if (sep === "comma") {
+        if (sep === "comma" || sep === "\\,") {
             return ",";
         }
         return sep;
