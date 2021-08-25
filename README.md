@@ -25,6 +25,9 @@ Version 1.10.1
 Version 1.10.2
 - Fixed plugin not rendering on some macOS machines
 
+Version 1.10.3
+- Allow using a parameter `fitPanelWidth` with the output type `month` and `pie`
+
 ## !!! Breaking Changes !!!
 
 From version 1.9.0, template variables, e.g. '{{sum}}', are deprecated. Instead, Tracker provide operators (+, -, *, /, %) and functions (dataset(), sum(), maxStreak(), ......etc) to help us do data processing. For users having code blocks from previous version, please replace '{{sum}}' by '{{sum()}}' or '{{sum(1)}}' by '{{sum(dataset(1))}}'. More information about the new expressions could be found [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Expressions.md).

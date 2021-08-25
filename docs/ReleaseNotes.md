@@ -1,5 +1,8 @@
 # Release Notes
 
+## v1.10.3
+- Allow using a parameter `fitPanelWidth` with the output type `month` and `pie`
+
 ## v1.10.2
 - Fixed plugin not rendering on some macOS machines
 
