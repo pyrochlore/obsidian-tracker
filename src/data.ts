@@ -567,7 +567,6 @@ export class RenderInfo {
 
     dataAreaSize: Size;
     margin: Margin;
-    tooltipSize: Size;
 
     fixedScale: number;
     fitPanelWidth: boolean;
@@ -609,7 +608,6 @@ export class RenderInfo {
 
         this.dataAreaSize = new Size(300, 300);
         this.margin = new Margin(10, 10, 10, 10); // top, right, bottom, left
-        this.tooltipSize = new Size(90, 45);
 
         this.fixedScale = 1.0;
         this.fitPanelWidth = false;
