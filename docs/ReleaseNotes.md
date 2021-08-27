@@ -1,5 +1,9 @@
 # Release Notes
 
+## v1.10.3
+- Allow using the parameter `fitPanelWidth` with the output type `month` and `pie`
+- Fixed the resizing and positioning of the chart tooltip
+
 ## v1.10.2
 - Fixed plugin not rendering on some macOS machines
 

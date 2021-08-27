@@ -17,6 +17,34 @@ import * as d3 from "d3";
 import * as expr from "./expr";
 import { pie } from "d3";
 
+function setChartScale(
+    _canvas: HTMLElement,
+    chartElements: ChartElements,
+    renderInfo: RenderInfo
+) {
+    let canvas = d3.select(_canvas);
+    let svg = chartElements.svg;
+    let svgWidth = parseFloat(svg.attr("width"));
+    let svgHeight = parseFloat(svg.attr("height"));
+    svg.attr("width", null)
+        .attr("height", null)
+        .attr("viewBox", `0 0 ${svgWidth} ${svgHeight}`)
+        .attr("preserveAspectRatio", "xMidYMid meet");
+
+    if (renderInfo.fitPanelWidth) {
+        canvas.style("width", "100%");
+    } else {
+        canvas.style(
+            "width",
+            (svgWidth * renderInfo.fixedScale).toString() + "px"
+        );
+        canvas.style(
+            "height",
+            (svgHeight * renderInfo.fixedScale).toString() + "px"
+        );
+    }
+}
+
 function createAreas(
     chartElements: ChartElements,
     svgCanvas: any,
@@ -631,4 +659,6 @@ export function renderPieChart(
     if (pieInfo.showLegend) {
         renderLegend(svgCanvas, chartElements, renderInfo, pieInfo);
     }
+
+    setChartScale(canvas, chartElements, renderInfo);
 }

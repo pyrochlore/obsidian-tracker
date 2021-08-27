@@ -33,6 +33,34 @@ interface DayInfo {
     annotation: string;
 }
 
+function setChartScale(
+    _canvas: HTMLElement,
+    chartElements: ChartElements,
+    renderInfo: RenderInfo
+) {
+    let canvas = d3.select(_canvas);
+    let svg = chartElements.svg;
+    let svgWidth = parseFloat(svg.attr("width"));
+    let svgHeight = parseFloat(svg.attr("height"));
+    svg.attr("width", null)
+        .attr("height", null)
+        .attr("viewBox", `0 0 ${svgWidth} ${svgHeight}`)
+        .attr("preserveAspectRatio", "xMidYMid meet");
+
+    if (renderInfo.fitPanelWidth) {
+        canvas.style("width", "100%");
+    } else {
+        canvas.style(
+            "width",
+            (svgWidth * renderInfo.fixedScale).toString() + "px"
+        );
+        canvas.style(
+            "height",
+            (svgHeight * renderInfo.fixedScale).toString() + "px"
+        );
+    }
+}
+
 function toNextDataset(renderInfo: RenderInfo, monthInfo: MonthInfo): boolean {
     let datasetIds = monthInfo.dataset;
     if (datasetIds.length === 0) return false; // false if selected dataset not changed
@@ -1148,4 +1176,6 @@ export function renderMonth(
     );
 
     renderMonthDays(svgCanvas, chartElements, renderInfo, monthInfo, monthDate);
+
+    setChartScale(canvas, chartElements, renderInfo);
 }

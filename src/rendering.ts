@@ -797,71 +797,111 @@ function renderPoints(
         }
 
         if (lineInfo.allowInspectData) {
-            let tooltip = chartElements.svg.append("g").style("opacity", 0);
-            let tooltipBg = tooltip
-                .append("rect")
-                .attr("width", renderInfo.tooltipSize.width)
-                .attr("height", renderInfo.tooltipSize.height)
-                .attr("class", "tracker-tooltip");
-            let tooltipLabel = tooltip
-                .append("text")
-                .attr("width", renderInfo.tooltipSize.width)
-                .attr("height", renderInfo.tooltipSize.height)
-                .attr("class", "tracker-tooltip-label");
-            let tooltipLabelDate = tooltipLabel
-                .append("tspan")
-                .attr("x", 4)
-                .attr("y", (renderInfo.tooltipSize.height / 5) * 2);
-            let tooltipLabelValue = tooltipLabel
-                .append("tspan")
-                .attr("x", 4)
-                .attr("y", (renderInfo.tooltipSize.height / 5) * 4);
-
-            dots.on("mouseenter", function (event: any) {
-                // Date
-                tooltipLabelDate.text("date:" + d3.select(this).attr("date"));
-                // Value
-                let valueType = d3.select(this).attr("valueType");
-                let strValue = d3.select(this).attr("value");
-                if (valueType === "Time") {
-                    let dayStart = window.moment("00:00", "HH:mm", true);
-                    let tickTime = dayStart.add(
-                        parseFloat(strValue),
-                        "seconds"
-                    );
-                    let dateValue = tickTime.format("HH:mm");
-                    tooltipLabelValue.text("value:" + dateValue);
-                } else {
-                    tooltipLabelValue.text("value:" + strValue);
-                }
-
-                const [x, y] = d3.pointer(event);
-                if (x < renderInfo.dataAreaSize.width / 2) {
-                    tooltip.attr(
-                        "transform",
-                        "translate(" +
-                            (x + renderInfo.tooltipSize.width * 1.3) +
-                            "," +
-                            (y - renderInfo.tooltipSize.height * 1.0) +
-                            ")"
-                    );
-                } else {
-                    tooltip.attr(
-                        "transform",
-                        "translate(" +
-                            (x - renderInfo.tooltipSize.width * 0.0) +
-                            "," +
-                            (y - renderInfo.tooltipSize.height * 1.0) +
-                            ")"
-                    );
-                }
-
-                tooltip.transition().duration(200).style("opacity", 1);
-            }).on("mouseleave", function () {
-                tooltip.transition().duration(500).style("opacity", 0);
-            });
+            renderTooltip(dots, chartElements, renderInfo);
         }
     }
+}
+
+function renderTooltip(
+    targetElements: any,
+    chartElements: ChartElements,
+    renderInfo: RenderInfo
+) {
+    let tooltip = chartElements.dataArea.append("svg").style("opacity", 0);
+    let tooltipBg = tooltip.append("rect").attr("x", 0).attr("y", 0);
+    let tooltipLabel = tooltip.append("text");
+    let tooltipLabelDate = tooltipLabel
+        .append("tspan")
+        .attr("class", "tracker-tooltip-label");
+    let tooltipLabelValue = tooltipLabel
+        .append("tspan")
+        .attr("class", "tracker-tooltip-label");
+
+    let xSpacing = 3;
+    let ySpacing = 3;
+
+    targetElements
+        .on("mouseenter", function (event: any) {
+            const [x, y] = d3.pointer(event);
+            let tooltipBgWidth = 0;
+            let tooltipBgHeight = 0;
+            // Date
+            let labelDateText = "date: " + d3.select(this).attr("date");
+            // labelDateText = x.toString();// debug
+            let labelDateSize = helper.measureTextSize(
+                labelDateText,
+                "tracker-tooltip-label"
+            );
+            tooltipLabelDate.text(labelDateText);
+            if (labelDateSize.width > tooltipBgWidth) {
+                tooltipBgWidth = labelDateSize.width;
+            }
+            tooltipBgHeight += labelDateSize.height;
+            tooltipLabelDate.attr("x", xSpacing).attr("y", tooltipBgHeight);
+
+            // Value
+            let labelValueText = "value: ";
+            let valueType = d3.select(this).attr("valueType");
+            let strValue = d3.select(this).attr("value");
+            // strValue += y.toString();//debug
+            if (valueType === "Time") {
+                let dayStart = window.moment("00:00", "HH:mm", true);
+                let tickTime = dayStart.add(parseFloat(strValue), "seconds");
+                let dateValue = tickTime.format("HH:mm");
+                labelValueText += dateValue;
+                tooltipLabelValue.text(labelValueText);
+            } else {
+                labelValueText += strValue;
+                tooltipLabelValue.text(labelValueText);
+            }
+            let labelValueSize = helper.measureTextSize(
+                labelValueText,
+                "tracker-tooltip-label"
+            );
+            if (labelValueSize.width > tooltipBgWidth) {
+                tooltipBgWidth = labelValueSize.width;
+            }
+            tooltipBgHeight += ySpacing + labelValueSize.height;
+            tooltipLabelValue.attr("x", xSpacing).attr("y", tooltipBgHeight);
+
+            tooltipBgWidth += 2 * xSpacing;
+            tooltipBgHeight += 2 * ySpacing;
+            tooltipLabel
+                .attr("width", tooltipBgWidth)
+                .attr("height", tooltipBgHeight);
+
+            tooltipBg
+                .attr("width", tooltipBgWidth)
+                .attr("height", tooltipBgHeight)
+                .attr("class", "tracker-tooltip");
+
+            let tooltipPosX = x;
+            let tooltipPosY = y;
+            let tooltipXOffset = 12;
+            let tooltipYOffset = 12;
+            if (
+                x + tooltipXOffset + tooltipBgWidth >
+                renderInfo.dataAreaSize.width
+            ) {
+                // move tooltip to left
+                tooltipPosX = x - tooltipBgWidth - tooltipXOffset;
+            } else {
+                // default at the right side
+                tooltipPosX = x + tooltipXOffset;
+            }
+            if (y - tooltipYOffset - tooltipBgHeight < 0) {
+                // down side
+                tooltipPosY = y + tooltipYOffset;
+            } else {
+                // default move to up side
+                tooltipPosY = y - tooltipYOffset - tooltipBgHeight;
+            }
+            tooltip.attr("x", tooltipPosX).attr("y", tooltipPosY);
+            tooltip.transition().duration(200).style("opacity", 1);
+        })
+        .on("mouseleave", function () {
+            tooltip.transition().duration(500).style("opacity", 0);
+        });
 }
 
 function renderBar(
