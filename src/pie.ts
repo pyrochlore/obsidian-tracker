@@ -660,5 +660,5 @@ export function renderPieChart(
         renderLegend(svgCanvas, chartElements, renderInfo, pieInfo);
     }
 
-    setChartScale(canvas, chartElements, renderInfo);
+    setChartScale(svgCanvas, chartElements, renderInfo);
 }

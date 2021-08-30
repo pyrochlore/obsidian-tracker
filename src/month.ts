@@ -1177,5 +1177,5 @@ export function renderMonth(
 
     renderMonthDays(svgCanvas, chartElements, renderInfo, monthInfo, monthDate);
 
-    setChartScale(canvas, chartElements, renderInfo);
+    setChartScale(svgCanvas, chartElements, renderInfo);
 }
