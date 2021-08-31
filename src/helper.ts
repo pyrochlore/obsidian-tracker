@@ -337,6 +337,9 @@ export function parseFloatFromAny(
     toParse: any,
     textValueMap: TextValueMap = null
 ) {
+    // console.log("parseFloatFromAny");
+    // console.log(toParse);
+
     let value = null;
     let valueType = ValueType.Number;
     if (typeof toParse === "string") {
@@ -363,17 +366,25 @@ export function parseFloatFromAny(
                 let anyMatch = false;
                 const keys = Object.keys(textValueMap) as Array<keyof string>;
                 for (let key of keys) {
-                    if (toParse === key) {
-                        value = textValueMap[key];
-                        anyMatch = true;
-                        break;
+                    if (typeof key === "string") {
+                        let regex = new RegExp(key, "gm");
+                        // console.log(toParse);
+                        if (
+                            regex.test(toParse) &&
+                            Number.isNumber(textValueMap[key])
+                        ) {
+                            let strReplacedValue = textValueMap[key].toString();
+                            toParse = toParse.replace(regex, strReplacedValue);
+                            // console.log(toParse);
+                            anyMatch = true;
+                            break;
+                        }
                     }
                 }
-                if (!anyMatch) {
-                    value = parseFloat(toParse);
-                    if (Number.isNaN(value)) {
-                        value = null;
-                    }
+
+                value = parseFloat(toParse);
+                if (Number.isNaN(value)) {
+                    value = null;
                 }
             } else {
                 value = parseFloat(toParse);

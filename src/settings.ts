@@ -27,7 +27,7 @@ export class TrackerSettingTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName("Default folder location")
             .setDesc(
-                "Files in this folder will be parsed and used as input data of the tracker plugin.\nYou can also override it using 'folder' argument int the tracker codeblock."
+                "Files in this folder will be parsed and used as input data of the tracker plugin.\nYou can also override it using 'folder' argument in the tracker codeblock."
             )
             .addText((text) =>
                 text

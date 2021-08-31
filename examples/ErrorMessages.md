@@ -212,6 +212,7 @@ Invalid data range (data only contains 1 and null)
 ``` tracker
 searchType: tag
 searchTarget: meditation
+folder: diary
 summary:
     template: '{{sum(normalize(dataset(0)))}}'
 ```
