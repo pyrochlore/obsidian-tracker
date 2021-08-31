@@ -1,5 +1,9 @@
 # Release Notes
 
+## v1.10.4
+- Allow using a regular expression as a key of the parameter `textValueMap`
+- Fixed typo in plugin settings
+
 ## v1.10.3
 - Allow using the parameter `fitPanelWidth` with the output type `month` and `pie`
 - Fixed the resizing and positioning of the chart tooltip
