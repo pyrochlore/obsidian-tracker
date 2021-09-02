@@ -34,11 +34,11 @@ interface DayInfo {
 }
 
 function setChartScale(
-    _canvas: HTMLElement,
+    svgCanvas: any,
     chartElements: ChartElements,
     renderInfo: RenderInfo
 ) {
-    let canvas = d3.select(_canvas);
+    let canvas = svgCanvas;
     let svg = chartElements.svg;
     let svgWidth = parseFloat(svg.attr("width"));
     let svgHeight = parseFloat(svg.attr("height"));
@@ -1154,15 +1154,20 @@ export function renderMonth(
 
     let monthDate: Moment = null;
     if (monthInfo.initMonth) {
-        let initMonth = window.moment(monthInfo.initMonth, "YYYY-MM", true);
-        // console.log(initMonth);
-        if (initMonth.isValid()) {
-            monthDate = initMonth;
-        } else {
-            return "Invalid initMonth";
+        monthDate = helper.getDateByDurationToToday(
+            monthInfo.initMonth,
+            renderInfo.dateFormat
+        );
+        if (!monthDate) {
+            let initMonth = window.moment(monthInfo.initMonth, "YYYY-MM", true);
+            // console.log(initMonth);
+            if (initMonth.isValid()) {
+                monthDate = initMonth;
+            } else {
+                return "Invalid initMonth";
+            }
         }
     } else {
-        let today = window.moment();
         monthDate = renderInfo.datasets.getDates().last();
     }
     if (!monthDate) return;
