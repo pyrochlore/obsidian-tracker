@@ -72,11 +72,11 @@ function createAreas(
 }
 
 function setChartScale(
-    _canvas: any,
+    svgCanvas: any,
     chartElements: ChartElements,
     renderInfo: RenderInfo
 ) {
-    let canvas = d3.select(_canvas);
+    let canvas = svgCanvas;
     let svg = chartElements.svg;
     let svgWidth = parseFloat(svg.attr("width"));
     let svgHeight = parseFloat(svg.attr("height"));
