@@ -223,8 +223,12 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
     for (let dataset of renderInfo.datasets) {
         if (dataset.getQuery().usedAsXDataset) continue;
         // valueShift
-        if (renderInfo.valueShift[dataset.getId()] !== null) {
-            dataset.shift(renderInfo.valueShift[dataset.getId()]);
+        let shiftAmount = renderInfo.valueShift[dataset.getId()];
+        if (shiftAmount !== null && shiftAmount !== 0) {
+            dataset.shift(
+                shiftAmount,
+                renderInfo.shiftOnlyValueLargerThan[dataset.getId()]
+            );
         }
         // penalty
         if (renderInfo.penalty[dataset.getId()] !== null) {
