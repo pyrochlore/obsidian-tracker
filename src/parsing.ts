@@ -229,7 +229,7 @@ function getNumberArrayFromInput(
     defaultValue: number,
     allowNoValidValue: boolean
 ): Array<number> | string {
-    console.log("getNumberArrayFromInput");
+    // console.log("getNumberArrayFromInput");
 
     let array: Array<number> = [];
     let errorMessage = "";

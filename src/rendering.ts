@@ -605,25 +605,20 @@ function renderYAxis(
     }
 
     // Get max tick label width
-    let yTickLabelFormat = getYTickLabelFormat(
-        yLower,
-        yUpper,
-        yAxisTickLabelFormat,
-        valueIsTime
-    );
-
-    let yLowerLabelSize = helper.measureTextSize(
-        yTickLabelFormat(yLower),
-        "tracker-axis-label"
-    );
-    let yUpperLabelSize = helper.measureTextSize(
-        yTickLabelFormat(yUpper),
-        "tracker-axis-label"
-    );
-    let maxTickLabelWidth = Math.max(
-        yLowerLabelSize.width,
-        yUpperLabelSize.width
-    );
+    let maxTickLabelWidth = 0;
+    for (let label of yAxisTickLabels) {
+        // console.log(label.textContent);
+        if (label.textContent) {
+            let labelSize = helper.measureTextSize(
+                label.textContent,
+                "tracker-axis-label"
+            );
+            if (labelSize.width > maxTickLabelWidth) {
+                maxTickLabelWidth = labelSize.width;
+            }
+        }
+    }
+    // console.log(maxTickLabelWidth);
 
     if (yAxisUnitText !== "") {
         yAxisLabelText += " (" + yAxisUnitText + ")";
