@@ -226,8 +226,12 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
     for (let dataset of renderInfo.datasets) {
         if (dataset.getQuery().usedAsXDataset) continue;
         // valueShift
-        if (renderInfo.valueShift[dataset.getId()] !== null) {
-            dataset.shift(renderInfo.valueShift[dataset.getId()]);
+        let shiftAmount = renderInfo.valueShift[dataset.getId()];
+        if (shiftAmount !== null && shiftAmount !== 0) {
+            dataset.shift(
+                shiftAmount,
+                renderInfo.shiftOnlyValueLargerThan[dataset.getId()]
+            );
         }
         // penalty
         if (renderInfo.penalty[dataset.getId()] !== null) {
@@ -611,25 +615,20 @@ function renderYAxis(
     }
 
     // Get max tick label width
-    let yTickLabelFormat = getYTickLabelFormat(
-        yLower,
-        yUpper,
-        yAxisTickLabelFormat,
-        valueIsTime
-    );
-
-    let yLowerLabelSize = helper.measureTextSize(
-        yTickLabelFormat(yLower),
-        "tracker-axis-label"
-    );
-    let yUpperLabelSize = helper.measureTextSize(
-        yTickLabelFormat(yUpper),
-        "tracker-axis-label"
-    );
-    let maxTickLabelWidth = Math.max(
-        yLowerLabelSize.width,
-        yUpperLabelSize.width
-    );
+    let maxTickLabelWidth = 0;
+    for (let label of yAxisTickLabels) {
+        // console.log(label.textContent);
+        if (label.textContent) {
+            let labelSize = helper.measureTextSize(
+                label.textContent,
+                "tracker-axis-label"
+            );
+            if (labelSize.width > maxTickLabelWidth) {
+                maxTickLabelWidth = labelSize.width;
+            }
+        }
+    }
+    // console.log(maxTickLabelWidth);
 
     if (yAxisUnitText !== "") {
         yAxisLabelText += " (" + yAxisUnitText + ")";
@@ -1267,8 +1266,6 @@ function renderLegend(
             });
         }
     } else if (chartInfo.legendOrientation === "horizontal") {
-        let currRenderPosX = 0.0;
-        let currRenderPosX2 = 0.0;
         if (chartInfo.GetGraphType() === GraphType.Line) {
             // lines
             legend
@@ -1277,36 +1274,30 @@ function renderLegend(
                 .enter()
                 .append("line")
                 .attr("x1", function (name: string, i: number) {
-                    let numElemsExcluded = xDatasetIds.filter((id) => {
-                        return id < i;
-                    }).length;
-                    i = i - numElemsExcluded;
-                    if (i === 0) {
-                        currRenderPosX = firstMarkerX;
-                    } else {
-                        currRenderPosX +=
-                            nameSizes[i].width +
-                            xSpacing +
-                            markerWidth +
-                            xSpacing;
+                    let posX = xSpacing;
+                    for (let [ind, size] of nameSizes.entries()) {
+                        if (xDatasetIds.includes(ind)) continue;
+                        if (ind < i) {
+                            posX +=
+                                markerWidth + xSpacing + size.width + xSpacing;
+                        } else {
+                            break;
+                        }
                     }
-                    return currRenderPosX;
+                    return posX;
                 })
                 .attr("x2", function (name: string, i: number) {
-                    let numElemsExcluded = xDatasetIds.filter((id) => {
-                        return id < i;
-                    }).length;
-                    i = i - numElemsExcluded;
-                    if (i === 0) {
-                        currRenderPosX2 = firstMarkerX + markerWidth;
-                    } else {
-                        currRenderPosX2 +=
-                            nameSizes[i].width +
-                            xSpacing +
-                            markerWidth +
-                            xSpacing;
+                    let posX = xSpacing + markerWidth;
+                    for (let [ind, size] of nameSizes.entries()) {
+                        if (xDatasetIds.includes(ind)) continue;
+                        if (ind < i) {
+                            posX +=
+                                xSpacing + size.width + xSpacing + markerWidth;
+                        } else {
+                            break;
+                        }
                     }
-                    return currRenderPosX2;
+                    return posX;
                 })
                 .attr("y1", firstMarkerY)
                 .attr("y2", firstMarkerY)
@@ -1316,27 +1307,27 @@ function renderLegend(
                 });
 
             // points
-            currRenderPosX = 0.0;
             legend
                 .selectAll("markers")
                 .data(names)
                 .enter()
                 .append("circle")
                 .attr("cx", function (name: string, i: number) {
-                    let numElemsExcluded = xDatasetIds.filter((id) => {
-                        return id < i;
-                    }).length;
-                    i = i - numElemsExcluded;
-                    if (i === 0) {
-                        currRenderPosX = firstMarkerX + markerWidth / 2.0;
-                    } else {
-                        currRenderPosX +=
-                            nameSizes[i].width +
-                            xSpacing +
-                            markerWidth +
-                            xSpacing;
+                    let posX = xSpacing + markerWidth / 2.0;
+                    for (let [ind, size] of nameSizes.entries()) {
+                        if (xDatasetIds.includes(ind)) continue;
+                        if (ind < i) {
+                            posX +=
+                                markerWidth / 2.0 +
+                                xSpacing +
+                                size.width +
+                                xSpacing +
+                                markerWidth / 2.0;
+                        } else {
+                            break;
+                        }
                     }
-                    return currRenderPosX;
+                    return posX;
                 })
                 .attr("cy", firstMarkerY)
                 .attr("r", function (name: string, i: number) {
@@ -1352,7 +1343,6 @@ function renderLegend(
                 });
         } else if (chartInfo.GetGraphType() === GraphType.Bar) {
             // bars
-            currRenderPosX = 0.0;
             legend
                 .selectAll("markers")
                 .data(
@@ -1363,20 +1353,17 @@ function renderLegend(
                 .enter()
                 .append("rect")
                 .attr("x", function (name: string, i: number) {
-                    let numElemsExcluded = xDatasetIds.filter((id) => {
-                        return id < i;
-                    }).length;
-                    i = i - numElemsExcluded;
-                    if (i === 0) {
-                        currRenderPosX = firstMarkerX;
-                    } else {
-                        currRenderPosX +=
-                            nameSizes[i].width +
-                            xSpacing +
-                            markerWidth +
-                            xSpacing;
+                    let posX = xSpacing;
+                    for (let [ind, size] of nameSizes.entries()) {
+                        if (xDatasetIds.includes(ind)) continue;
+                        if (ind < i) {
+                            posX +=
+                                markerWidth + xSpacing + size.width + xSpacing;
+                        } else {
+                            break;
+                        }
                     }
-                    return currRenderPosX;
+                    return posX;
                 })
                 .attr("y", firstMarkerY - nameHeight / 2.0)
                 .attr("width", markerWidth)
@@ -1388,24 +1375,22 @@ function renderLegend(
         }
 
         // names
-        currRenderPosX = 0.0;
         let nameLabels = legend
             .selectAll("labels")
             .data(names)
             .enter()
             .append("text")
             .attr("x", function (name: string, i: number) {
-                let numElemsExcluded = xDatasetIds.filter((id) => {
-                    return id < i;
-                }).length;
-                i = i - numElemsExcluded;
-                if (i === 0) {
-                    currRenderPosX = firstLabelX;
-                } else {
-                    currRenderPosX +=
-                        nameSizes[i].width + xSpacing + markerWidth + xSpacing;
+                let posX = xSpacing + markerWidth + xSpacing;
+                for (let [ind, size] of nameSizes.entries()) {
+                    if (xDatasetIds.includes(ind)) continue;
+                    if (ind < i) {
+                        posX += size.width + xSpacing + markerWidth + xSpacing;
+                    } else {
+                        break;
+                    }
                 }
-                return currRenderPosX;
+                return posX;
             })
             .attr("y", firstLabelY)
             .text(function (name: string, i: number) {

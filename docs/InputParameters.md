@@ -39,6 +39,7 @@ These key-value pairs are placed under the root of the code block.
 | `accum` | Accumulatively sum the values over time (true\|false) | 1~NT | false |
 | `penalty` | Value to use if the search target is missing on the day | 1~NT | |
 | `valueShift` | Amount to shift for each collected value | 1~NT | 0 |
+| `shiftOnlyValueLargerThan` | Do `valueShift` only if the value is larger then the specifed one | 1~NT | null |
 | `valueType` | Not implemented yet | 1~NT | |
 | `textValueMap` | A container key for multiple text-value mapping | | |
 | `fixedScale` | Uniform scaling factor to the graph dimensions | 1 | 1.0 |

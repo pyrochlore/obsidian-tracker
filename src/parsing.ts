@@ -230,6 +230,8 @@ function getNumberArrayFromInput(
     defaultValue: number,
     allowNoValidValue: boolean
 ): Array<number> | string {
+    // console.log("getNumberArrayFromInput");
+
     let array: Array<number> = [];
     let errorMessage = "";
     let numValidValue = 0;
@@ -1469,6 +1471,20 @@ export function getRenderInfoFromYaml(
     }
     renderInfo.valueShift = retValueShift;
     // console.log(renderInfo.valueShift);
+
+    // shiftOnlyValueLargerThan
+    let retShiftOnlyValueLargerThan = getNumberArrayFromInput(
+        "shiftOnlyValueLargerThan",
+        yaml.shiftOnlyValueLargerThan,
+        numDatasets,
+        null,
+        true
+    );
+    if (typeof retShiftOnlyValueLargerThan === "string") {
+        return retShiftOnlyValueLargerThan;
+    }
+    renderInfo.shiftOnlyValueLargerThan = retShiftOnlyValueLargerThan;
+    // console.log(renderInfo.shiftOnlyValueLargerThan);
 
     // textValueMap
     if (typeof yaml.textValueMap !== "undefined") {

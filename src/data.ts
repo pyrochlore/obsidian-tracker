@@ -337,14 +337,25 @@ export class Dataset implements IterableIterator<DataPoint> {
         return this.endDate;
     }
 
-    public shift(shiftAmount: number) {
+    public shift(shiftAmount: number, doLargerthan: number) {
+        let anyShifted = false;
         for (let ind = 0; ind < this.values.length; ind++) {
             if (this.values[ind] !== null) {
-                this.values[ind] = this.values[ind] + shiftAmount;
+                if (doLargerthan === null) {
+                    this.values[ind] = this.values[ind] + shiftAmount;
+                    anyShifted = true;
+                } else {
+                    if (this.values[ind] >= doLargerthan) {
+                        this.values[ind] = this.values[ind] + shiftAmount;
+                        anyShifted = true;
+                    }
+                }
             }
         }
-        this.yMin = this.yMin + shiftAmount;
-        this.yMax = this.yMax + shiftAmount;
+        if (anyShifted) {
+            this.yMin = this.yMin + shiftAmount;
+            this.yMax = this.yMax + shiftAmount;
+        }
     }
 
     public setPenalty(penalty: number) {
@@ -563,6 +574,7 @@ export class RenderInfo {
     accum: boolean[];
     penalty: number[];
     valueShift: number[];
+    shiftOnlyValueLargerThan: number[];
     valueType: string[]; // number/float, int, string, boolean, date, time, datetime
     textValueMap: TextValueMap;
 
@@ -605,6 +617,7 @@ export class RenderInfo {
         this.accum = []; // false, accum values start from zero over days
         this.penalty = []; // null, use this value instead of null value
         this.valueShift = [];
+        this.shiftOnlyValueLargerThan = [];
         this.valueType = [];
         this.textValueMap = {};
 

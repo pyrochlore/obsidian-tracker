@@ -31,7 +31,12 @@ Version 1.10.3
 
 Version 1.10.4
 - Allow using a regular expression as a key of the parameter `textValueMap`
+- Add a parameter `shiftOnlyValueLargerThan` to determine when to do `valueShift`
+- Fixed bugs reported by users
 - Fixed typo in plugin settings
+
+Version 1.10.5
+- Allow using a relative date value in `initMonth` in the month view
 
 ## !!! Breaking Changes !!!
 
