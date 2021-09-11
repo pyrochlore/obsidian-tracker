@@ -15,6 +15,7 @@ import {
     DataMap,
     CustomDatasetInfo,
     CollectingProcessInfo,
+    ValueType,
 } from "./data";
 import * as collecting from "./collecting";
 import {
@@ -937,6 +938,9 @@ export default class Tracker extends Plugin {
                             );
                             // console.log(retParse);
                             if (retParse.value !== null) {
+                                if (retParse.type === ValueType.Time) {
+                                    yDatasetQuery.valueType = ValueType.Time;
+                                }
                                 let value = retParse.value;
                                 if (
                                     indLine < xValues.length &&
@@ -968,6 +972,9 @@ export default class Tracker extends Plugin {
                             );
                             // console.log(retParse);
                             if (retParse.value !== null) {
+                                if (retParse.type === ValueType.Time) {
+                                    yDatasetQuery.valueType = ValueType.Time;
+                                }
                                 value = retParse.value;
                                 if (
                                     indLine < xValues.length &&
