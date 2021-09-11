@@ -72,6 +72,46 @@ summary:
     template: "minDate: {{minDate()}}\nminValue: {{min()}}\nmaxDate: {{maxDate()}}\nmaxValue: {{max()}}"
 ```
 
+### initMonth
+
+Specify the initial month in YYYY-MM format
+``` tracker
+searchType: tag
+searchTarget: exercise-pushup
+datasetName: PushUp
+folder: diary
+month:
+    startWeekOn:
+    threshold: 40
+    color: green
+    headerMonthColor: orange
+    dimNotInMonth: false
+    todayRingColor: orange
+    selectedRingColor: steelblue
+    circleColorByValue: true
+    showSelectedValue: true
+	initMonth: 2021-09
+```
+
+Specify the initial month by relative date
+``` tracker
+searchType: tag
+searchTarget: exercise-pushup
+datasetName: PushUp
+folder: diary
+month:
+    startWeekOn:
+    threshold: 40
+    color: green
+    headerMonthColor: orange
+    dimNotInMonth: false
+    todayRingColor: orange
+    selectedRingColor: steelblue
+    circleColorByValue: true
+    showSelectedValue: true
+	initMonth: -1M
+```
+
 ## Multiple targets
 1. Use parameter `datasetName` to specify the name of each dataset
 2. Use parameter `dataset` to include dataset we are going to view
