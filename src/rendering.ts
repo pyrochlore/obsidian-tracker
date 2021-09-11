@@ -1266,7 +1266,7 @@ function renderLegend(
                 .attr("x1", function (name: string, i: number) {
                     let posX = xSpacing;
                     for (let [ind, size] of nameSizes.entries()) {
-                        if (xDatasetIds.includes(i)) continue;
+                        if (xDatasetIds.includes(ind)) continue;
                         if (ind < i) {
                             posX +=
                                 markerWidth + xSpacing + size.width + xSpacing;
@@ -1279,7 +1279,7 @@ function renderLegend(
                 .attr("x2", function (name: string, i: number) {
                     let posX = xSpacing + markerWidth;
                     for (let [ind, size] of nameSizes.entries()) {
-                        if (xDatasetIds.includes(i)) continue;
+                        if (xDatasetIds.includes(ind)) continue;
                         if (ind < i) {
                             posX +=
                                 xSpacing + size.width + xSpacing + markerWidth;
@@ -1305,7 +1305,7 @@ function renderLegend(
                 .attr("cx", function (name: string, i: number) {
                     let posX = xSpacing + markerWidth / 2.0;
                     for (let [ind, size] of nameSizes.entries()) {
-                        if (xDatasetIds.includes(i)) continue;
+                        if (xDatasetIds.includes(ind)) continue;
                         if (ind < i) {
                             posX +=
                                 markerWidth / 2.0 +
@@ -1345,7 +1345,7 @@ function renderLegend(
                 .attr("x", function (name: string, i: number) {
                     let posX = xSpacing;
                     for (let [ind, size] of nameSizes.entries()) {
-                        if (xDatasetIds.includes(i)) continue;
+                        if (xDatasetIds.includes(ind)) continue;
                         if (ind < i) {
                             posX +=
                                 markerWidth + xSpacing + size.width + xSpacing;
@@ -1373,7 +1373,7 @@ function renderLegend(
             .attr("x", function (name: string, i: number) {
                 let posX = xSpacing + markerWidth + xSpacing;
                 for (let [ind, size] of nameSizes.entries()) {
-                    if (xDatasetIds.includes(i)) continue;
+                    if (xDatasetIds.includes(ind)) continue;
                     if (ind < i) {
                         posX += size.width + xSpacing + markerWidth + xSpacing;
                     } else {
