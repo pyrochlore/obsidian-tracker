@@ -1139,15 +1139,20 @@ export function renderMonth(
 
     let monthDate: Moment = null;
     if (monthInfo.initMonth) {
-        let initMonth = window.moment(monthInfo.initMonth, "YYYY-MM", true);
-        // console.log(initMonth);
-        if (initMonth.isValid()) {
-            monthDate = initMonth;
-        } else {
-            return "Invalid initMonth";
+        monthDate = helper.getDateByDurationToToday(
+            monthInfo.initMonth,
+            renderInfo.dateFormat
+        );
+        if (!monthDate) {
+            let initMonth = window.moment(monthInfo.initMonth, "YYYY-MM", true);
+            // console.log(initMonth);
+            if (initMonth.isValid()) {
+                monthDate = initMonth;
+            } else {
+                return "Invalid initMonth";
+            }
         }
     } else {
-        let today = window.moment();
         monthDate = renderInfo.datasets.getDates().last();
     }
     if (!monthDate) return;
