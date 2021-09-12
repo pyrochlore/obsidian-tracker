@@ -38,6 +38,9 @@ Version 1.10.4
 Version 1.10.5
 - Allow using a relative date value in `initMonth` in the month view
 
+Version 1.10.6
+- Fixed the coloring for missing data in the month view
+
 ## !!! Breaking Changes !!!
 
 From version 1.9.0, template variables, e.g. '{{sum}}', are deprecated. Instead, Tracker provide operators (+, -, *, /, %) and functions (dataset(), sum(), maxStreak(), ......etc) to help us do data processing. For users having code blocks from previous version, please replace '{{sum}}' by '{{sum()}}' or '{{sum(1)}}' by '{{sum(dataset(1))}}'. More information about the new expressions could be found [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Expressions.md).
