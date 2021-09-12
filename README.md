@@ -39,7 +39,7 @@ Version 1.10.5
 - Allow using a relative date value in `initMonth` in the month view
 
 Version 1.10.6
-- Fix the coloring for missing data in the month view
+- Fixed the coloring for missing data in the month view
 
 ## !!! Breaking Changes !!!
 
