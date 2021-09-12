@@ -602,8 +602,8 @@ function renderMonthDays(
             helper.dateToStr(curDate, renderInfo.dateFormat),
             renderInfo.dateFormat
         );
-        if (curDate.format("YYYY-MM-DD") === "2021-01-02") {
-            logToConsole = false; // Change this to do dubugging
+        if (curDate.format("YYYY-MM-DD") === "2021-09-13") {
+            logToConsole = true; // Change this to do dubugging
         }
 
         if (monthInfo.startWeekOn.toLowerCase() === "mon") {
@@ -640,7 +640,6 @@ function renderMonthDays(
         if (logToConsole) {
             console.log(dataset);
             console.log(helper.dateToStr(curDate, renderInfo.dateFormat));
-            console.log(dataset.getValue(window.moment("2021-01-02")));
             console.log(curValue);
         }
 
@@ -672,9 +671,11 @@ function renderMonthDays(
                 scaledValue = (curValue - yMin) / (yMax - yMin);
             }
         }
-        // console.log(yMin);
-        // console.log(yMax);
-        // console.log(scaledValue);
+        if (logToConsole) {
+            console.log(yMin);
+            console.log(yMax);
+            console.log(scaledValue);
+        }
 
         // streakIn and streakOut
         let nextValue = dataset.getValue(curDate, 1);
@@ -745,7 +746,7 @@ function renderMonthDays(
             logToConsole = false;
         }
     }
-    // console.log(daysInMonthView);
+    console.log(daysInMonthView);
     // console.log(daysInMonthView.filter(function (d: DayInfo) {
     //     return d.streakIn;
     // }));
@@ -803,7 +804,7 @@ function renderMonthDays(
                             streakColor
                         )(d.scaledValue * 0.8 + 0.2);
                     } else {
-                        return streakColor;
+                        return "none";
                     }
                 }
                 return "none";
@@ -850,7 +851,7 @@ function renderMonthDays(
                             streakColor
                         )(d.scaledValue * 0.8 + 0.2);
                     } else {
-                        return streakColor;
+                        return "none";
                     }
                 }
                 return "none";
@@ -900,7 +901,7 @@ function renderMonthDays(
                         // console.log(scaledColor);
                         return scaledColor;
                     } else {
-                        return circleColor;
+                        return "none";
                     }
                 }
                 return "none";
