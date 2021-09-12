@@ -603,7 +603,7 @@ function renderMonthDays(
             renderInfo.dateFormat
         );
         if (curDate.format("YYYY-MM-DD") === "2021-09-13") {
-            logToConsole = true; // Change this to do dubugging
+            logToConsole = false; // Change this to do dubugging
         }
 
         if (monthInfo.startWeekOn.toLowerCase() === "mon") {
@@ -746,7 +746,7 @@ function renderMonthDays(
             logToConsole = false;
         }
     }
-    console.log(daysInMonthView);
+    // console.log(daysInMonthView);
     // console.log(daysInMonthView.filter(function (d: DayInfo) {
     //     return d.streakIn;
     // }));
