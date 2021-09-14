@@ -569,6 +569,7 @@ export class RenderInfo {
     endDate: Moment | null;
     datasetName: string[];
     constValue: number[];
+    dataMergeMethod: string[];
     ignoreAttachedValue: boolean[];
     ignoreZeroValue: boolean[];
     accum: boolean[];
@@ -612,6 +613,7 @@ export class RenderInfo {
         this.endDate = null;
         this.datasetName = []; // untitled
         this.constValue = [1.0];
+        this.dataMergeMethod = []; // first, last, sum, product, diff, average
         this.ignoreAttachedValue = []; // false
         this.ignoreZeroValue = []; // false
         this.accum = []; // false, accum values start from zero over days

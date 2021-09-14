@@ -25,6 +25,7 @@ import {
 } from "./settings";
 import * as helper from "./helper";
 import { Moment } from "moment";
+import * as d3 from "d3";
 // import { getDailyNoteSettings } from "obsidian-daily-notes-interface";
 
 declare global {
@@ -696,27 +697,53 @@ export default class Tracker extends Plugin {
                         });
                     if (queryValuePairs.length > 0) {
                         // Merge values of the same day same query
-                        let value = null;
+                        let collectedValues = [];
                         for (
                             let indPair = 0;
                             indPair < queryValuePairs.length;
                             indPair++
                         ) {
-                            let collected = queryValuePairs[indPair].value;
+                            let collectedValue = queryValuePairs[indPair].value;
                             if (
-                                Number.isNumber(collected) &&
-                                !Number.isNaN(collected)
+                                Number.isNumber(collectedValue) &&
+                                !Number.isNaN(collectedValue)
                             ) {
-                                if (value === null) {
-                                    value = collected;
-                                } else {
-                                    value += collected;
-                                }
+                                collectedValues.push(collectedValue);
                             }
                         }
-                        // console.log(hasValue);
-                        // console.log(value);
-                        if (value !== null) {
+
+                        if (collectedValues.length !== 0) {
+                            let value = null;
+                            let mergeMethod =
+                                renderInfo.dataMergeMethod[query.getId()];
+                            switch (mergeMethod) {
+                                case "sum":
+                                    value = d3.sum(collectedValues);
+                                    break;
+                                case "first":
+                                    value = collectedValues[0];
+                                    break;
+                                case "last":
+                                    value =
+                                        collectedValues[
+                                            collectedValues.length - 1
+                                        ];
+                                    break;
+                                case "average":
+                                    let sum = d3.sum(collectedValues);
+                                    value = sum / collectedValues.length;
+                                    break;
+                                case "diff":
+                                    value =
+                                        collectedValues[
+                                            collectedValues.length - 1
+                                        ] - collectedValues[0];
+                                    break;
+                                default:
+                                    // sum
+                                    value = d3.sum(collectedValues);
+                                    break;
+                            }
                             dataset.setValue(curDate, value);
                         }
                     }

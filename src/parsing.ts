@@ -1402,6 +1402,21 @@ export function getRenderInfoFromYaml(
     renderInfo.constValue = retConstValue;
     // console.log(renderInfo.constValue);
 
+    // dataMergeMethod
+    let retDataMergeMethod = getStringArrayFromInput(
+        "dataMergeMethod",
+        yaml.dataMergeMethod,
+        numDatasets,
+        "sum",
+        null,
+        true
+    );
+    if (typeof retDataMergeMethod === "string") {
+        return retDataMergeMethod; // errorMessage
+    }
+    renderInfo.dataMergeMethod = retDataMergeMethod;
+    // console.log(renderInfo.dataMergeMethod);
+
     // ignoreAttachedValue
     let retIgnoreAttachedValue = getBoolArrayFromInput(
         "ignoreAttachedValue",

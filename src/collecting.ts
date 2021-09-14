@@ -326,12 +326,12 @@ function extractDataUsingRegexWithMultipleValues(
 ): boolean {
     // console.log("extractDataUsingRegexWithMultipleValues");
 
+    let extracted = false;
     let regex = new RegExp(strRegex, "gm");
     let match;
-    let measure = 0.0;
-    let extracted = false;
     while ((match = regex.exec(text))) {
         // console.log(match);
+        let value = null;
         if (!renderInfo.ignoreAttachedValue[query.getId()]) {
             if (
                 typeof match.groups !== "undefined" &&
@@ -353,18 +353,14 @@ function extractDataUsingRegexWithMultipleValues(
                     );
                     if (retParse.value !== null) {
                         if (retParse.type === ValueType.Time) {
-                            measure = retParse.value;
-                            extracted = true;
+                            value = retParse.value;
                             query.valueType = ValueType.Time;
-                            query.addNumTargets();
                         } else {
                             if (
                                 !renderInfo.ignoreZeroValue[query.getId()] ||
                                 retParse.value !== 0
                             ) {
-                                measure += retParse.value;
-                                extracted = true;
-                                query.addNumTargets();
+                                value = retParse.value;
                             }
                         }
                     }
@@ -381,40 +377,37 @@ function extractDataUsingRegexWithMultipleValues(
                     //console.log(retParse);
                     if (retParse.value !== null) {
                         if (retParse.type === ValueType.Time) {
-                            measure = retParse.value;
-                            extracted = true;
+                            value = retParse.value;
                             query.valueType = ValueType.Time;
-                            query.addNumTargets();
                         } else {
-                            measure += retParse.value;
-                            extracted = true;
-                            query.addNumTargets();
+                            value = retParse.value;
                         }
                     }
                 }
             } else {
                 // no named groups, count occurrencies
                 // console.log("count occurrencies");
-                measure += renderInfo.constValue[query.getId()];
-                extracted = true;
-                query.addNumTargets();
+                value = renderInfo.constValue[query.getId()];
             }
         } else {
             // force to count occurrencies
             // console.log("forced count occurrencies");
-            measure += renderInfo.constValue[query.getId()];
-            extracted = true;
+            value = renderInfo.constValue[query.getId()];
+        }
+
+        if (value !== null) {
+            let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
+            addToDataMap(dataMap, xValue, query, value);
             query.addNumTargets();
+            extracted = true;
+
+            if (renderInfo.dataMergeMethod[query.getId()] === "first") {
+                break;
+            }
         }
     }
 
-    if (extracted) {
-        let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
-        addToDataMap(dataMap, xValue, query, measure);
-        return true;
-    }
-
-    return false;
+    return extracted;
 }
 
 // No value, count occurrences only
@@ -432,10 +425,10 @@ export function collectDataFromFrontmatterTag(
 
     let frontMatter = fileCache.frontmatter;
     let frontMatterTags: string[] = [];
+    let tagExist = false;
     if (frontMatter && frontMatter.tags) {
         // console.log(frontMatter.tags);
-        let tagMeasure = 0.0;
-        let tagExist = false;
+
         if (Array.isArray(frontMatter.tags)) {
             frontMatterTags = frontMatterTags.concat(frontMatter.tags);
         } else if (typeof frontMatter.tags === "string") {
@@ -451,34 +444,33 @@ export function collectDataFromFrontmatterTag(
         // console.log(query.getTarget());
 
         for (let tag of frontMatterTags) {
+            let value = null;
+
             if (tag === query.getTarget()) {
                 // simple tag
-                tagMeasure = tagMeasure + renderInfo.constValue[query.getId()];
-                tagExist = true;
-                query.addNumTargets();
+                value = renderInfo.constValue[query.getId()];
             } else if (tag.startsWith(query.getTarget() + "/")) {
                 // nested tag
-                tagMeasure = tagMeasure + renderInfo.constValue[query.getId()];
-                tagExist = true;
-                query.addNumTargets();
-            } else {
-                continue;
+                value = renderInfo.constValue[query.getId()];
             }
 
             // valued-tag in frontmatter is not supported
             // because the "tag:value" in frontmatter will be consider as a new tag for each existing value
 
-            let value = null;
-            if (tagExist) {
-                value = tagMeasure;
+            if (value !== null) {
+                let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
+                addToDataMap(dataMap, xValue, query, value);
+                query.addNumTargets();
+                tagExist = true;
+
+                if (renderInfo.dataMergeMethod[query.getId()] === "first") {
+                    break;
+                }
             }
-            let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
-            addToDataMap(dataMap, xValue, query, value);
-            return true;
         }
     }
 
-    return false;
+    return tagExist;
 }
 
 // In form 'key: value', target used to identify 'frontmatter key'
