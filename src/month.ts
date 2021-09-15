@@ -717,7 +717,12 @@ function renderMonthDays(
                             .getValue(curDate);
                         let t = monthInfo.threshold[datasetIndex];
                         if (v !== null && v > t) {
-                            textAnnotation += annotations[datasetIndex];
+                            if (annotations[datasetIndex].includes('class="emoji"')) {
+                                // If it's an emoji, extract it from the <img> tag
+                                textAnnotation += annotations[datasetIndex].match(/alt="([^"]*)"/)[1] ?? annotations[datasetIndex];
+                            } else {
+                                textAnnotation += annotations[datasetIndex];
+                            }
                         }
                     }
                 }
