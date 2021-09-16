@@ -332,7 +332,7 @@ export function trimByChar(str: string, char: string) {
         : str.substring(first, str.length - last);
 }
 
-export function replaceEmojiImgTagByEmoji(input: string) {
+export function replaceImgTagByAlt(input: string) {
     if (input === null) return null;
 
     // <img[^>]*?alt\s*=\s*[""']?(?<emoji>[^'"" >]+?)[ '""][^>]*?>

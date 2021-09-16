@@ -544,7 +544,7 @@ function getStringArrayFromInput(
     }
 
     for (let ind = 0; ind < array.length; ind++) {
-        array[ind] = helper.replaceEmojiImgTagByEmoji(array[ind]);
+        array[ind] = helper.replaceImgTagByAlt(array[ind]);
     }
 
     return array;
@@ -636,7 +636,7 @@ function getStringArray(name: string, input: any): Array<string> | string {
     }
 
     for (let ind = 0; ind < strArray.length; ind++) {
-        strArray[ind] = helper.replaceEmojiImgTagByEmoji(strArray[ind]);
+        strArray[ind] = helper.replaceImgTagByAlt(strArray[ind]);
     }
 
     return strArray;
@@ -952,7 +952,7 @@ export function getRenderInfoFromYaml(
         errorMessage = "Invalid search target (searchTarget)";
     }
     for (let ind = 0; ind < searchTarget.length; ind++) {
-        searchTarget[ind] = helper.replaceEmojiImgTagByEmoji(searchTarget[ind]);
+        searchTarget[ind] = helper.replaceImgTagByAlt(searchTarget[ind]);
     }
     // console.log(searchTarget);
 
