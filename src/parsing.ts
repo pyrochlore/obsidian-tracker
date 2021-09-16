@@ -543,6 +543,10 @@ function getStringArrayFromInput(
         return errorMessage;
     }
 
+    for (let ind = 0; ind < array.length; ind++) {
+        array[ind] = helper.replaceEmojiImgTagByEmoji(array[ind]);
+    }
+
     return array;
 }
 
@@ -629,6 +633,10 @@ function getStringArray(name: string, input: any): Array<string> | string {
     } else {
         let errorMessage = `Invalid ${name}`;
         return errorMessage;
+    }
+
+    for (let ind = 0; ind < strArray.length; ind++) {
+        strArray[ind] = helper.replaceEmojiImgTagByEmoji(strArray[ind]);
     }
 
     return strArray;
@@ -942,6 +950,9 @@ export function getRenderInfoFromYaml(
         }
     } else {
         errorMessage = "Invalid search target (searchTarget)";
+    }
+    for (let ind = 0; ind < searchTarget.length; ind++) {
+        searchTarget[ind] = helper.replaceEmojiImgTagByEmoji(searchTarget[ind]);
     }
     // console.log(searchTarget);
 
