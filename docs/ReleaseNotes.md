@@ -1,5 +1,8 @@
 # Release Notes
 
+## v1.10.7
+- Allow using html image tags as emoji inputs
+
 ## v1.10.6
 - Fixed the coloring for missing data in the month view
 

@@ -332,6 +332,25 @@ export function trimByChar(str: string, char: string) {
         : str.substring(first, str.length - last);
 }
 
+export function replaceImgTagByAlt(input: string) {
+    if (input === null) return null;
+
+    // <img[^>]*?alt\s*=\s*[""']?(?<emoji>[^'"" >]+?)[ '""][^>]*?>
+    let strRegex =
+        '<img[^>]*?alt\\s*=\\s*[""\']?(?<emoji>[^\'"" >]+?)[ \'""][^>]*?>';
+    // console.log(strRegex);
+    let regex = new RegExp(strRegex, "g");
+
+    let output = input.replace(regex, (...args) => {
+        let groups = args[args.length - 1];
+        if (groups && groups.emoji) {
+            return groups.emoji.trim();
+        }
+        return "";
+    });
+
+    return output;
+}
 // Parsing
 export function parseFloatFromAny(
     toParse: any,
