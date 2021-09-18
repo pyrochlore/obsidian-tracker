@@ -1,6 +1,6 @@
 {
   "name": "obsidian-tracker",
-  "version": "1.10.6",
+  "version": "1.10.7",
   "description": "A plugin tracks occurrences and numbers in your notes",
   "main": "main.js",
   "scripts": {

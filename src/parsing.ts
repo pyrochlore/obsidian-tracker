@@ -374,6 +374,15 @@ function getNumberArrayFromInput(
     return array;
 }
 
+function getStringFromInput(input: any, defaultValue: string): string {
+    if (typeof input === "string") {
+        return helper.replaceImgTagByAlt(input);
+    } else if (typeof input === "number") {
+        return input.toString();
+    }
+    return defaultValue;
+}
+
 function getStringArrayFromInput(
     name: string,
     input: any,
@@ -544,6 +553,10 @@ function getStringArrayFromInput(
         return errorMessage;
     }
 
+    for (let ind = 0; ind < array.length; ind++) {
+        array[ind] = helper.replaceImgTagByAlt(array[ind]);
+    }
+
     return array;
 }
 
@@ -632,6 +645,10 @@ function getStringArray(name: string, input: any): Array<string> | string {
         return errorMessage;
     }
 
+    for (let ind = 0; ind < strArray.length; ind++) {
+        strArray[ind] = helper.replaceImgTagByAlt(strArray[ind]);
+    }
+
     return strArray;
 }
 
@@ -641,24 +658,25 @@ function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
     // single value, use default value if no value from YAML
     if (yaml) {
         // title
-        if (typeof yaml.title === "string") {
-            renderInfo.title = yaml.title;
-        }
+        renderInfo.title = getStringFromInput(yaml?.title, renderInfo.title);
 
         // xAxisLabel
-        if (typeof yaml.xAxisLabel === "string") {
-            renderInfo.xAxisLabel = yaml.xAxisLabel;
-        }
+        renderInfo.xAxisLabel = getStringFromInput(
+            yaml?.xAxisLabel,
+            renderInfo.xAxisLabel
+        );
 
         // xAxisColor
-        if (typeof yaml.xAxisColor === "string") {
-            renderInfo.xAxisColor = yaml.xAxisColor;
-        }
+        renderInfo.xAxisColor = getStringFromInput(
+            yaml?.xAxisColor,
+            renderInfo.xAxisColor
+        );
 
         // xAxisLabelColor
-        if (typeof yaml.xAxisLabelColor === "string") {
-            renderInfo.xAxisLabelColor = yaml.xAxisLabelColor;
-        }
+        renderInfo.xAxisLabelColor = getStringFromInput(
+            yaml?.xAxisLabelColor,
+            renderInfo.xAxisLabelColor
+        );
 
         // allowInspectData
         if (typeof yaml.allowInspectData === "boolean") {
@@ -699,14 +717,16 @@ function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
         // console.log(renderInfo.legendOrientation);
 
         // legendBgColor
-        if (typeof yaml.legendBgColor === "string") {
-            renderInfo.legendBgColor = yaml.legendBgColor;
-        }
+        renderInfo.legendBgColor = getStringFromInput(
+            yaml?.legendBgColor,
+            renderInfo.legendBgColor
+        );
 
         // legendBorderColor
-        if (typeof yaml.legendBorderColor === "string") {
-            renderInfo.legendBorderColor = yaml.legendBorderColor;
-        }
+        renderInfo.legendBorderColor = getStringFromInput(
+            yaml?.legendBorderColor,
+            renderInfo.legendBorderColor
+        );
     }
 
     // yAxisLabel
@@ -782,11 +802,10 @@ function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
     // console.log(renderInfo.yAxisUnit);
 
     // xAxisTickInterval
-    if (typeof yaml?.xAxisTickInterval === "string") {
-        renderInfo.xAxisTickInterval = yaml.xAxisTickInterval;
-    } else if (typeof yaml?.xAxisTickInterval === "number") {
-        renderInfo.xAxisTickInterval = yaml.xAxisTickInterval.toString();
-    }
+    renderInfo.xAxisTickInterval = getStringFromInput(
+        yaml?.xAxisTickInterval,
+        renderInfo.xAxisTickInterval
+    );
     // console.log(renderInfo.xAxisTickInterval);
 
     // yAxisTickInterval
@@ -808,9 +827,10 @@ function parseCommonChartInfo(yaml: any, renderInfo: CommonChartInfo) {
     // console.log(renderInfo.yAxisTickInterval);
 
     // xAxisTickLabelFormat
-    if (typeof yaml?.xAxisTickLabelFormat === "string") {
-        renderInfo.xAxisTickLabelFormat = yaml.xAxisTickLabelFormat;
-    }
+    renderInfo.xAxisTickLabelFormat = getStringFromInput(
+        yaml?.xAxisTickLabelFormat,
+        renderInfo.xAxisTickLabelFormat
+    );
     // console.log(renderInfo.xAxisTickLabelFormat);
 
     // yAxisTickLabelFormat
@@ -943,6 +963,9 @@ export function getRenderInfoFromYaml(
         }
     } else {
         errorMessage = "Invalid search target (searchTarget)";
+    }
+    for (let ind = 0; ind < searchTarget.length; ind++) {
+        searchTarget[ind] = helper.replaceImgTagByAlt(searchTarget[ind]);
     }
     // console.log(searchTarget);
 
@@ -1224,13 +1247,10 @@ export function getRenderInfoFromYaml(
     // console.log(renderInfo.fileContainsLinkedFiles);
 
     // fileMultiplierAfterLink
-    if (typeof yaml.fileMultiplierAfterLink === "string") {
-        renderInfo.fileMultiplierAfterLink = yaml.fileMultiplierAfterLink;
-    }
-    if (typeof yaml.fileMultiplierAfterLink === "number") {
-        renderInfo.fileMultiplierAfterLink =
-            yaml.fileMultiplierAfterLink.toString();
-    }
+    renderInfo.fileMultiplierAfterLink = getStringFromInput(
+        yaml?.fileMultiplierAfterLink,
+        renderInfo.fileMultiplierAfterLink
+    );
     // console.log(renderInfo.fileMultiplierAfterLink);
 
     // Date format
@@ -1249,14 +1269,16 @@ export function getRenderInfoFromYaml(
     // console.log("renderInfo dateFormat: " + renderInfo.dateFormat);
 
     // Date format prefix
-    if (typeof yaml.dateFormatPrefix === "string") {
-        renderInfo.dateFormatPrefix = yaml.dateFormatPrefix;
-    }
+    renderInfo.dateFormatPrefix = getStringFromInput(
+        yaml?.dateFormatPrefix,
+        renderInfo.dateFormatPrefix
+    );
 
     // Date fromat suffix
-    if (typeof yaml.dateFormatSuffix === "string") {
-        renderInfo.dateFormatSuffix = yaml.dateFormatSuffix;
-    }
+    renderInfo.dateFormatSuffix = getStringFromInput(
+        yaml?.dateFormatSuffix,
+        renderInfo.dateFormatSuffix
+    );
 
     // startDate, endDate
     // console.log("Parsing startDate");
@@ -1565,9 +1587,10 @@ export function getRenderInfoFromYaml(
         customDataset.id = customDatasetId;
 
         // name
-        if (typeof yamlCustomDataset?.name === "string") {
-            customDataset.name = yamlCustomDataset.name;
-        }
+        customDataset.name = getStringFromInput(
+            yamlCustomDataset?.name,
+            customDataset.name
+        );
 
         // xData
         let retXData = getStringArray("xData", yamlCustomDataset?.xData);
@@ -1836,9 +1859,7 @@ export function getRenderInfoFromYaml(
         }
 
         // title
-        if (typeof yamlPie?.title === "string") {
-            pie.title = yamlPie.title;
-        }
+        pie.title = getStringFromInput(yamlPie?.title, pie.title);
         // console.log(pie.title);
 
         // data
@@ -1934,42 +1955,41 @@ export function getRenderInfoFromYaml(
         }
 
         // legendPosition
-        if (typeof yamlPie?.legendPosition === "string") {
-            pie.legendPosition = yamlPie.legendPosition;
-        } else {
-            pie.legendPosition = "right";
-        }
+        pie.legendPosition = getStringFromInput(
+            yamlPie?.legendPosition,
+            "right"
+        );
 
         // legendOrient
-        if (typeof yamlPie?.legendOrientation === "string") {
-            pie.legendOrientation = yamlPie.legendOrientation;
+        let defaultLegendOrientation = "horizontal";
+        if (pie.legendPosition === "top" || pie.legendPosition === "bottom") {
+            defaultLegendOrientation = "horizontal";
+        } else if (
+            pie.legendPosition === "left" ||
+            pie.legendPosition === "right"
+        ) {
+            defaultLegendOrientation = "vertical";
         } else {
-            if (
-                pie.legendPosition === "top" ||
-                pie.legendPosition === "bottom"
-            ) {
-                pie.legendOrientation = "horizontal";
-            } else if (
-                pie.legendPosition === "left" ||
-                pie.legendPosition === "right"
-            ) {
-                pie.legendOrientation = "vertical";
-            } else {
-                pie.legendOrientation = "horizontal";
-            }
+            defaultLegendOrientation = "horizontal";
         }
+        pie.legendOrientation = getStringFromInput(
+            yamlPie?.legendOrientation,
+            defaultLegendOrientation
+        );
         // console.log(pie.legendPosition);
         // console.log(pie.legendOrientation);
 
         // legendBgColor
-        if (typeof yamlPie?.legendBgColor === "string") {
-            pie.legendBgColor = yamlPie.legendBgColor;
-        }
+        pie.legendBgColor = getStringFromInput(
+            yamlPie?.legendBgColor,
+            pie.legendBgColor
+        );
 
         // legendBorderColor
-        if (typeof yamlPie?.legendBorderColor === "string") {
-            pie.legendBorderColor = yamlPie.legendBorderColor;
-        }
+        pie.legendBorderColor = getStringFromInput(
+            yamlPie?.legendBorderColor,
+            pie.legendBorderColor
+        );
 
         renderInfo.pie.push(pie);
     } // pie related parameters
@@ -1992,12 +2012,13 @@ export function getRenderInfoFromYaml(
         }
 
         // template
-        if (typeof yamlSummary?.template === "string") {
-            summary.template = yamlSummary.template;
-        }
-        if (typeof yamlSummary?.style === "string") {
-            summary.style = yamlSummary.style;
-        }
+        summary.template = getStringFromInput(
+            yamlSummary?.template,
+            summary.template
+        );
+
+        // style
+        summary.style = getStringFromInput(yamlSummary?.style, summary.style);
 
         renderInfo.summary.push(summary);
     } // summary related parameters
@@ -2019,9 +2040,7 @@ export function getRenderInfoFromYaml(
         }
 
         // mode
-        if (typeof yamlMonth?.mode === "string") {
-            month.mode = yamlMonth.mode;
-        }
+        month.mode = getStringFromInput(yamlMonth?.mode, month.mode);
         // console.log(month.mode);
 
         // dataset
@@ -2040,9 +2059,10 @@ export function getRenderInfoFromYaml(
         let numDataset = month.dataset.length;
 
         // startWeekOn
-        if (typeof yamlMonth?.startWeekOn === "string") {
-            month.startWeekOn = yamlMonth.startWeekOn;
-        }
+        month.startWeekOn = getStringFromInput(
+            yamlMonth?.startWeekOn,
+            month.startWeekOn
+        );
         // console.log(month.startWeekOn);
 
         // showCircle
@@ -2108,9 +2128,7 @@ export function getRenderInfoFromYaml(
         // console.log(month.yMax);
 
         // color
-        if (typeof yamlMonth?.color === "string") {
-            month.color = yamlMonth.color;
-        }
+        month.color = getStringFromInput(yamlMonth?.color, month.color);
         // console.log(month.color);
 
         // dimNotInMonth
@@ -2144,9 +2162,10 @@ export function getRenderInfoFromYaml(
         // console.log(month.showSelectedRing);
 
         // circleColor
-        if (typeof yamlMonth?.circleColor === "string") {
-            month.circleColor = yamlMonth.circleColor;
-        }
+        month.circleColor = getStringFromInput(
+            yamlMonth?.circleColor,
+            month.circleColor
+        );
         // console.log(month.circleColor);
 
         // circleColorByValue
@@ -2156,39 +2175,45 @@ export function getRenderInfoFromYaml(
         // console.log(month.circleColorByValue);
 
         // headerYearColor
-        if (typeof yamlMonth?.headerYearColor === "string") {
-            month.headerYearColor = yamlMonth.headerYearColor;
-        }
+        month.headerYearColor = getStringFromInput(
+            yamlMonth?.headerYearColor,
+            month.headerYearColor
+        );
         // console.log(month.headerYearColor);
 
         // headerMonthColor
-        if (typeof yamlMonth?.headerMonthColor === "string") {
-            month.headerMonthColor = yamlMonth.headerMonthColor;
-        }
+        month.headerMonthColor = getStringFromInput(
+            yamlMonth?.headerMonthColor,
+            month.headerMonthColor
+        );
         // console.log(month.headerMonthColor);
 
         // dividingLineColor
-        if (typeof yamlMonth?.dividingLineColor === "string") {
-            month.dividingLineColor = yamlMonth.dividingLineColor;
-        }
+        month.dividingLineColor = getStringFromInput(
+            yamlMonth?.dividingLineColor,
+            month.dividingLineColor
+        );
         // console.log(month.dividingLineColor);
 
         // todayRingColor
-        if (typeof yamlMonth?.todayRingColor === "string") {
-            month.todayRingColor = yamlMonth.todayRingColor;
-        }
+        month.todayRingColor = getStringFromInput(
+            yamlMonth.todayRingColor,
+            month.todayRingColor
+        );
         // console.log(month.todayRingColor);
 
         // selectedRingColor
-        if (typeof yamlMonth?.selectedRingColor === "string") {
-            month.selectedRingColor = yamlMonth.selectedRingColor;
-        }
+        month.selectedRingColor = getStringFromInput(
+            yamlMonth?.selectedRingColor,
+            month.selectedRingColor
+        );
         // console.log(month.selectedRingColor);
 
         // initMonth
-        if (typeof yamlMonth?.initMonth === "string") {
-            month.initMonth = yamlMonth.initMonth;
-        }
+        month.initMonth = getStringFromInput(
+            yamlMonth?.initMonth,
+            month.initMonth
+        );
         // console.log(month.initMonth);
 
         // showAnnotation
@@ -2263,21 +2288,21 @@ export function getRenderInfoFromYaml(
         }
 
         // title
-        if (typeof yamlBullet?.title === "string") {
-            bullet.title = yamlBullet.title;
-        }
+        bullet.title = getStringFromInput(yamlBullet?.title, bullet.title);
         // console.log(bullet.title);
 
         // dataset
-        if (typeof yamlBullet?.dataset === "string") {
-            bullet.dataset = yamlBullet.dataset;
-        }
+        bullet.dataset = getStringFromInput(
+            yamlBullet?.dataset,
+            bullet.dataset
+        );
         // console.log(bullet.dataset);
 
         // orientation
-        if (typeof yamlBullet?.orientation === "string") {
-            bullet.orientation = yamlBullet.orientation;
-        }
+        bullet.orientation = getStringFromInput(
+            yamlBullet?.orientation,
+            bullet.orientation
+        );
         // console.log(bullet.orientation);
 
         // range
@@ -2331,23 +2356,21 @@ export function getRenderInfoFromYaml(
         // console.log(bullet.rangeColor);
 
         // actual value, can possess template variable
-        if (typeof yamlBullet?.value === "string") {
-            bullet.value = yamlBullet.value;
-        } else if (typeof yamlBullet?.value === "number") {
-            bullet.value = yamlBullet.value.toString();
-        }
+        bullet.value = getStringFromInput(yamlBullet?.value, bullet.value);
         // console.log(bullet.value);
 
         // value unit
-        if (typeof yamlBullet?.valueUnit === "string") {
-            bullet.valueUnit = yamlBullet.valueUnit;
-        }
+        bullet.valueUnit = getStringFromInput(
+            yamlBullet?.valueUnit,
+            bullet.valueUnit
+        );
         // console.log(bullet.valueUnit);
 
         // value color
-        if (typeof yamlBullet?.valueColor === "string") {
-            bullet.valueColor = yamlBullet.valueColor;
-        }
+        bullet.valueColor = getStringFromInput(
+            yamlBullet?.valueColor,
+            bullet.valueColor
+        );
         // console.log(bullet.valueColor);
 
         // show mark
@@ -2363,9 +2386,10 @@ export function getRenderInfoFromYaml(
         // console.log(bullet.markValue);
 
         // mark color
-        if (typeof yamlBullet?.markerColor === "string") {
-            bullet.markerColor = yamlBullet.markerColor;
-        }
+        bullet.markerColor = getStringFromInput(
+            yamlBullet?.markerColor,
+            bullet.markerColor
+        );
         // console.log(bullet.markValue);
 
         renderInfo.bullet.push(bullet);
