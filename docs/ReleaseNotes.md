@@ -1,5 +1,8 @@
 # Release Notes
 
+## v1.10.8
+- Fixed startDat/endDate misread as a relative date
+
 ## v1.10.7
 - Allow using html image tags as emoji inputs
 
