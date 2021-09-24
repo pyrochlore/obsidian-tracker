@@ -105,7 +105,7 @@ function extractValueFromDurationString(
     }
 
     let value = null;
-    const strRegex = "(?<value>[0-9]+)(" + units.join("|") + ")";
+    const strRegex = "^(?<value>[0-9]+)(" + units.join("|") + ")$";
     // console.log(strRegex);
     const regex = new RegExp(strRegex, "gm");
     let match = regex.exec(strDuration);
