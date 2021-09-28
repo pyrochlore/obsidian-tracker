@@ -42,7 +42,7 @@ export class TrackerSettingTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName("Default date format")
             .setDesc(
-                "This format is used to parse the date in your diary title.\nYou can also override it using 'date-format' argument in the tracker codeblock."
+                "This format is used to parse the date in your diary title.\nYou can also override it using 'dateFormat' argument in the tracker codeblock."
             )
             .addText((text) =>
                 text
