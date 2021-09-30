@@ -1191,13 +1191,11 @@ export function getRenderInfoFromYaml(
     }
 
     // Root folder to search
-    if (typeof yaml.folder === "string") {
-        if (yaml.folder === "") {
-            renderInfo.folder = plugin.settings.folder;
-        } else {
-            renderInfo.folder = yaml.folder;
-        }
-    } else {
+    renderInfo.folder = getStringFromInput(
+        yaml?.folder,
+        plugin.settings.folder
+    );
+    if (renderInfo.folder.trim() === "") {
         renderInfo.folder = plugin.settings.folder;
     }
     // console.log("renderInfo folder: " + renderInfo.folder);
