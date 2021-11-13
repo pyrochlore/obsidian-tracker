@@ -39,6 +39,14 @@ searchTarget: weight
 line:
 ```
 
+Tabs are not allowed as indentation
+``` tracker
+searchType: tag
+searchTarget: weight
+line:
+	fillGap: true
+```
+
 ## searchTarget
 Missing searchTarget
 ``` tracker
