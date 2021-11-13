@@ -2179,7 +2179,7 @@ export function getRenderInfoFromYaml(
 
         // todayRingColor
         month.todayRingColor = getStringFromInput(
-            yamlMonth.todayRingColor,
+            yamlMonth?.todayRingColor,
             month.todayRingColor
         );
         // console.log(month.todayRingColor);
