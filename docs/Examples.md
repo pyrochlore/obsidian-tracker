@@ -44,7 +44,7 @@ List of all examples
 - [Bloodpressure Tracker](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/BloodPressureTracker.md)
 - [Error Messages](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/ErrorMessages.md)
 - [Finance Tracker](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/FinanceTracker.md)
-- [Habit Trakcer](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/HabitTracker.md)
+- [Habit Tracker](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/HabitTracker.md)
 - [Mood Tracker](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/MoodTracker.md)
 - [Star Tracker](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/StarTracker.md)
 - [Bar Chart](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestBarChart.md)
