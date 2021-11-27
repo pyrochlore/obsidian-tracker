@@ -907,6 +907,12 @@ export function getRenderInfoFromYaml(
 ): RenderInfo | string {
     let yaml;
     try {
+        // console.log(yamlText);
+        let result = yamlText.match(/^\t.+/m);
+        if (result !== null) {
+            let errorMessage = "Tabs are not allowed as indentation";
+            return errorMessage;
+        }
         yaml = parseYaml(yamlText);
     } catch (err) {
         let errorMessage = "Error parsing YAML";
@@ -1191,13 +1197,11 @@ export function getRenderInfoFromYaml(
     }
 
     // Root folder to search
-    if (typeof yaml.folder === "string") {
-        if (yaml.folder === "") {
-            renderInfo.folder = plugin.settings.folder;
-        } else {
-            renderInfo.folder = yaml.folder;
-        }
-    } else {
+    renderInfo.folder = getStringFromInput(
+        yaml?.folder,
+        plugin.settings.folder
+    );
+    if (renderInfo.folder.trim() === "") {
         renderInfo.folder = plugin.settings.folder;
     }
     // console.log("renderInfo folder: " + renderInfo.folder);
@@ -2175,7 +2179,7 @@ export function getRenderInfoFromYaml(
 
         // todayRingColor
         month.todayRingColor = getStringFromInput(
-            yamlMonth.todayRingColor,
+            yamlMonth?.todayRingColor,
             month.todayRingColor
         );
         // console.log(month.todayRingColor);
