@@ -908,11 +908,6 @@ export function getRenderInfoFromYaml(
     let yaml;
     try {
         // console.log(yamlText);
-        let result = yamlText.match(/^\t.+/m);
-        if (result !== null) {
-            let errorMessage = "Tabs are not allowed as indentation";
-            return errorMessage;
-        }
         yaml = parseYaml(yamlText);
     } catch (err) {
         let errorMessage = "Error parsing YAML";
