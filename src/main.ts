@@ -34,6 +34,12 @@ declare global {
     }
 }
 
+declare module 'obsidian' {
+    interface Vault {
+        getConfig(prop: string): any;
+    }
+}
+
 export default class Tracker extends Plugin {
     settings: TrackerSettings;
 
@@ -259,6 +265,13 @@ export default class Tracker extends Plugin {
         const canvas = document.createElement("div");
 
         let yamlText = source.trim();
+
+        // Replace all tabs by spaces
+        let tabSize = this.app.vault.getConfig("tabSize");
+        let spaces = Array(tabSize).fill(" ").join("");
+        yamlText = yamlText.replace(/\t/gm, spaces);
+
+        // Get render info
         let retRenderInfo = getRenderInfoFromYaml(yamlText, this);
         if (typeof retRenderInfo === "string") {
             return this.renderErrorMessage(retRenderInfo, canvas, el);
