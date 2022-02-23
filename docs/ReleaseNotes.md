@@ -1,5 +1,11 @@
 # Release Notes
 
+## v1.10.9
+- Replace tab characters by spaces
+- Accept more unicode characters in dvField
+- Allow emojis in the folder path
+- Fixed bugs
+
 ## v1.10.8
 - Fixed startDat/endDate misread as a relative date
 
