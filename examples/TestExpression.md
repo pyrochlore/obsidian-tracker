@@ -39,7 +39,7 @@ folder: /diary
 startDate: 2021-01-01
 endDate: 2021-01-03
 summary:
-    template: 'Maximum value: {{max() / 2::i}} <-- should be 48 / 2'
+    template: 'Maximum value: {{max() - 2::i}} <-- should be 48 - 2'
 ```
 
 Dataset \* number --> Dataset
@@ -61,7 +61,7 @@ folder: /diary
 startDate: 2021-01-01
 endDate: 2021-01-03
 summary:
-    template: 'Maximum value: {{max() /2::i}} <-- should be 48 / 2'
+    template: 'Maximum value: {{max() / 2::i}} <-- should be 48 / 2'
 ```
 
 Dataset % number --> Dataset

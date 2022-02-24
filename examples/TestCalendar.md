@@ -90,7 +90,7 @@ month:
     selectedRingColor: steelblue
     circleColorByValue: true
     showSelectedValue: true
-	initMonth: 2021-09
+    initMonth: 2021-09
 ```
 
 Specify the initial month by relative date
@@ -109,7 +109,7 @@ month:
     selectedRingColor: steelblue
     circleColorByValue: true
     showSelectedValue: true
-	initMonth: -1M
+    initMonth: -1M
 ```
 
 ## Multiple targets

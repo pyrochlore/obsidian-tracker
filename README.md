@@ -47,6 +47,12 @@ Version 1.10.7
 Version 1.10.8
 - Fixed startDat/endDate misread as a relative date
 
+Version 1.10.9
+- Replace tab characters by spaces
+- Accept more unicode characters in dvField
+- Allow emojis in the folder path
+- Fixed bugs
+
 ## !!! Breaking Changes !!!
 
 From version 1.9.0, template variables, e.g. '{{sum}}', are deprecated. Instead, Tracker provide operators (+, -, *, /, %) and functions (dataset(), sum(), maxStreak(), ......etc.) to help us do data processing. For users having code blocks from previous version, please replace '{{sum}}' by '{{sum()}}' or '{{sum(1)}}' by '{{sum(dataset(1))}}'. More information about the new expressions could be found [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Expressions.md).
