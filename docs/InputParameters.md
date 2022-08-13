@@ -44,7 +44,7 @@ These key-value pairs are placed under the root of the code block.
 | `textValueMap` | A container key for multiple text-value mapping | | |
 | `fixedScale` | Uniform scaling factor to the graph dimensions | 1 | 1.0 |
 | `fitPanelWidth` | Auto-fit the width of the chart to the container | 1 | false |
-| `margin` | Four margins (top|right|bottom|left) of the graph | 1~4 | 10 |
+| `margin` | Four margins (top\|right\|bottom\|left) of the graph | 1~4 | 10 |
 | `line` | A container key for parameters related to the line chart | | |
 | `bar` | A container key for parameters related to the bar chart | | |
 | `summary` | A container key for parameters related to the summary output | | |
