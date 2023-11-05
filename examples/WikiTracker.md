@@ -4,7 +4,7 @@ wiki --> Try parse the display text first, if it does not exist, parse the link 
 wiki.link --> Parse the link text
 wiki.display --> Parse the display text
 
-In the exaample notes, we have
+In the example notes, we have
 [[todo_family|To-Do @Family]]
 [[todo_work|To-Do @Work]]
 
