@@ -316,7 +316,7 @@ export function deepValue(obj: any, str: string) {
     }
     if (typeof obj === "string" || Array.isArray(obj)) {
         return obj;
-    } else if (typeof obj === "number") {
+    } else if (typeof obj === "number" || typeof obj === "boolean") {
         return obj.toString();
     }
     return null;
