@@ -32,7 +32,7 @@ line:
     fillGap: true
 ```
 
-Ue dates from Dataview inline fields as x values
+Use dates from Dataview inline fields as x values
 ``` tracker
 searchType: dvField, dvField
 searchTarget: date, dataviewTarget
@@ -43,7 +43,7 @@ line:
     fillGap: true
 ```
 
-Ue dates from formatted text as x values
+Use dates from formatted text as x values
 ``` tracker
 searchType: text, dvField
 searchTarget: 'Today\sis\s(?<value>([0-9]{4})-([0-9]{2})-([0-9]{2})), dataviewTarget'

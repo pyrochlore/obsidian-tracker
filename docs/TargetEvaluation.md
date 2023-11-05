@@ -120,7 +120,7 @@ With this search type, you can retrieve infomation of files. Currently, three ki
 
 ### searchType: task
 
-You can retrieve infomation from tasks by using `searchType` `tasks`.
+You can retrieve infomation from tasks by using `searchType` `task`.
 The provided `searchTarget` will limit the result with task's contents match the input.
 
 Using type `task` or `task.all` will get you all tasks no matter it is done or not.

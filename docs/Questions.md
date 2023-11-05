@@ -8,7 +8,7 @@
 
     Tracker only connects adjacent points (neighbor points by date) by default. To force it connecting points over missing data, set the parameter `fillGap` under `line` or `bar` to true.
 
-- Why the plugin shows error 'No valid date as X value found in notes'?
+- Why does the plugin show: error 'No valid date as X value found in notes'?
 
     First we have to confirm where is the source of your X values. Tracker always needs X values in dates. The default source of X values are the file names of your notes. As long as a proper `dateFormat` was assigned, and combine with `dateFormatPrefix` and `dateFormatSuffix`, the dates in file names could be extracted from your file names successfully.
 
@@ -18,11 +18,11 @@
 
     Examples of these use cases could be found [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestXDataset.md).
 
-- Wny the plugin shows error 'No valid Y value found in notes'?
+- Why does the plugin show: error 'No valid Y value found in notes'?
 
     That means no matched data found in your notes. Please check the document for the detail of [target evaluation](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md).
 
-- Why the plugin shows 'Error parsing YAML'?
+- Why does the plugin show: 'Error parsing YAML'?
 
     There are syntax errors in your code block. Please check [this document](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/YAML.md) for common issues.
 
