@@ -510,6 +510,13 @@ export function collectDataFromFrontmatterKey(
                 renderInfo.textValueMap
             );
             // console.log(retParse);
+            if (retParse.value === null) {
+                // Try parsing as a boolean: true means 1, false means 0.
+                if (deepValue === 'true' || deepValue === 'false') {
+                    retParse.type = ValueType.Number;
+                    retParse.value = deepValue === 'true' ? 1 : 0;
+                }
+            }
             if (retParse.value !== null) {
                 if (retParse.type === ValueType.Time) {
                     query.valueType = ValueType.Time;
