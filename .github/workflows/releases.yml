@@ -1,0 +1,32 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+  
+jobs:
+  build:
+    permissions: 
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+    - name: Build
+      run: |
+        yarn
+        yarn build
+        yarn zip
+    - name: Release with Notes
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          main.js
+          manifest.json
+          styles.css
+          obsidian-tracker-*.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
