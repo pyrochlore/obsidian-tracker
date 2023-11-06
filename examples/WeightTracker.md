@@ -6,6 +6,8 @@ searchTarget: weight
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
+aspectRatio: 20:9
+fitPanelWidth: 1
 line:
     title: Weight Log
     yAxisLabel: Weight

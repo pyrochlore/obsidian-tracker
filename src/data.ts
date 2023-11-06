@@ -582,6 +582,7 @@ export class RenderInfo {
 
     fixedScale: number;
     fitPanelWidth: boolean;
+    aspectRatio: AspectRatio;
 
     output: any[];
     line: LineInfo[];
@@ -620,6 +621,7 @@ export class RenderInfo {
         this.textValueMap = {};
 
         this.dataAreaSize = new Size(300, 300);
+        this.aspectRatio = new AspectRatio(1, 1);
         this.margin = new Margin(10, 10, 10, 10); // top, right, bottom, left
 
         this.fixedScale = 1.0;
@@ -971,6 +973,22 @@ export class Size {
     constructor(w: number, h: number) {
         this.width = w;
         this.height = h;
+    }
+}
+
+export class AspectRatio  {
+    x: number;
+    y: number;
+
+    constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public recalculateSize(size: Size): Size {
+        let aspectRatio = this.x / this.y;
+        let width = parseFloat((size.width * aspectRatio).toFixed(2))
+        return new Size(width, size.height);
     }
 }
 

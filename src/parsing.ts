@@ -15,6 +15,7 @@ import {
     BulletInfo,
     Dataset,
     CustomDatasetInfo,
+    AspectRatio,
 } from "./data";
 import { TFolder, normalizePath } from "obsidian";
 import { parseYaml } from "obsidian";
@@ -1519,6 +1520,19 @@ export function getRenderInfoFromYaml(
     // fitPanelWidth
     if (typeof yaml.fitPanelWidth === "boolean") {
         renderInfo.fitPanelWidth = yaml.fitPanelWidth;
+    }
+
+    // aspectRatio
+    if (typeof yaml.aspectRatio === "string") {
+        // yaml.fitPanelWidth
+        let ratioRegEx = /([0-9]*):([0-9]*)/;
+        let parts = yaml.aspectRatio.match(ratioRegEx);
+        parts.shift();
+        parts = parts.map((i: string)=>parseInt(i,10));
+        if (parts.length==2) {
+            renderInfo.aspectRatio = new AspectRatio(parts[0], parts[1]);
+            renderInfo.dataAreaSize = renderInfo.aspectRatio.recalculateSize(renderInfo.dataAreaSize)
+        }
     }
 
     // margin
