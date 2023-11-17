@@ -10,6 +10,10 @@ This is an [Obsidian](https://obsidian.md/) plugin that helps you collect data f
 
 ## What's New
 
+Version 1.13.1
+
+- Fix packaging script
+
 Version 1.13.0
 
 - Add support for inline dataview fields (including emoji support for values)
