@@ -10,49 +10,66 @@ This is an [Obsidian](https://obsidian.md/) plugin that helps you collect data f
 
 ## What's New
 
+Version 1.13.0
+
+- Add support for inline dataview fields (including emoji support for values)
+- Update dependencies
+
 Version 1.12.0
-* Add aspect ratio parameter for graphs
-* Reorganize release notes in readme to be in descending order (latest release first)
+
+- Add aspect ratio parameter for graphs
+- Reorganize release notes in readme to be in descending order (latest release first)
 
 Version 1.11.0
-* Add support for checkboxes in new properties added in Obsidian 1.4
-* Fix typos in documentation and examples
+
+- Add support for checkboxes in new properties added in Obsidian 1.4
+- Fix typos in documentation and examples
 
 Version 1.10.9
+
 - Replace tab characters by spaces
 - Accept more unicode characters in dvField
 - Allow emojis in the folder path
 - Fixed bugs
 
 Version 1.10.8
+
 - Fixed startDat/endDate misread as a relative date
 
 Version 1.10.7
+
 - Allow using html image tags as emoji inputs
 
 Version 1.10.6
+
 - Fixed the coloring for missing data in the month view
 
 Version 1.10.5
+
 - Allow using a relative date value in `initMonth` in the month view
 
 Version 1.10.4
+
 - Allow using a regular expression as a key of the parameter `textValueMap`
 - Add a parameter `shiftOnlyValueLargerThan` to determine when to do `valueShift`
 - Fixed bugs reported by users
 - Fixed typo in plugin settings
 
 Version 1.10.3
+
 - Allow using the parameter `fitPanelWidth` with the output type `month` and `pie`
 - Fixed the resizing and positioning of the chart tooltip
 
 Version 1.10.2
+
 - Fixed plugin not rendering on some macOS machines
 
 Version 1.10.1
+
 - Fixed 'failed to load plugin' on iOS
 
 Version 1.10.0
+
 - Add annotation mode for month view ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestCalendar.md))
 - Add parameters `xAxisTickInterval`, `yAxisTickInterval`, `xAxisTickLabelFormat` and `yAxisTickLabelFormat` for the line and bar chart ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestAxisIntervalAndFormat.md))
 - Allow using regular expression in parameter `dateFormatPrefix` and `dateFormatSuffix` ([examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDateFormats.md))
@@ -75,11 +92,12 @@ From version 1.9.0, template variables, e.g. '{{sum}}', are deprecated. Instead,
 For more use cases, please download and open the [examples](https://github.com/pyrochlore/obsidian-tracker/tree/master/examples) folder in obsidian with this plugin installed and enabled.
 
 ## More Details You May Want to Know
+
 - [Installation](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Installation.md): Install the plugin from Obsidian or install it manually
 - [Concepts](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Concepts.md): Explain how this plugin works and what to setup
-    - [Target Evaluation](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md)
-    - [Input Parameters](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/InputParameters.md)
-    - [Expressions](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Expressions.md)
+  - [Target Evaluation](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md)
+  - [Input Parameters](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/InputParameters.md)
+  - [Expressions](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Expressions.md)
 - [Examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Examples.md)
 - [Plugin Settings](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Settings.md)
 - [Release Notes](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/ReleaseNotes.md)
@@ -87,5 +105,6 @@ For more use cases, please download and open the [examples](https://github.com/p
 - [Frequently Asked Questions](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Questions.md)
 
 ## Support
+
 - If you like this plugin or want to support further development, you can [Buy Me a Coffee](https://www.buymeacoffee.com/pyrochlore).
 - Please report bugs and request features in [GitHub Issues](https://github.com/pyrochlore/obsidian-tracker/issues)
