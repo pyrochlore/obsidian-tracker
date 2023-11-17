@@ -11,8 +11,8 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-  # Maintain dependencies for yarn
-  - package-ecosystem: "yarn" # See documentation for possible values
+  # Maintain dependencies for npm
+  - package-ecosystem: "npm" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
