@@ -339,7 +339,7 @@ function extractDataUsingRegexWithMultipleValues(
 ): boolean {
     // console.log("extractDataUsingRegexWithMultipleValues");
 
-    let regex = new RegExp(strRegex, "gm");
+    let regex = new RegExp(strRegex, "gmu");
     let match;
     let measure = 0.0;
     let extracted = false;
@@ -808,7 +808,7 @@ export function collectDataFromDvField(
     let strRegex =
         String.raw`(^| |\t|\|)(\[|\()?\*{0,2}` +
         dvTarget +
-        String.raw`\*{0,2}(::[ |\t]*(?<value>[\d\.\/\-\w,@; \t:` +
+        String.raw`\*{0,2}(::[ |\t]*(?<value>[\p{ExtPict}\d\.\/\-\w,@; \t:` +
         WordCharacters +
         String.raw`]*)(\]|\))?)`;
     // console.log(strRegex);
