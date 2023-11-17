@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "rollup --config rollup.config.dev.mjs -w",
     "build": "rollup --config rollup.config.build.mjs",
-    "zip": "gulp"
+    "zip": "zip -9 obsidian-tracker-v$npm_package_version.zip main.js manifest.json styles.css"
   },
   "keywords": [],
   "author": "pyrochlore",
@@ -19,8 +19,6 @@
     "@types/d3": "^7.4.3",
     "@types/node": "^20.9.1",
     "@types/sprintf-js": "^1.1.4",
-    "gulp": "^3.9.1",
-    "gulp-zip": "^4.2.0",
     "obsidian": "https://github.com/obsidianmd/obsidian-api/tarball/master",
     "rollup": "^4.4.1",
     "rollup-plugin-copy": "^3.5.0",
