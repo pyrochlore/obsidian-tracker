@@ -13,11 +13,17 @@ import * as helper from "./helper";
 import { Moment } from "moment";
 
 // ref: https://www.rapidtables.com/code/text/unicode-characters.html
-const CurrencyCodes = "\u0024\u20AC\u00A3\u00A5\u00A2\u20B9\u20A8\u20B1\u20A9\u0E3F\u20AB\u20AA";
+const CurrencyCodes =
+    "\u0024\u20AC\u00A3\u00A5\u00A2\u20B9\u20A8\u20B1\u20A9\u0E3F\u20AB\u20AA";
 const AlphabetCodes = "\u03B1-\u03C9\u0391-\u03A9";
 const IntellectualPropertyCodes = "\u00A9\u00AE\u2117\u2122\u2120";
 const CJKCodes = "\u4E00-\u9FFF\u3400-\u4DBF\u3000\u3001-\u303F";
-const WordCharacters = "\\w" + CurrencyCodes + AlphabetCodes + IntellectualPropertyCodes + CJKCodes;
+const WordCharacters =
+    "\\w" +
+    CurrencyCodes +
+    AlphabetCodes +
+    IntellectualPropertyCodes +
+    CJKCodes;
 
 // fileBaseName is a string contains dateFormat only
 export function getDateFromFilename(
@@ -333,7 +339,7 @@ function extractDataUsingRegexWithMultipleValues(
 ): boolean {
     // console.log("extractDataUsingRegexWithMultipleValues");
 
-    let regex = new RegExp(strRegex, "gm");
+    let regex = new RegExp(strRegex, "gmu");
     let match;
     let measure = 0.0;
     let extracted = false;
@@ -512,9 +518,9 @@ export function collectDataFromFrontmatterKey(
             // console.log(retParse);
             if (retParse.value === null) {
                 // Try parsing as a boolean: true means 1, false means 0.
-                if (deepValue === 'true' || deepValue === 'false') {
+                if (deepValue === "true" || deepValue === "false") {
                     retParse.type = ValueType.Number;
-                    retParse.value = deepValue === 'true' ? 1 : 0;
+                    retParse.value = deepValue === "true" ? 1 : 0;
                 }
             }
             if (retParse.value !== null) {
@@ -798,13 +804,13 @@ export function collectDataFromDvField(
 
     // Test this in Regex101
     // remember '\s' includes new line
-    // (^| |\t)\*{0,2}dvTarget\*{0,2}(::[ |\t]*(?<value>[\d\.\/\-\w,@; \t:]*))(\r?\n|\r|$)
+    // (^| |\t|\|)(\[|\()?\*{0,2}dvTarget\*{0,2}(::[ |\t]*(?<value>[\d\.\/\-\w,@; \t:]*)(\]|\))?)
     let strRegex =
-        "(^| |\\t)\\*{0,2}" +
+        String.raw`(^| |\t|\|)(\[|\()?\*{0,2}` +
         dvTarget +
-        "\\*{0,2}(::[ |\\t]*(?<value>[\\d\\.\\/\\-,@; \\t:" + 
+        String.raw`\*{0,2}(::[ |\t]*(?<value>[\p{ExtPict}\d\.\/\-\w,@; \t:` +
         WordCharacters +
-        "]*))(\\r\\?\\n|\\r|$)";
+        String.raw`]*)(\]|\))?)`;
     // console.log(strRegex);
 
     return extractDataUsingRegexWithMultipleValues(
