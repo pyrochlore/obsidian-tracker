@@ -38,7 +38,7 @@ Version 1.10.9
 
 Version 1.10.8
 
-- Fixed startDat/endDate misread as a relative date
+- Fixed startDate/endDate misread as a relative date
 
 Version 1.10.7
 
