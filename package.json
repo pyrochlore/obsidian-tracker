@@ -20,7 +20,7 @@
     "@types/node": "^20.10.6",
     "@types/sprintf-js": "^1.1.4",
     "obsidian": "https://github.com/obsidianmd/obsidian-api/tarball/master",
-    "rollup": "^4.9.3",
+    "rollup": "^4.9.5",
     "rollup-plugin-copy": "^3.5.0",
     "tslib": "^2.6.2",
     "typescript": "^5.3.3"
