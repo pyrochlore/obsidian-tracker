@@ -21,6 +21,13 @@ summary:
     style: "font-size:20px;color:yellow;margin-left: 50px;margin-top:00px;"
 ```
 
+``` tracker
+searchType: frontmatter
+searchTarget: sleptwell
+folder: diary
+summary:
+    template: "I once slept well for {{maxStreak()::i}} days in a row!"
+```
 ## Using Expressions
 
 Please check [expression examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestExpression.md) for more examples.

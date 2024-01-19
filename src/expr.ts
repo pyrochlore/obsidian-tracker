@@ -167,7 +167,7 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
         let streak = 0;
         let maxStreak = 0;
         for (let dataPoint of dataset) {
-            if (dataPoint.value !== null) {
+            if (dataPoint.value) {
                 streak++;
             } else {
                 streak = 0;
@@ -186,7 +186,7 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
         let maxStreakStart: Moment = null;
         if (dataset) {
             for (let dataPoint of dataset) {
-                if (dataPoint.value !== null) {
+                if (dataPoint.value) {
                     if (streak === 0) {
                         streakStart = dataPoint.date;
                     }
@@ -216,9 +216,9 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
                 if (ind < arrayDataset.length - 1) {
                     nextPoint = arrayDataset[ind + 1];
                 }
-                if (point.value !== null) {
+                if (point.value) {
                     streak++;
-                    if (nextPoint?.value === null) {
+                    if (!nextPoint?.value) {
                         streakEnd = point.date;
                     }
                 } else {
@@ -239,7 +239,7 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
         let breaks = 0;
         let maxBreaks = 0;
         for (let dataPoint of dataset) {
-            if (dataPoint.value === null) {
+            if (!dataPoint.value) {
                 breaks++;
             } else {
                 breaks = 0;
@@ -258,7 +258,7 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
         let maxBreaksStart: Moment = null;
         if (dataset) {
             for (let dataPoint of dataset) {
-                if (dataPoint.value === null) {
+                if (!dataPoint.value) {
                     if (breaks === 0) {
                         breaksStart = dataPoint.date;
                     }
@@ -288,9 +288,9 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
                 if (ind < arrayDataset.length - 1) {
                     nextPoint = arrayDataset[ind + 1];
                 }
-                if (point.value === null) {
+                if (!point.value) {
                     breaks++;
-                    if (nextPoint?.value !== null) {
+                    if (nextPoint?.value) {
                         breaksEnd = point.date;
                     }
                 } else {
@@ -314,7 +314,7 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
             let arrayDataset = Array.from(dataset);
             for (let ind = arrayDataset.length - 1; ind >= 0; ind--) {
                 let point = arrayDataset[ind];
-                if (point.value === null) {
+                if (!point.value) {
                     break;
                 } else {
                     currentStreak++;
@@ -334,7 +334,7 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
                 if (ind < arrayDataset.length - 1) {
                     currentStreakStart = arrayDataset[ind + 1].date;
                 }
-                if (point.value === null) {
+                if (!point.value) {
                     break;
                 } else {
                     currentStreak++;
@@ -355,7 +355,7 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
             let arrayDataset = Array.from(dataset);
             for (let ind = arrayDataset.length - 1; ind >= 0; ind--) {
                 let point = arrayDataset[ind];
-                if (point.value === null) {
+                if (!point.value) {
                     break;
                 } else {
                     if (currentStreak === 0) {
@@ -378,7 +378,7 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
             let arrayDataset = Array.from(dataset);
             for (let ind = arrayDataset.length - 1; ind >= 0; ind--) {
                 let point = arrayDataset[ind];
-                if (point.value === null) {
+                if (!point.value) {
                     currentBreaks++;
                 } else {
                     break;
@@ -398,7 +398,7 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
                 if (ind < arrayDataset.length - 1) {
                     currentBreaksStart = arrayDataset[ind + 1].date;
                 }
-                if (point.value === null) {
+                if (!point.value) {
                     currentBreaks++;
                 } else {
                     break;
@@ -419,7 +419,7 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
             let arrayDataset = Array.from(dataset);
             for (let ind = arrayDataset.length - 1; ind >= 0; ind--) {
                 let point = arrayDataset[ind];
-                if (point.value === null) {
+                if (!point.value) {
                     if (currentBreaks === 0) {
                         currentBreaksEnd = point.date;
                     }
