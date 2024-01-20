@@ -10,6 +10,12 @@ This is an [Obsidian](https://obsidian.md/) plugin that helps you collect data f
 
 ## What's New
 
+Version 1.13.2
+
+- Update dependencies
+- Fix typo in README.md
+- Change streak counts to terminate on falsey values rather than null
+
 Version 1.13.1
 
 - Fix packaging script

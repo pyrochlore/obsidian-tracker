@@ -1,5 +1,11 @@
 # Release Notes
 
+## 1.13.2
+
+- Update dependencies
+- Fix typo in README.md
+- Change streak counts to terminate on falsey values rather than null
+
 ## 1.13.1
 
 - Fix packaging script
