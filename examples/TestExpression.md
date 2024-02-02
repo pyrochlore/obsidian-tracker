@@ -356,7 +356,7 @@ searchTarget: meditation
 folder: /diary
 endDate: 2021-01-04
 summary:
-    template: 'Set missing values to -1, do normalization then do summation: {{sum( normalize( setMissingValues(dataset(0), -1) ) )::i}} <-- sgiydk be 3'
+    template: 'Set missing values to -1, do normalization then do summation: {{sum( normalize( setMissingValues(dataset(0), -1) ) )::i}} <-- should be 3'
 ```
 
 setMissingValues(Dataset): Dataset
