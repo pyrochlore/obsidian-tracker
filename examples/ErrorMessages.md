@@ -132,7 +132,7 @@ Use parameter `textValueMap` to map a text to a value.
 ``` tracker
 searchType: frontmatter
 searchTarget: randchar
-folder: diary
+folder: examples/diary
 line:
     fillGap: true
 ```
@@ -212,7 +212,7 @@ Invalid data range (data only contains 1 and null)
 ``` tracker
 searchType: tag
 searchTarget: meditation
-folder: diary
+folder: examples/diary
 summary:
     template: '{{sum(normalize(dataset(0)))}}'
 ```

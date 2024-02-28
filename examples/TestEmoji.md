@@ -2,7 +2,7 @@
 ```tracker
 searchType: dvfield
 searchTarget: Physical
-folder: diary
+folder: examples/diary
 startDate: 2023-06-04
 endDate: 2023-06-11
 textValueMap:

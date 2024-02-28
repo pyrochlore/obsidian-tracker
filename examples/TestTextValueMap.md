@@ -4,7 +4,7 @@
 ``` tracker
 searchType: frontmatter
 searchTarget: "mood"
-folder: diary
+folder: examples/diary
 endDate: 2021-01-31
 textValueMap:
     😀: 5

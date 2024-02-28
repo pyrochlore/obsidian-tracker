@@ -6,7 +6,7 @@ Manual input `value` as 12\.5
 ``` tracker
 searchType: tag
 searchTarget: clean-up
-folder: diary
+folder: examples/diary
 endDate: 2021-01-31
 fixedScale: 1.1
 bullet:
@@ -30,7 +30,7 @@ value from expression function currentBreaks()
 ``` tracker
 searchType: tag
 searchTarget: clean-up
-folder: diary
+folder: examples/diary
 endDate: 2021-01-31
 fixedScale: 1.1
 bullet:
@@ -52,7 +52,7 @@ value from expression function sum()
 ``` tracker
 searchType: tag
 searchTarget: meditation
-folder: diary
+folder: examples/diary
 endDate: 2021-01-31
 bullet:
     title: "Meditation"

@@ -4,7 +4,7 @@ Simple inline field
 ``` tracker
 searchType: dvField
 searchTarget: dataviewTarget
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -16,7 +16,7 @@ Field with a space
 ``` tracker
 searchType: dvField
 searchTarget: Make Progress
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -28,7 +28,7 @@ Field with a dash line
 ``` tracker
 searchType: dvField
 searchTarget: Make-Progress
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -40,7 +40,7 @@ Extract the first value from multiple values
 ``` tracker
 searchType: dvField
 searchTarget: dataviewTarget1[0]
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -52,7 +52,7 @@ Multiple values separated by '/' (default)
 ``` tracker
 searchType: dvField
 searchTarget: dataviewTarget1[0], dataviewTarget1[1]
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -64,7 +64,7 @@ Multiple values seprated by 'comma'
 ``` tracker
 searchType: dvField
 searchTarget: dataviewTarget3[0], dataviewTarget3[1]
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 separator: 'comma'
@@ -77,7 +77,7 @@ Multiple values seprated by '\,'
 ``` tracker
 searchType: dvField
 searchTarget: dataviewTarget3[0], dataviewTarget3[1]
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 separator: '\,'
@@ -91,7 +91,7 @@ Use custom multiple value separator
 searchType: dvField
 searchTarget: dataviewTarget2[0], dataviewTarget2[1]
 separator: '@'
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:

@@ -6,7 +6,7 @@ Clock-In & Clock-Out from front matter
 searchType: frontmatter
 searchTarget: clock-in, clock-out
 endDate: 2021-01-15
-folder: diary
+folder: examples/diary
 datasetName: Clock-In, Clock-Out
 line:
     title: "Working Hours"
@@ -22,7 +22,7 @@ Sleep time separated by / from front matter
 searchType: frontmatter
 searchTarget: sleep[0], sleep[1]
 endDate: 2021-01-15
-folder: diary
+folder: examples/diary
 valueShift: -24:00, 00:00
 datasetName: Sleep, WakeUp
 line:
@@ -40,7 +40,7 @@ time granularity to one second
 searchType: dvField
 searchTarget: clock-in, clock-out
 endDate: 2021-01-15
-folder: diary
+folder: examples/diary
 datasetName: Clock-In, Clock-Out
 line:
     title: "Working Hours"
@@ -56,7 +56,7 @@ Sleep time separated by / from dvField
 searchType: dvField
 searchTarget: sleep[0], sleep[1]
 endDate: 2021-01-15
-folder: diary
+folder: examples/diary
 valueShift: -24:00, 00:00
 datasetName: Sleep, WakeUp
 line:

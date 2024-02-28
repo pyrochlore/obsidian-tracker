@@ -5,7 +5,7 @@ Put value-attached tag data of weight and exercise-push together
 ``` tracker
 searchType: tag
 searchTarget: weight, exercise-pushup
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 datasetName: Weight, Pushup
@@ -22,7 +22,7 @@ Retrieve a single value from a multiple-values-attached tag
 ``` tracker
 searchType: tag
 searchTarget: sin[0]
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -35,7 +35,7 @@ Retrieve values from a multiple-values-attached tag
 ``` tracker
 searchType: tag
 searchTarget: sin[0], sin[1], sin[2], sin[3], sin[4], sin[5], sin[6], sin[7], sin[8]
-folder: diary
+folder: examples/diary
 datasetName: Sin1, Sin2, Sin3, Sin4, Sin5, Sin6, Sin7, Sin8, Sin9
 startDate: 2021-01-01
 endDate: 2021-01-31
@@ -53,7 +53,7 @@ Multiple values separated by slash (/)
 ``` tracker
 searchType: frontmatter
 searchTarget: bloodpressure[0], bloodpressure[1]
-folder: diary
+folder: examples/diary
 datasetName: systolic, diastolic
 startDate: 2021-01-01
 endDate: 2021-01-31
@@ -67,7 +67,7 @@ Multiple values separated by comma (,)
 ``` tracker
 searchType: frontmatter
 searchTarget: bloodpressure1[0], bloodpressure1[1]
-folder: diary
+folder: examples/diary
 datasetName: systolic, diastolic
 startDate: 2021-01-01
 endDate: 2021-01-31
@@ -82,7 +82,7 @@ Values from array
 ``` tracker
 searchType: frontmatter
 searchTarget: bloodpressure2[0], bloodpressure2[1]
-folder: diary
+folder: examples/diary
 datasetName: systolic, diastolic
 startDate: 2021-01-01
 endDate: 2021-01-31
@@ -96,7 +96,7 @@ Values from nested keys
 ``` tracker
 searchType: frontmatter
 searchTarget: bp.systolic, bp.diastolic
-folder: diary
+folder: examples/diary
 datasetName: systolic, diastolic
 startDate: 2021-01-01
 endDate: 2021-01-31
@@ -111,7 +111,7 @@ Use searchType 'dvField' with separators in the target instead
 ``` tracker
 searchType: text
 searchTarget: 'dataviewTarget2::\s+(?<value>[\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)\s+@\s+([\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+), dataviewTarget2::\s+([\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)\s+@\s+(?<value>[\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)'
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -127,7 +127,7 @@ Extract the first value in dataview inline field
 ``` tracker
 searchType: dvField
 searchTarget: dataviewTarget1[0]
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -138,7 +138,7 @@ Multiple Values in dataview inline field
 ``` tracker
 searchType: dvField
 searchTarget: dataviewTarget1[0], dataviewTarget1[1]
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -150,7 +150,7 @@ Multiple values seprated by 'comma'
 ``` tracker
 searchType: dvField
 searchTarget: dataviewTarget3[0], dataviewTarget3[1]
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 separator: comma
@@ -164,7 +164,7 @@ Use custom multiple value separator
 searchType: dvField
 searchTarget: dataviewTarget2[0], dataviewTarget2[1]
 separator: '@'
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:

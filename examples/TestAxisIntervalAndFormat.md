@@ -6,7 +6,7 @@ Numeric Y values
 ``` tracker
 searchType: tag
 searchTarget: weight
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -23,7 +23,7 @@ Y values in time
 searchType: frontmatter
 searchTarget: clock-in, clock-out
 endDate: 2021-01-15
-folder: diary
+folder: examples/diary
 datasetName: Clock-In, Clock-Out
 line:
     title: "Working Hours"
@@ -41,7 +41,7 @@ Float numbers with precision of 1 decimal digits
 ``` tracker
 searchType: tag
 searchTarget: weight
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -59,7 +59,7 @@ Y values in time
 searchType: frontmatter
 searchTarget: clock-in, clock-out
 endDate: 2021-01-15
-folder: diary
+folder: examples/diary
 datasetName: Clock-In, Clock-Out
 line:
     title: "Working Hours"
@@ -77,7 +77,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: weight
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -92,7 +92,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: weight
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:

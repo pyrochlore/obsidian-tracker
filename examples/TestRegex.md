@@ -11,7 +11,7 @@
 ``` tracker
 searchType: text
 searchTarget: '.+\@.+\..+'
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -27,7 +27,7 @@ line:
 ``` tracker
 searchType: text
 searchTarget: '.+\@.+\..+'
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 summary:
@@ -42,7 +42,7 @@ Track text in format "weightlifting: 10".
 ``` tracker
 searchType: text
 searchTarget: 'weightlifting:\s+(?<value>[\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)'
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -56,7 +56,7 @@ Use searchType 'dvField' instead
 ``` tracker
 searchType: text
 searchTarget: 'dataviewTarget::\s+(?<value>[\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)'
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -70,7 +70,7 @@ Use searchType 'dvField' with separators in the target instead
 ``` tracker
 searchType: text
 searchTarget: 'dataviewTarget2::\s+(?<value>[\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)\s+@\s+([\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+), dataviewTarget2::\s+([\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)\s+@\s+(?<value>[\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)'
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:

@@ -5,7 +5,7 @@
 ``` tracker
 searchType: tag
 searchTarget: weight
-folder: diary
+folder: examples/diary
 summary:
     template: "Minimum: {{min()}}kg\nMaximum: {{max()}}kg\nMedian: {{median()}}kg\nAverage: {{average()}}kg"
 ```
@@ -15,7 +15,7 @@ summary:
 ``` tracker
 searchType: text
 searchTarget: ⭐
-folder: diary
+folder: examples/diary
 summary:
     template: "I have {{sum()}} stars in total."
     style: "font-size:20px;color:yellow;margin-left: 50px;margin-top:00px;"
@@ -24,7 +24,7 @@ summary:
 ``` tracker
 searchType: frontmatter
 searchTarget: sleptwell
-folder: diary
+folder: examples/diary
 summary:
     template: "I once slept well for {{maxStreak()::i}} days in a row!"
 ```

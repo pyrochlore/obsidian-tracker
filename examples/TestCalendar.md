@@ -8,7 +8,7 @@
 searchType: tag
 searchTarget: meditation
 datasetName: Meditation
-folder: diary
+folder: examples/diary
 month:
 ```
 
@@ -20,7 +20,7 @@ month:
 searchType: tag
 searchTarget: exercise-pushup
 datasetName: PushUp
-folder: diary
+folder: examples/diary
 month:
     startWeekOn: 'Sun'
     threshold: 40
@@ -37,7 +37,7 @@ month:
 searchType: tag
 searchTarget: meditation
 datasetName: Meditation
-folder: diary
+folder: examples/diary
 month:
     startWeekOn: 'Sun'
     color: steelblue
@@ -51,7 +51,7 @@ Use parameter `circleColorByValue`, color the circles based on the values
 searchType: tag
 searchTarget: exercise-pushup
 datasetName: PushUp
-folder: diary
+folder: examples/diary
 month:
     startWeekOn:
     threshold: 40
@@ -79,7 +79,7 @@ Specify the initial month in YYYY-MM format
 searchType: tag
 searchTarget: exercise-pushup
 datasetName: PushUp
-folder: diary
+folder: examples/diary
 month:
     startWeekOn:
     threshold: 40
@@ -98,7 +98,7 @@ Specify the initial month by relative date
 searchType: tag
 searchTarget: exercise-pushup
 datasetName: PushUp
-folder: diary
+folder: examples/diary
 month:
     startWeekOn:
     threshold: 40
@@ -121,7 +121,7 @@ month:
 searchType: tag
 searchTarget: exercise-pushup, meditation
 datasetName: PushUp, Meditation
-folder: diary
+folder: examples/diary
 month:
     dataset: 0, 1
     startWeekOn: 'Sun'
@@ -141,7 +141,7 @@ One target at a time
 searchType: tag
 searchTarget: exercise-pushup, meditation
 datasetName: PushUp, Meditation
-folder: diary
+folder: examples/diary
 month:
     mode: annotation
     startWeekOn: 'Sun'
@@ -158,7 +158,7 @@ All targets
 searchType: tag
 searchTarget: exercise-pushup, meditation
 datasetName: PushUp, Meditation
-folder: diary
+folder: examples/diary
 month:
     mode: annotation
     startWeekOn: 'Sun'

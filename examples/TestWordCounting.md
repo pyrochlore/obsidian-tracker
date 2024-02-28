@@ -5,7 +5,7 @@
 ``` tracker
 searchType: fileMeta
 searchTarget: numWords, numChars
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-05
 datasetName: words, chars
@@ -20,7 +20,7 @@ line:
 ``` tracker
 searchType: fileMeta
 searchTarget: numWords
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-05
 summary:
@@ -30,7 +30,7 @@ summary:
 ``` tracker
 searchType: fileMeta
 searchTarget: numChars
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-05
 summary:

@@ -12,7 +12,7 @@ In the example notes, we have
 ``` tracker
 searchType: wiki.link
 searchTarget: todo_work
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 summary:
@@ -23,7 +23,7 @@ summary:
 ``` tracker
 searchType: wiki.display
 searchTarget: To
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 summary:

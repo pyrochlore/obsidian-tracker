@@ -13,7 +13,7 @@
 ``` tracker
 searchType: tag
 searchTarget: sin[0], sin[1], sin[2], sin[3], sin[4], sin[5], sin[6], sin[7], sin[8]
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -30,7 +30,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: sin[0], sin[1], sin[2], sin[3], sin[4], sin[5], sin[6], sin[7], sin[8]
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -50,7 +50,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: sin[0], sin[1], sin[2], sin[3], sin[4], sin[5], sin[6], sin[7], sin[8]
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -67,7 +67,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: sin[0], sin[1], sin[2], sin[3], sin[4], sin[5], sin[6], sin[7], sin[8]
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -87,7 +87,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: sin[0], sin[1], sin[2], sin[3], sin[4], sin[5], sin[6], sin[7], sin[8]
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -103,7 +103,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: sin[0], sin[1], sin[2], sin[3], sin[4], sin[5], sin[6], sin[7], sin[8]
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -123,7 +123,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: sin[0], sin[1], sin[2], sin[3], sin[4], sin[5], sin[6], sin[7], sin[8]
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -139,7 +139,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: sin[0], sin[1], sin[2], sin[3], sin[4], sin[5], sin[6], sin[7], sin[8]
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -157,7 +157,7 @@ line:
 searchType: tag
 searchTarget: exercise-pushup
 datasetName: weight
-folder: diary
+folder: examples/diary
 endDate: 2021-01-31
 line:
     title: PushUp
@@ -170,7 +170,7 @@ line:
 searchType: tag
 searchTarget: exercise-pushup
 datasetName: weight
-folder: diary
+folder: examples/diary
 endDate: 2021-01-31
 bar:
     title: PushUp
@@ -183,7 +183,7 @@ bar:
 searchType: tag
 searchTarget: exercise-pushup
 datasetName: weight
-folder: diary
+folder: examples/diary
 endDate: 2021-01-31
 bar:
     title: PushUp

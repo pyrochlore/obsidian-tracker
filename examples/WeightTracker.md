@@ -3,7 +3,7 @@
 ``` tracker
 searchType: tag
 searchTarget: weight
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 aspectRatio: 20:9
@@ -19,7 +19,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: weight
-folder: diary
+folder: examples/diary
 summary:
     template: "Minimum: {{min()}}kg\nMaximum: {{max()}}kg\nMedian: {{median()}}kg\nAverage: {{average()}}kg"
 ```
@@ -27,7 +27,7 @@ summary:
 ``` tracker
 searchType: tag
 searchTarget: weight
-folder: diary
+folder: examples/diary
 line:
     title: Weight Log
     yAxisLabel: Weight

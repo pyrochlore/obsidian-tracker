@@ -3,7 +3,7 @@
 ``` tracker
 searchType: tag
 searchTarget: finance
-folder: diary
+folder: examples/diary
 accum: true
 line:
     title: Finace
@@ -15,7 +15,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: finance/bank1
-folder: diary
+folder: examples/diary
 accum: true
 line:
     title: Bank1
@@ -26,7 +26,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: finance/bank2
-folder: diary
+folder: examples/diary
 accum: true
 line:
     title: Bank2

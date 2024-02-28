@@ -3,7 +3,7 @@
 ``` tracker
 searchType: tag
 searchTarget: weight
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-05
 bar:
@@ -17,7 +17,7 @@ bar:
 ``` tracker
 searchType: tag
 searchTarget: weight
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 bar:
@@ -31,7 +31,7 @@ bar:
 ``` tracker
 searchType: tag
 searchTarget: sin[0], sin[1], sin[2]
-folder: diary
+folder: examples/diary
 startDate: 2021-01-10
 endDate: 2021-01-21
 bar:
@@ -43,7 +43,7 @@ bar:
 ``` tracker
 searchType: tag
 searchTarget: sinsquare[0], sinsquare[1], sinsquare[2], sinsquare[3], sinsquare[4], sinsquare[5]
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-05
 bar:

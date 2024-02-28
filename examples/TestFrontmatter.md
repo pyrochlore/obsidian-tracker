@@ -11,7 +11,7 @@ deepValue:
 ``` tracker
 searchType: frontmatter
 searchTarget: deepValue.very.very.very.very.very.deep
-folder: diary
+folder: examples/diary
 endDate: 2021-01-31
 line:
     title: Deep Values
@@ -23,7 +23,7 @@ bloodpressure: 184.4/118.8
 searchType: frontmatter
 searchTarget: bloodpressure[0], bloodpressure[1]
 datasetName: systolic, diastolic
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -41,7 +41,7 @@ The default separator in front matter tags is comma (,)
 ``` tracker
 searchType: tag
 searchTarget: work_log
-folder: diary
+folder: examples/diary
 accum: true
 startDate: 2021-01-01
 endDate: 2021-01-31
@@ -59,7 +59,7 @@ The default separator in front matter tags is comma (,)
 ``` tracker
 searchType: tag
 searchTarget: work_log, work_log2
-folder: diary
+folder: examples/diary
 datasetName: Work1, Work2
 month:
     initMonth: 2021-01

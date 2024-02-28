@@ -68,7 +68,7 @@ Using function dataset() to get Dataset then use function sum() to get the summa
 ``` tracker
 searchType: task.done, task.notdone
 searchTarget: Say I love you, Say I love you
-folder: diary
+folder: examples/diary
 datasetName: Done, NotDone
 pie:
     title: Love is Action
@@ -82,7 +82,7 @@ Summary
 ``` tracker
 searchType: task.done, task.notdone
 searchTarget: Say I love you, Say I love you
-folder: diary
+folder: examples/diary
 summary:
     template: "How many days I said love: {{sum(dataset(0))::i}}\nHow many days I didn't say love: {{sum(dataset(1))::i}}"
 ```

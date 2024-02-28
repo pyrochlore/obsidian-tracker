@@ -6,7 +6,7 @@ Tab characters will be replaced by numbers of spaces according to the tabSize de
 ``` tracker
 searchType: tag
 searchTarget: exercise-pushup
-folder: diary
+folder: examples/diary
 endDate: 2021-01-31
 line:
 	title: PushUp
@@ -19,7 +19,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: exercise-pushup
-folder: diary
+folder: examples/diary
 endDate: 2021-01-31
 line:
 	title: PushUp

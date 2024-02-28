@@ -3,7 +3,7 @@ Track the size variation of diaries
 ``` tracker
 searchType: fileMeta
 searchTarget: size
-folder: diary
+folder: examples/diary
 endDate: 2021-01-31
 line:
     title: File Size Variation

@@ -4,7 +4,7 @@ Scaling factor 0.5
 ``` tracker
 searchType: tag
 searchTarget: exercise-pushup
-folder: diary
+folder: examples/diary
 endDate: 2021-01-31
 fixedScale: 0.5
 fitPanelWidth: false
@@ -18,7 +18,7 @@ Scaling factor 1.5
 ``` tracker
 searchType: tag
 searchTarget: exercise-pushup
-folder: diary
+folder: examples/diary
 endDate: 2021-01-31
 fixedScale: 1.5
 fitPanelWidth: false
@@ -32,7 +32,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: exercise-pushup
-folder: diary
+folder: examples/diary
 endDate: 2021-01-31
 fixedScale: 1.0
 fitPanelWidth: true
@@ -47,7 +47,7 @@ margin: top right bottom left
 ``` tracker
 searchType: tag
 searchTarget: exercise-pushup
-folder: diary
+folder: examples/diary
 endDate: 2021-01-31
 fixedScale: 1.0
 fitPanelWidth: false
@@ -61,7 +61,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: exercise-pushup
-folder: diary
+folder: examples/diary
 endDate: 2021-01-31
 fixedScale: 1.0
 fitPanelWidth: false
@@ -75,7 +75,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: exercise-pushup
-folder: diary
+folder: examples/diary
 endDate: 2021-01-31
 fixedScale: 1.0
 fitPanelWidth: false
@@ -89,7 +89,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: exercise-pushup
-folder: diary
+folder: examples/diary
 endDate: 2021-01-31
 fixedScale: 1.0
 fitPanelWidth: false

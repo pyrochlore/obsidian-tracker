@@ -6,7 +6,7 @@
 searchType: frontmatter
 searchTarget: bloodpressure[0], bloodpressure[1]
 datasetName: systolic, diastolic
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:
@@ -22,7 +22,7 @@ line:
 searchType: frontmatter
 searchTarget: bloodpressure[0], bloodpressure[1]
 datasetName: systolic, diastolic
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 summary:
@@ -33,7 +33,7 @@ summary:
 searchType: frontmatter
 searchTarget: bloodpressure[0], bloodpressure[1]
 datasetName: systolic, diastolic
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-31
 line:

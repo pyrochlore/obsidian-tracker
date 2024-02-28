@@ -3,7 +3,7 @@
 ``` tracker
 searchType: tag
 searchTarget: exercise-pushup
-folder: diary
+folder: examples/diary
 endDate: 2021-01-31
 line:
     title: PushUp
@@ -14,7 +14,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: exercise-plank
-folder: diary
+folder: examples/diary
 line:
     title: Plank
     yAxisLabel: Hold
@@ -26,7 +26,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: meditation
-folder: diary
+folder: examples/diary
 accum: true
 penalty: -1
 line:
@@ -39,7 +39,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: meditation
-folder: diary
+folder: examples/diary
 summary:
     template: "Longest Streak: {{maxStreak()}} day(s)\nLongest Breaks: {{maxBreaks()}} day(s)\nLast streak: {{currentStreak()}} day(s)"
 ```
@@ -48,7 +48,7 @@ summary:
 ``` tracker
 searchType: tag
 searchTarget: clean-up
-folder: diary
+folder: examples/diary
 endDate: 2021-01-31
 summary:
     template: "Last Break: {{currentBreaks()}} day(s)"
@@ -58,7 +58,7 @@ summary:
 ``` tracker
 searchType: tag
 searchTarget: work_log
-folder: diary
+folder: examples/diary
 accum: true
 startDate: 2021-01-01
 line:

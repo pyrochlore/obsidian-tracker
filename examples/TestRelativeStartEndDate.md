@@ -3,7 +3,7 @@
 ``` tracker
 searchType: tag
 searchTarget: exercise-pushup
-folder: diary
+folder: examples/diary
 startDate: -2M
 endDate: -1M
 line:

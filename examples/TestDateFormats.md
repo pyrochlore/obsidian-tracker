@@ -9,7 +9,7 @@ Change the default dateFomat on Tracker settings panel and then check the follow
 ``` tracker
 searchType: tag
 searchTarget: weight
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01
 endDate: 2021-01-05
 line:
@@ -24,7 +24,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: weight
-folder: diary
+folder: examples/diary
 startDate: 1-20210101
 endDate: 5-20210105
 line:
@@ -39,7 +39,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: weight
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01-Friday
 endDate: 2021-01-05-Tuesday
 line:
@@ -53,7 +53,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: weight
-folder: diary
+folder: examples/diary
 startDate: 2021-01-01_Fri
 endDate: 2021-01-05_Tue
 line:
@@ -68,7 +68,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: weight
-folder: diary
+folder: examples/diary
 startDate: 01-01-2021
 endDate: 05-01-2021
 line:
@@ -83,7 +83,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: weight
-folder: diary
+folder: examples/diary
 startDate: 01.01.2021
 endDate: 05.01.2021
 line:
@@ -98,7 +98,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: weight
-folder: diary
+folder: examples/diary
 dateFormat: iso-8601
 startDate: 2021-01-01T14:53:25+00:00
 endDate: 2021-01-05T14:53:25+00:00
@@ -118,7 +118,7 @@ The string provided in dateFormatPrefix and dateFormatSuffix will be removed bef
 ``` tracker
 searchType: tag
 searchTarget: weight
-folder: diary
+folder: examples/diary
 dateFormat: YYYYMMDD
 dateFormatPrefix: D-
 startDate: D-20210101
@@ -135,7 +135,7 @@ line:
 ``` tracker
 searchType: tag
 searchTarget: weight
-folder: diary
+folder: examples/diary
 dateFormat: YYYYMMDD
 dateFormatSuffix: -D
 startDate: 20210101-D
@@ -159,7 +159,7 @@ Data from the same days will be summed up.
 ``` tracker
 searchType: tag
 searchTarget: exercise-pushup
-folder: diary
+folder: examples/diary
 dateFormat: YYYYMMDD
 dateFormatPrefix: '(Jeffrey-|Lucas-)'
 dateFormatSuffix: '(-Journal|-Diary)'
@@ -188,7 +188,7 @@ Notice!!
 ``` tracker
 searchType: tag
 searchTarget: weight
-folder: diary
+folder: examples/diary
 startDate: -1M
 endDate: 0d
 line:
