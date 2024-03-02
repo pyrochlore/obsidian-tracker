@@ -6,7 +6,7 @@ searchTarget: finance
 folder: diary
 accum: true
 line:
-    title: Finace
+    title: Finance
     yAxisLabel: USD
     lineWidth: 4
 ```
