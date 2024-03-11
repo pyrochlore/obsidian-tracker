@@ -21,7 +21,7 @@ jobs:
         yarn build
         yarn zip
     - name: Release with Notes
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         files: |
           main.js
