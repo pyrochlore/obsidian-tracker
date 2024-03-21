@@ -1061,7 +1061,7 @@ folder: /
 startDate:
 endDate:
 summary:
-    template: "Average value of tagName is {{average}}"
+    template: "Average value of tagName is {{average()}}"
     style: "color:white;"
 \`\`\``;
                 break;
