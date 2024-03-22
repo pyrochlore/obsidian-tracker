@@ -1,5 +1,12 @@
 # Release Notes
 
+## 1.13.3
+
+- Update dependencies
+- Fix typo in FinanceTracker.md
+- Fix typo in TestExpression.md
+- Update main.ts - use new format for {{average}}
+
 ## 1.13.2
 
 - Update dependencies

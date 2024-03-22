@@ -10,6 +10,13 @@ This is an [Obsidian](https://obsidian.md/) plugin that helps you collect data f
 
 ## What's New
 
+Version 1.13.3
+
+- Update dependencies
+- Fix typo in FinanceTracker.md
+- Fix typo in TestExpression.md
+- Update main.ts - use new format for {{average}}
+
 Version 1.13.2
 
 - Update dependencies
