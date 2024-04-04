@@ -336,6 +336,25 @@ summary:
     template: 'Median value: {{median()::i}} <-- should be 25'
 ```
 
+percentage(Dataset): number
+``` tracker
+searchType: dvField
+searchTarget: dataviewTarget
+folder: /diary
+endDate: 2021-01-03
+summary:
+    template: '20-percentile value: {{percentage(dataset(0),0.2)::.1f}} <-- should be 17.2'
+```
+
+``` tracker
+searchType: dvField
+searchTarget: dataviewTarget
+folder: /diary
+endDate: 2021-01-03
+summary:
+    template: '60-percentile value: {{percentage(dataset(0),0.6)::.1f}} <-- should be 29.6'
+```
+
 variance(Dataset): number
 https://mathworld.wolfram.com/SampleVariance.html
 ``` tracker
