@@ -37,6 +37,7 @@ These key-value pairs are placed under the root of the code block.
 | `ignoreAttachedValue` | Use `constValue` even if the target has a value attached on (true\|false) | 1~NT | false |
 | `ignoreZeroValue` | Treat zero value as missing (true\|false) | 1~NT | false |
 | `accum` | Accumulatively sum the values over time (true\|false) | 1~NT | false |
+| `stack` | Support stacked charts (true\|false) | 1 | false |
 | `penalty` | Value to use if the search target is missing on the day | 1~NT | |
 | `valueShift` | Amount to shift for each collected value | 1~NT | 0 |
 | `shiftOnlyValueLargerThan` | Do `valueShift` only if the value is larger then the specifed one | 1~NT | null |
