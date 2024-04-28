@@ -1459,6 +1459,12 @@ export function getRenderInfoFromYaml(
     renderInfo.accum = retAccum;
     // console.log(renderInfo.accum);
 
+    // stack
+    if (typeof yaml.stack === "boolean") {
+        renderInfo.stack = yaml.stack;
+    }
+    // console.log(renderInfo.stack);
+
     // penalty
     let retPenalty = getNumberArrayFromInput(
         "penalty",

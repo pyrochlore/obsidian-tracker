@@ -239,6 +239,18 @@ export function render(canvas: HTMLElement, renderInfo: RenderInfo) {
             dataset.accumulateValues();
         }
     }
+    // stack
+    if (renderInfo.stack) {
+        // Traverse the datasets, and add up the values from each dataset.
+        let lastDataset = null;
+        for (let dataset of renderInfo.datasets) {
+            if (dataset.getQuery().usedAsXDataset) continue;
+            if (lastDataset) {
+                dataset.shiftByDataset(lastDataset);
+            }
+            lastDataset = dataset;
+        }
+    }
 
     for (let lineInfo of renderInfo.line) {
         let ret = renderLineChart(canvas, renderInfo, lineInfo);
@@ -905,16 +917,23 @@ function renderBar(
     // console.log(dataset);
     // console.log(barInfo);
     // console.log("%d/%d", currBarSet, totalNumOfBarSets);
-
+    
     if (!renderInfo || !barInfo) return;
 
     let barGap = 1;
     let barSetWidth = renderInfo.dataAreaSize.width / dataset.getLength();
     let barWidth = barSetWidth;
+    let currentDiaplayInd = currBarSet;
+    let totalDiaplaySet = totalNumOfBarSets;
     if (barSetWidth - barGap > 0) {
         barWidth = barSetWidth - barGap;
     }
-    barWidth = barWidth / totalNumOfBarSets;
+    if (!renderInfo.stack) {
+        barWidth = barWidth / totalNumOfBarSets;
+    } else {
+        currentDiaplayInd = 0;
+        totalDiaplaySet = 1;
+    }
 
     let portionLeft = (currBarSet + 1) / totalNumOfBarSets;
 
@@ -936,12 +955,12 @@ function renderBar(
         .append("rect")
         .attr("x", function (p: DataPoint, i: number) {
             if (i === 0) {
-                let portionVisible = currBarSet + 1 - totalNumOfBarSets / 2.0;
+                let portionVisible = currentDiaplayInd + 1 - totalDiaplaySet / 2.0;
                 if (portionVisible < 1.0) {
                     return (
                         chartElements.xScale(p.date) -
                         barSetWidth / 2.0 +
-                        currBarSet * barWidth +
+                        currentDiaplayInd * barWidth +
                         portionVisible * barWidth
                     );
                 }
@@ -949,7 +968,7 @@ function renderBar(
             return (
                 chartElements.xScale(p.date) -
                 barSetWidth / 2.0 +
-                currBarSet * barWidth
+                currentDiaplayInd * barWidth
             );
         })
         .attr("y", function (p: DataPoint) {
@@ -957,7 +976,7 @@ function renderBar(
         })
         .attr("width", function (p: DataPoint, i: number) {
             if (i === 0) {
-                let portionVisible = currBarSet + 1 - totalNumOfBarSets / 2.0;
+                let portionVisible = currentDiaplayInd + 1 - totalDiaplaySet / 2.0;
                 if (portionVisible < 0.0) {
                     return 0.0;
                 } else if (portionVisible < 1.0) {
@@ -966,7 +985,7 @@ function renderBar(
                 return barWidth;
             } else if (i === dataset.getLength() - 1) {
                 let portionVisible =
-                    1.0 - (currBarSet + 1 - totalNumOfBarSets / 2.0);
+                    1.0 - (currentDiaplayInd + 1 - totalDiaplaySet / 2.0);
                 if (portionVisible < 0.0) {
                     return 0.0;
                 } else if (portionVisible < 1.0) {
@@ -1626,15 +1645,30 @@ function renderBarChart(
     let datasetOnLeftYAxis = [];
     let datasetOnRightYAxis = [];
     let xDatasetIds = renderInfo.datasets.getXDatasetIds();
-    for (let ind = 0; ind < barInfo.yAxisLocation.length; ind++) {
-        if (xDatasetIds.includes(ind)) continue;
-        let yAxisLocation = barInfo.yAxisLocation[ind];
-        if (yAxisLocation.toLowerCase() === "left") {
-            datasetOnLeftYAxis.push(ind);
-        } else if (yAxisLocation.toLocaleLowerCase() === "right") {
-            // right
-            datasetOnRightYAxis.push(ind);
+    if (renderInfo.stack) {
+        for (let ind = barInfo.yAxisLocation.length - 1; ind >= 0; ind--) {
+            if (xDatasetIds.includes(ind)) continue;
+            let yAxisLocation = barInfo.yAxisLocation[ind];
+            if (yAxisLocation.toLowerCase() === "left") {
+                datasetOnLeftYAxis.push(ind);
+            } else if (yAxisLocation.toLocaleLowerCase() === "right") {
+                // right
+                datasetOnRightYAxis.push(ind);
+            }
         }
+
+    } else {
+        for (let ind = 0; ind < barInfo.yAxisLocation.length; ind++) {
+            if (xDatasetIds.includes(ind)) continue;
+            let yAxisLocation = barInfo.yAxisLocation[ind];
+            if (yAxisLocation.toLowerCase() === "left") {
+                datasetOnLeftYAxis.push(ind);
+            } else if (yAxisLocation.toLocaleLowerCase() === "right") {
+                // right
+                datasetOnRightYAxis.push(ind);
+            }
+        }
+
     }
 
     let retRenderLeftYAxis = renderYAxis(
