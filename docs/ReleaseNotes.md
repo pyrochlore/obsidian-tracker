@@ -1,5 +1,11 @@
 # Release Notes
 
+## 1.14.0
+
+- Update dependencies
+- Prevent overlapping external labels in pie chart
+- Enable Stacked Bar Chart
+
 ## 1.13.3
 
 - Update dependencies

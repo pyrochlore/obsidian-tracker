@@ -10,6 +10,11 @@ This is an [Obsidian](https://obsidian.md/) plugin that helps you collect data f
 
 ## What's New
 
+Version 1.14.0
+- Update dependencies
+- Prevent overlapping external labels in pie chart
+- Enable Stacked Bar Chart
+
 Version 1.13.3
 
 - Update dependencies
