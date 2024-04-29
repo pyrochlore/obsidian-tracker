@@ -115,3 +115,18 @@ pie:
     hideLabelLessThan: 0.03
     showExtLabelOnlyIfNoLabel: true
 ```
+
+When there are multiple external labels, make sure they won't overlap with each other
+``` tracker
+searchType: task.done, task.notdone
+searchTarget: Say I love you, Say I love you
+datasetName: Done, NotDone
+pie:
+    label: '{{0.5/11*100}}%, B {{0.4/11*100}}%, C {{0.1/11*100}}%, D {{8/11*100}}%, E {{9.7/11*100}}%, F {{0.3/28.5*100}}'
+    extLabel:  'A {{0.5/11*100}}%, B {{0.4/11*100}}%, C {{0.1/11*100}}%, D {{8/11*100}}%, E {{9.7/11*100}}, F {{0.3/11*100}}%'
+    data: '0.5, 0.4, 0.1, 8, 9.7, 0.3'
+    dataColor: '#4daf4a,#377eb8,#ff7f00,#984ea3,#e41a1c,#aaaaaa'
+    ratioInnerRadius: 0.4
+    hideLabelLessThan: 0.03
+    showExtLabelOnlyIfNoLabel: true
+```

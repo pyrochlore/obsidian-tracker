@@ -467,6 +467,7 @@ function renderPie(
 
     let pie = d3.pie();
     let pieValues = pie(values);
+    pieValues.forEach(function (value: any, i: number) {value.input_index = i})
 
     let sectors = sectorsGroup
         .selectAll("sector")
@@ -526,36 +527,72 @@ function renderPie(
         return arcObj.startAngle + (arcObj.endAngle - arcObj.startAngle) / 2;
     }
 
+    function externalLabelText(arcObj: any, i: number) {
+        if (showExtLabelOnlyIfNoLabel) {
+            if (labels[i] === "" || isLabelHidden(arcObj)) {
+                return extLabels[i];
+            }
+            return "";
+        } else {
+            return extLabels[i];
+        }
+    }
+
     // external label elements
+    let prevBB : DOMRect = null;
+    let extlabelPos : any = {};
     let extLabelElements = sectorsGroup
         .selectAll("extLabel")
         .data(pieValues)
         .enter()
         .append("text")
+        // Sort external labels based on y value such that we can move down overlapping labels
+        .sort(function (arcObj1: any, arcObj2: any) {
+            return Math.cos(getMidAngle(arcObj2)) - Math.cos(getMidAngle(arcObj1));
+        })
         .text(function (arcObj: any, i: number) {
-            if (showExtLabelOnlyIfNoLabel) {
-                if (labels[i] === "" || isLabelHidden(arcObj)) {
-                    return extLabels[i];
-                }
-                return "";
-            } else {
-                return extLabels[i];
-            }
+            i = arcObj.input_index;
+            return externalLabelText(arcObj, i)
         })
         .attr("transform", function (arcObj: any, i: number) {
+            i = arcObj.input_index;
+            // If external label is empty, directly return.
+            if (externalLabelText(arcObj, i).length == 0) {
+                return;
+            }
             let posLabel = hiddenArc.centroid(arcObj);
             let midAngle = getMidAngle(arcObj);
 
             posLabel[0] =
                 (radius * 0.99 - extLabelSizes[i].width) *
                 (midAngle < Math.PI ? 1 : -1);
-            return "translate(" + posLabel[0] + "," + posLabel[1] + ")";
+            
+            var yshift = 0;
+            let thisBB = new DOMRect(posLabel[0], posLabel[1], extLabelSizes[i].width, extLabelSizes[i].height);
+            
+            if (prevBB !== null) {
+                // Check whether there are overlaps
+                if (!(thisBB.right < prevBB.left || prevBB.right < thisBB.left
+                    || prevBB.bottom < thisBB.top)) {
+                    // Since y is sorted from low to high, we expect to shift this item further down
+                    yshift = prevBB.bottom - thisBB.top;
+                    // console.log("has overlap", yshift);
+                }
+            }
+            if (yshift != 0) {
+                thisBB = new DOMRect(posLabel[0], posLabel[1] + yshift, extLabelSizes[i].width, extLabelSizes[i].height);
+            }
+            prevBB = thisBB;
+            // Save external label position for connection line plotting
+            extlabelPos[i] = [posLabel[0], posLabel[1] + yshift]
+            return "translate(" + posLabel[0] + "," + (posLabel[1] + yshift) + ")";
         })
         .style("text-anchor", function (arcObj: any) {
             let midAngle = getMidAngle(arcObj);
             return midAngle < Math.PI ? "start" : "end";
         })
         .attr("class", "tracker-pie-label");
+    
 
     function getPointsForConnectionLines(arcObj: any, i: number) {
         let labelWidth = labelSizes[i].width;
@@ -565,7 +602,8 @@ function renderPie(
 
         let posLabel = arc.centroid(arcObj); // line insertion in the slice
         let posMiddle = hiddenArc.centroid(arcObj); // line break: we use the other arc generator that has been built only for that
-        let posExtLabel = hiddenArc.centroid(arcObj); // Label position = almost the same as posB
+        let posExtLabel = extlabelPos[i] || hiddenArc.centroid(arcObj); // Label position = almost the same as posB
+        posMiddle[1] = posExtLabel[1];
         // console.log(labels[i]);
         // console.log(`label/middle/extLabel: ${posLabel}/${posMiddle}/${posExtLabel}`);
 
@@ -574,7 +612,7 @@ function renderPie(
                 (posMiddle[1] - posLabel[1]) ** 2
         );
 
-        if (labels[i] !== "") {
+        if (labels[i] !== "" && !labelHidden) {
             // shift posLabel, toward the middle point
             posLabel[0] =
                 posLabel[0] +
@@ -584,8 +622,7 @@ function renderPie(
                 ((posMiddle[1] - posLabel[1]) * labelWidth) / distMiddleToLabel;
 
             // shift posExtLabel
-            posExtLabel[0] =
-                (radius * 0.99 - extLabelWidth - 3) *
+            posExtLabel[0] =posExtLabel[0] + (- 3) *
                 (midAngle < Math.PI ? 1 : -1); // multiply by 1 or -1 to put it on the right or on the left
         }
 
