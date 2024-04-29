@@ -917,7 +917,7 @@ function renderBar(
     // console.log(dataset);
     // console.log(barInfo);
     // console.log("%d/%d", currBarSet, totalNumOfBarSets);
-    
+
     if (!renderInfo || !barInfo) return;
 
     let barGap = 1;
