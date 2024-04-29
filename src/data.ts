@@ -391,6 +391,25 @@ export class Dataset implements IterableIterator<DataPoint> {
         }
     }
 
+    public shiftByDataset(shiftDataset: Dataset) {
+        // Assume all datasets are of the same length
+        for (let ind = 0; ind < this.values.length; ind++) {
+            let currentValue = this.values[ind];
+            if (shiftDataset.values[ind] !== null && currentValue !== null) {
+                currentValue += shiftDataset.values[ind];
+            } else if (shiftDataset.values[ind] !== null) {
+                currentValue = shiftDataset.values[ind];
+            }
+            this.values[ind] = currentValue;
+            if (currentValue < this.yMin) {
+                this.yMin = currentValue;
+            }
+            if (currentValue > this.yMax) {
+                this.yMax = currentValue;
+            }
+        }
+    }
+
     public getValues() {
         return this.values;
     }
@@ -571,6 +590,7 @@ export class RenderInfo {
     ignoreAttachedValue: boolean[];
     ignoreZeroValue: boolean[];
     accum: boolean[];
+    stack: boolean;
     penalty: number[];
     valueShift: number[];
     shiftOnlyValueLargerThan: number[];
@@ -614,6 +634,7 @@ export class RenderInfo {
         this.ignoreAttachedValue = []; // false
         this.ignoreZeroValue = []; // false
         this.accum = []; // false, accum values start from zero over days
+        this.stack = false;
         this.penalty = []; // null, use this value instead of null value
         this.valueShift = [];
         this.shiftOnlyValueLargerThan = [];

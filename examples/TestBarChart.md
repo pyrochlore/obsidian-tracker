@@ -53,4 +53,18 @@ bar:
     barColor: yellow, red, green, blue, orange, white
 ```
 
+
+``` tracker
+searchType: tag
+searchTarget: sinsquare[0], sinsquare[1], sinsquare[2], sinsquare[3], sinsquare[4], sinsquare[5]
+folder: diary
+startDate: 2021-01-01
+endDate: 2021-01-05
+stack: true
+bar:
+    title: Sin Square Wave (Stacked)
+    yAxisLabel: Value
+    yMin: 0
+    barColor: yellow, red, green, blue, orange, black
+```
 Please also check those search targets in markdown files under folder 'diary'.
