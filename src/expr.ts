@@ -448,6 +448,10 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
         // return number
         return d3.median(dataset.getValues());
     },
+    percentile: function (dataset, percentage, renderInfo) {
+        // return number
+        return d3.quantile(dataset.getValues(), percentage / 100);
+    },
     variance: function (dataset, renderInfo) {
         // return number
         return d3.variance(dataset.getValues());

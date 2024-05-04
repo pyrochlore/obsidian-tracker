@@ -83,6 +83,7 @@ e.g.
 | currentBreaksEnd(Dataset): Date | End date of current breaks |
 | average(Dataset): number | Average value of the dataset |
 | median(Dataset): number | Median value of the dataset |
+| percentile(Dataset, percentile): number | Percentile-quantile value of the dataset |
 | variance(Dataset): number | Variance value of the dataset |
 
 ### Functions Accept Dataset and Return Dataset
