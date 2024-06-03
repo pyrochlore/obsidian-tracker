@@ -61,8 +61,8 @@ month:
     todayRingColor: orange
     selectedRingColor: steelblue
     circleColorByValue: true
-	yMin: 0
-	yMax: 50
+    yMin: 0
+    yMax: 50
     showSelectedValue: true
 ```
 
