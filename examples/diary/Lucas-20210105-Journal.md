@@ -6,7 +6,7 @@ bloodpressure: 177/119
 
 #weight:70.0kg
 
-#exercise-pushup:35
+#exercise-pushup:5
 #exercise-plank:34sec
 
 #meditation

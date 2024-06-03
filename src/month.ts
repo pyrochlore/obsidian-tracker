@@ -643,26 +643,7 @@ function renderMonthDays(
             console.log(curValue);
         }
 
-        // showCircle
-        let showCircle = false;
-        if (!monthInfo.circleColorByValue) {
-            // shown or not shown
-            if (curValue !== null) {
-                if (curValue > threshold) {
-                    showCircle = true;
-                }
-            }
-        } else {
-            if (!allowScaledValue) {
-                if (curValue !== null) {
-                    if (curValue > threshold) {
-                        showCircle = true;
-                    }
-                }
-            } else {
-                showCircle = true;
-            }
-        }
+        const showCircle = curValue != null && curValue > threshold;
 
         // scaledValue
         let scaledValue = null;
