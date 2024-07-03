@@ -308,7 +308,7 @@ export function deepValue(obj: any, str: string) {
     var a = str.split(".");
     for (var i = 0, n = a.length; i < n; ++i) {
         var k = a[i];
-        if (k in obj) {
+        if (obj !== null && k in obj) {
             obj = obj[k];
         } else {
             return null;
