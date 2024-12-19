@@ -4,8 +4,8 @@
 searchType: tag
 searchTarget: exercise-pushup
 folder: diary
-startDate: -2M
-endDate: -1M
+startDate: -48M
+endDate: -46M
 line:
     title: PushUp
     yAxisLabel: Count

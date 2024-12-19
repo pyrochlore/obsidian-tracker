@@ -5,6 +5,7 @@ searchType: tag
 searchTarget: finance
 folder: diary
 accum: true
+endDate: 2021-01-31
 line:
     title: Finance
     yAxisLabel: USD
@@ -17,6 +18,7 @@ searchType: tag
 searchTarget: finance/bank1
 folder: diary
 accum: true
+endDate: 2021-01-31
 line:
     title: Bank1
     yAxisLabel: USD
@@ -28,6 +30,7 @@ searchType: tag
 searchTarget: finance/bank2
 folder: diary
 accum: true
+endDate: 2021-03-15
 line:
     title: Bank2
     yAxisLabel: USD
