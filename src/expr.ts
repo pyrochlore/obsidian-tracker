@@ -79,12 +79,12 @@ const fnMapDatasetToValue: FnMapDatasetToValue = {
     // first value of a dataset
     first: function (dataset, renderInfo) {
         // return number
-        return dataset.getValue(dataset.getStartDate());
+        return dataset.getValue(this.startDate(...arguments));
     },
     // last value of a dataset
     last: function (dataset, renderInfo) {
         // return number
-        return dataset.getValue(dataset.getEndDate());
+        return dataset.getValue(this.endDate(...arguments));
     },
     // min value of a dataset
     min: function (dataset, renderInfo) {
