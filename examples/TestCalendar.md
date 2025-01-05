@@ -49,7 +49,7 @@ month:
 ```
 
 ### Colored by Values
-Use parameter `circleColorByValue`, color the circles based on the values
+Use parameters `circleColorByValue`, `yMin`, and `yMax`, to color the circles based on the values
 ``` tracker
 searchType: tag
 searchTarget: exercise-pushup
@@ -58,13 +58,15 @@ folder: diary
 endDate: 2021-01-31
 month:
     startWeekOn:
-    threshold: 40
+    threshold: 10
     color: green
     headerMonthColor: orange
     dimNotInMonth: false
     todayRingColor: orange
     selectedRingColor: steelblue
     circleColorByValue: true
+    yMin: 0
+    yMax: 50
     showSelectedValue: true
 ```
 
