@@ -59,6 +59,8 @@ e.g.
 
 | Function(InputType): OutputType | Description |
 |:------------------|:-----------|
+| first(Dataset): number | First value of the dataset |
+| last(Dataset): number | Last value of the dataset |
 | min(Dataset): number | Minimum value of the dataset |
 | minDate(Dataset): Date | Latest date of minimum value |
 | max(Dataset): number | Maximum value of the dataset |
