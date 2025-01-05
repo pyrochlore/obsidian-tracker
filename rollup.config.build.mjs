@@ -19,11 +19,12 @@ export default {
     terser()
   ],
   onwarn: function(warning, warner){
-    if (warning.code === 'CIRCULAR_DEPENDENCY'){
-        if(warning.importer && warning.importer.startsWith('node_modules')){
-            return;
-        }
+    if (warning.code === 'CIRCULAR_DEPENDENCY') {
+      if (warning.importer && warning.importer.startsWith('node_modules')) {
+        console.warn(`(!) Circular dependency: ${warning.importer}`);
+      }
+    } else {
+      warner(warning);
     }
-    warner(warning);
   }
 };
