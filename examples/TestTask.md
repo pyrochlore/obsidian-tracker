@@ -48,6 +48,7 @@ searchType: task.done
 searchTarget: Say I love you
 folder: diary
 datasetName: Love
+endDate: 2021-01-31
 month:
     color: tomato
     headerMonthColor: orange
@@ -62,6 +63,7 @@ searchType: task.done, task.notdone
 searchTarget: Say I love you, Say I love you
 folder: diary
 datasetName: Good Lover, Bad Lover
+endDate: 2021-01-31
 month:
     color: tomato
     headerMonthColor: orange

@@ -28,6 +28,7 @@ summary:
 searchType: tag
 searchTarget: weight
 folder: diary
+endDate: 2021-01-31
 line:
     title: Weight Log
     yAxisLabel: Weight

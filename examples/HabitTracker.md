@@ -15,6 +15,7 @@ line:
 searchType: tag
 searchTarget: exercise-plank
 folder: diary
+endDate: 2021-01-31
 line:
     title: Plank
     yAxisLabel: Hold
@@ -29,6 +30,7 @@ searchTarget: meditation
 folder: diary
 accum: true
 penalty: -1
+endDate: 2021-01-31
 line:
     title: Meditation
     yAxisLabel: Count
@@ -61,6 +63,7 @@ searchTarget: work_log
 folder: diary
 accum: true
 startDate: 2021-01-01
+endDate: 2021-01-31
 line:
     title: Work Log
     yAxisLabel: Count
