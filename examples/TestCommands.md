@@ -5,7 +5,7 @@ searchType: tag
 searchTarget: weight
 folder: /
 startDate:
-endDate:
+endDate: 2021-01-31
 line:
     title: "Line Chart"
     xAxisLabel: Date
@@ -18,7 +18,7 @@ searchType: tag
 searchTarget: weight
 folder: /
 startDate:
-endDate:
+endDate: 2021-01-31
 bar:
     title: "Bar Chart"
     xAxisLabel: Date
@@ -31,7 +31,7 @@ searchType: tag
 searchTarget: weight
 folder: /
 startDate:
-endDate:
+endDate: 2021-01-31
 summary:
     template: "Average value of tagName is {{average()}}"
     style: "color:white;"
