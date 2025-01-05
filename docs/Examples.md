@@ -25,7 +25,7 @@ Check where (Location) and what (Target to Track) is your target and find the se
 | content | [[journal]] | searchType: wiki<br>searchTarget: journal | O |
 | content | ⭐ | searchType: text<br>searchTarget: ⭐ | O | 
 | content | love | searchType: text<br>searchTarget: love | O |
-| content | test@gmail.com<br>test@hotmail.com | searchType: text<br>serchTarget: '.+\\@.+\\..+' | O |
+| content | test@gmail.com<br>test@hotmail.com | searchType: text<br>searchTarget: '.+\\@.+\\..+' | O |
 | content | #weightlifting: 50 | searchType: text<br>searchTarget: 'weightlifting: (?\<value\>[\\-]?[0-9]+[\\.][0-9]+\|[\\-]?[0-9]+)' | V |
 | content | I walked 10000 steps today. | searchType: text<br>searchTarget: 'walked\\s+(?\<value\>[0-9]+)\\s+steps' | V |
 | content | myvalues 1/2/3 | searchType: text<br>searchTarget: 'myvalues\\s+(?\<value\>[0-9]+)/([0-9]+)/([0-9]+), myvalues\\s+([0-9]+)/(?\<value\>[0-9]+)/([0-9]+), myvalues\\s+([0-9]+)/([0-9]+)/(?\<value\>[0-9]+)' | V |
