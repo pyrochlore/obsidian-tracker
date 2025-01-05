@@ -10,7 +10,16 @@ This is an [Obsidian](https://obsidian.md/) plugin that helps you collect data f
 
 ## What's New
 
+Version 1.15.0
+
+- Fix: Minor spelling error in Examples.md
+- Added new expression functions - First and Last
+- Updated dates in examples to fix plots
+- Respect thresholds in scaled months
+- Update dependencies
+
 Version 1.14.0
+
 - Update dependencies
 - Prevent overlapping external labels in pie chart
 - Enable Stacked Bar Chart

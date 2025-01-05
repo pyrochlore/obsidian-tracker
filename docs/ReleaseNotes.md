@@ -1,5 +1,13 @@
 # Release Notes
 
+## 1.15.0
+
+- Fix: Minor spelling error in Examples.md
+- Added new expression functions - First and Last
+- Updated dates in examples to fix plots
+- Respect thresholds in scaled months
+- Update dependencies
+
 ## 1.14.0
 
 - Update dependencies
