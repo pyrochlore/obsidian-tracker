@@ -300,41 +300,36 @@ function renderMonthHeader(
         datasetName,
         "tracker-month-title-rotator"
     );
-    if (
-        monthInfo.mode === "circle" ||
-        (monthInfo.mode === "annotation" &&
-            !monthInfo.showAnnotationOfAllTargets)
-    ) {
-        let datasetRotator = headerGroup
-            .append("text")
-            .text(datasetName)
-            .attr(
-                "transform",
-                "translate(" +
-                    3.5 * cellSize +
-                    "," +
-                    datasetNameSize.height +
-                    ")"
-            )
-            .attr("class", "tracker-month-title-rotator")
-            .style("cursor", "pointer")
-            .on("click", function (event: any) {
-                // show next target
-                if (toNextDataset(renderInfo, monthInfo)) {
-                    // clear circles
-                    clearSelection(chartElements, monthInfo);
+    
+    let datasetRotator = headerGroup
+        .append("text")
+        .text(datasetName)
+        .attr(
+            "transform",
+            "translate(" +
+                3.5 * cellSize +
+                "," +
+                datasetNameSize.height +
+                ")"
+        )
+        .attr("class", "tracker-month-title-rotator")
+        .style("cursor", "pointer")
+        .on("click", function (event: any) {
+            // show next target
+            if (toNextDataset(renderInfo, monthInfo)) {
+                // clear circles
+                clearSelection(chartElements, monthInfo);
 
-                    refresh(
-                        canvas,
-                        chartElements,
-                        renderInfo,
-                        monthInfo,
-                        curMonthDate
-                    );
-                }
-            });
-        chartElements["rotator"] = datasetRotator;
-    }
+                refresh(
+                    canvas,
+                    chartElements,
+                    renderInfo,
+                    monthInfo,
+                    curMonthDate
+                );
+            }
+        });
+    chartElements["rotator"] = datasetRotator;
 
     // value monitor
     let monitorTextSize = helper.measureTextSize(
