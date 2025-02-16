@@ -1088,6 +1088,8 @@ function refresh(
     );
 
     renderMonthDays(canvas, chartElements, renderInfo, monthInfo, curMonthDate);
+
+    setChartScale(canvas, chartElements, renderInfo);
 }
 
 export function renderMonth(
