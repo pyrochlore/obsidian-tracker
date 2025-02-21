@@ -23,7 +23,7 @@
     "rollup": "^4.31.0",
     "rollup-plugin-copy": "^3.5.0",
     "tslib": "^2.8.1",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.3"
   },
   "dependencies": {
     "d3": "^7.9.0",
