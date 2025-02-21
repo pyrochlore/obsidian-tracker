@@ -295,6 +295,10 @@ function renderMonthHeader(
 
     headerHeight += headerYearSize.height;
 
+    if (monthInfo.mode === "annotation" && monthInfo.showAnnotationOfAllTargets && monthInfo.dataset.length > 1) {
+        datasetName = "All Targets"
+    }
+
     // dataset rotator
     let datasetNameSize = helper.measureTextSize(
         datasetName,
@@ -313,8 +317,9 @@ function renderMonthHeader(
                 ")"
         )
         .attr("class", "tracker-month-title-rotator")
-        .style("cursor", "pointer")
-        .on("click", function (event: any) {
+        .style("cursor", "pointer");
+    if (!monthInfo.showAnnotationOfAllTargets || monthInfo.mode !== "annotation") {
+        datasetRotator.on("click", function (event: any) {
             // show next target
             if (toNextDataset(renderInfo, monthInfo)) {
                 // clear circles
@@ -329,6 +334,7 @@ function renderMonthHeader(
                 );
             }
         });
+    }
     chartElements["rotator"] = datasetRotator;
 
     // value monitor
