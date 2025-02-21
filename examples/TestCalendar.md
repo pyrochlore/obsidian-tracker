@@ -181,3 +181,15 @@ month:
 
 Please also check those search targets in markdown files under folder 'diary'.
 
+## Scaling
+fitPanelWidth: true
+Click forward backward months and verify it stays scaled
+``` tracker
+searchType: tag
+searchTarget: meditation
+datasetName: Meditation
+fitPanelWidth: true
+folder: diary
+endDate: 2021-01-31
+month:
+```
