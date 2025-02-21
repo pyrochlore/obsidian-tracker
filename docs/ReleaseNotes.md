@@ -1,5 +1,11 @@
 # Release Notes
 
+## 1.15.1
+
+- Fix: Added DatasetName as title for calendar in annotation mode
+- Fix: Resolve scaling issue when navigating between monthly views
+- Update dependencies
+
 ## 1.15.0
 
 - Fix: Minor spelling error in Examples.md
