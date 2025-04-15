@@ -81,7 +81,7 @@ endDate: 2021-01-31
 month:
     startWeekOn:
     threshold: 40
-    thresholdType: lessthan
+    thresholdType: LessThan
     color: green
     headerMonthColor: orange
     dimNotInMonth: false
