@@ -69,6 +69,21 @@ month:
     yMax: 50
     showSelectedValue: true
 ```
+### Colored by Streak
+Use parameter circleColorByStreak to increase color intesity with streaklength. This can also be used along with thresholdtype parameter.
+``` tracker
+searchType: tag
+searchTarget: exercise-pushup
+datasetName: PushUp
+folder: diary
+endDate: 2021-01-31
+month:
+    startWeekOn:
+    threshold: 30
+    color: red
+    dimNotInMonth: false
+    circleColorByStreak: true
+```
 
 ### Colored by Threshold and thresholdType
 Use parameters threshold and thresholdType - "LessThan" to color the circles

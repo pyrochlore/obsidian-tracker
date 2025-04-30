@@ -139,7 +139,7 @@ These key-value pairs should be placed under the key `month`.
 | `dataset` | Index of the dataset of your interest | 1~NT | all indices of non-x searchTarget |
 | `startWeekOn` | First day of a week ('Sun'\|'Mon') | 1 | 'Sun' |
 | `threshold` | Threshold to determine showing a circle on a day or not | 1~NT | 0 |
-| `thresholdType` | Pick one of the two (GreaterThan\|LessThan) | 2 | GreaterThan
+| `thresholdType` | Pick one of the two (GreaterThan\|LessThan) | 1 | GreaterThan
 | `yMin` | Minimum value | 1~NT | Minimum value of the dataset |
 | `yMax` | Maximum value | 1~NT | Maximum value of the dataset |
 | `showCircle` | Circle the day label if the collected value reach the threshold (value > `threshold`) | 1 | true |
@@ -151,6 +151,7 @@ These key-value pairs should be placed under the key `month`.
 | `showSelectedRing` | Show/hide a ring on the label of the selected day | 1 | true |
 | `circleColor` | Color of circles | 1 | '#69b3a2' |
 | `circleColorByValue` | Display circle colors based on the value | 1 | false |
+| `circleColorByStreak` | Display circle colors based on the streak length | 1 | false |
 | `headerYearColor` | Color of the year text in header | 1 | 'white' |
 | `headerMonthColor` | Color of the month text in header | 1 | 'white' |
 | `dividingLineColor` | Color of the dividing line | 1 | '#69b3a2' |

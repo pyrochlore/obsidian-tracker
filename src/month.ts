@@ -31,6 +31,7 @@ interface DayInfo {
     showCircle: boolean;
     streakIn: boolean;
     streakOut: boolean;
+    curStreakCount: number;
     annotation: string;
 }
 
@@ -394,7 +395,7 @@ function renderMonthHeader(
     let arrowRight = headerGroup
         .append("text")
         .text(">") // pivot at center
-        .attr("id", "arrowLeft")
+        .attr("id", "arrowRight")
         .attr(
             "transform",
             "translate(" +
@@ -598,6 +599,20 @@ function renderMonthDays(
     let indCol = 0;
     let indRow = 0;
     let ind = 0;
+    let curStreakCount = 0;
+    
+    let streakStartDate = startDate.clone().subtract(1, "days");
+    while(curStreakCount < 28) {
+        let curValue = dataset.getValue(streakStartDate);
+        if(curValue != null && ((thresholdType === ThresholdType.LessThan && curValue < threshold) 
+            || (thresholdType === ThresholdType.GreaterThan && curValue > threshold))) {
+            curStreakCount++;
+            streakStartDate = streakStartDate.subtract(1, "days");
+        } else {
+            break;
+        }
+    }
+    
     for (
         let curDate = startDate.clone();
         curDate <= endDate;
@@ -683,6 +698,13 @@ function renderMonthDays(
             } 
         }
 
+        if(showCircle) {
+            curStreakCount != 28? curStreakCount++: curStreakCount;
+        }
+        else {
+            curStreakCount = 0;
+        }
+       
         let streakOut = false;
         if (showCircle) {
             if (nextValue !== null && ((thresholdType === ThresholdType.LessThan && nextValue 
@@ -737,6 +759,7 @@ function renderMonthDays(
             showCircle: showCircle,
             streakIn: streakIn,
             streakOut: streakOut,
+            curStreakCount: curStreakCount,
             annotation: textAnnotation,
         });
 
@@ -796,14 +819,18 @@ function renderMonthDays(
             .attr("height", streakHeight)
             .style("fill", function (d: DayInfo) {
                 if (d.showCircle) {
-                    if (!monthInfo.circleColorByValue) {
+                    if (!(monthInfo.circleColorByValue || monthInfo.circleColorByStreak)) {
                         return streakColor;
                     }
-                    if (d.scaledValue !== null) {
+                    if (monthInfo.circleColorByValue && d.scaledValue !== null) {
                         return d3.interpolateLab(
                             "white",
                             streakColor
                         )(d.scaledValue * 0.8 + 0.2);
+                    } else if(monthInfo.circleColorByStreak && d.curStreakCount > 0){
+                        return d3.interpolateLab( "white", streakColor)(
+                            Math.log10(d.curStreakCount)/Math.log10(28) * 0.6 + 0.4
+                          );
                     } else {
                         return "none";
                     }
@@ -843,14 +870,18 @@ function renderMonthDays(
             .attr("height", streakHeight)
             .style("fill", function (d: DayInfo) {
                 if (d.showCircle) {
-                    if (!monthInfo.circleColorByValue) {
+                    if (!(monthInfo.circleColorByValue || monthInfo.circleColorByStreak)) {
                         return streakColor;
                     }
-                    if (d.scaledValue !== null) {
+                    if (monthInfo.circleColorByValue && d.scaledValue !== null) {
                         return d3.interpolateLab(
                             "white",
                             streakColor
                         )(d.scaledValue * 0.8 + 0.2);
+                    } else if(monthInfo.circleColorByStreak && d.curStreakCount > 0){
+                        return d3.interpolateLab("white", streakColor)(
+                            Math.log10(d.curStreakCount)/Math.log10(28) * 0.6 + 0.4
+                        );    
                     } else {
                         return "none";
                     }
@@ -890,17 +921,18 @@ function renderMonthDays(
             })
             .style("fill", function (d: DayInfo) {
                 if (d.showCircle) {
-                    if (!monthInfo.circleColorByValue) {
+                    if (!(monthInfo.circleColorByValue || monthInfo.circleColorByStreak)) {
                         return circleColor;
                     }
-                    if (d.scaledValue !== null) {
-                        let scaledColor = d3.interpolateLab(
+                    if (monthInfo.circleColorByValue && d.scaledValue !== null) {
+                        return d3.interpolateLab(
                             "white",
                             circleColor
-                        )(d.scaledValue * 0.8 + 0.2);
-                        // console.log(d.scaledValue);
-                        // console.log(scaledColor);
-                        return scaledColor;
+                        )(d.scaledValue * 0.8 + 0.2);  
+                    } else if(monthInfo.circleColorByStreak && d.curStreakCount > 0){
+                        return d3.interpolateLab( "white", circleColor)(
+                            Math.log10(d.curStreakCount)/Math.log10(28) * 0.6 + 0.4
+                        );
                     } else {
                         return "none";
                     }
