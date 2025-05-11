@@ -307,16 +307,18 @@ function renderXAxis(
 
     let datasets = renderInfo.datasets;
     let xDomain = d3.extent(datasets.getDates());
-    if (chartInfo instanceof BarInfo && chartInfo.xAxisPadding) {
+    if (chartInfo instanceof BarInfo && chartInfo.xAxisPadding !== null) {
         let xAxisPaddingDuration = helper.parseDurationString(
             chartInfo.xAxisPadding
         );
-        xDomain = [
-            xDomain[0].clone().subtract(xAxisPaddingDuration.asHours(), 'hours'),
-            xDomain[1].clone().add(xAxisPaddingDuration.asHours(), 'hours'),
-        ];
+        if (xAxisPaddingDuration !== null) {
+            xDomain = [
+                xDomain[0].clone().subtract(xAxisPaddingDuration.asHours(), 'hours'),
+                xDomain[1].clone().add(xAxisPaddingDuration.asHours(), 'hours'),
+            ];
+        }
     }
-    console.log(xDomain);
+    // console.log(xDomain);
     let xScale = d3
         .scaleTime()
         .domain(xDomain)
@@ -964,13 +966,8 @@ function renderBar(
         .enter()
         .append("rect")
         .attr("x", function (p: DataPoint, i: number) {
-<<<<<<< Updated upstream
-            if (i === 0) {
-                let portionVisible = currentDiaplayInd + 1 - totalDiaplaySet / 2.0;
-=======
             if (i === 0 && barInfo.xAxisPadding === null) {
-                let portionVisible = currBarSet + 1 - totalNumOfBarSets / 2.0;
->>>>>>> Stashed changes
+                let portionVisible = currentDiaplayInd + 1 - totalDiaplaySet / 2.0;
                 if (portionVisible < 1.0) {
                     return (
                         chartElements.xScale(p.date) -
@@ -990,13 +987,8 @@ function renderBar(
             return yScale(Math.max(p.value, 0));
         })
         .attr("width", function (p: DataPoint, i: number) {
-<<<<<<< Updated upstream
-            if (i === 0) {
-                let portionVisible = currentDiaplayInd + 1 - totalDiaplaySet / 2.0;
-=======
             if (i === 0 && barInfo.xAxisPadding === null) {
-                let portionVisible = currBarSet + 1 - totalNumOfBarSets / 2.0;
->>>>>>> Stashed changes
+                let portionVisible = currentDiaplayInd + 1 - totalDiaplaySet / 2.0;
                 if (portionVisible < 0.0) {
                     return 0.0;
                 } else if (portionVisible < 1.0) {

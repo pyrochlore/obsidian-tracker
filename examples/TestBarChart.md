@@ -24,7 +24,7 @@ endDate: 2021-01-31
 bar:
     title: Weight Log
     yAxisLabel: Weight
-    xAxisPadding: 0.5d
+    xAxisPadding: 12h
     yAxisUnit: kg
     yMin: 0
     barColor: brown
@@ -68,6 +68,7 @@ stack: true
 bar:
     title: Sin Square Wave (Stacked)
     yAxisLabel: Value
+    xAxisPadding: 12h
     yMin: 0
     barColor: yellow, red, green, blue, orange, black
 ```
