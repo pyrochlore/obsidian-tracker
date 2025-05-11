@@ -9,6 +9,7 @@ endDate: 2021-01-05
 bar:
     title: Weight Log
     yAxisLabel: Weight
+    xAxisPadding: 12h
     yAxisUnit: kg
     yMin: 0
     barColor: darkolivegreen
@@ -23,6 +24,7 @@ endDate: 2021-01-31
 bar:
     title: Weight Log
     yAxisLabel: Weight
+    xAxisPadding: 0.5d
     yAxisUnit: kg
     yMin: 0
     barColor: brown
@@ -37,6 +39,7 @@ endDate: 2021-01-21
 bar:
     title: Sin Wave
     yAxisLabel: Value
+    xAxisPadding: 12h
     barColor: yellow, red, green
 ```
 
@@ -49,6 +52,7 @@ endDate: 2021-01-05
 bar:
     title: Sin Square Wave
     yAxisLabel: Value
+    xAxisPadding: 12h
     yMin: 0
     barColor: yellow, red, green, blue, orange, white
 ```
