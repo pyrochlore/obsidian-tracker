@@ -791,11 +791,13 @@ export class LineInfo extends CommonChartInfo {
 export class BarInfo extends CommonChartInfo {
     barColor: string[];
     yAxisLocation: string[];
+    xAxisPadding: string;
 
     constructor() {
         super();
         this.barColor = []; // #69b3a2
         this.yAxisLocation = []; // left, for each target
+        this.xAxisPadding = null; // the string will be converted to Duration (a month is not nesscesary to 30 days)
     }
 
     public GetGraphType() {

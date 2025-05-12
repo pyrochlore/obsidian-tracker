@@ -307,6 +307,18 @@ function renderXAxis(
 
     let datasets = renderInfo.datasets;
     let xDomain = d3.extent(datasets.getDates());
+    if (chartInfo instanceof BarInfo && chartInfo.xAxisPadding !== null) {
+        let xAxisPaddingDuration = helper.parseDurationString(
+            chartInfo.xAxisPadding
+        );
+        if (xAxisPaddingDuration !== null) {
+            xDomain = [
+                xDomain[0].clone().subtract(xAxisPaddingDuration.asHours(), 'hours'),
+                xDomain[1].clone().add(xAxisPaddingDuration.asHours(), 'hours'),
+            ];
+        }
+    }
+    // console.log(xDomain);
     let xScale = d3
         .scaleTime()
         .domain(xDomain)
@@ -954,7 +966,7 @@ function renderBar(
         .enter()
         .append("rect")
         .attr("x", function (p: DataPoint, i: number) {
-            if (i === 0) {
+            if (i === 0 && barInfo.xAxisPadding === null) {
                 let portionVisible = currentDiaplayInd + 1 - totalDiaplaySet / 2.0;
                 if (portionVisible < 1.0) {
                     return (
@@ -975,7 +987,7 @@ function renderBar(
             return yScale(Math.max(p.value, 0));
         })
         .attr("width", function (p: DataPoint, i: number) {
-            if (i === 0) {
+            if (i === 0 && barInfo.xAxisPadding === null) {
                 let portionVisible = currentDiaplayInd + 1 - totalDiaplaySet / 2.0;
                 if (portionVisible < 0.0) {
                     return 0.0;
@@ -983,7 +995,7 @@ function renderBar(
                     return barWidth * portionVisible;
                 }
                 return barWidth;
-            } else if (i === dataset.getLength() - 1) {
+            } else if (i === dataset.getLength() - 1 && barInfo.xAxisPadding === null) {
                 let portionVisible =
                     1.0 - (currentDiaplayInd + 1 - totalDiaplaySet / 2.0);
                 if (portionVisible < 0.0) {

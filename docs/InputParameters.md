@@ -103,6 +103,7 @@ These key-value pairs should be placed under the key `bar`.
 | Key | Description | Number of Values | Default |
 |:--------|:-------|:-----------:|:------|
 | `barColor` | Color of bars in the chart | 1~NT | #69b3a2 |
+| `xAxisPadding` | Padding to ensure bars are fully displayed | 1~2 | null |
 | `yAxisLocation` |  Corresponding y-axis for the dataset (left\|right) | 1~NT | left |
 
 ### Parameters for a Summary
