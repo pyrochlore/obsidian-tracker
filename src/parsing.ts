@@ -16,6 +16,7 @@ import {
     Dataset,
     CustomDatasetInfo,
     AspectRatio,
+    ThresholdType
 } from "./data";
 import { TFolder, normalizePath } from "obsidian";
 import { parseYaml } from "obsidian";
@@ -1042,7 +1043,7 @@ export function getRenderInfoFromYaml(
         searchType.filter((t) => t !== SearchType.Table).length > 0
     ) {
         let errorMessage =
-            "searchType 'table' doestn't work with other types for now";
+            "searchType 'table' doesn't work with other types for now";
         return errorMessage;
     }
     // console.log(searchType);
@@ -2087,6 +2088,33 @@ export function getRenderInfoFromYaml(
             return errorMessage;
         }
         // console.log(month.threshold);
+
+        // thresholdType
+        let retThresholdType = getStringArray("thresholdType", yamlMonth?.thresholdType);
+        if (typeof retThresholdType === "string") {
+            return retThresholdType;
+        }
+        month.thresholdType = retThresholdType;
+        if (month.thresholdType.length === 0) {
+            for (let indDataset = 0; indDataset < numDataset; indDataset++) {
+                month.thresholdType.push(ThresholdType.GreaterThan);
+            }
+        }
+        if (month.thresholdType.length !== month.dataset.length) {
+            const errorMessage =
+                "The number of inputs of thresholdType and dataset not matched";
+            return errorMessage;
+        }
+        for(let ind in month.thresholdType) {
+            if(!Object.values(ThresholdType).includes(month.thresholdType[ind].toLowerCase() as ThresholdType)) {
+                const errorMessage =
+                    "thresholdType should be either 'GreaterThan' or 'LessThan'";
+                return errorMessage;
+            } else {
+                month.thresholdType[ind] = month.thresholdType[ind].toLowerCase();
+            }
+        }
+        // console.log(month.thresholdType);
 
         // yMin
         let retYMin = getNumberArray("yMin", yamlMonth?.yMin);

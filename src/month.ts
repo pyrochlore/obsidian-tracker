@@ -6,6 +6,7 @@ import {
     MonthInfo,
     Dataset,
     Size,
+    ThresholdType,
     Transform,
     ChartElements,
     GraphType,
@@ -535,7 +536,12 @@ function renderMonthDays(
     });
     if (curDatasetId < 0) curDatasetIndex = 0;
     let threshold = monthInfo.threshold[curDatasetIndex];
+    let thresholdType = monthInfo.thresholdType[curDatasetIndex];
 
+    if(logToConsole){
+        console.log(`threshold: ${threshold}, thresholdType: ${thresholdType}`);
+    }
+    
     let curMonth = curMonthDate.month(); // 0~11
     let curDaysInMonth = curMonthDate.daysInMonth(); // 28~31
 
@@ -644,8 +650,15 @@ function renderMonthDays(
             console.log(curValue);
         }
 
-        const showCircle = curValue != null && curValue > threshold;
 
+        let showCircle = curValue != null;
+
+        if(thresholdType === ThresholdType.LessThan){
+            showCircle = showCircle && (curValue < threshold);
+        } else {
+            showCircle = showCircle && (curValue > threshold);
+        }
+       
         // scaledValue
         let scaledValue = null;
         if (monthInfo.circleColorByValue) {
@@ -663,14 +676,17 @@ function renderMonthDays(
         let nextValue = dataset.getValue(curDate, 1);
         let prevValue = dataset.getValue(curDate, -1);
         let streakIn = false;
-        if (curValue !== null && curValue > threshold) {
-            if (prevValue !== null && prevValue > threshold) {
+        if (showCircle) {
+            if (prevValue !== null && ((thresholdType === ThresholdType.LessThan && prevValue
+                < threshold) || (thresholdType === ThresholdType.GreaterThan && prevValue > threshold))) {
                 streakIn = true;
-            }
+            } 
         }
+
         let streakOut = false;
-        if (curValue !== null && curValue > threshold) {
-            if (nextValue !== null && nextValue > threshold) {
+        if (showCircle) {
+            if (nextValue !== null && ((thresholdType === ThresholdType.LessThan && nextValue 
+                < threshold) ||  (thresholdType === ThresholdType.GreaterThan && nextValue > threshold))) {
                 streakOut = true;
             }
         }
@@ -685,7 +701,7 @@ function renderMonthDays(
         let textAnnotation = "";
         if (showAnnotation) {
             if (!showAnnotationOfAllTargets) {
-                if (curValue > threshold) {
+                if (showCircle) {
                     textAnnotation = curAnnotation;
                 }
             } else {
@@ -697,8 +713,11 @@ function renderMonthDays(
                         let v = renderInfo.datasets
                             .getDatasetById(datasetId)
                             .getValue(curDate);
+                        
+                        let ttype = monthInfo.thresholdType[datasetIndex];
                         let t = monthInfo.threshold[datasetIndex];
-                        if (v !== null && v > t) {
+                        if (v !== null && ((ttype === ThresholdType.LessThan && v < t) || 
+                            (ttype == ThresholdType.GreaterThan && v > t))) {
                             textAnnotation += annotations[datasetIndex];
                         }
                     }

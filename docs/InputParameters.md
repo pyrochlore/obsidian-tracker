@@ -139,6 +139,7 @@ These key-value pairs should be placed under the key `month`.
 | `dataset` | Index of the dataset of your interest | 1~NT | all indices of non-x searchTarget |
 | `startWeekOn` | First day of a week ('Sun'\|'Mon') | 1 | 'Sun' |
 | `threshold` | Threshold to determine showing a circle on a day or not | 1~NT | 0 |
+| `thresholdType` | Pick one of the two (GreaterThan\|LessThan) | 2 | GreaterThan
 | `yMin` | Minimum value | 1~NT | Minimum value of the dataset |
 | `yMax` | Maximum value | 1~NT | Maximum value of the dataset |
 | `showCircle` | Circle the day label if the collected value reach the threshold (value > `threshold`) | 1 | true |

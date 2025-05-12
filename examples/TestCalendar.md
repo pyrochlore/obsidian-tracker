@@ -70,6 +70,26 @@ month:
     showSelectedValue: true
 ```
 
+### Colored by Threshold and thresholdType
+Use parameters threshold and thresholdType - "LessThan" to color the circles
+``` tracker
+searchType: tag
+searchTarget: exercise-pushup
+datasetName: PushUp
+folder: diary
+endDate: 2021-01-31
+month:
+    startWeekOn:
+    threshold: 40
+    thresholdType: LessThan
+    color: green
+    headerMonthColor: orange
+    dimNotInMonth: false
+    todayRingColor: orange
+    selectedRingColor: steelblue
+    showSelectedValue: true
+```
+
 ### Check minDate, minValue, maxDate, maxValue
 ``` tracker
 searchType: tag

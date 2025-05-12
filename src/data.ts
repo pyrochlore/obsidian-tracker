@@ -37,6 +37,11 @@ export enum ValueType {
     String,
 }
 
+export enum ThresholdType {
+    GreaterThan = "greaterthan",
+    LessThan = "lessthan"
+}
+
 export type TextValueMap = {
     [key: string]: number;
 };
@@ -860,6 +865,7 @@ export class MonthInfo implements IGraph {
     dataset: number[];
     startWeekOn: string;
     threshold: number[];
+    thresholdType: string[];
     yMin: number[];
     yMax: number[];
     color: string;
@@ -896,6 +902,7 @@ export class MonthInfo implements IGraph {
         this.dataset = [];
         this.startWeekOn = "Sun";
         this.threshold = []; // if value > threshold, will show dot
+        this.thresholdType = []; 
         this.yMin = [];
         this.yMax = [];
         this.color = null;
