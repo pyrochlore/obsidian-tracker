@@ -1,5 +1,11 @@
 # Release Notes
 
+## 1.16.0
+
+- Adding thresholdType parameter to Calendars
+- Enable bar chart full-bar display at beginning and end
+- Update dependencies
+
 ## 1.15.1
 
 - Fix: Added DatasetName as title for calendar in annotation mode

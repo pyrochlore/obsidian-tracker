@@ -1836,6 +1836,14 @@ export function getRenderInfoFromYaml(
         bar.yAxisLocation = retYAxisLocation;
         // console.log(bar.yAxisLocation);
 
+        // xAxisPadding
+        let retXAxisPadding = getStringFromInput(
+            yamlBar?.xAxisPadding,
+            null
+        );
+        bar.xAxisPadding = retXAxisPadding;
+        // console.log(bar.xAxisPadding);
+
         renderInfo.bar.push(bar);
     } // bar related parameters
     // console.log(renderInfo.bar);
