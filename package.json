@@ -17,7 +17,7 @@
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.2",
     "@types/d3": "^7.4.3",
-    "@types/node": "^22.15.17",
+    "@types/node": "^22.15.30",
     "@types/sprintf-js": "^1.1.4",
     "obsidian": "https://github.com/obsidianmd/obsidian-api/tarball/master",
     "rollup": "^4.40.2",
