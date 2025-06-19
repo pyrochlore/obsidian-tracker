@@ -887,6 +887,7 @@ export class MonthInfo implements IGraph {
     showSelectedRing: boolean;
     circleColor: string;
     circleColorByValue: boolean;
+    circleColorByStreak: boolean;
     todayRingColor: string;
     selectedRingColor: string;
 
@@ -924,6 +925,7 @@ export class MonthInfo implements IGraph {
         this.showSelectedRing = true;
         this.circleColor = null;
         this.circleColorByValue = false;
+        this.circleColorByStreak = false;
         this.todayRingColor = ""; // white
         this.selectedRingColor = "firebrick";
 

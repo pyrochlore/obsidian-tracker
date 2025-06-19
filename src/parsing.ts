@@ -2207,6 +2207,12 @@ export function getRenderInfoFromYaml(
         }
         // console.log(month.circleColorByValue);
 
+        // circleColorByStreak
+        if (typeof yamlMonth?.circleColorByStreak === "boolean") {
+            month.circleColorByStreak = yamlMonth.circleColorByStreak;
+        }
+        //console.log(month.circleColorByStreak);
+
         // headerYearColor
         month.headerYearColor = getStringFromInput(
             yamlMonth?.headerYearColor,
