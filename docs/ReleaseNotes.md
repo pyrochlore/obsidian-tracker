@@ -1,5 +1,10 @@
 # Release Notes
 
+## 1.17.0
+
+- Adding colorByStreak parameter to Calendars allowing for increase color intensity based on streak
+- Update dependencies
+
 ## 1.16.0
 
 - Adding thresholdType parameter to Calendars
