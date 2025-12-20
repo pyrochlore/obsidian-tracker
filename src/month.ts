@@ -447,7 +447,9 @@ function renderMonthHeader(
 
     // week day names
     let weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    if (monthInfo.startWeekOn.toLowerCase() === "mon") {
+    const startDayIndex = helper.getDayIndex(monthInfo.startWeekOn);
+    // Rotate array so startWeekOn is first
+    for (let i = 0; i < startDayIndex; i++) {
         weekdayNames.push(weekdayNames.shift());
     }
     let weekdayNameSize = helper.measureTextSize(
@@ -572,17 +574,16 @@ function renderMonthDays(
 
     // Start and end
     const monthStartDate = curMonthDate.clone().startOf("month");
-    let startDate = monthStartDate
-        .clone()
-        .subtract(monthStartDate.day(), "days");
-    if (monthInfo.startWeekOn.toLowerCase() === "mon") {
-        startDate = startDate.add(1, "days");
-    }
+    const startDayIndex = helper.getDayIndex(monthInfo.startWeekOn);
+    const currentDayOfWeek = monthStartDate.day(); // 0=Sunday, 1=Monday, etc.
+    // Calculate days to subtract to get to the start of the week
+    const daysToSubtract = (currentDayOfWeek - startDayIndex + 7) % 7;
+    let startDate = monthStartDate.clone().subtract(daysToSubtract, "days");
     const monthEndDate = curMonthDate.clone().endOf("month");
-    let endDate = monthEndDate.clone().add(7 - monthEndDate.day() - 1, "days");
-    if (monthInfo.startWeekOn.toLowerCase() === "mon") {
-        endDate = endDate.add(1, "days");
-    }
+    const endDayOfWeek = monthEndDate.day();
+    // Calculate days to add to complete the week (get to Saturday of that week)
+    const daysToAdd = (6 - endDayOfWeek + startDayIndex) % 7;
+    let endDate = monthEndDate.clone().add(daysToAdd, "days");
     const dataStartDate = dataset.getStartDate();
     const dataEndDate = dataset.getEndDate();
     // console.log(monthStartDate.format("YYYY-MM-DD"));
@@ -628,16 +629,10 @@ function renderMonthDays(
             logToConsole = false; // Change this to do dubugging
         }
 
-        if (monthInfo.startWeekOn.toLowerCase() === "mon") {
-            indCol = curDate.day() - 1;
-            if (indCol < 0) {
-                indCol = 6;
-            }
-            indRow = Math.floor(ind / 7);
-        } else {
-            indCol = curDate.day(); // 0~6
-            indRow = Math.floor(ind / 7);
-        }
+        const dayOfWeek = curDate.day(); // 0=Sunday, 1=Monday, etc.
+        // Calculate column: shift by startDayIndex
+        indCol = (dayOfWeek - startDayIndex + 7) % 7;
+        indRow = Math.floor(ind / 7);
 
         // is this day in this month
         let isInThisMonth = true;

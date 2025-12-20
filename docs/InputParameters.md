@@ -138,7 +138,7 @@ These key-value pairs should be placed under the key `month`.
 |:--------|:-------|:-----------:|:------|
 | `mode` | Pick one mode of the two(circle\|annotation) | 1 | 
 | `dataset` | Index of the dataset of your interest | 1~NT | all indices of non-x searchTarget |
-| `startWeekOn` | First day of a week ('Sun'\|'Mon') | 1 | 'Sun' |
+| `startWeekOn` | First day of a week ('Sun'\|'Mon'\|'Tue'\|'Wed'\|'Thu'\|'Fri'\|'Sat' or full names like 'Sunday', 'Monday', etc.) | 1 | 'Sun' |
 | `threshold` | Threshold to determine showing a circle on a day or not | 1~NT | 0 |
 | `thresholdType` | Pick one of the two (GreaterThan\|LessThan) | 1 | GreaterThan
 | `yMin` | Minimum value | 1~NT | Minimum value of the dataset |
