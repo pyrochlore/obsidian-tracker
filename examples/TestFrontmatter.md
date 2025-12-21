@@ -65,4 +65,21 @@ month:
     initMonth: 2021-01
 ```
 
+## Track Field Existence (frontmatter.exists)
+
+Track days when a frontmatter field exists and is non-empty, regardless of the value. This is useful for habit tracking where you just need to know if something happened.
+
+``` tracker
+searchType: frontmatter.exists
+searchTarget: meditation
+datasetName: Meditation Days
+folder: diary
+startDate: 2021-01-01
+endDate: 2021-01-31
+month:
+    mode: circle
+```
+
+This will count each day where the `meditation` field exists in the frontmatter, whether it's `meditation: yes`, `meditation: completed`, `meditation: true`, or any other non-empty value.
+
 Please also check those search targets in markdown files under folder 'diary'.

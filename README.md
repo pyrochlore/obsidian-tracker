@@ -139,6 +139,27 @@ From version 1.9.0, template variables, e.g. '{{sum}}', are deprecated. Instead,
 
 For more use cases, please download and open the [examples](https://github.com/pyrochlore/obsidian-tracker/tree/master/examples) folder in obsidian with this plugin installed and enabled.
 
+## Development
+
+### Running Tests
+
+The plugin includes automated unit tests. To run them:
+
+```bash
+npm test              # Run all tests
+npm run test:watch    # Watch mode (re-runs on changes)
+npm run test:coverage # Generate coverage report
+```
+
+See [TESTING.md](TESTING.md) for detailed testing documentation.
+
+### Building
+
+```bash
+npm run build  # Build for production
+npm run dev    # Build in watch mode for development
+```
+
 ## More Details You May Want to Know
 
 - [Installation](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Installation.md): Install the plugin from Obsidian or install it manually
@@ -151,6 +172,7 @@ For more use cases, please download and open the [examples](https://github.com/p
 - [Release Notes](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/ReleaseNotes.md)
 - [Road Map](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/RoadMap.md)
 - [Frequently Asked Questions](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/Questions.md)
+- [Testing](TESTING.md): How to run and write tests
 
 ## Support
 

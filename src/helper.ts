@@ -24,7 +24,7 @@ function makeTimeFormat() {
                 if (fmtSec !== "") {
                     fmt += `:${fmtSec}`;
                 }
-                if (fmtHour.contains("h")) {
+                if (fmtHour.includes("h")) {
                     fmt += " a";
                 }
                 timeFormat.push(fmt);

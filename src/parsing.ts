@@ -44,6 +44,7 @@ function validateSearchType(searchType: string): boolean {
         searchType.toLowerCase() === "tag" ||
         searchType.toLowerCase() === "text" ||
         searchType.toLowerCase() === "frontmatter" ||
+        searchType.toLowerCase() === "frontmatter.exists" ||
         searchType.toLowerCase() === "wiki" ||
         searchType.toLowerCase() === "wiki.link" ||
         searchType.toLowerCase() === "wiki.display" ||
@@ -1001,6 +1002,9 @@ export function getRenderInfoFromYaml(
                 break;
             case "frontmatter":
                 searchType.push(SearchType.Frontmatter);
+                break;
+            case "frontmatter.exists":
+                searchType.push(SearchType.FrontmatterExists);
                 break;
             case "wiki":
                 searchType.push(SearchType.Wiki);

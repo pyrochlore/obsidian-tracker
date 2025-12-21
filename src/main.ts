@@ -261,10 +261,11 @@ export default class Tracker extends Plugin {
         el: HTMLElement,
         ctx: MarkdownPostProcessorContext
     ) {
-        // console.log("postprocess");
-        const canvas = document.createElement("div");
+        try {
+            // console.log("postprocess");
+            const canvas = document.createElement("div");
 
-        let yamlText = source.trim();
+            let yamlText = source.trim();
 
         // Replace all tabs by spaces
         let tabSize = this.app.vault.getConfig("tabSize");
@@ -315,6 +316,7 @@ export default class Tracker extends Plugin {
                 let target = q.getTarget();
                 if (
                     type === SearchType.Frontmatter ||
+                    type === SearchType.FrontmatterExists ||
                     type === SearchType.Tag ||
                     type === SearchType.Wiki ||
                     type === SearchType.WikiLink ||
@@ -510,6 +512,22 @@ export default class Tracker extends Plugin {
                     );
                     processInfo.gotAnyValidYValue ||= gotAnyValue;
                 } // console.log("Search frontmatter keys");
+
+                // console.log("Search frontmatter exists");
+        if (
+            fileCache &&
+            query.getType() === SearchType.FrontmatterExists &&
+            query.getTarget() !== "tags"
+        ) {
+            let gotAnyValue = collecting.collectDataFromFrontmatterExists(
+                fileCache,
+                query,
+                renderInfo,
+                dataMap,
+                xValueMap
+            );
+            processInfo.gotAnyValidYValue ||= gotAnyValue;
+        } // console.log("Search frontmatter exists");
 
                 // console.log("Search wiki links");
                 if (
@@ -745,6 +763,12 @@ export default class Tracker extends Plugin {
         }
 
         el.appendChild(canvas);
+        } catch (error) {
+            console.error("TRACKER: ERROR in postprocessor:", error);
+            console.error("TRACKER: Error stack:", error.stack);
+            const canvas = document.createElement("div");
+            return this.renderErrorMessage("Error: " + error.message, canvas, el);
+        }
     }
 
     // TODO: remove this.app and move to collecting.ts

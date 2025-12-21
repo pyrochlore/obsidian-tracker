@@ -6,7 +6,7 @@ This plugin was designed to read code blocks in [YAML format](https://en.wikiped
 
 ### Collecting Data
 
-Providing parameters `searchType` and `searchTarget` is the minimum requirement for a successful data collection. `searchType` can be `tag`, `frontmatter`, `wiki`, `dvField`, `table`, `fileMeta`, `task`, or `text`. Then the cooresponding `searchTarget` should be provided according to the specified type.
+Providing parameters `searchType` and `searchTarget` is the minimum requirement for a successful data collection. `searchType` can be `tag`, `frontmatter`, `frontmatter.exists`, `wiki`, `dvField`, `table`, `fileMeta`, `task`, or `text`. Then the cooresponding `searchTarget` should be provided according to the specified type.
 
 ### Target Evaluation
 
