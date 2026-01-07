@@ -128,17 +128,16 @@ function renderHeatmapDays(
     // Prepare data for graph
     let daysInHeatmapView: Array<DayInfo> = [];
     const dataStartDate = dataset.getStartDate().clone();
-    let startDate = dataStartDate
-        .clone()
-        .subtract(dataStartDate.day(), "days");
-    if (heatmapInfo.startWeekOn.toLowerCase() === "mon") {
-        startDate = startDate.add(1, "days");
-    }
+    const startDayIndex = helper.getDayIndex(heatmapInfo.startWeekOn);
+    const currentDayOfWeek = dataStartDate.day(); // 0=Sunday, 1=Monday, etc.
+    // Calculate days to subtract to get to the start of the week
+    const daysToSubtract = (currentDayOfWeek - startDayIndex + 7) % 7;
+    let startDate = dataStartDate.clone().subtract(daysToSubtract, "days");
     const dataEndDate = dataset.getEndDate().clone();
-    let endDate = dataEndDate.clone().add(7 - dataEndDate.day() - 1, "days");
-    if (heatmapInfo.startWeekOn.toLowerCase() === "mon") {
-        endDate = endDate.add(1, "days");
-    }
+    const endDayOfWeek = dataEndDate.day();
+    // Calculate days to add to complete the week (get to Saturday of that week)
+    const daysToAdd = (6 - endDayOfWeek + startDayIndex) % 7;
+    let endDate = dataEndDate.clone().add(daysToAdd, "days");
     // console.log(startDate.format("YYYY-MM-DD"));
     // console.log(endDate.format("YYYY-MM-DD"));
 
@@ -150,16 +149,10 @@ function renderHeatmapDays(
         curDate <= endDate;
         curDate.add(1, "days")
     ) {
-        if (heatmapInfo.startWeekOn.toLowerCase() === "mon") {
-            indCol = curDate.day() - 1;
-            if (indCol < 0) {
-                indCol = 6;
-            }
-            indRow = Math.floor(ind / 7);
-        } else {
-            indCol = curDate.day(); // 0~6
-            indRow = Math.floor(ind / 7);
-        }
+        const dayOfWeek = curDate.day(); // 0=Sunday, 1=Monday, etc.
+        // Calculate column: shift by startDayIndex
+        indCol = (dayOfWeek - startDayIndex + 7) % 7;
+        indRow = Math.floor(ind / 7);
 
         // curValue and scaledValue
         let curValue = dataset.getValue(curDate);

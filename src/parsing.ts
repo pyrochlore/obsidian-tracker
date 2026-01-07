@@ -2069,10 +2069,20 @@ export function getRenderInfoFromYaml(
         let numDataset = month.dataset.length;
 
         // startWeekOn
-        month.startWeekOn = getStringFromInput(
+        let startWeekOnValue = getStringFromInput(
             yamlMonth?.startWeekOn,
             month.startWeekOn
         );
+        // Validate day abbreviation - supports both abbreviations and full names
+        if (startWeekOnValue) {
+            const normalized = startWeekOnValue.toLowerCase().trim();
+            const validDays = ["sun", "sunday", "mon", "monday", "tue", "tuesday", "wed", "wednesday", "thu", "thursday", "fri", "friday", "sat", "saturday"];
+            if (!validDays.includes(normalized)) {
+                errorMessage = `Invalid startWeekOn value: "${startWeekOnValue}". Must be one of: Sun, Mon, Tue, Wed, Thu, Fri, Sat (or full day names like Sunday, Monday, etc.)`;
+                return errorMessage;
+            }
+        }
+        month.startWeekOn = startWeekOnValue;
         // console.log(month.startWeekOn);
 
         // showCircle
@@ -2309,6 +2319,22 @@ export function getRenderInfoFromYaml(
                 return errorMessage;
             }
         }
+
+        // startWeekOn
+        let heatmapStartWeekOnValue = getStringFromInput(
+            yamlHeatmap?.startWeekOn,
+            heatmap.startWeekOn
+        );
+        // Validate day abbreviation - supports both abbreviations and full names
+        if (heatmapStartWeekOnValue) {
+            const normalized = heatmapStartWeekOnValue.toLowerCase().trim();
+            const validDays = ["sun", "sunday", "mon", "monday", "tue", "tuesday", "wed", "wednesday", "thu", "thursday", "fri", "friday", "sat", "saturday"];
+            if (!validDays.includes(normalized)) {
+                errorMessage = `Invalid startWeekOn value: "${heatmapStartWeekOnValue}". Must be one of: Sun, Mon, Tue, Wed, Thu, Fri, Sat (or full day names like Sunday, Monday, etc.)`;
+                return errorMessage;
+            }
+        }
+        heatmap.startWeekOn = heatmapStartWeekOnValue;
 
         renderInfo.heatmap.push(heatmap);
     }
