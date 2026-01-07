@@ -13,7 +13,11 @@ export default {
   },
   external: ['obsidian'],
   plugins: [
-    typescript(),
+    typescript({
+      tsconfig: 'tsconfig.json',
+      rootDir: 'src',
+      outDir: 'examples/.obsidian/plugins/obsidian-tracker'
+    }),
     nodeResolve({browser: true}),
     commonjs(),
     copy({
