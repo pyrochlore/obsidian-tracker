@@ -1280,14 +1280,21 @@ export function getRenderInfoFromYaml(
 
     // startDate, endDate
     // console.log("Parsing startDate");
-    if (typeof yaml.startDate === "string") {
-        if (/^([\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)m$/.test(yaml.startDate)) {
+    // Handle both string and number types (YAML may parse numeric dates as numbers)
+    if (typeof yaml.startDate === "string" || typeof yaml.startDate === "number") {
+        let strStartDate: string;
+        if (typeof yaml.startDate === "number") {
+            strStartDate = yaml.startDate.toString();
+        } else {
+            strStartDate = yaml.startDate;
+        }
+        if (/^([\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)m$/.test(strStartDate)) {
             let errorMessage =
                 "'m' for 'minute' is too small for parameter startDate, please use 'd' for 'day' or 'M' for month";
             return errorMessage;
         }
-        let strStartDate = helper.getDateStringFromInputString(
-            yaml.startDate,
+        strStartDate = helper.getDateStringFromInputString(
+            strStartDate,
             renderInfo.dateFormatPrefix,
             renderInfo.dateFormatSuffix
         );
@@ -1322,14 +1329,21 @@ export function getRenderInfoFromYaml(
     }
 
     // console.log("Parsing endDate");
-    if (typeof yaml.endDate === "string") {
-        if (/^([\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)m$/.test(yaml.endDate)) {
+    // Handle both string and number types (YAML may parse numeric dates as numbers)
+    if (typeof yaml.endDate === "string" || typeof yaml.endDate === "number") {
+        let strEndDate: string;
+        if (typeof yaml.endDate === "number") {
+            strEndDate = yaml.endDate.toString();
+        } else {
+            strEndDate = yaml.endDate;
+        }
+        if (/^([\-]?[0-9]+[\.][0-9]+|[\-]?[0-9]+)m$/.test(strEndDate)) {
             let errorMessage =
                 "'m' for 'minute' is too small for parameter endDate, please use 'd' for 'day' or 'M' for month";
             return errorMessage;
         }
-        let strEndDate = helper.getDateStringFromInputString(
-            yaml.endDate,
+        strEndDate = helper.getDateStringFromInputString(
+            strEndDate,
             renderInfo.dateFormatPrefix,
             renderInfo.dateFormatSuffix
         );
