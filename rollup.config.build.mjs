@@ -13,7 +13,15 @@ export default {
   },
   external: ['obsidian'],
   plugins: [
-    typescript(),
+    typescript({
+        // Added these lines to fix a rollup error: "Path of Typescript compiler option 'outDir' must be located inside Rollup 'dir' option."
+      tsconfig: 'tsconfig.json',
+      rootDir: 'src',
+        // outDir must be a subdirectory of Rollup's output.dir ('.') to satisfy @rollup/plugin-typescript's validation. 
+        // 'dist' is a placeholder, since TypeScript doesn't emit files here. Rollup handles all output.
+        // (there might be more elegant ways to deal with this - just not quite sure how.)
+      outDir: 'dist'
+    }),
     nodeResolve({browser: true}),
     commonjs(),
     terser()
