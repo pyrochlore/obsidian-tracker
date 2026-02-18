@@ -315,6 +315,7 @@ export default class Tracker extends Plugin {
                 let target = q.getTarget();
                 if (
                     type === SearchType.Frontmatter ||
+                    type === SearchType.FrontmatterList ||  // new
                     type === SearchType.Tag ||
                     type === SearchType.Wiki ||
                     type === SearchType.WikiLink ||
@@ -494,6 +495,18 @@ export default class Tracker extends Plugin {
                     );
                     processInfo.gotAnyValidYValue ||= gotAnyValue;
                 } // Search frontmatter tags
+
+                // Search frontmatter list membership
+                if (fileCache && query.getType() === SearchType.FrontmatterList) {
+                    let gotAnyValue = collecting.collectDataFromFrontmatterList(
+                        fileCache,
+                        query,
+                        renderInfo,
+                        dataMap,
+                        xValueMap
+                    );
+                    processInfo.gotAnyValidYValue ||= gotAnyValue;
+                }
 
                 // console.log("Search frontmatter keys");
                 if (
