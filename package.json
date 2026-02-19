@@ -12,18 +12,18 @@
   "author": "pyrochlore",
   "license": "MIT",
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^28.0.5",
-    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-commonjs": "^29.0.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^12.1.2",
+    "@rollup/plugin-typescript": "^12.3.0",
     "@types/d3": "^7.4.3",
-    "@types/node": "^24.0.3",
+    "@types/node": "^25.3.0",
     "@types/sprintf-js": "^1.1.4",
     "obsidian": "https://github.com/obsidianmd/obsidian-api/tarball/master",
-    "rollup": "^4.44.0",
+    "rollup": "^4.57.1",
     "rollup-plugin-copy": "^3.5.0",
     "tslib": "^2.8.1",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.3"
   },
   "dependencies": {
     "d3": "^7.9.0",
