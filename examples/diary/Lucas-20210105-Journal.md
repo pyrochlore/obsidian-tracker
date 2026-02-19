@@ -2,6 +2,7 @@
 tags: work_log
 mood: 1
 bloodpressure: 177/119
+meditation: true
 ---
 
 #weight:70.0kg

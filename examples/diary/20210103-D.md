@@ -2,6 +2,7 @@
 tags: 
 mood: 7
 bloodpressure: 178.2/119.4
+meditation: true
 ---
 
 #weight:74.9kg
