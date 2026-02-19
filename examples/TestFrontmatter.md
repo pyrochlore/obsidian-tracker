@@ -36,7 +36,7 @@ line:
 ```
 
 ## Multiple Tags in Front Matter
-Extract data of one tag from multiple tags
+Extract data of one tag from multiple tags.
 The default separator in front matter tags is comma (,)
 ``` tracker
 searchType: tag
@@ -54,7 +54,7 @@ line:
     pointBorderColor: "#d65d0e"
 ```
 
-Use the data of two tags
+Use the data of two tags.
 The default separator in front matter tags is comma (,)
 ``` tracker
 searchType: tag
@@ -66,3 +66,6 @@ month:
 ```
 
 Please also check those search targets in markdown files under folder 'diary'.
+
+
+Note about multiple values: When extracting one value from a list of multiple values in frontmatter fields besides tags, please refer to TestFrontmatterList.md.

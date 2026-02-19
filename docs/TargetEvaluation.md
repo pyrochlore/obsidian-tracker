@@ -1,6 +1,6 @@
 # Target Evaluation
 
-From the [input parameters](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/InputParameters.md) you provided, the search targets dispersed in the notes will be counted or evaluated as a value. Tracker plugin supports eight kinds of `searchType`: `tag`, `frontmatter`, `wiki`, `text`, `table`, `dvField`, `task`, and `fileMeta`, dealing with different types of searching condition.
+From the [input parameters](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/InputParameters.md) you provided, the search targets dispersed in the notes will be counted or evaluated as a value. Tracker plugin supports nine kinds of `searchType`: `tag`, `frontmatter`, `frontmatterlist`, `wiki`, `text`, `table`, `dvField`, `task`, and `fileMeta`, dealing with different types of searching condition.
 
 ## Multiple Targets
 You can provide multiple search targets in code block by entering an array of targets separated by a comma under parameter `searchType` and `searchTarget`. Each of the targets will be identified in order and then the  values in notes will be evaluated and form a dataset indexed by that order in the array (zero-based indexing).
@@ -20,6 +20,8 @@ Many other parameters that accept multiple values (e.g. lineColor) can also be p
 ## Multiple Values
 
 Multiple values under a target (value tuple) separated by a slash, e.g. #bloodpressure:180/120mmHg, are supported after version 1.3.0. To identify a specific value as a target, use an accessor with bracket notation where the value in the bracket is the index by the order of values. In this case, they are bloodpressure[0] and bloodpressure[1]. You can find the example of this [here](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/BloodPressureTracker.md). You can also use a custom separator by using the parameter `separator`.
+
+**Note**: the bracket notation used with searchType: frontmatterlist (e.g. habits[yoga]) uses the same bracket syntax but serves a different purpose. It specifies a string value to match against a list, rather than a numeric index into a tuple. The two are not interchangeable.
 
 ## Search Target in Detail
 
@@ -50,6 +52,42 @@ This search type is used to query the key-value pairs in the front matter. If yo
 mood: 10<br>
 ......<br>
 \-\-\-<br>
+
+### searchType: frontmatterlist
+This option is for vaultkeepers who want to use the same custom YAML property to track multiple targets. It is useful for tracking habits or categories recorded as a list in front matter fields *other* than tags.
+
+This search type checks whether a specific value is present in a frontmatter key that holds a list.  Ex:
+```
+habits: [habitA, habitB, habitC]
+```
+
+When specifying a searchTarget, use the key name followed by the member value in bracket notation:
+```
+searchType: frontmatterlist
+searchTarget: habits[spanish]
+```
+When the member value is present in the list, it will be evaluated as a constant value (default 1.0). When it is absent, the day will have no value. This is ideal for counting occurances. 
+
+#### Formatting property values in frontmatter
+
+Like tags, values stored in frontmatter lists are **case insensitive**. (ex: `piano` and `Piano` should be treated the same.)
+
+**Single-line lists** can optionally be surrounded by square brackets, but it's not required. Any of the following will work in frontmatter and evaluate without issue:
+- `habits: `
+- `habits: []`
+- `habits: spanish`
+- `habits: [spanish]`
+- `habits: yoga, spanish, piano`
+- `habits: [yoga, spanish, piano]`
+
+**Multi-line lists** are also allowed, ex:
+```
+habits:
+ - yoga
+ - spanish
+ - piano
+```
+
 
 ### searchType: wiki
 This search type helps you count wiki links in articles. For example,

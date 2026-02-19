@@ -494,6 +494,53 @@ export function collectDataFromFrontmatterTag(
     return false;
 }
 
+// In form 'key[memberValue]', checks membership in a frontmatter list
+export function collectDataFromFrontmatterList(
+    fileCache: CachedMetadata,
+    query: Query,
+    renderInfo: RenderInfo,
+    dataMap: DataMap,
+    xValueMap: XValueMap
+): boolean {
+    let frontMatter = fileCache.frontmatter;
+    if (!frontMatter) return false;
+
+    // Parse searchTarget in the form "key[memberValue]"
+    let match = query.getTarget().match(/^(.+)\[(.+)\]$/);
+    if (!match) return false;
+
+    let listKey = match[1].trim();
+    let memberValue = match[2].trim().toLowerCase();
+
+    let rawValue = helper.deepValue(frontMatter, listKey);
+    if (rawValue == null) return false;
+
+    // Normalize to array of strings
+    let listValues: string[] = [];
+    if (Array.isArray(rawValue)) {
+        listValues = rawValue
+            .filter((v) => v != null)
+            .map((v) => String(v).trim())
+            .filter((v) => v !== "");
+    } else if (typeof rawValue === "string") {
+        listValues = rawValue
+            .split(query.getSeparator(true))
+            .map((s) => s.trim())
+            .filter((s) => s !== "");
+    } else {
+        return false;
+    }
+
+    if (listValues.some((v) => v.toLowerCase() === memberValue)) {
+        query.addNumTargets();
+        let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
+        addToDataMap(dataMap, xValue, query, renderInfo.constValue[query.getId()]);
+        return true;
+    }
+
+    return false;
+}
+
 // In form 'key: value', target used to identify 'frontmatter key'
 export function collectDataFromFrontmatterKey(
     fileCache: CachedMetadata,
