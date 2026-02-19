@@ -1,5 +1,12 @@
 # Release Notes
 
+## 1.18.0
+
+- Support all days for startWeekOn parameter
+- Handle numeric YAML parsing for startDate/endDate with YYYYMMDD format
+- Add searchType for frontmatter keys containing lists
+- Update dependencies
+
 ## 1.17.0
 
 - Adding colorByStreak parameter to Calendars allowing for increase color intensity based on streak
