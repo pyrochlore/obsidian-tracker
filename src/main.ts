@@ -305,6 +305,11 @@ export default class Tracker extends Plugin {
         let dataMap: DataMap = new Map(); // {strDate: [query: value, ...]}
         let processInfo = new CollectingProcessInfo();
         processInfo.fileTotal = files.length;
+        
+        // Store dates in local variables to ensure they're captured correctly in async closures
+        // This fixes the issue where dates become null inside async functions
+        const startDate = renderInfo.startDate ? renderInfo.startDate.clone() : null;
+        const endDate = renderInfo.endDate ? renderInfo.endDate.clone() : null;
 
         // Collect data from files, each file has one data point for each query
         const loopFilePromises = files.map(async (file) => {
@@ -317,6 +322,7 @@ export default class Tracker extends Plugin {
                 if (
                     type === SearchType.Frontmatter ||
                     type === SearchType.FrontmatterExists ||
+                    type === SearchType.FrontmatterList ||
                     type === SearchType.Tag ||
                     type === SearchType.Wiki ||
                     type === SearchType.WikiLink ||
@@ -429,15 +435,19 @@ export default class Tracker extends Plugin {
                         skipThisFile = true;
                         processInfo.fileNotInFormat++;
                     } else {
-                        // console.log("file " + file.basename + " accepted");
-                        if (renderInfo.startDate !== null) {
-                            if (xDate < renderInfo.startDate) {
+                        // Date filtering: only include files within the specified date range
+                        // Use isBefore/isAfter with 'day' granularity for clear, readable date comparisons
+                        // Use local variables (startDate/endDate) captured before async loop to avoid closure issues
+                        if (startDate !== null && startDate.isValid()) {
+                            // Skip files with dates before the start date
+                            if (xDate.isBefore(startDate, 'day')) {
                                 skipThisFile = true;
                                 processInfo.fileOutOfDateRange++;
                             }
                         }
-                        if (renderInfo.endDate !== null) {
-                            if (xDate > renderInfo.endDate) {
+                        if (endDate !== null && endDate.isValid()) {
+                            // Skip files with dates after the end date
+                            if (xDate.isAfter(endDate, 'day')) {
                                 skipThisFile = true;
                                 processInfo.fileOutOfDateRange++;
                             }
@@ -467,7 +477,9 @@ export default class Tracker extends Plugin {
                     }
                 }
             }
-            if (skipThisFile) return;
+            if (skipThisFile) {
+                return;
+            }
             // console.log(xValueMap);
             // console.log(`minDate: ${minDate}`);
             // console.log(`maxDate: ${maxDate}`);
@@ -496,6 +508,18 @@ export default class Tracker extends Plugin {
                     );
                     processInfo.gotAnyValidYValue ||= gotAnyValue;
                 } // Search frontmatter tags
+
+                // Search frontmatter list membership
+                if (fileCache && query.getType() === SearchType.FrontmatterList) {
+                    let gotAnyValue = collecting.collectDataFromFrontmatterList(
+                        fileCache,
+                        query,
+                        renderInfo,
+                        dataMap,
+                        xValueMap
+                    );
+                    processInfo.gotAnyValidYValue ||= gotAnyValue;
+                }
 
                 // console.log("Search frontmatter keys");
                 if (

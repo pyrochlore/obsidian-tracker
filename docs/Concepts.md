@@ -6,11 +6,11 @@ This plugin was designed to read code blocks in [YAML format](https://en.wikiped
 
 ### Collecting Data
 
-Providing parameters `searchType` and `searchTarget` is the minimum requirement for a successful data collection. `searchType` can be `tag`, `frontmatter`, `frontmatter.exists`, `wiki`, `dvField`, `table`, `fileMeta`, `task`, or `text`. Then the cooresponding `searchTarget` should be provided according to the specified type.
+Providing parameters `searchType` and `searchTarget` is the minimum requirement for a successful data collection. `searchType` can be `tag`, `frontmatter`, `frontmatter.exists`, `frontmatterlist`, `wiki`, `dvField`, `table`, `fileMeta`, `task`, or `text`. Then the cooresponding `searchTarget` should be provided according to the specified type.
 
 ### Target Evaluation
 
-Depends on the `searchType` and the `searchTarget` you provided, the evaluation of a target would be different. Simply speaking, you can track the occurrences of a target or the value attached/embedded in it.
+Depending on the `searchType` and the `searchTarget` you provided, the evaluation of a target would be different. Simply speaking, you can track the occurrences of a target or the value attached/embedded in it.
 
 To see the detail about the target evaluation, please check the document [Target Evaluation](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md).
 

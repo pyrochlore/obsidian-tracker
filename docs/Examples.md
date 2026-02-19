@@ -35,6 +35,7 @@ Check where (Location) and what (Target to Track) is your target and find the se
 | content | - [x] Say love<br>- [ ] Say love | searchType:task<br>searchTarget: Say love | O |
 | content | - [x] Say love | searchType:task.done<br>searchTarget: Say love | O |
 | content | - [ ] Say love | searchType: task.notdone<br>searchTarget: Say love | O |
+| frontmatter | habits: spanish, piano, yoga<br>([more examples](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md#Formatting-property-values-in-frontmatter))| searchType: frontmatterlist<br>searchTarget: habits[spanish] | O |
 
 ## Full examples
 
@@ -54,6 +55,7 @@ List of all examples
 - [Dataview Inline Field](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestDvField.md)
 - [Expression](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestExpression.md)
 - [File Meta](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestFileMeta.md)
+- [Frontmatter Lists](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestFrontmatterList.md) (New!)
 - [Legends](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestLegends.md)
 - [Multiple Targets / Multiple Values](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestMultipleTargetsMultipleValues.md)
 - [Pie Chart](https://github.com/pyrochlore/obsidian-tracker/blob/master/examples/TestPieChart.md)

@@ -1,16 +1,11 @@
-/**
- * Jest setup file
- * Runs before each test file
- */
+// Jest setup file
+// This runs before each test file
 
-// Mock global objects that Obsidian uses
-global.window = {
-    moment: require('moment'),
-} as any;
+// Ensure window.moment is available globally
+import moment from 'moment';
 
-// Mock console methods if needed (optional)
-// global.console = {
-//     ...console,
-//     error: jest.fn(),
-//     log: jest.fn(),
-// };
+if (typeof (global as any).window === 'undefined') {
+    (global as any).window = {};
+}
+
+(global as any).window.moment = moment;

@@ -13,7 +13,7 @@ The `startWeekOn` parameter now accepts any day of the week:
 
 ```tracker
 searchType: tag
-searchTarget: test
+searchTarget: meditation
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
@@ -26,7 +26,7 @@ month:
 
 ```tracker
 searchType: tag
-searchTarget: test
+searchTarget: meditation
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
@@ -39,7 +39,7 @@ month:
 
 ```tracker
 searchType: tag
-searchTarget: test
+searchTarget: meditation
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
@@ -52,7 +52,7 @@ month:
 
 ```tracker
 searchType: tag
-searchTarget: test
+searchTarget: meditation
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
@@ -65,7 +65,7 @@ month:
 
 ```tracker
 searchType: tag
-searchTarget: test
+searchTarget: meditation
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
@@ -78,7 +78,7 @@ month:
 
 ```tracker
 searchType: tag
-searchTarget: test
+searchTarget: meditation
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
@@ -91,7 +91,7 @@ month:
 
 ```tracker
 searchType: tag
-searchTarget: test
+searchTarget: meditation
 folder: diary
 startDate: 2021-01-01
 endDate: 2021-01-31
