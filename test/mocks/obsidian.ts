@@ -52,31 +52,31 @@ export function parseYaml(yamlText: string): any {
     const result: any = {};
     const lines = yamlText.split('\n');
     const stack: Array<{ obj: any; indent: number }> = [{ obj: result, indent: -1 }];
-    
+
     for (const line of lines) {
         const trimmed = line.trim();
         if (!trimmed || trimmed.startsWith('#')) continue;
-        
+
         // Calculate indentation (spaces before first non-space char)
         const indent = line.length - line.trimStart().length;
-        
+
         // Pop stack until we find the parent at this indentation level
         while (stack.length > 1 && stack[stack.length - 1].indent >= indent) {
             stack.pop();
         }
-        
+
         const colonIndex = trimmed.indexOf(':');
         if (colonIndex === -1) continue;
-        
+
         const key = trimmed.substring(0, colonIndex).trim();
         let value: any = trimmed.substring(colonIndex + 1).trim();
-        
+
         // Remove quotes if present
         if ((value.startsWith('"') && value.endsWith('"')) ||
             (value.startsWith("'") && value.endsWith("'"))) {
             value = value.slice(1, -1);
         }
-        
+
         // If value is empty, it's likely a nested object
         const currentObj = stack[stack.length - 1].obj;
         if (value === '') {
@@ -88,6 +88,6 @@ export function parseYaml(yamlText: string): any {
             currentObj[key] = value;
         }
     }
-    
+
     return result;
 }

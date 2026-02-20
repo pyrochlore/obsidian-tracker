@@ -494,6 +494,44 @@ export function collectDataFromFrontmatterTag(
     return false;
 }
 
+// Track existence of frontmatter field (any non-empty value counts as 1.0)
+export function collectDataFromFrontmatterExists(
+    fileCache: CachedMetadata,
+    query: Query,
+    renderInfo: RenderInfo,
+    dataMap: DataMap,
+    xValueMap: XValueMap
+): boolean {
+    let frontMatter = fileCache.frontmatter;
+    if (frontMatter) {
+        let deepValue = helper.deepValue(frontMatter, query.getTarget());
+        // Check if field exists and is non-empty
+        if (deepValue !== null && deepValue !== undefined) {
+            // Handle different value types
+            let hasValue = false;
+            if (typeof deepValue === "string") {
+                hasValue = deepValue.trim() !== "";
+            } else if (Array.isArray(deepValue)) {
+                hasValue = deepValue.length > 0;
+            } else {
+                // Number, boolean, or other - deepValue converts these to strings
+                hasValue = true;
+            }
+
+            if (hasValue) {
+                // Field exists and has a value, use constValue (default 1.0)
+                query.addNumTargets();
+                let xValue = xValueMap.get(renderInfo.xDataset[query.getId()]);
+                // Note: xValue can be undefined if xDataset wasn't set up, but addToDataMap should handle it
+                // Other functions don't check for undefined, so we'll follow the same pattern
+                addToDataMap(dataMap, xValue, query, renderInfo.constValue[query.getId()]);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 // In form 'key[memberValue]', checks membership in a frontmatter list
 export function collectDataFromFrontmatterList(
     fileCache: CachedMetadata,

@@ -1,6 +1,6 @@
 # Target Evaluation
 
-From the [input parameters](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/InputParameters.md) you provided, the search targets dispersed in the notes will be counted or evaluated as a value. Tracker plugin supports nine kinds of `searchType`: `tag`, `frontmatter`, `frontmatterlist`, `wiki`, `text`, `table`, `dvField`, `task`, and `fileMeta`, dealing with different types of searching condition.
+From the [input parameters](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/InputParameters.md) you provided, the search targets dispersed in the notes will be counted or evaluated as a value. Tracker plugin supports multiple kinds of `searchType`: `tag`, `frontmatter`, `frontmatter.exists`, `frontmatterlist`, `wiki`, `text`, `table`, `dvField`, `task`, and `fileMeta`, dealing with different types of searching condition.
 
 ## Multiple Targets
 You can provide multiple search targets in code block by entering an array of targets separated by a comma under parameter `searchType` and `searchTarget`. Each of the targets will be identified in order and then the  values in notes will be evaluated and form a dataset indexed by that order in the array (zero-based indexing).
@@ -53,6 +53,17 @@ mood: 10<br>
 ......<br>
 \-\-\-<br>
 
+### searchType: frontmatter.exists
+
+This search type tracks days when a frontmatter field exists and is non-empty. Unlike `frontmatter`, which tries to parse the value as a number, `frontmatter.exists` simply checks if the field has any value (text, number, boolean, etc.) and counts it as 1 (or the value specified by `constValue`). This is useful for tracking habits or events where you just need to know if something happened, regardless of the value.
+
+For example, if you have a frontmatter field `meditation: "yes"` or `meditation: "completed"`, using `searchType: frontmatter.exists` with `searchTarget: meditation` will count each day where the field exists and is not empty.
+
+\-\-\-<br>
+meditation: yes<br>
+......<br>
+\-\-\-<br>
+
 ### searchType: frontmatterlist
 This option is for vaultkeepers who want to use the same custom YAML property to track multiple targets. It is useful for tracking habits or categories recorded as a list in front matter fields *other* than tags.
 
@@ -66,7 +77,7 @@ When specifying a searchTarget, use the key name followed by the member value in
 searchType: frontmatterlist
 searchTarget: habits[spanish]
 ```
-When the member value is present in the list, it will be evaluated as a constant value (default 1.0). When it is absent, the day will have no value. This is ideal for counting occurances. 
+When the member value is present in the list, it will be evaluated as a constant value (default 1.0). When it is absent, the day will have no value. This is ideal for counting occurances.
 
 #### Formatting property values in frontmatter
 
@@ -87,7 +98,6 @@ habits:
  - spanish
  - piano
 ```
-
 
 ### searchType: wiki
 This search type helps you count wiki links in articles. For example,

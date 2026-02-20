@@ -18,7 +18,7 @@ These key-value pairs are placed under the root of the code block.
 
 | Key | Description | Number of Values | Default |
 |:--------|:-------|:-----------:|:------|
-| `searchType` | Type of `searchTarget` (tag\|frontmatter\|wiki\|text\|dvField\|table\|fileMeta\|task) | 1~NT | Must be provided |
+| `searchType` | Type of `searchTarget` (tag\|frontmatter\|frontmatter.exists\|wiki\|text\|dvField\|table\|fileMeta\|task) | 1~NT | Must be provided |
 | `searchTarget` | Target to search<br>[[detail](https://github.com/pyrochlore/obsidian-tracker/blob/master/docs/TargetEvaluation.md)] | NT (Number of Targets) | Must be provided |
 | `folder` | Root path containing notes to search | 1 | Root of this vault |
 | `file` | Files to include for searching | N | null |

@@ -320,7 +320,8 @@ export default class Tracker extends Plugin {
                 let target = q.getTarget();
                 if (
                     type === SearchType.Frontmatter ||
-                    type === SearchType.FrontmatterList ||  // new
+                    type === SearchType.FrontmatterExists ||
+                    type === SearchType.FrontmatterList ||
                     type === SearchType.Tag ||
                     type === SearchType.Wiki ||
                     type === SearchType.WikiLink ||
@@ -534,6 +535,22 @@ export default class Tracker extends Plugin {
                     );
                     processInfo.gotAnyValidYValue ||= gotAnyValue;
                 } // console.log("Search frontmatter keys");
+
+                // console.log("Search frontmatter exists");
+                if (
+                    fileCache &&
+                    query.getType() === SearchType.FrontmatterExists &&
+                    query.getTarget() !== "tags"
+                ) {
+                    let gotAnyValue = collecting.collectDataFromFrontmatterExists(
+                        fileCache,
+                        query,
+                        renderInfo,
+                        dataMap,
+                        xValueMap
+                    );
+                    processInfo.gotAnyValidYValue ||= gotAnyValue;
+                } // console.log("Search frontmatter exists");
 
                 // console.log("Search wiki links");
                 if (

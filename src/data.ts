@@ -3,7 +3,8 @@ import { Moment } from "moment";
 export enum SearchType {
     Tag,
     Frontmatter,
-    FrontmatterList, // new :) 
+    FrontmatterExists,
+    FrontmatterList, // new :)
     Wiki,
     WikiLink,
     WikiDisplay,
