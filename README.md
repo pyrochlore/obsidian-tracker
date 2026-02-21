@@ -10,6 +10,10 @@ This is an [Obsidian](https://obsidian.md/) plugin that helps you collect data f
 
 ## What's New
 
+Version 1.19.0
+
+- Add `searchType: frontmatter.exists` for tracking field existence
+
 Version 1.18.0
 
 - Support all days for startWeekOn parameter

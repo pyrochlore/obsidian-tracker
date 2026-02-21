@@ -1,5 +1,9 @@
 # Release Notes
 
+## 1.19.0
+
+- Add `searchType: frontmatter.exists` for tracking field existence
+
 ## 1.18.0
 
 - Support all days for startWeekOn parameter
