@@ -25,7 +25,7 @@
     "@types/sprintf-js": "^1.1.4",
     "jest": "^29.7.0",
     "obsidian": "https://github.com/obsidianmd/obsidian-api/tarball/master",
-    "rollup": "^4.57.1",
+    "rollup": "^4.59.0",
     "rollup-plugin-copy": "^3.5.0",
     "ts-jest": "^29.4.6",
     "tslib": "^2.8.1",
