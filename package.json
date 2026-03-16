@@ -23,7 +23,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^25.3.3",
     "@types/sprintf-js": "^1.1.4",
-    "jest": "^30.2.0",
+    "jest": "^30.3.0",
     "obsidian": "https://github.com/obsidianmd/obsidian-api/tarball/master",
     "rollup": "^4.59.0",
     "rollup-plugin-copy": "^3.5.0",
